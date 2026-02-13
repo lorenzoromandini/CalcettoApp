@@ -144,85 +144,128 @@
 
 ## Traceability
 
+### Phase 1: Foundation & Auth (14 requirements)
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
-| AUTH-06 | Phase 1 | Pending |
-| TEAM-01 | Phase 2 | Pending |
-| TEAM-02 | Phase 2 | Pending |
-| TEAM-03 | Phase 2 | Pending |
-| TEAM-04 | Phase 2 | Pending |
-| TEAM-05 | Phase 2 | Pending |
-| TEAM-06 | Phase 2 | Pending |
-| TEAM-07 | Phase 2 | Pending |
-| TEAM-08 | Phase 2 | Pending |
-| TEAM-09 | Phase 2 | Pending |
-| TEAM-10 | Phase 2 | Pending |
-| MATCH-01 | Phase 3 | Pending |
-| MATCH-02 | Phase 3 | Pending |
-| MATCH-03 | Phase 3 | Pending |
-| MATCH-04 | Phase 3 | Pending |
-| MATCH-05 | Phase 3 | Pending |
-| MATCH-06 | Phase 3 | Pending |
-| MATCH-07 | Phase 3 | Pending |
-| MATCH-08 | Phase 3 | Pending |
-| MATCH-09 | Phase 3 | Pending |
-| MATCH-10 | Phase 3 | Pending |
-| LIVE-01 | Phase 4 | Pending |
-| LIVE-02 | Phase 4 | Pending |
-| LIVE-03 | Phase 4 | Pending |
-| LIVE-04 | Phase 4 | Pending |
-| LIVE-05 | Phase 4 | Pending |
-| LIVE-06 | Phase 4 | Pending |
-| LIVE-07 | Phase 4 | Pending |
-| LIVE-08 | Phase 4 | Pending |
-| STAT-01 | Phase 5 | Pending |
-| STAT-02 | Phase 5 | Pending |
-| STAT-03 | Phase 5 | Pending |
-| STAT-04 | Phase 5 | Pending |
-| STAT-05 | Phase 5 | Pending |
-| STAT-06 | Phase 5 | Pending |
-| STAT-07 | Phase 5 | Pending |
-| STAT-08 | Phase 5 | Pending |
-| RATE-01 | Phase 6 | Pending |
-| RATE-02 | Phase 6 | Pending |
-| RATE-03 | Phase 6 | Pending |
-| RATE-04 | Phase 6 | Pending |
-| RATE-05 | Phase 6 | Pending |
-| RATE-06 | Phase 6 | Pending |
-| DASH-01 | Phase 7 | Pending |
-| DASH-02 | Phase 7 | Pending |
-| DASH-03 | Phase 7 | Pending |
-| DASH-04 | Phase 7 | Pending |
-| DASH-05 | Phase 7 | Pending |
-| DASH-06 | Phase 7 | Pending |
-| DASH-07 | Phase 7 | Pending |
-| DASH-08 | Phase 7 | Pending |
-| SOCL-01 | Phase 8 | Pending |
-| SOCL-02 | Phase 8 | Pending |
-| SOCL-03 | Phase 8 | Pending |
-| SOCL-04 | Phase 8 | Pending |
-| OFFL-01 | Phase 1 | Pending |
-| OFFL-02 | Phase 1 | Pending |
-| OFFL-03 | Phase 1 | Pending |
-| OFFL-04 | Phase 1 | Pending |
-| OFFL-05 | Phase 1 | Pending |
-| UIUX-01 | All | Pending |
-| UIUX-02 | All | Pending |
-| UIUX-03 | Phase 1 | Pending |
-| UIUX-04 | Phase 1 | Pending |
-| UIUX-05 | Phase 1 | Pending |
-| UIUX-06 | All | Pending |
-| UIUX-07 | Phase 5 | Pending |
+| AUTH-01 | Phase 1 | 🔴 Not Started |
+| AUTH-02 | Phase 1 | 🔴 Not Started |
+| AUTH-03 | Phase 1 | 🔴 Not Started |
+| AUTH-04 | Phase 1 | 🔴 Not Started |
+| AUTH-05 | Phase 1 | 🔴 Not Started |
+| AUTH-06 | Phase 1 | 🔴 Not Started |
+| OFFL-01 | Phase 1 | 🔴 Not Started |
+| OFFL-02 | Phase 1 | 🔴 Not Started |
+| OFFL-03 | Phase 1 | 🔴 Not Started |
+| OFFL-04 | Phase 1 | 🔴 Not Started |
+| OFFL-05 | Phase 1 | 🔴 Not Started |
+| UIUX-03 | Phase 1 | 🔴 Not Started |
+| UIUX-04 | Phase 1 | 🔴 Not Started |
+| UIUX-05 | Phase 1 | 🔴 Not Started |
 
-**Coverage:**
+### Phase 2: Team Management (10 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TEAM-01 | Phase 2 | 🔴 Not Started |
+| TEAM-02 | Phase 2 | 🔴 Not Started |
+| TEAM-03 | Phase 2 | 🔴 Not Started |
+| TEAM-04 | Phase 2 | 🔴 Not Started |
+| TEAM-05 | Phase 2 | 🔴 Not Started |
+| TEAM-06 | Phase 2 | 🔴 Not Started |
+| TEAM-07 | Phase 2 | 🔴 Not Started |
+| TEAM-08 | Phase 2 | 🔴 Not Started |
+| TEAM-09 | Phase 2 | 🔴 Not Started |
+| TEAM-10 | Phase 2 | 🔴 Not Started |
+
+### Phase 3: Match Management (10 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| MATCH-01 | Phase 3 | 🔴 Not Started |
+| MATCH-02 | Phase 3 | 🔴 Not Started |
+| MATCH-03 | Phase 3 | 🔴 Not Started |
+| MATCH-04 | Phase 3 | 🔴 Not Started |
+| MATCH-05 | Phase 3 | 🔴 Not Started |
+| MATCH-06 | Phase 3 | 🔴 Not Started |
+| MATCH-07 | Phase 3 | 🔴 Not Started |
+| MATCH-08 | Phase 3 | 🔴 Not Started |
+| MATCH-09 | Phase 3 | 🔴 Not Started |
+| MATCH-10 | Phase 3 | 🔴 Not Started |
+
+### Phase 4: Live Match Experience (8 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| LIVE-01 | Phase 4 | 🔴 Not Started |
+| LIVE-02 | Phase 4 | 🔴 Not Started |
+| LIVE-03 | Phase 4 | 🔴 Not Started |
+| LIVE-04 | Phase 4 | 🔴 Not Started |
+| LIVE-05 | Phase 4 | 🔴 Not Started |
+| LIVE-06 | Phase 4 | 🔴 Not Started |
+| LIVE-07 | Phase 4 | 🔴 Not Started |
+| LIVE-08 | Phase 4 | 🔴 Not Started |
+
+### Phase 5: Post-Match Statistics (9 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| STAT-01 | Phase 5 | 🔴 Not Started |
+| STAT-02 | Phase 5 | 🔴 Not Started |
+| STAT-03 | Phase 5 | 🔴 Not Started |
+| STAT-04 | Phase 5 | 🔴 Not Started |
+| STAT-05 | Phase 5 | 🔴 Not Started |
+| STAT-06 | Phase 5 | 🔴 Not Started |
+| STAT-07 | Phase 5 | 🔴 Not Started |
+| STAT-08 | Phase 5 | 🔴 Not Started |
+| UIUX-07 | Phase 5 | 🔴 Not Started |
+
+### Phase 6: Player Ratings (6 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| RATE-01 | Phase 6 | 🔴 Not Started |
+| RATE-02 | Phase 6 | 🔴 Not Started |
+| RATE-03 | Phase 6 | 🔴 Not Started |
+| RATE-04 | Phase 6 | 🔴 Not Started |
+| RATE-05 | Phase 6 | 🔴 Not Started |
+| RATE-06 | Phase 6 | 🔴 Not Started |
+
+### Phase 7: Dashboard & Leaderboards (8 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| DASH-01 | Phase 7 | 🔴 Not Started |
+| DASH-02 | Phase 7 | 🔴 Not Started |
+| DASH-03 | Phase 7 | 🔴 Not Started |
+| DASH-04 | Phase 7 | 🔴 Not Started |
+| DASH-05 | Phase 7 | 🔴 Not Started |
+| DASH-06 | Phase 7 | 🔴 Not Started |
+| DASH-07 | Phase 7 | 🔴 Not Started |
+| DASH-08 | Phase 7 | 🔴 Not Started |
+
+### Phase 8: Social & Sharing (4 requirements)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SOCL-01 | Phase 8 | 🔴 Not Started |
+| SOCL-02 | Phase 8 | 🔴 Not Started |
+| SOCL-03 | Phase 8 | 🔴 Not Started |
+| SOCL-04 | Phase 8 | 🔴 Not Started |
+
+### Cross-Cutting UI/UX (All Phases)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| UIUX-01 | All | 🔴 Not Started |
+| UIUX-02 | All | 🔴 Not Started |
+| UIUX-06 | All | 🔴 Not Started |
+
+**Coverage Summary:**
 - v1 requirements: 68 total
 - Mapped to phases: 68
 - Unmapped: 0 ✓
+- Per-phase distribution: P1(14), P2(10), P3(10), P4(8), P5(9), P6(6), P7(8), P8(4)
 
 ---
 *Requirements defined: 2026-02-13*
