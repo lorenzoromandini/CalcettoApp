@@ -33,6 +33,24 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 4. **User can view cached data when offline** — Teams, players, matches visible without connection; UI indicates offline status
 5. **User actions queue when offline and sync automatically when connection restored** — Background sync works for match statistics and other mutations
 
+**Plans:** 7 plans in 4 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 01-01 | Initialize Next.js 15 project with shadcn/ui and dependencies | 1 | None | next.config.ts, package.json, .env.local, lib/supabase/, lib/db/, lib/i18n/ |
+| 01-02 | Configure Supabase Auth with SSR (clients, middleware, callback) | 1 | None | lib/supabase/client.ts, lib/supabase/server.ts, lib/supabase/middleware.ts, middleware.ts, app/auth/callback/route.ts |
+| 01-03 | Implement offline infrastructure (IndexedDB, Service Worker, Background Sync) | 2 | 01-01 | lib/db/schema.ts, lib/db/index.ts, lib/db/actions.ts, app/sw.ts, components/service-worker-register.tsx, hooks/use-offline-queue.ts, components/offline-banner.tsx |
+| 01-04 | Configure PWA manifest, icons, and offline fallback page | 3 | 01-01, 01-03 | app/manifest.ts, public/icons/*, app/offline/page.tsx |
+| 01-05 | Build authentication UI (login, signup, password reset, Google OAuth) | 3 | 01-01, 01-02 | app/auth/login/page.tsx, app/auth/signup/page.tsx, components/auth/*, lib/validations/auth.ts |
+| 01-06 | Implement theme, i18n (IT/EN), and onboarding tutorial | 3 | 01-01, 01-02 | lib/i18n/*, messages/*.json, components/providers/theme-provider.tsx, components/theme-toggle.tsx, components/onboarding/tutorial.tsx |
+| 01-07 | Integration, protected routes, and user verification checkpoint | 4 | All | app/[locale]/dashboard/page.tsx, components/navigation/*, lib/supabase/actions.ts |
+
+**Wave Structure:**
+- **Wave 1 (Parallel):** 01-01 + 01-02 — Project foundation + Supabase config
+- **Wave 2:** 01-03 — Offline infrastructure (needs project structure)
+- **Wave 3 (Parallel):** 01-04 + 01-05 + 01-06 — PWA + Auth UI + Theme/i18n
+- **Wave 4:** 01-07 — Integration and verification checkpoint
+
 **Research Alignment:** Research flags this as the most critical phase — "Everything depends on reliable offline capability. Service Worker and IndexedDB must be in place before any user-facing features."
 
 **Technical Notes:**
