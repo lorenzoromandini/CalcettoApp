@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-13  
+**Last Updated:** 2026-02-13 (after Plan 01-02 completion)  
 
 ---
 
@@ -13,15 +13,18 @@
 |----------|-------|
 | **Phase** | 1 — Foundation & Auth |
 | **Phase Goal** | Users can securely access the app and use it offline with instant loading |
-| **Plan** | TBD — Run `/gsd-plan-phase 1` |
-| **Status** | 🔴 Not Started |
-| **Progress** | 0% |
+| **Plan** | 02 — Supabase Auth with SSR Support |
+| **Status** | 🟡 In Progress |
+| **Progress** | ~29% |
 
 ### Phase 1 Progress Bar
 
 ```
-[░░░░░░░░░░░░░░░░░░] 0%
+[███░░░░░░░░░░░░░░░] ~29%
 ```
+
+*Plan 01 (Project Init) ✅ Complete, Plan 02 (Supabase Auth) ✅ Complete*
+*Next: Plan 03 (Database Schema)*
 
 ---
 
@@ -53,7 +56,7 @@
 
 | Phase | Goal | Requirements | Status | Progress |
 |-------|------|--------------|--------|----------|
-| 1 | Foundation & Auth | 14 | 🔴 Not Started | 0% |
+| 1 | Foundation & Auth | 14 | 🟡 In Progress | ~29% |
 | 2 | Team Management | 10 | 🔴 Not Started | 0% |
 | 3 | Match Management | 14 | 🔴 Not Started | 0% |
 | 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
@@ -74,6 +77,9 @@
 | 2026-02-13 | Supabase over Firebase | PostgreSQL, better offline support | ✅ Confirmed |
 | 2026-02-13 | SSE over WebSockets | Better mobile reliability, auto-reconnect | ✅ Confirmed |
 | 2026-02-13 | Offline-first architecture | Must work pitch-side with poor connectivity | ✅ Confirmed |
+| 2026-02-13 | @supabase/ssr library | Official SSR support per RESEARCH.md Pattern 3 | ✅ Confirmed |
+| 2026-02-13 | PKCE OAuth flow | Most secure for SPAs, no client secret needed | ✅ Confirmed |
+| 2026-02-13 | Middleware session refresh | Server Components read-only, middleware handles refresh | ✅ Confirmed |
 
 ---
 
@@ -137,13 +143,13 @@
 
 ### Last Session
 - **Date:** 2026-02-13
-- **Activity:** Roadmap creation
-- **Outcome:** ROADMAP.md and STATE.md created, ready for Phase 1 planning
+- **Activity:** Executed Plan 01-02 (Supabase Auth with SSR)
+- **Outcome:** Auth infrastructure complete with browser/server clients, middleware, and OAuth callback
 
 ### Next Session
-- **Command:** `/gsd-plan-phase 1`
-- **Goal:** Create executable plan for Phase 1: Foundation & Auth
-- **Expected Output:** PLAN-1.md with must_haves, should_haves, test strategy
+- **Command:** Continue to Plan 03 (Database Schema) or verify current work
+- **Goal:** Create database schema for users, teams, matches, and statistics
+- **Expected Output:** Prisma schema with all required models
 
 ### Context for Claude
 When resuming this project:
