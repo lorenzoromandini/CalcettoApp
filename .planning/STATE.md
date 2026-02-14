@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-14 (after Plan 01-03 completion)  
+**Last Updated:** 2026-02-14 (after Plan 01-05 completion)  
 
 ---
 
@@ -13,18 +13,17 @@
 |----------|-------|
 | **Phase** | 1 — Foundation & Auth |
 | **Phase Goal** | Users can securely access the app and use it offline with instant loading |
-| **Plan** | 03 — Offline Infrastructure |
+| **Plan** | 05 — Authentication UI |
 | **Status** | ✅ Complete |
-| **Progress** | ~43% |
+| **Progress** | ~57% |
 
 ### Phase 1 Progress Bar
 
 ```
-[████░░░░░░░░░░░░░░] ~43%
+[██████░░░░░░░░░░░░] ~57%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete*
-*All Phase 1 plans completed - Phase ready for transition*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete*
 
 ---
 
@@ -85,6 +84,7 @@
 | 2026-02-14 | NetworkFirst with 60s TTL for live data | Never serve stale match scores (Pitfall #4) | ✅ Confirmed |
 | 2026-02-14 | BackgroundSyncPlugin for mutations | Automatic retry when connection restored | ✅ Confirmed |
 | 2026-02-14 | sync_status field on all entities | Track local vs server state for conflict resolution | ✅ Confirmed |
+| 2026-02-14 | react-hook-form + Zod for auth forms | Type-safe validation, Italian error messages, mobile-optimized | ✅ Confirmed |
 
 ---
 
@@ -109,6 +109,29 @@
 ---
 
 ## Accumulated Context
+
+### From Plan 01-05 (Authentication UI)
+
+**Implemented:**
+- ✅ Zod validation schemas with Italian error messages (login, signup, forgot-password, reset-password)
+- ✅ Auth form components using react-hook-form with zodResolver
+- ✅ Login form with email/password and Supabase signInWithPassword
+- ✅ Signup form with confirmation email flow and success state
+- ✅ Google OAuth button with PKCE flow and offline access_type
+- ✅ Complete auth pages: login, signup, forgot-password, reset-password, auth-code-error
+- ✅ Mobile-optimized forms with 48px touch targets
+
+**Key Files for Future Phases:**
+- `lib/validations/auth.ts` - Use for auth form validation
+- `components/auth/login-form.tsx` - Import for custom login flows
+- `components/auth/social-buttons.tsx` - Reuse GoogleSignInButton
+- `app/auth/login/page.tsx` - Reference for auth page layout
+
+**Patterns Established:**
+- Auth forms use react-hook-form + zodResolver + shadcn/ui
+- Italian error messages for all user-facing validation
+- Mobile-first: h-12 inputs (48px), centered layout, large touch targets
+- Success states built into forms without page navigation
 
 ### From Plan 01-03 (Offline Infrastructure)
 
@@ -170,12 +193,12 @@
 
 ### Last Session
 - **Date:** 2026-02-14
-- **Activity:** Executed Plan 01-03 (Offline Infrastructure) - 4 tasks, 9 files created
-- **Outcome:** Complete offline-first stack with IndexedDB, Service Worker, Background Sync, and offline UI
+- **Activity:** Executed Plan 01-05 (Authentication UI) - 3 tasks, 10 files created
+- **Outcome:** Complete auth UI with login, signup, password reset, Google OAuth, all mobile-optimized with Italian messages
 
 ### Next Session
-- **Command:** `/gsd-complete-phase 01` or continue to Phase 02 planning
-- **Goal:** Phase 1 is complete - transition to Phase 02 (Team Management) or review completion
+- **Command:** `/gsd-complete-phase 01` or continue to Plan 06
+- **Goal:** Check if Phase 1 has more plans or transition to Phase 02 (Team Management)
 - **Expected Output:** Phase completion verification and Phase 02 planning
 
 ### Context for Claude
