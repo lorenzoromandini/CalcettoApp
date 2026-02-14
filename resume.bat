@@ -1,0 +1,38 @@
+@echo off
+REM Calcetto App - Session Resume Script
+REM Run this to get context before continuing work
+
+echo ==========================================
+echo Calcetto Manager - Session Resume
+echo ==========================================
+echo.
+echo Last Session: 2026-02-14
+echo Phase: 1 - Foundation - Auth (~86%% complete)
+echo.
+echo Completed Plans: 01-01 to 01-06
+echo Current Plan: 01-07 (Integration - Verification)
+echo.
+echo What's been done:
+echo   - Auth UI with Supabase (login, signup, OAuth)
+echo   - Offline infrastructure (IndexedDB, Service Worker, Background Sync)
+echo   - PWA manifest and icons
+echo   - Dark/light theme with next-themes
+echo   - i18n with Italian/English locales
+echo   - Onboarding tutorial
+echo.
+echo What's next (Plan 01-07):
+echo   1. Integrate all providers in layouts
+echo   2. Create protected dashboard at /[locale]/dashboard
+echo   3. Add navigation header with theme/locale switchers
+echo   4. Final build verification
+echo   5. Human verification checkpoint
+echo.
+echo To continue:
+echo   1. Read: .planning/STATE.md
+echo   2. Read: .planning/phases/01-foundation-auth/01-07-PLAN.md
+echo   3. Run: /gsd-execute-phase 01
+echo.
+echo Environment needed:
+echo   - Supabase project with .env.local configured
+echo   - Google OAuth enabled in Supabase (optional)
+echo.
