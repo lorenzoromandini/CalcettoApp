@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-14 (after Plan 01-05 completion)  
+**Last Updated:** 2026-02-14 (after Plan 01-04 completion)  
 
 ---
 
@@ -85,6 +85,8 @@
 | 2026-02-14 | BackgroundSyncPlugin for mutations | Automatic retry when connection restored | ✅ Confirmed |
 | 2026-02-14 | sync_status field on all entities | Track local vs server state for conflict resolution | ✅ Confirmed |
 | 2026-02-14 | react-hook-form + Zod for auth forms | Type-safe validation, Italian error messages, mobile-optimized | ✅ Confirmed |
+| 2026-02-14 | Next.js 15 built-in manifest.ts | Automatic PWA manifest generation at /manifest.webmanifest | ✅ Confirmed |
+| 2026-02-14 | Sharp for icon generation | Programmatic SVG-to-PNG for consistent MVP icons | ✅ Confirmed |
 
 ---
 
@@ -109,6 +111,27 @@
 ---
 
 ## Accumulated Context
+
+### From Plan 01-04 (PWA Manifest and Assets)
+
+**Implemented:**
+- ✅ PWA manifest at `app/manifest.ts` with MetadataRoute.Manifest export
+- ✅ App icons in required sizes: 192x192, 512x512, apple-touch-icon (180x180)
+- ✅ Favicon for browser tabs
+- ✅ Offline fallback page at `/offline` with retry functionality
+- ✅ Layout updated with viewport config, theme-color meta, and manifest link
+- ✅ Italian (it) set as primary language
+
+**Key Files for Future Phases:**
+- `app/manifest.ts` - Update for new PWA features or app metadata changes
+- `public/icons/` - Replace with branded icons when available
+- `app/offline/page.tsx` - Customize offline message or add offline functionality
+
+**Patterns Established:**
+- Next.js 15 manifest.ts automatically generates `/manifest.webmanifest`
+- Theme color (#22c55e green) for football field association
+- Offline page uses 'use client' for interactivity (retry button)
+- Programmatic icon generation with Sharp for consistent branding
 
 ### From Plan 01-05 (Authentication UI)
 
