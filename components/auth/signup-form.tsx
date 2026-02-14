@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { signupSchema, type SignupInput } from "@/lib/validations/auth";
-import { createClient } from "@/lib/supabase/client";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export function SignupForm() {
@@ -39,17 +38,16 @@ export function SignupForm() {
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
       });
 
-      if (signUpError) {
-        setError(getErrorMessage(signUpError.message));
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "Si è verificato un errore");
         return;
       }
 
@@ -69,8 +67,7 @@ export function SignupForm() {
         </div>
         <h3 className="text-lg font-semibold">Registrazione completata!</h3>
         <p className="text-sm text-muted-foreground">
-          Ti abbiamo inviato un&apos;email di conferma. Clicca sul link nell&apos;email per
-          attivare il tuo account.
+          Ora puoi accedere con le tue credenziali.
         </p>
         <Button
           variant="outline"
@@ -166,17 +163,4 @@ export function SignupForm() {
       </form>
     </Form>
   );
-}
-
-function getErrorMessage(message: string): string {
-  if (message.includes("User already registered")) {
-    return "Questa email è già registrata. Prova ad accedere.";
-  }
-  if (message.includes("Password should be at least")) {
-    return "La password deve essere di almeno 6 caratteri.";
-  }
-  if (message.includes("Unable to validate email")) {
-    return "Inserisci un indirizzo email valido.";
-  }
-  return "Si è verificato un errore durante la registrazione. Riprova.";
 }

@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
-import { createClient } from "@/lib/supabase/client";
 import { AlertCircle } from "lucide-react";
 
 export function LoginForm() {
@@ -37,14 +37,14 @@ export function LoginForm() {
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
+        redirect: false,
       });
 
-      if (signInError) {
-        setError(getErrorMessage(signInError.message));
+      if (result?.error) {
+        setError("Email o password non corretti. Riprova.");
         return;
       }
 
@@ -119,18 +119,4 @@ export function LoginForm() {
       </form>
     </Form>
   );
-}
-
-function getErrorMessage(message: string): string {
-  // Map Supabase error messages to Italian
-  if (message.includes("Invalid login credentials")) {
-    return "Email o password non corretti. Riprova.";
-  }
-  if (message.includes("Email not confirmed")) {
-    return "Email non confermata. Controlla la tua casella di posta.";
-  }
-  if (message.includes("User not found")) {
-    return "Utente non trovato. Verifica la tua email.";
-  }
-  return "Si è verificato un errore. Riprova più tardi.";
 }

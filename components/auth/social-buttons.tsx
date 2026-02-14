@@ -2,82 +2,23 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
 
 interface GoogleSignInButtonProps {
   isLoading?: boolean;
 }
 
 export function GoogleSignInButton({ isLoading = false }: GoogleSignInButtonProps) {
-  const [isPending, setIsPending] = React.useState(false);
-
-  async function signInWithGoogle() {
-    setIsPending(true);
-    
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-        },
-      });
-
-      if (error) {
-        console.error("Google sign-in error:", error);
-      }
-    } catch (err) {
-      console.error("Unexpected error during Google sign-in:", err);
-    } finally {
-      // Note: setIsPending(false) won't run on successful redirect
-      setIsPending(false);
-    }
-  }
-
-  const loading = isLoading || isPending;
-
   return (
     <Button
       type="button"
       variant="outline"
       className="w-full h-12 text-base"
-      onClick={signInWithGoogle}
-      disabled={loading}
+      disabled
     >
-      {loading ? (
-        <span className="flex items-center gap-2">
-          <svg
-            className="animate-spin h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          Attendere...
-        </span>
-      ) : (
-        <span className="flex items-center gap-3">
-          <GoogleIcon />
-          Continua con Google
-        </span>
-      )}
+      <span className="flex items-center gap-3">
+        <GoogleIcon />
+        Login con Google (presto disponibile)
+      </span>
     </Button>
   );
 }

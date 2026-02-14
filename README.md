@@ -17,28 +17,63 @@ A mobile-first PWA for organizing football matches with friends. Track games, pl
 ## Tech Stack
 
 - **Frontend**: React 19 + Next.js 15 (App Router)
-- **Backend**: Supabase (PostgreSQL, Auth, Realtime)
-- **Offline**: IndexedDB (idb) + Service Worker (Workbox)
-- **Styling**: Tailwind CSS 4.x + shadcn/ui
+- **Styling**: Tailwind CSS 4.x + shadcn/ui components
 - **PWA**: Manifest, Service Worker, offline fallback
 - **i18n**: next-intl v4
+
+## Implementation
+
+### Database & ORM
+- **PostgreSQL** - Primary relational database hosted in Docker
+- **Prisma** - Type-safe ORM for database operations
+  - Schema defined in `prisma/schema.prisma`
+  - Models: User, Account, Session, VerificationToken
+  - Run `npx prisma studio` to explore data
+
+### Authentication
+- **NextAuth.js v5** - Modern authentication solution
+  - Credentials provider (email/password)
+  - JWT-based sessions
+  - bcryptjs for password hashing
+  - Custom sign-in/sign-up API routes
+
+### Offline Support
+- **IndexedDB** - Browser-based NoSQL database via `idb` library
+- **Service Worker** - Workbox for caching and offline functionality
+  - Precache for app shell
+  - Runtime caching for static assets
+  - Background sync for offline mutations
+
+### Internationalization
+- **next-intl** - Routing and translations
+  - Italian (it) as default locale
+  - English (en) as fallback
+  - Middleware for locale detection and routing
+
+### Theming
+- **next-themes** - Dark/light mode with system preference detection
+- Tailwind CSS 4.x CSS variables for theming
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- Docker (for self-hosted Supabase)
+- Node.js 20+ (recommended)
+- Docker (for PostgreSQL)
 
 ### Setup
 
 1. Clone the repository
-2. Start Supabase locally:
+2. Start PostgreSQL with Docker:
 
 ```bash
-cd supabase
-chmod +x setup.sh
-./setup.sh
+docker run -d \
+  --name calcetto-db \
+  -e POSTGRES_PASSWORD=your-password \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_DB=postgres \
+  -p 5432:5432 \
+  supabase/postgres:15.8.1.085
 ```
 
 3. Copy `.env.example` to `.env.local`:
@@ -47,52 +82,50 @@ chmod +x setup.sh
 cp .env.example .env.local
 ```
 
-4. Get the anon key from `supabase/.env` and add it to `.env.local`:
+4. Update `.env.local` with your database URL:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+DATABASE_URL="postgresql://postgres:your-password@localhost:5432/postgres?schema=public"
+AUTH_SECRET="generate-a-secret-key"
 ```
 
-5. Install dependencies:
+5. Generate AUTH_SECRET:
+```bash
+openssl rand -base64 32
+```
+
+6. Install dependencies:
 
 ```bash
 npm install
 ```
 
-6. Run development server:
+7. Push database schema:
+
+```bash
+npx prisma db push
+```
+
+8. Run development server:
 
 ```bash
 npm run dev
 ```
 
-7. Open http://localhost:3000
-
-### Supabase Dashboard
-
-Access the local Supabase Studio at http://localhost:54323 to:
-- Manage database tables
-- View/edit data
-- Configure authentication
-
-### Stopping Supabase
-
-```bash
-cd supabase
-docker compose down
-```
+9. Open http://localhost:3000
 
 ## Project Structure
 
 ```
 app/                    # Next.js App Router pages
-components/            # React components
-lib/                   # Utilities, DB, Supabase client
+components/            # React components (UI, auth)
+lib/                   # Utilities, auth, database
+  auth.ts              # NextAuth configuration
+  prisma.ts            # Prisma client singleton
 hooks/                 # Custom React hooks
-messages/              # i18n translation files
-public/                # Static assets, icons
-scripts/               # Build scripts
-supabase/              # Self-hosted Supabase configuration
+messages/              # i18n translation files (it.json, en.json)
+prisma/                # Database schema
+public/                # Static assets, icons, service worker
 ```
 
 ## Development
@@ -101,6 +134,7 @@ supabase/              # Self-hosted Supabase configuration
 npm run dev        # Start dev server
 npm run build      # Production build
 npm run lint       # Run ESLint
+npx prisma studio # Database GUI
 ```
 
 ## License
@@ -109,4 +143,4 @@ MIT
 
 ---
 
-Built with **Opencode**, **get-your-shit-done**, and **Kimi2.5 Free**
+Built with **Opencode**, **GET SHIT DONE**, and **model Kimi K2.5 Free**
