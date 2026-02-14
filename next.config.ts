@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
-import { execSync } from 'child_process';
 
 const nextConfig: NextConfig = {
-  // PWA configuration
+  turbopack: {},
+
   async headers() {
     return [
       {
@@ -19,18 +19,6 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
-  },
-
-  // Build service worker after Next.js build completes
-  webpack: (config, { isServer, nextRuntime }) => {
-    // Add workbox window for client-side SW registration
-    if (!isServer && nextRuntime !== 'edge') {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'workbox-window': 'workbox-window/build/workbox-window.prod.mjs',
-      };
-    }
-    return config;
   },
 };
 

@@ -11,11 +11,12 @@
 
 import { useOfflineQueue } from '@/hooks/use-offline-queue';
 import { CloudOff, CloudCheck, CloudCog } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 /**
  * Offline Banner Component
  */
-export function OfflineBanner(): JSX.Element | null {
+export function OfflineBanner(): ReactNode | null {
   const { isOnline, queueCount, isSyncing } = useOfflineQueue();
 
   // Don't show banner when online with no pending actions

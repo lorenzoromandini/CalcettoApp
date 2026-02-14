@@ -133,7 +133,7 @@ const bgSyncPlugin = new BackgroundSyncPlugin('offline-mutations', {
 });
 
 // Register routes for API mutations with background sync
-['POST', 'PUT', 'DELETE', 'PATCH'].forEach(method => {
+(['POST', 'PUT', 'DELETE', 'PATCH'] as const).forEach(method => {
   registerRoute(
     ({ url }) => url.pathname.startsWith('/api/'),
     new NetworkOnly({
