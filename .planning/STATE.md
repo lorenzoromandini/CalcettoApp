@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-13 (after Plan 01-02 completion)  
+**Last Updated:** 2026-02-14 (after Plan 01-03 completion)  
 
 ---
 
@@ -13,18 +13,18 @@
 |----------|-------|
 | **Phase** | 1 — Foundation & Auth |
 | **Phase Goal** | Users can securely access the app and use it offline with instant loading |
-| **Plan** | 02 — Supabase Auth with SSR Support |
-| **Status** | 🟡 In Progress |
-| **Progress** | ~29% |
+| **Plan** | 03 — Offline Infrastructure |
+| **Status** | ✅ Complete |
+| **Progress** | ~43% |
 
 ### Phase 1 Progress Bar
 
 ```
-[███░░░░░░░░░░░░░░░] ~29%
+[████░░░░░░░░░░░░░░] ~43%
 ```
 
-*Plan 01 (Project Init) ✅ Complete with SUMMARY.md, Plan 02 (Supabase Auth) ✅ Complete*
-*Next: Plan 03 (Database Schema)*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete*
+*All Phase 1 plans completed - Phase ready for transition*
 
 ---
 
@@ -56,7 +56,7 @@
 
 | Phase | Goal | Requirements | Status | Progress |
 |-------|------|--------------|--------|----------|
-| 1 | Foundation & Auth | 14 | 🟡 In Progress | ~29% |
+| 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
 | 2 | Team Management | 10 | 🔴 Not Started | 0% |
 | 3 | Match Management | 14 | 🔴 Not Started | 0% |
 | 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
@@ -80,6 +80,11 @@
 | 2026-02-13 | @supabase/ssr library | Official SSR support per RESEARCH.md Pattern 3 | ✅ Confirmed |
 | 2026-02-13 | PKCE OAuth flow | Most secure for SPAs, no client secret needed | ✅ Confirmed |
 | 2026-02-13 | Middleware session refresh | Server Components read-only, middleware handles refresh | ✅ Confirmed |
+| 2026-02-14 | idb library for IndexedDB | Promise-based API with TypeScript support | ✅ Confirmed |
+| 2026-02-14 | Workbox CDN for SW | Simpler than bundling, all features available | ✅ Confirmed |
+| 2026-02-14 | NetworkFirst with 60s TTL for live data | Never serve stale match scores (Pitfall #4) | ✅ Confirmed |
+| 2026-02-14 | BackgroundSyncPlugin for mutations | Automatic retry when connection restored | ✅ Confirmed |
+| 2026-02-14 | sync_status field on all entities | Track local vs server state for conflict resolution | ✅ Confirmed |
 
 ---
 
@@ -87,9 +92,9 @@
 
 | Question | Blocking | Context |
 |----------|----------|---------|
-| Service Worker caching strategy? | No | Phase 1 planning needs cache invalidation approach |
 | SSE reconnection behavior on iOS? | No | Phase 4 needs testing on Safari mobile |
 | Conflict resolution for offline edits? | No | Phase 6 needs event sourcing decision |
+| ~Service Worker caching strategy?~ | ~No~ | ~Resolved: StaleWhileRevalidate pages, CacheFirst static, NetworkOnly mutations, NetworkFirst live data~ |
 
 ---
 
@@ -105,23 +110,45 @@
 
 ## Accumulated Context
 
+### From Plan 01-03 (Offline Infrastructure)
+
+**Implemented:**
+- ✅ IndexedDB schema with Team, Player, Match entities and sync_status
+- ✅ Offline action queue with retry logic and error handling
+- ✅ Workbox Service Worker with precaching and runtime caching
+- ✅ Background Sync for automatic mutation retry
+- ✅ NetworkFirst with 60s TTL for /live/* routes (Pitfall #4 prevention)
+- ✅ OfflineBanner component showing connection status
+- ✅ useOfflineQueue hook for tracking sync state
+
+**Key Files for Future Phases:**
+- `lib/db/actions.ts` - Use `saveTeam()`, `savePlayer()`, `saveMatch()`, `queueOfflineAction()`
+- `hooks/use-offline-queue.ts` - Listen for `SYNC_COMPLETE` messages
+- `components/offline-banner.tsx` - Show in root layout for offline status
+- `components/service-worker-register.tsx` - Include in root layout
+
+**Patterns Established:**
+- All entities have `sync_status: 'synced' | 'pending' | 'error'`
+- Offline actions queued with timestamp and retry_count
+- SW sends `SYNC_COMPLETE` message to clients after successful sync
+
 ### From Research (Critical for Phase 1)
 
 **Architecture Must-Haves:**
-1. Service Worker with Workbox (don't roll your own)
-2. IndexedDB via `idb` library for offline storage
-3. Network-first for live data, cache-first for static assets
-4. NEVER cache real-time match data in SW
-5. Background sync for queued actions
+1. ✅ Service Worker with Workbox (don't roll your own) - DONE
+2. ✅ IndexedDB via `idb` library for offline storage - DONE
+3. ✅ Network-first for live data, cache-first for static assets - DONE
+4. ✅ NEVER cache real-time match data in SW - DONE (60s TTL on /live/*)
+5. ✅ Background sync for queued actions - DONE
 
 **Pitfalls to Avoid (Phase 1):**
-- Pitfall #4: Service Worker caching live match data
+- ✅ Pitfall #4: Service Worker caching live match data - SOLVED
 - Pitfall #3: Offline-first without conflict resolution (deferred to Phase 6)
 
 **Critical for Mobile:**
-- App shell caching for instant loads
-- Offline indicator in UI
-- Graceful degradation when offline
+- ✅ App shell caching for instant loads - DONE (precacheAndRoute)
+- ✅ Offline indicator in UI - DONE (OfflineBanner component)
+- ✅ Graceful degradation when offline - DONE (queueOfflineAction)
 
 ### Stack Decisions Rationale
 
@@ -142,14 +169,14 @@
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-13
-- **Activity:** Completed Plan 01-01 SUMMARY.md (project initialization was already done, summary was missing)
-- **Outcome:** Plan 01 now has complete documentation with all 3 tasks, 24 files created, and commit history recorded
+- **Date:** 2026-02-14
+- **Activity:** Executed Plan 01-03 (Offline Infrastructure) - 4 tasks, 9 files created
+- **Outcome:** Complete offline-first stack with IndexedDB, Service Worker, Background Sync, and offline UI
 
 ### Next Session
-- **Command:** Continue to Plan 03 (Database Schema) or verify current work
-- **Goal:** Create database schema for users, teams, matches, and statistics
-- **Expected Output:** Prisma schema with all required models
+- **Command:** `/gsd-complete-phase 01` or continue to Phase 02 planning
+- **Goal:** Phase 1 is complete - transition to Phase 02 (Team Management) or review completion
+- **Expected Output:** Phase completion verification and Phase 02 planning
 
 ### Context for Claude
 When resuming this project:
