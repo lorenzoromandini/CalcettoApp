@@ -1,14 +1,36 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/lib/i18n/navigation';
+import { OnboardingTutorial } from '@/components/onboarding/tutorial';
+import { useOnboarding } from '@/hooks/use-onboarding';
 
 export default function HomePage() {
   const t = useTranslations();
+  const { showOnboarding, completeOnboarding, skipOnboarding, isLoading } = useOnboarding();
+
+  // Don't show anything until we've checked localStorage
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Onboarding Tutorial */}
+      {showOnboarding && (
+        <OnboardingTutorial 
+          onComplete={completeOnboarding} 
+          onSkip={skipOnboarding} 
+        />
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between border-b px-4 py-3">
         <h1 className="text-xl font-bold text-primary">Calcetto Manager</h1>
