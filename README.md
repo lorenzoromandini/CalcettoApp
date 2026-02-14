@@ -28,37 +28,59 @@ A mobile-first PWA for organizing football matches with friends. Track games, pl
 ### Prerequisites
 
 - Node.js 18+
-- Supabase account
+- Docker (for self-hosted Supabase)
 
 ### Setup
 
 1. Clone the repository
-2. Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
+2. Start Supabase locally:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```bash
+cd supabase
+chmod +x setup.sh
+./setup.sh
 ```
 
-3. Install dependencies:
+3. Copy `.env.example` to `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+4. Get the anon key from `supabase/.env` and add it to `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+5. Install dependencies:
 
 ```bash
 npm install
 ```
 
-4. Run development server:
+6. Run development server:
 
 ```bash
 npm run dev
 ```
 
-5. Open http://localhost:3000
+7. Open http://localhost:3000
 
-### Supabase Setup
+### Supabase Dashboard
 
-1. Create a new Supabase project
-2. Run migrations in `lib/db/schema.ts` to create tables
-3. Enable Google OAuth in Authentication -> Providers (optional)
+Access the local Supabase Studio at http://localhost:54323 to:
+- Manage database tables
+- View/edit data
+- Configure authentication
+
+### Stopping Supabase
+
+```bash
+cd supabase
+docker compose down
+```
 
 ## Project Structure
 
@@ -70,6 +92,7 @@ hooks/                 # Custom React hooks
 messages/              # i18n translation files
 public/                # Static assets, icons
 scripts/               # Build scripts
+supabase/              # Self-hosted Supabase configuration
 ```
 
 ## Development
