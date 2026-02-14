@@ -1,0 +1,67 @@
+import { useTranslations } from 'next-intl';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { LocaleSwitcher } from '@/components/locale-switcher';
+import { Button } from '@/components/ui/button';
+import { Link } from '@/lib/i18n/navigation';
+
+export default function HomePage() {
+  const t = useTranslations();
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between border-b px-4 py-3">
+        <h1 className="text-xl font-bold text-primary">Calcetto Manager</h1>
+        <div className="flex items-center gap-2">
+          <LocaleSwitcher />
+          <ThemeToggle />
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex flex-1 flex-col items-center justify-center px-4 py-12">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            {t('home.title')}
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            {t('home.subtitle')}
+          </p>
+          
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href="/auth/login">
+                {t('auth.signIn')}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+              <Link href="/auth/signup">
+                {t('auth.signUp')}
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg border bg-card p-6 text-center">
+            <div className="text-2xl font-bold text-primary">⚽</div>
+            <h3 className="mt-2 font-semibold">{t('home.features.teams')}</h3>
+          </div>
+          <div className="rounded-lg border bg-card p-6 text-center">
+            <div className="text-2xl font-bold text-primary">🏆</div>
+            <h3 className="mt-2 font-semibold">{t('home.features.matches')}</h3>
+          </div>
+          <div className="rounded-lg border bg-card p-6 text-center">
+            <div className="text-2xl font-bold text-primary">📊</div>
+            <h3 className="mt-2 font-semibold">{t('home.features.stats')}</h3>
+          </div>
+          <div className="rounded-lg border bg-card p-6 text-center">
+            <div className="text-2xl font-bold text-primary">⭐</div>
+            <h3 className="mt-2 font-semibold">{t('home.features.ratings')}</h3>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
