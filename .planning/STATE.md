@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-14 (after Plan 01-04 completion)  
+**Last Updated:** 2026-02-14 (after Plan 01-06 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 1 — Foundation & Auth |
 | **Phase Goal** | Users can securely access the app and use it offline with instant loading |
-| **Plan** | 05 — Authentication UI |
+| **Plan** | 06 — Theme, i18n, and Onboarding |
 | **Status** | ✅ Complete |
-| **Progress** | ~57% |
+| **Progress** | ~86% |
 
 ### Phase 1 Progress Bar
 
 ```
-[██████░░░░░░░░░░░░] ~57%
+[████████████░░░░░░] ~86%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 ✅ Complete*
 
 ---
 
@@ -87,6 +87,10 @@
 | 2026-02-14 | react-hook-form + Zod for auth forms | Type-safe validation, Italian error messages, mobile-optimized | ✅ Confirmed |
 | 2026-02-14 | Next.js 15 built-in manifest.ts | Automatic PWA manifest generation at /manifest.webmanifest | ✅ Confirmed |
 | 2026-02-14 | Sharp for icon generation | Programmatic SVG-to-PNG for consistent MVP icons | ✅ Confirmed |
+| 2026-02-14 | next-intl v4 for i18n | Built-in Next.js 15 support, App Router optimized | ✅ Confirmed |
+| 2026-02-14 | Italian as default locale | Primary market is Italy, English as fallback | ✅ Confirmed |
+| 2026-02-14 | next-themes with data-theme | Tailwind v4 compatible, system detection built-in | ✅ Confirmed |
+| 2026-02-14 | Client-side onboarding persistence | localStorage flag avoids server complexity, resets per device | ✅ Confirmed |
 
 ---
 
@@ -132,6 +136,29 @@
 - Theme color (#22c55e green) for football field association
 - Offline page uses 'use client' for interactivity (retry button)
 - Programmatic icon generation with Sharp for consistent branding
+
+### From Plan 01-06 (Theme, i18n, and Onboarding)
+
+**Implemented:**
+- ✅ next-intl configuration with Italian (default) and English locales
+- ✅ Locale routing with /it/ and /en/ prefixes, middleware chaining with auth
+- ✅ next-themes integration with system detection and manual toggle
+- ✅ Dark/light theme CSS variables with data-theme attribute
+- ✅ 4-step onboarding tutorial with localStorage persistence
+- ✅ Complete translation files for navigation, auth, common, onboarding, theme, home
+
+**Key Files for Future Phases:**
+- `lib/i18n/routing.ts` - Add new locales here
+- `lib/i18n/navigation.ts` - Use Link, useRouter from here for locale-aware navigation
+- `messages/it.json` / `messages/en.json` - Add new translations here
+- `hooks/use-onboarding.ts` - Reuse for feature-specific onboarding flows
+- `components/theme-toggle.tsx` - Reuse in navigation/header components
+
+**Patterns Established:**
+- Locale routing: All routes under `/[locale]/` with redirects from root
+- Theme switching: next-themes with data-theme attribute for Tailwind v4
+- Onboarding: localStorage flag with useOnboarding hook for persistence
+- Translations: Nested JSON structure with feature-based keys (auth, navigation, onboarding)
 
 ### From Plan 01-05 (Authentication UI)
 
@@ -216,13 +243,13 @@
 
 ### Last Session
 - **Date:** 2026-02-14
-- **Activity:** Executed Plan 01-05 (Authentication UI) - 3 tasks, 10 files created
-- **Outcome:** Complete auth UI with login, signup, password reset, Google OAuth, all mobile-optimized with Italian messages
+- **Activity:** Executed Plan 01-06 (Theme, i18n, Onboarding) - 4 tasks, 16 files created
+- **Outcome:** Complete i18n with Italian/English, dark/light theme, 4-step onboarding tutorial
 
 ### Next Session
-- **Command:** `/gsd-complete-phase 01` or continue to Plan 06
-- **Goal:** Check if Phase 1 has more plans or transition to Phase 02 (Team Management)
-- **Expected Output:** Phase completion verification and Phase 02 planning
+- **Command:** `/gsd-execute-phase 01` to run Plan 07, or `/gsd-complete-phase 01` if all plans done
+- **Goal:** Check for remaining Phase 1 plans or transition to Phase 02 (Team Management)
+- **Expected Output:** Phase 1 completion or continue with Plan 07
 
 ### Context for Claude
 When resuming this project:
