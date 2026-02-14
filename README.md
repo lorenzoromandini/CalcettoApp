@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calcetto Manager
+
+A mobile-first PWA for organizing football matches with friends. Track games, players, and statistics with offline support for use on the pitch.
+
+## Features
+
+- **Team Management** - Create and manage teams, add players
+- **Match Organization** - Schedule matches, set dates and locations
+- **Live Match Tracking** - Real-time score updates during games
+- **Player Statistics** - Track goals, assists, and performance metrics
+- **Player Ratings** - Rate teammates after each match
+- **Leaderboards** - Rank players across multiple statistics
+- **Offline Support** - Works without internet connection
+- **Dark/Light Theme** - Automatic system detection + manual toggle
+- **Multi-language** - Italian (default) and English support
+
+## Tech Stack
+
+- **Frontend**: React 19 + Next.js 15 (App Router)
+- **Backend**: Supabase (PostgreSQL, Auth, Realtime)
+- **Offline**: IndexedDB (idb) + Service Worker (Workbox)
+- **Styling**: Tailwind CSS 4.x + shadcn/ui
+- **PWA**: Manifest, Service Worker, offline fallback
+- **i18n**: next-intl v4
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- Supabase account
+
+### Setup
+
+1. Clone the repository
+2. Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+3. Install dependencies:
+
+```bash
+npm install
+```
+
+4. Run development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Supabase Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a new Supabase project
+2. Run migrations in `lib/db/schema.ts` to create tables
+3. Enable Google OAuth in Authentication -> Providers (optional)
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/                    # Next.js App Router pages
+components/            # React components
+lib/                   # Utilities, DB, Supabase client
+hooks/                 # Custom React hooks
+messages/              # i18n translation files
+public/                # Static assets, icons
+scripts/               # Build scripts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev        # Start dev server
+npm run build      # Production build
+npm run lint       # Run ESLint
+```
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+MIT
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+Built with **Opencode**, **get-your-shit-done**, and **Kimi2.5 Free**
