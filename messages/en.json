@@ -1,1 +1,82 @@
-{}
+{
+  "navigation": {
+    "home": "Home",
+    "login": "Login",
+    "signup": "Sign Up",
+    "teams": "Teams",
+    "matches": "Matches",
+    "players": "Players",
+    "statistics": "Statistics",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "createAccount": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "signInWith": "Sign in with {provider}",
+    "orContinueWith": "Or continue with",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "getStarted": "Get Started",
+    "welcome": "Welcome",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Welcome to Calcetto Manager",
+      "description": "The perfect app to manage your football matches with friends"
+    },
+    "step2": {
+      "title": "Create your team",
+      "description": "Organize your friends into teams and invite them to play"
+    },
+    "step3": {
+      "title": "Schedule matches",
+      "description": "Plan matches, record results and track statistics"
+    },
+    "step4": {
+      "title": "Works offline",
+      "description": "Perfect for the pitch! Works even without internet connection"
+    }
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "home": {
+    "title": "Manage your football matches",
+    "subtitle": "Organize teams, track statistics and rate players",
+    "getStarted": "Get Started",
+    "features": {
+      "teams": "Team management",
+      "matches": "Live matches",
+      "stats": "Statistics",
+      "ratings": "Player ratings"
+    }
+  }
+}

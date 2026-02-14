@@ -1,1 +1,82 @@
-{}
+{
+  "navigation": {
+    "home": "Home",
+    "login": "Accedi",
+    "signup": "Registrati",
+    "teams": "Squadre",
+    "matches": "Partite",
+    "players": "Giocatori",
+    "statistics": "Statistiche",
+    "settings": "Impostazioni",
+    "logout": "Esci"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Accedi",
+    "signUp": "Registrati",
+    "forgotPassword": "Password dimenticata?",
+    "resetPassword": "Reimposta password",
+    "createAccount": "Crea account",
+    "alreadyHaveAccount": "Hai già un account?",
+    "noAccount": "Non hai un account?",
+    "signInWith": "Accedi con {provider}",
+    "orContinueWith": "Oppure continua con",
+    "logout": "Esci",
+    "profile": "Profilo"
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "create": "Crea",
+    "close": "Chiudi",
+    "back": "Indietro",
+    "next": "Avanti",
+    "skip": "Salta",
+    "done": "Fatto",
+    "getStarted": "Inizia",
+    "welcome": "Benvenuto",
+    "confirm": "Conferma",
+    "yes": "Sì",
+    "no": "No"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Benvenuto in Calcetto Manager",
+      "description": "L'app perfetta per gestire le tue partite di calcio con gli amici"
+    },
+    "step2": {
+      "title": "Crea la tua squadra",
+      "description": "Organizza i tuoi amici in squadre e invitali a giocare"
+    },
+    "step3": {
+      "title": "Programma le partite",
+      "description": "Pianifica partite, registra i risultati e tieni traccia delle statistiche"
+    },
+    "step4": {
+      "title": "Funziona offline",
+      "description": "Perfetto per il campo! Funziona anche senza connessione internet"
+    }
+  },
+  "theme": {
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "system": "Sistema",
+    "toggle": "Cambia tema"
+  },
+  "home": {
+    "title": "Gestisci le tue partite di calcio",
+    "subtitle": "Organizza squadre, traccia statistiche e vota i giocatori",
+    "getStarted": "Inizia ora",
+    "features": {
+      "teams": "Gestione squadre",
+      "matches": "Partite live",
+      "stats": "Statistiche",
+      "ratings": "Valutazioni"
+    }
+  }
+}
