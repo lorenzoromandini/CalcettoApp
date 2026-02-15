@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-15 (after Plan 02-04 completion)  
+**Last Updated:** 2026-02-15 (after Plan 02-05 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 2 — Team Management |
 | **Phase Goal** | Users can create and manage teams, add players, and organize match participants |
-| **Plan** | 04 — Invite System (link generation and redemption) |
+| **Plan** | 05 — Team Admin Features (roster management) |
 | **Status** | ✅ Complete |
-| **Progress** | ~67% |
+| **Progress** | ~83% |
 
 ### Phase 2 Progress Bar
 
 ```
-[████████░░░░░░░░░░] ~67%
+[████████████░░░░░░] ~83%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ⏳ Pending, Plan 06 ⏳ Pending*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 ⏳ Pending*
 
 ---
 
@@ -348,26 +348,51 @@
 - Query param token validation on public pages
 - Admin-only settings pages with role checks
 
+### From Plan 02-05 (Team Admin Features)
+
+**Implemented:**
+- ✅ Member management functions: getTeamMembers, updateMemberRole, removeTeamMember, transferOwnership
+- ✅ Team roster manager with role selection (member/co-admin/admin)
+- ✅ Member removal with confirmation dialogs
+- ✅ Role-based UI (admin/co-admin see controls, members see read-only)
+- ✅ Roster page with Players/Members tabs
+- ✅ Cannot remove admin without ownership transfer
+- ✅ Hard delete for memberships (no soft delete needed)
+
+**Key Files:**
+- `lib/db/teams.ts` - Member management functions (lines 469-609)
+- `components/teams/team-roster-manager.tsx` - Roster management UI
+- `app/[locale]/teams/[teamId]/roster/page.tsx` - Team roster page with tabs
+
+**New Routes:**
+- `/[locale]/teams/[teamId]/roster` - Team roster with players and members
+
+**Patterns Established:**
+- Role hierarchy: admin > co-admin > member
+- Confirmation dialogs for destructive actions
+- Tab-based organization for related content
+- Inline role editing with button toggle
+- "You" label for current user identification
+
 ---
 
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-15
-- **Activity:** Executed Plan 02-04 (Invite System) - Verified existing invite generation and redemption implementation
+- **Activity:** Executed Plan 02-05 (Team Admin Features) - Verified existing roster management implementation
 - **Outcome:** 
-  - Confirmed invite generation with secure tokens already implemented
-  - WhatsApp and email sharing functional
-  - Invite redemption page with all state handling complete
-  - Team settings page with admin-only invite generator verified
+  - Confirmed member management functions already in lib/db/teams.ts
+  - TeamRosterManager component with role selection and member removal verified
+  - Roster page with Players/Members tabs already implemented
   - All translations (IT/EN) in place
-  - TypeScript compiles without errors
-  - Plan 02-04 SUMMARY.md created and committed
+  - Confirmation dialogs for destructive actions present
+  - Plan 02-05 SUMMARY.md created and committed
 
 ### Next Session
-- **Command:** `/gsd-execute-phase 02` to run Plan 02-05 (Team Editing & Deletion)
+- **Command:** `/gsd-execute-phase 02` to run Plan 02-06 (Team Editing & Deletion)
 - **Goal:** Implement team editing and deletion (completing danger zone in settings)
-- **Expected Output:** Team edit form, soft delete implementation, confirmation dialogs
+- **Expected Output:** Team edit form in settings, soft delete implementation, confirmation dialogs
 
 ### Context for Claude
 When resuming this project:
