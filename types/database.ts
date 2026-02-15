@@ -267,6 +267,191 @@ export interface Database {
           }
         ];
       };
+      matches: {
+        Row: {
+          id: string;
+          team_id: string;
+          scheduled_at: string;
+          location: string | null;
+          mode: '5vs5' | '8vs8';
+          status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+          home_score: number | null;
+          away_score: number | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+          sync_status: string | null;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          scheduled_at: string;
+          location?: string | null;
+          mode: '5vs5' | '8vs8';
+          status?: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+          home_score?: number | null;
+          away_score?: number | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          sync_status?: string | null;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          scheduled_at?: string;
+          location?: string | null;
+          mode?: '5vs5' | '8vs8';
+          status?: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+          home_score?: number | null;
+          away_score?: number | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          sync_status?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "matches_team_id_fkey";
+            columns: ["team_id"];
+            isOneToOne: false;
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "matches_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      match_players: {
+        Row: {
+          id: string;
+          match_id: string;
+          player_id: string;
+          rsvp_status: 'in' | 'out' | 'maybe';
+          rsvp_at: string | null;
+          position_on_pitch: string | null;
+          sync_status: string | null;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          player_id: string;
+          rsvp_status?: 'in' | 'out' | 'maybe';
+          rsvp_at?: string | null;
+          position_on_pitch?: string | null;
+          sync_status?: string | null;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          player_id?: string;
+          rsvp_status?: 'in' | 'out' | 'maybe';
+          rsvp_at?: string | null;
+          position_on_pitch?: string | null;
+          sync_status?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "match_players_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_players_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      formations: {
+        Row: {
+          id: string;
+          match_id: string;
+          team_formation: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          team_formation?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          team_formation?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "formations_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: true;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      formation_positions: {
+        Row: {
+          id: string;
+          formation_id: string;
+          player_id: string | null;
+          position_x: number;
+          position_y: number;
+          position_label: string;
+          is_substitute: boolean;
+        };
+        Insert: {
+          id?: string;
+          formation_id: string;
+          player_id?: string | null;
+          position_x: number;
+          position_y: number;
+          position_label: string;
+          is_substitute?: boolean;
+        };
+        Update: {
+          id?: string;
+          formation_id?: string;
+          player_id?: string | null;
+          position_x?: number;
+          position_y?: number;
+          position_label?: string;
+          is_substitute?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "formation_positions_formation_id_fkey";
+            columns: ["formation_id"];
+            isOneToOne: false;
+            referencedRelation: "formations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "formation_positions_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -291,6 +476,18 @@ export interface Database {
         };
         Returns: boolean;
       };
+      is_match_admin: {
+        Args: {
+          match_uuid: string;
+        };
+        Returns: boolean;
+      };
+      is_match_participant: {
+        Args: {
+          match_uuid: string;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -312,3 +509,7 @@ export type TeamMember = Tables<'team_members'>;
 export type Player = Tables<'players'>;
 export type PlayerTeam = Tables<'player_teams'>;
 export type TeamInvite = Tables<'team_invites'>;
+export type Match = Tables<'matches'>;
+export type MatchPlayer = Tables<'match_players'>;
+export type Formation = Tables<'formations'>;
+export type FormationPosition = Tables<'formation_positions'>;
