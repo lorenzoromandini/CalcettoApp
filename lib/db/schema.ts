@@ -107,6 +107,11 @@ export interface TeamInvite {
 }
 
 /**
+ * RSVP status for match availability
+ */
+export type RSVPStatus = 'in' | 'out' | 'maybe';
+
+/**
  * Match status
  */
 export type MatchStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
@@ -114,7 +119,7 @@ export type MatchStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled
 /**
  * Match mode/formation
  */
-export type MatchMode = '5vs5' | '6vs6' | '7vs7' | '8vs8' | '11vs11';
+export type MatchMode = '5vs5' | '8vs8';
 
 /**
  * Match entity - a football game
@@ -122,16 +127,61 @@ export type MatchMode = '5vs5' | '6vs6' | '7vs7' | '8vs8' | '11vs11';
 export interface Match {
   id: string;
   team_id: string;
-  date: string;
+  scheduled_at: string; // ISO datetime
   location?: string;
   mode: MatchMode;
   status: MatchStatus;
   home_score?: number;
   away_score?: number;
   notes?: string;
+  created_by: string;
   created_at: string;
   updated_at: string;
   sync_status: SyncStatus;
+}
+
+/**
+ * Match player junction entity - RSVP tracking
+ */
+export interface MatchPlayer {
+  id: string;
+  match_id: string;
+  player_id: string;
+  rsvp_status: RSVPStatus;
+  rsvp_at: string;
+  position_on_pitch?: string;
+  sync_status: SyncStatus;
+}
+
+/**
+ * Formation entity - formation template per match
+ */
+export interface Formation {
+  id: string;
+  match_id: string;
+  team_formation: {
+    formation: string;
+    positions: Array<{
+      x: number;
+      y: number;
+      label: string;
+    }>;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Formation position entity - player assignments on pitch
+ */
+export interface FormationPosition {
+  id: string;
+  formation_id: string;
+  player_id?: string;
+  position_x: number;
+  position_y: number;
+  position_label: string;
+  is_substitute: boolean;
 }
 
 /**
@@ -142,7 +192,7 @@ export type OfflineActionType = 'create' | 'update' | 'delete';
 /**
  * Table names that support offline actions
  */
-export type OfflineTable = 'teams' | 'players' | 'matches' | 'team_members' | 'player_teams' | 'team_invites';
+export type OfflineTable = 'teams' | 'players' | 'matches' | 'match_players' | 'formations' | 'formation_positions' | 'team_members' | 'player_teams' | 'team_invites';
 
 /**
  * Offline action - queued mutation to sync later
@@ -213,6 +263,29 @@ export interface CalcettoDB extends DBSchema {
       'by-team-id': string;
       'by-status': string;
       'by-sync-status': string;
+    };
+  };
+  match_players: {
+    key: string;
+    value: MatchPlayer;
+    indexes: {
+      'by-match-id': string;
+      'by-player-id': string;
+      'by-sync-status': string;
+    };
+  };
+  formations: {
+    key: string;
+    value: Formation;
+    indexes: {
+      'by-match-id': string;
+    };
+  };
+  formation_positions: {
+    key: string;
+    value: FormationPosition;
+    indexes: {
+      'by-formation-id': string;
     };
   };
   offline_actions: {

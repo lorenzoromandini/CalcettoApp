@@ -18,7 +18,7 @@ export const DB_NAME = 'calcetto-manager';
 /**
  * Database version - increment when schema changes
  */
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 /**
  * Database instance cache
@@ -89,6 +89,34 @@ export async function getDB(): Promise<IDBPDatabase<CalcettoDB>> {
         matchesStore.createIndex('by-status', 'status');
         matchesStore.createIndex('by-sync-status', 'sync_status');
         console.log('[IndexedDB] Created matches store');
+      }
+
+      // v3: Add match management stores
+      if (oldVersion < 3) {
+        // Add match_players store
+        if (!db.objectStoreNames.contains('match_players')) {
+          const matchPlayersStore = db.createObjectStore('match_players', { keyPath: 'id' });
+          matchPlayersStore.createIndex('by-match-id', 'match_id');
+          matchPlayersStore.createIndex('by-player-id', 'player_id');
+          matchPlayersStore.createIndex('by-sync-status', 'sync_status');
+          console.log('[IndexedDB] Created match_players store');
+        }
+
+        // Add formations store
+        if (!db.objectStoreNames.contains('formations')) {
+          const formationsStore = db.createObjectStore('formations', { keyPath: 'id' });
+          formationsStore.createIndex('by-match-id', 'match_id');
+          console.log('[IndexedDB] Created formations store');
+        }
+
+        // Add formation_positions store
+        if (!db.objectStoreNames.contains('formation_positions')) {
+          const positionsStore = db.createObjectStore('formation_positions', { keyPath: 'id' });
+          positionsStore.createIndex('by-formation-id', 'formation_id');
+          console.log('[IndexedDB] Created formation_positions store');
+        }
+
+        console.log('[IndexedDB] Upgraded to v3 - added match management stores');
       }
 
       // Offline actions queue
