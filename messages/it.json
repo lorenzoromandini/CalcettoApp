@@ -264,5 +264,40 @@
       "confirm": "Rimuovi",
       "removing": "Rimozione..."
     }
+  },
+  "teamNav": {
+    "overview": "Panoramica",
+    "players": "Giocatori",
+    "roster": "Rosa",
+    "settings": "Impostazioni"
+  },
+  "teamDashboard": {
+    "syncing": "Sincronizzazione...",
+    "settings": "Impostazioni",
+    "stats": {
+      "players": "Giocatori",
+      "registeredPlayers": "Giocatori registrati",
+      "members": "Membri",
+      "teamMembers": "Membri della squadra",
+      "matches": "Partite",
+      "upcomingMatches": "Prossime partite"
+    },
+    "actions": {
+      "players": {
+        "title": "Gestisci giocatori",
+        "description": "Aggiungi, modifica o rimuovi giocatori dalla squadra",
+        "button": "Vai ai giocatori"
+      },
+      "invite": {
+        "title": "Invita membri",
+        "description": "Condividi il link di invito per far entrare nuovi membri",
+        "button": "Genera invito"
+      }
+    },
+    "matches": {
+      "title": "Prossime partite",
+      "description": "Visualizza e gestisci le partite programmate",
+      "placeholder": "Nessuna partita programmata. Le partite verranno aggiunte in una fase futura."
+    }
   }
 }

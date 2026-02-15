@@ -264,5 +264,40 @@
       "confirm": "Remove",
       "removing": "Removing..."
     }
+  },
+  "teamNav": {
+    "overview": "Overview",
+    "players": "Players",
+    "roster": "Roster",
+    "settings": "Settings"
+  },
+  "teamDashboard": {
+    "syncing": "Syncing...",
+    "settings": "Settings",
+    "stats": {
+      "players": "Players",
+      "registeredPlayers": "Registered players",
+      "members": "Members",
+      "teamMembers": "Team members",
+      "matches": "Matches",
+      "upcomingMatches": "Upcoming matches"
+    },
+    "actions": {
+      "players": {
+        "title": "Manage players",
+        "description": "Add, edit or remove players from the team",
+        "button": "Go to players"
+      },
+      "invite": {
+        "title": "Invite members",
+        "description": "Share the invite link to let new members join",
+        "button": "Generate invite"
+      }
+    },
+    "matches": {
+      "title": "Upcoming matches",
+      "description": "View and manage scheduled matches",
+      "placeholder": "No matches scheduled. Matches will be added in a future phase."
+    }
   }
 }
