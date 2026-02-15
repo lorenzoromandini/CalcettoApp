@@ -17,15 +17,11 @@ export const createPlayerSchema = z.object({
     .optional()
     .or(z.literal('')),
   jersey_number: z
-    .union([
-      z.number().int().min(1).max(99),
-      z.string().transform((val) => (val === '' ? undefined : parseInt(val, 10))),
-      z.undefined(),
-    ])
-    .optional()
-    .refine((val) => val === undefined || (val >= 1 && val <= 99), {
-      message: 'Il numero deve essere tra 1 e 99',
-    }),
+    .number()
+    .int()
+    .min(1, 'Il numero deve essere tra 1 e 99')
+    .max(99, 'Il numero deve essere tra 1 e 99')
+    .optional(),
   roles: z.array(z.enum(['goalkeeper', 'defender', 'midfielder', 'attacker'])).default([]),
 });
 
