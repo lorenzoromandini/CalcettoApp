@@ -128,6 +128,25 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 - Critical: Touch targets 44px+, large drag handles, magnetic snapping
 - Avoid: Drag-and-drop as only input method (Pitfall #2)
 
+**Plans:** 6 plans in 6 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 03-01 | Database schema (matches, match_players, formations, RLS) | 1 | 02-06 | supabase/migrations/20260215000002_*.sql, lib/db/schema.ts |
+| 03-02 | Match CRUD (create, list, edit, cancel) | 2 | 03-01 | lib/db/matches.ts, hooks/use-matches.ts, components/matches/* |
+| 03-03 | RSVP system (IN/OUT/Maybe, real-time counts) | 3 | 03-01, 03-02 | lib/db/rsvps.ts, hooks/use-rsvps.ts, components/matches/rsvp-*.tsx |
+| 03-04 | Formation builder (drag-and-drop + tap-to-place) | 4 | 03-01, 03-02, 03-03 | components/formations/*, hooks/use-formation.ts, @dnd-kit |
+| 03-05 | Push notifications | 5 | 03-01, 03-02 | lib/notifications/*, app/sw.ts, VAPID setup |
+| 03-06 | Integration and verification | 6 | All | Dashboard, navigation, translations |
+
+**Wave Structure:**
+- **Wave 1:** 03-01 — Database foundation (matches, RSVPs, formations tables)
+- **Wave 2:** 03-02 — Match CRUD (depends on schema)
+- **Wave 3:** 03-03 — RSVP system (depends on matches)
+- **Wave 4:** 03-04 — Formation builder (depends on matches + RSVPs)
+- **Wave 5:** 03-05 — Push notifications (depends on matches, parallel-possible with 4)
+- **Wave 6:** 03-06 — Integration and verification (depends on all)
+
 ---
 
 ## Phase 4: Live Match Experience
