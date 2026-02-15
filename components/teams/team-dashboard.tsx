@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp } from 'lucide-react';
 import type { Team } from '@/lib/db/schema';
 
@@ -22,19 +23,6 @@ export function TeamDashboard({
 }: TeamDashboardProps) {
   const t = useTranslations('teamDashboard');
 
-  const getTeamModeLabel = (mode: string) => {
-    switch (mode) {
-      case '5-a-side':
-        return '5 vs 5';
-      case '8-a-side':
-        return '8 vs 8';
-      case '11-a-side':
-        return '11 vs 11';
-      default:
-        return mode;
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Team Header */}
@@ -45,13 +33,13 @@ export function TeamDashboard({
             <p className="text-muted-foreground mt-1">{team.description}</p>
           )}
           <div className="flex items-center gap-2 mt-2">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              {getTeamModeLabel(team.team_mode)}
-            </span>
+            <Badge variant={team.team_mode === '5-a-side' ? 'default' : 'secondary'}>
+              {team.team_mode === '5-a-side' ? '5 vs 5' : '8 vs 8'}
+            </Badge>
             {team.sync_status === 'pending' && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border text-yellow-600">
+              <Badge variant="outline" className="text-yellow-600">
                 {t('syncing')}
-              </span>
+              </Badge>
             )}
           </div>
         </div>
