@@ -2,8 +2,8 @@
 
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
-**Current Focus:** Phase 2 — Team Management  
-**Last Updated:** 2026-02-15 (after Plan 02-06 completion - AWAITING VERIFICATION)  
+**Current Focus:** Phase 3 — Match Management  
+**Last Updated:** 2026-02-15 (after Plan 03-01 completion)  
 
 ---
 
@@ -11,19 +11,19 @@
 
 | Property | Value |
 |----------|-------|
-| **Phase** | 2 — Team Management |
-| **Phase Goal** | Users can create and manage teams, add players, and organize match participants |
-| **Plan** | 06 — Team Integration & Verification |
-| **Status** | ⏳ Verification Required |
-| **Progress** | 100% |
+| **Phase** | 3 — Match Management |
+| **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
+| **Plan** | 01 — Match Management Database Schema |
+| **Status** | ✅ Complete |
+| **Progress** | 17% |
 
-### Phase 2 Progress Bar
+### Phase 3 Progress Bar
 
 ```
-[██████████████████] 100%
+[██░░░░░░░░░░░░░░░░] 17%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 ⏳ Verification Pending*
+*Plan 01 ✅ Complete, Plan 02 🔴 Not Started, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
 
 ---
 
@@ -56,15 +56,15 @@
 | Phase | Goal | Requirements | Status | Progress |
 |-------|------|--------------|--------|----------|
 | 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
-| 2 | Team Management | 10 | 🟡 Verification Pending | 100% |
-| 3 | Match Management | 14 | 🔴 Not Started | 0% |
+| 2 | Team Management | 10 | 🟢 Complete | 100% |
+| 3 | Match Management | 14 | 🟡 In Progress | 17% |
 | 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
 | 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
 | 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
-**Overall:** 2/68 requirements complete (~3%)
+**Overall:** 3/68 requirements complete (~4%)
 
 ---
 
@@ -95,6 +95,11 @@
 | 2026-02-15 | Soft delete pattern for teams | Preserve match history when teams are "deleted" | ✅ Confirmed |
 | 2026-02-15 | SECURITY DEFINER helper functions | Reusable RLS authorization logic with better query planning | ✅ Confirmed |
 | 2026-02-15 | Unique jersey numbers per team | Constraint prevents duplicates within team, allows across teams | ✅ Confirmed |
+| 2026-02-15 | Match mode limited to 5vs5 and 8vs8 | Aligns with team_mode from Phase 2, simplifies formation options | ✅ Confirmed |
+| 2026-02-15 | Scheduled_at uses TIMESTAMPTZ | Combined date/time with timezone for accurate scheduling | ✅ Confirmed |
+| 2026-02-15 | One formation per match via UNIQUE(match_id) | Simplifies data model, formations are match-specific | ✅ Confirmed |
+| 2026-02-15 | Grid coordinates (0-9 x, 0-6 y) for pitch | Integer grid enables responsive pitch visualization | ✅ Confirmed |
+| 2026-02-15 | RSVP status enum (in/out/maybe) | Clear availability tracking with Italian-friendly labels | ✅ Confirmed |
 
 ---
 
@@ -376,32 +381,57 @@
 
 ---
 
+### From Plan 03-01 (Match Management Database Schema)
+
+**Implemented:**
+- ✅ Database migration with 4 tables: matches, match_players, formations, formation_positions
+- ✅ RLS policies with helper functions: is_match_admin, is_match_participant
+- ✅ IndexedDB schema v3 with match_players, formations, formation_positions stores
+- ✅ TypeScript types for all match-related tables
+- ✅ Match mode support: 5vs5 and 8vs8 with CHECK constraints
+- ✅ RSVP tracking with status: in, out, maybe
+- ✅ Formation grid positioning with 0-9 x, 0-6 y coordinates
+
+**Key Files for Future Phases:**
+- `supabase/migrations/20260215000002_matches_rsvps_formations.sql` - Database schema reference
+- `lib/db/schema.ts` - Match, MatchPlayer, Formation, FormationPosition interfaces
+- `lib/db/index.ts` - DB_VERSION 3 with match management stores
+- `types/database.ts` - Supabase types for match queries
+
+**Patterns Established:**
+- Match scheduling: matches table with scheduled_at TIMESTAMPTZ
+- RSVP pattern: match_players junction with rsvp_status enum
+- Formation builder: JSONB team_formation + formation_positions grid
+- Match authorization: is_match_admin() checks team membership via match.team_id
+- Substitute tracking: is_substitute boolean on formation_positions
+
+---
+
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-15
-- **Activity:** Executed Plan 02-06 (Team Integration) - Auth protection, Server Components, integration
+- **Activity:** Executed Plan 03-01 (Match Management Database Schema)
 - **Outcome:** 
-  - Middleware auth protection for /teams/* and /dashboard/* routes
-  - Team detail page converted to Server Component
-  - Team dashboard updated with Badge component
-  - Verified team navigation, dashboard, and translations complete
-  - Plan 02-06 SUMMARY.md created and committed
-  - Phase 2 implementation complete - awaiting verification
+  - Created PostgreSQL migration with matches, match_players, formations, formation_positions tables
+  - Implemented RLS policies for team-based match access control
+  - Extended IndexedDB to v3 with match management stores
+  - Generated TypeScript types for all match entities
+  - Plan 03-01 SUMMARY.md created and committed
+  - Phase 3 match management foundation complete
 
 ### Next Session
-- **Status:** ⏳ CHECKPOINT - Human verification required
-- **Action:** User needs to verify all Phase 2 features work end-to-end
-- **When approved:** Run `/gsd-execute-phase 02` to finalize Phase 2
-- **Then:** Begin Phase 3: Match Management
+- **Status:** Ready to continue
+- **Action:** Execute Plan 03-02: Match Creation UI
+- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-02
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
-4. Read 02-01-SUMMARY.md for database schema details
-5. Run `/gsd-execute-phase 02` to continue with Plan 02
+4. Read 03-01-SUMMARY.md for match database schema details
+5. Run `/gsd-execute-phase 03` to continue with Plan 03
 
 ---
 
