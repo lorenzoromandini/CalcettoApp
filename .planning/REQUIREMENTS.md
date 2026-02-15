@@ -17,14 +17,15 @@
 ### Team Management
 
 - [ ] **TEAM-01**: User can create a team with name and description
-- [ ] **TEAM-02**: User can add players to team with name, surname, nickname, jersey number
+- [ ] **TEAM-02**: User can add players to team with name, surname, nickname, and jersey number (jersey number is unique within team and required)
+- [ ] **TEAM-02a**: A player can belong to multiple teams with different jersey numbers in each team
 - [ ] **TEAM-03**: User can upload player avatar with automatic square cropping
 - [ ] **TEAM-04**: User can assign multiple roles to players (goalkeeper, defender, midfielder, attacker)
 - [ ] **TEAM-05**: User can generate invite link to share via WhatsApp/email
 - [ ] **TEAM-06**: Invited users can join team via link
 - [ ] **TEAM-07**: Team admin can remove players from team
 - [ ] **TEAM-08**: Team admin can assign co-admin privileges
-- [ ] **TEAM-09**: User can view team roster with player details
+- [ ] **TEAM-09**: User can view team roster with player details (including jersey numbers)
 - [ ] **TEAM-10**: Support both 5-a-side and 8-a-side team modes
 
 ### Match Management
