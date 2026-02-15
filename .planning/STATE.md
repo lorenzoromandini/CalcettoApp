@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-15 (after Plan 02-01 completion)  
+**Last Updated:** 2026-02-15 (after Plan 02-04 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 2 — Team Management |
 | **Phase Goal** | Users can create and manage teams, add players, and organize match participants |
-| **Plan** | 02 — Team CRUD (create, list, team mode selection) |
+| **Plan** | 04 — Invite System (link generation and redemption) |
 | **Status** | ✅ Complete |
-| **Progress** | ~33% |
+| **Progress** | ~67% |
 
 ### Phase 2 Progress Bar
 
 ```
-[██████░░░░░░░░░░░░] ~50%
+[████████░░░░░░░░░░] ~67%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ⏳ Pending, Plan 05 ⏳ Pending, Plan 06 ⏳ Pending*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ⏳ Pending, Plan 06 ⏳ Pending*
 
 ---
 
@@ -56,7 +56,7 @@
 | Phase | Goal | Requirements | Status | Progress |
 |-------|------|--------------|--------|----------|
 | 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
-| 2 | Team Management | 10 | 🟡 In Progress | 17% |
+| 2 | Team Management | 10 | 🟡 In Progress | 67% |
 | 3 | Match Management | 14 | 🔴 Not Started | 0% |
 | 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
 | 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
@@ -319,27 +319,55 @@
 - `/[locale]/teams/[teamId]/players` - List team players
 - `/[locale]/teams/[teamId]/players/create` - Add new player to team
 
+### From Plan 02-04 (Invite System)
+
+**Implemented:**
+- ✅ Invite generation with secure SHA256-like tokens (32-char hex)
+- ✅ Configurable max uses (1-100) and 7-day expiration
+- ✅ WhatsApp sharing with pre-filled Italian/English message
+- ✅ Email sharing with subject/body templates
+- ✅ Copy to clipboard with visual feedback
+- ✅ Invite redemption page with token validation
+- ✅ All states handled: loading, invalid, unauthenticated, success, already-member
+- ✅ Team settings page with admin-only invite generator
+- ✅ Duplicate join prevention
+
+**Key Files:**
+- `lib/db/invites.ts` - Invite CRUD operations and join logic
+- `components/teams/invite-generator.tsx` - Invite generation UI with slider
+- `app/[locale]/teams/invite/page.tsx` - Invite redemption page
+- `app/[locale]/teams/[teamId]/settings/page.tsx` - Team settings with invite management
+
+**New Routes:**
+- `/[locale]/teams/invite?token=xxx` - Join team via invite link
+- `/[locale]/teams/[teamId]/settings` - Team settings (admin only)
+
+**Patterns Established:**
+- Token-based invites with expiration and usage tracking
+- Social sharing integration (WhatsApp, Email)
+- Query param token validation on public pages
+- Admin-only settings pages with role checks
+
 ---
 
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-15
-- **Activity:** Executed Plan 02-03 (Player Management) - Implemented player creation with avatar cropping and role assignment
+- **Activity:** Executed Plan 02-04 (Invite System) - Verified existing invite generation and redemption implementation
 - **Outcome:** 
-  - Player creation form with avatar upload and cropping (react-easy-crop)
-  - Multi-role selector with toggle buttons
-  - Player list page with player cards
-  - Player card component with avatar, jersey number badge, and roles
-  - Complete React hooks for player data management
-  - Full i18n support (IT/EN)
-  - Multi-team player support architecture
-  - All TypeScript errors resolved, build successful
+  - Confirmed invite generation with secure tokens already implemented
+  - WhatsApp and email sharing functional
+  - Invite redemption page with all state handling complete
+  - Team settings page with admin-only invite generator verified
+  - All translations (IT/EN) in place
+  - TypeScript compiles without errors
+  - Plan 02-04 SUMMARY.md created and committed
 
 ### Next Session
-- **Command:** `/gsd-execute-phase 02` to run Plan 02-04 (Invite System)
-- **Goal:** Implement team invite generation and acceptance via shareable links
-- **Expected Output:** Invite creation UI, invite link sharing, and join via invite functionality
+- **Command:** `/gsd-execute-phase 02` to run Plan 02-05 (Team Editing & Deletion)
+- **Goal:** Implement team editing and deletion (completing danger zone in settings)
+- **Expected Output:** Team edit form, soft delete implementation, confirmation dialogs
 
 ### Context for Claude
 When resuming this project:
