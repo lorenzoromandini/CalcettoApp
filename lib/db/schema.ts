@@ -20,7 +20,7 @@ export type SyncStatus = 'synced' | 'pending' | 'error';
 /**
  * Team mode/formation type
  */
-export type TeamMode = '5-a-side' | '8-a-side';
+export type TeamMode = '5-a-side' | '8-a-side' | '11-a-side';
 
 /**
  * Team entity - a group of players

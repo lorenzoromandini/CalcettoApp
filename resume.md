@@ -4,15 +4,15 @@
 session_date: 2026-02-15
 project: Calcetto Manager
 phase: 2-team-management
-phase_progress: ~30%
-current_plan: 02-02 and 02-03 (Wave 2)
+phase_progress: ~50%
+current_plan: 02-04 (Wave 3 - Invite System)
 
 ## Completed Plans
 - Phase 1: All plans complete (01-01 to 01-07)
 - Phase 2:
   - 02-01: Database schema ✓ (teams, players, invites, RLS)
-  - 02-02: Team CRUD (in progress)
-  - 02-03: Player management (in progress)
+  - 02-02: Team CRUD ✓ (create, list, team mode selection with 5/8/11-a-side)
+  - 02-03: Player management ✓ (add, avatar crop, roles, jersey numbers)
 
 ## Current State
 - Auth: Supabase Auth (PKCE flow)
@@ -23,9 +23,9 @@ current_plan: 02-02 and 02-03 (Wave 2)
 - PWA: Next.js 15 manifest
 
 ## What's Next (Phase 2)
-1. Complete 02-02: Team CRUD (create, list, team mode selection)
-2. Complete 02-03: Player management (add, avatar crop, roles)
-3. Wave 3: 02-04 - Invite system
+1. ✅ Complete 02-02: Team CRUD (create, list, team mode selection - includes 11-a-side)
+2. ✅ Complete 02-03: Player management (add, avatar crop, roles, jersey numbers)
+3. Wave 3: 02-04 - Invite system (generate links, join via invite)
 4. Wave 4: 02-05 - Admin features
 5. Wave 5: 02-06 - Integration and verification
 

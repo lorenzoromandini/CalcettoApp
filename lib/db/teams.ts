@@ -464,3 +464,145 @@ export async function getTeamsBySyncStatus(status: SyncStatus): Promise<Team[]> 
   const db = await getDB();
   return db.getAllFromIndex('teams', 'by-sync-status', status);
 }
+
+// ============================================================================
+// Member Management Operations
+// ============================================================================
+
+/**
+ * Update member role (admin only)
+ * 
+ * @param teamId - Team ID
+ * @param memberId - Member ID to update
+ * @param newRole - New role ('admin' | 'co-admin' | 'member')
+ */
+export async function updateMemberRole(
+  teamId: string,
+  memberId: string,
+  newRole: 'admin' | 'co-admin' | 'member'
+): Promise<void> {
+  const db = await getDB();
+  
+  // Get from IndexedDB
+  const member = await db.get('team_members', memberId);
+  
+  if (!member || member.team_id !== teamId) {
+    throw new Error('Member not found');
+  }
+  
+  const updated: TeamMember = {
+    ...member,
+    role: newRole,
+    sync_status: 'pending',
+  };
+  
+  // Update local cache
+  await db.put('team_members', updated);
+  
+  // Try to sync with Supabase
+  try {
+    const supabase = await getSupabaseClient();
+    const { error } = await supabase
+      .from('team_members')
+      .update({ role: newRole })
+      .eq('id', memberId);
+    
+    if (error) throw error;
+    
+    // Mark as synced
+    updated.sync_status = 'synced';
+    await db.put('team_members', updated);
+    console.log('[TeamDB] Member role updated and synced:', memberId);
+  } catch (error) {
+    // Queue for offline sync
+    console.log('[TeamDB] Queueing role update for sync:', memberId);
+    await queueOfflineAction('update', 'team_members', {
+      id: memberId,
+      role: newRole,
+    });
+  }
+}
+
+/**
+ * Remove member from team (hard delete for memberships)
+ * 
+ * @param teamId - Team ID
+ * @param memberId - Member ID to remove
+ */
+export async function removeTeamMember(
+  teamId: string,
+  memberId: string
+): Promise<void> {
+  const db = await getDB();
+  
+  const member = await db.get('team_members', memberId);
+  
+  if (!member || member.team_id !== teamId) {
+    throw new Error('Member not found');
+  }
+  
+  // Cannot remove the admin directly
+  if (member.role === 'admin') {
+    throw new Error('Cannot remove admin. Transfer ownership first.');
+  }
+  
+  // Delete from local cache
+  await db.delete('team_members', memberId);
+  
+  // Try to sync with Supabase
+  try {
+    const supabase = await getSupabaseClient();
+    const { error } = await supabase
+      .from('team_members')
+      .delete()
+      .eq('id', memberId);
+    
+    if (error) throw error;
+    
+    console.log('[TeamDB] Member removed and synced:', memberId);
+  } catch (error) {
+    // Queue for offline sync
+    console.log('[TeamDB] Queueing member removal for sync:', memberId);
+    await queueOfflineAction('delete', 'team_members', {
+      id: memberId,
+      team_id: teamId,
+    });
+  }
+}
+
+/**
+ * Transfer team ownership to another member
+ * 
+ * @param teamId - Team ID
+ * @param currentAdminId - Current admin user ID
+ * @param newAdminId - New admin user ID
+ */
+export async function transferOwnership(
+  teamId: string,
+  currentAdminId: string,
+  newAdminId: string
+): Promise<void> {
+  const db = await getDB();
+  
+  // Get all members for this team
+  const members = await db.getAllFromIndex('team_members', 'by-team-id', teamId);
+  
+  const currentAdmin = members.find(
+    m => m.user_id === currentAdminId && m.role === 'admin'
+  );
+  const newAdmin = members.find(
+    m => m.user_id === newAdminId
+  );
+  
+  if (!currentAdmin || !newAdmin) {
+    throw new Error('Members not found');
+  }
+  
+  // Demote current admin to member
+  await updateMemberRole(teamId, currentAdmin.id, 'member');
+  
+  // Promote new admin
+  await updateMemberRole(teamId, newAdmin.id, 'admin');
+  
+  console.log('[TeamDB] Ownership transferred from', currentAdminId, 'to', newAdminId);
+}

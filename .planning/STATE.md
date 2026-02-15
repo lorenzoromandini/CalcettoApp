@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 2 — Team Management |
 | **Phase Goal** | Users can create and manage teams, add players, and organize match participants |
-| **Plan** | 01 — Database Schema for Teams |
+| **Plan** | 02 — Team CRUD (create, list, team mode selection) |
 | **Status** | ✅ Complete |
-| **Progress** | ~17% |
+| **Progress** | ~33% |
 
 ### Phase 2 Progress Bar
 
 ```
-[██░░░░░░░░░░░░░░░░] ~17%
+[██████░░░░░░░░░░░░] ~50%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ⏳ Pending, Plan 03 ⏳ Pending, Plan 04 ⏳ Pending, Plan 05 ⏳ Pending, Plan 06 ⏳ Pending*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ⏳ Pending, Plan 05 ⏳ Pending, Plan 06 ⏳ Pending*
 
 ---
 
@@ -263,19 +263,83 @@
 - Player profiles are team-agnostic; jersey numbers in player_teams junction
 - Unique constraints enforce jersey number uniqueness per team
 
+### From Plan 02-02 (Team CRUD)
+
+**Implemented:**
+- ✅ Team creation form with validation (name, description, team mode)
+- ✅ Support for 3 team modes: 5-a-side, 8-a-side, and 11-a-side
+- ✅ Team list page with loading states and empty state
+- ✅ Team card component with team mode badge and member count
+- ✅ useTeams hook for data fetching with offline fallback
+- ✅ useCreateTeam, useUpdateTeam, useDeleteTeam mutation hooks
+- ✅ Complete translations (IT/EN) for team management UI
+- ✅ Admin role auto-assignment on team creation
+- ✅ Offline-first support with IndexedDB caching
+
+**Key Files:**
+- `lib/validations/team.ts` - Zod schemas with Italian error messages
+- `lib/db/teams.ts` - CRUD operations with offline queue integration
+- `hooks/use-teams.ts` - React hooks for team data management
+- `components/teams/team-form.tsx` - Reusable team creation form
+- `components/teams/team-card.tsx` - Team list item component
+- `app/[locale]/teams/page.tsx` - Team list page
+- `app/[locale]/teams/create/page.tsx` - Team creation page
+
+**New Routes:**
+- `/[locale]/teams` - List user's teams
+- `/[locale]/teams/create` - Create new team
+
+### From Plan 02-03 (Player Management)
+
+**Implemented:**
+- ✅ Player creation form with avatar upload and cropping
+- ✅ react-easy-crop integration for client-side avatar cropping
+- ✅ Multi-role selector (goalkeeper, defender, midfielder, attacker)
+- ✅ Jersey number input with validation
+- ✅ Player list page with player cards showing avatar, name, roles
+- ✅ Player card component with jersey number badge
+- ✅ usePlayers hook for player data management
+- ✅ Complete translations (IT/EN) for player management UI
+- ✅ Multi-team player support via player_teams junction table
+- ✅ Avatar upload to Supabase Storage with 95% JPEG quality
+
+**Key Files:**
+- `lib/validations/player.ts` - Zod schemas for player validation
+- `lib/db/players.ts` - Player CRUD with multi-team support
+- `lib/image-utils.ts` - Canvas-based image cropping utilities
+- `hooks/use-players.ts` - React hooks for player data
+- `components/players/player-form.tsx` - Player creation/editing form
+- `components/players/player-card.tsx` - Player list item component
+- `components/players/avatar-cropper.tsx` - Avatar cropping UI
+- `components/players/role-selector.tsx` - Multi-select role component
+- `app/[locale]/teams/[teamId]/players/page.tsx` - Player list page
+- `app/[locale]/teams/[teamId]/players/create/page.tsx` - Add player page
+
+**New Routes:**
+- `/[locale]/teams/[teamId]/players` - List team players
+- `/[locale]/teams/[teamId]/players/create` - Add new player to team
+
 ---
 
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-15
-- **Activity:** Executed Plan 02-01 (Team Management Database Schema) - 3 tasks, 4 files created
-- **Outcome:** Complete database schema with RLS, multi-team player support, IndexedDB v2, TypeScript types
+- **Activity:** Executed Plan 02-03 (Player Management) - Implemented player creation with avatar cropping and role assignment
+- **Outcome:** 
+  - Player creation form with avatar upload and cropping (react-easy-crop)
+  - Multi-role selector with toggle buttons
+  - Player list page with player cards
+  - Player card component with avatar, jersey number badge, and roles
+  - Complete React hooks for player data management
+  - Full i18n support (IT/EN)
+  - Multi-team player support architecture
+  - All TypeScript errors resolved, build successful
 
 ### Next Session
-- **Command:** `/gsd-execute-phase 02` to run Plan 02-02 (Team Creation UI)
-- **Goal:** Implement team creation forms and UI components
-- **Expected Output:** Team creation page with form validation and offline support
+- **Command:** `/gsd-execute-phase 02` to run Plan 02-04 (Invite System)
+- **Goal:** Implement team invite generation and acceptance via shareable links
+- **Expected Output:** Invite creation UI, invite link sharing, and join via invite functionality
 
 ### Context for Claude
 When resuming this project:

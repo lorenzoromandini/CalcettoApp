@@ -190,11 +190,24 @@ export async function getPlayers(): Promise<Player[]> {
 }
 
 /**
- * Get players by team ID
+ * Get players by team ID (via player_teams junction table)
  */
 export async function getPlayersByTeam(teamId: string): Promise<Player[]> {
   const db = await getDB();
-  return db.getAllFromIndex('players', 'by-team-id', teamId);
+  
+  // Get all player_team relationships for this team
+  const playerTeams = await db.getAllFromIndex('player_teams', 'by-team-id', teamId);
+  
+  // Get the actual player records
+  const players: Player[] = [];
+  for (const pt of playerTeams) {
+    const player = await db.get('players', pt.player_id);
+    if (player) {
+      players.push(player);
+    }
+  }
+  
+  return players;
 }
 
 /**

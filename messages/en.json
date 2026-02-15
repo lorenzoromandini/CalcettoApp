@@ -103,5 +103,166 @@
     },
     "comingSoon": "Features coming in the next phase",
     "noActivity": "No recent activity"
+  },
+  "teams": {
+    "title": "My Teams",
+    "description": "Manage your teams and players",
+    "create": "Create Team",
+    "createDescription": "Create a new team",
+    "back": "Back",
+    "teamMode": {
+      "5a-side": "5-a-side",
+      "8a-side": "8-a-side",
+      "11a-side": "11-a-side"
+    },
+    "empty": {
+      "title": "No teams",
+      "description": "Create your first team to start organizing matches"
+    },
+    "errorLoading": "Error loading teams",
+    "retry": "Retry",
+    "form": {
+      "name": "Team name",
+      "namePlaceholder": "Enter team name",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional - Add a description",
+      "teamMode": {
+        "label": "Game mode",
+        "5a-side": "5 vs 5",
+        "8a-side": "8 vs 8",
+        "11a-side": "11 vs 11"
+      },
+      "submit": "Create team",
+      "creating": "Creating...",
+      "error": "An error occurred. Please try again."
+    }
+  },
+  "players": {
+    "title": "Players",
+    "description": "Manage team players",
+    "create": "Add player",
+    "createDescription": "Add a new player to the team",
+    "back": "Back",
+    "errorLoading": "Error loading players",
+    "retry": "Retry",
+    "empty": {
+      "title": "No players",
+      "description": "Add your first player to the team"
+    },
+    "roles": {
+      "goalkeeper": "Goalkeeper",
+      "defender": "Defender",
+      "midfielder": "Midfielder",
+      "attacker": "Attacker"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Enter name",
+      "surname": "Surname",
+      "surnamePlaceholder": "Enter surname",
+      "nickname": "Nickname",
+      "nicknamePlaceholder": "Enter a nickname",
+      "jerseyNumber": "Jersey number",
+      "roles": "Roles",
+      "rolesHint": "Select one or more roles",
+      "avatar": "Profile photo",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "avatar": {
+      "upload": "Upload photo",
+      "change": "Change photo",
+      "hint": "Recommended format: square, max 5MB",
+      "cropTitle": "Crop photo",
+      "zoom": "Zoom",
+      "cancel": "Cancel",
+      "save": "Save",
+      "processing": "Processing...",
+      "errorType": "Invalid file format. Use JPG, PNG or GIF.",
+      "errorSize": "File too large. Maximum size: 5MB."
+    }
+  },
+  "invites": {
+    "unknownTeam": "Unknown team",
+    "generator": {
+      "title": "Invite members",
+      "button": "Generate invite link",
+      "generating": "Generating...",
+      "maxUses": "Maximum uses",
+      "maxUsesHint": "How many people can use this link",
+      "linkLabel": "Invite link",
+      "createNew": "Create new link",
+      "email": "Email"
+    },
+    "whatsapp": {
+      "message": "Join my team on Calcetto Manager!"
+    },
+    "email": {
+      "subject": "Invitation to join team",
+      "body": "Hi! I'm inviting you to join my team on Calcetto Manager. Click the link to accept:"
+    },
+    "invalid": {
+      "title": "Invalid invite",
+      "description": "This invite link has expired or doesn't exist.",
+      "backToTeams": "Back to teams"
+    },
+    "join": {
+      "title": "Join {teamName}",
+      "description": "You've been invited to join this team",
+      "button": "Join team",
+      "joining": "Joining...",
+      "cancel": "Cancel",
+      "loginRequired": "You need to log in to join the team",
+      "loginButton": "Log in and join",
+      "error": "Error joining team. Please try again."
+    },
+    "success": {
+      "title": "Welcome!",
+      "description": "You have successfully joined {teamName}"
+    },
+    "alreadyMember": {
+      "title": "Already a member",
+      "description": "You are already a member of {teamName}",
+      "viewTeam": "View team"
+    }
+  },
+  "settings": {
+    "title": "Team settings",
+    "backToTeam": "Back to team",
+    "notAdmin": "Only admins can access settings",
+    "dangerZone": {
+      "title": "Danger zone",
+      "description": "Irreversible actions for the team",
+      "deleteTeam": "Delete team"
+    }
+  },
+  "roster": {
+    "pageTitle": "Team Roster",
+    "backToTeam": "Back to team",
+    "title": "Team Members",
+    "you": "You",
+    "tabs": {
+      "players": "Players",
+      "members": "Members"
+    },
+    "roles": {
+      "admin": "Admin",
+      "coAdmin": "Co-Admin",
+      "member": "Member"
+    },
+    "changeRole": "Change Role",
+    "cancel": "Cancel",
+    "noPlayers": "No players in the team",
+    "addPlayer": "Add Player",
+    "roleUpdateError": "Error updating role",
+    "removeError": "Error removing member",
+    "remove": {
+      "confirmTitle": "Remove Member",
+      "confirmDescription": "Are you sure you want to remove this member from the team?",
+      "cancel": "Cancel",
+      "confirm": "Remove",
+      "removing": "Removing..."
+    }
   }
 }

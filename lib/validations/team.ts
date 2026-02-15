@@ -7,7 +7,7 @@ import { z } from "zod";
  */
 
 // Team mode enum values
-export const teamModeEnum = z.enum(["5-a-side", "8-a-side"]);
+export const teamModeEnum = z.enum(["5-a-side", "8-a-side", "11-a-side"]);
 
 // Create team schema
 export const createTeamSchema = z.object({
@@ -20,7 +20,7 @@ export const createTeamSchema = z.object({
     .string()
     .max(500, "La descrizione non può superare i 500 caratteri")
     .optional(),
-  team_mode: teamModeEnum.default("5-a-side"),
+  team_mode: teamModeEnum,
 });
 
 // Update team schema - all fields optional

@@ -103,5 +103,166 @@
     },
     "comingSoon": "Funzionalità in arrivo nella prossima fase",
     "noActivity": "Nessuna attività recente"
+  },
+  "teams": {
+    "title": "Le mie squadre",
+    "description": "Gestisci le tue squadre e i giocatori",
+    "create": "Crea squadra",
+    "createDescription": "Crea una nuova squadra",
+    "back": "Indietro",
+    "teamMode": {
+      "5a-side": "Calcio a 5",
+      "8a-side": "Calcio a 8",
+      "11a-side": "Calcio a 11"
+    },
+    "empty": {
+      "title": "Nessuna squadra",
+      "description": "Crea la tua prima squadra per iniziare a organizzare le partite"
+    },
+    "errorLoading": "Errore nel caricamento delle squadre",
+    "retry": "Riprova",
+    "form": {
+      "name": "Nome squadra",
+      "namePlaceholder": "Inserisci il nome della squadra",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Opzionale - Aggiungi una descrizione",
+      "teamMode": {
+        "label": "Modalità di gioco",
+        "5a-side": "5 vs 5",
+        "8a-side": "8 vs 8",
+        "11a-side": "11 vs 11"
+      },
+      "submit": "Crea squadra",
+      "creating": "Creazione in corso...",
+      "error": "Si è verificato un errore. Riprova."
+    }
+  },
+  "players": {
+    "title": "Giocatori",
+    "description": "Gestisci i giocatori della squadra",
+    "create": "Aggiungi giocatore",
+    "createDescription": "Aggiungi un nuovo giocatore alla squadra",
+    "back": "Indietro",
+    "errorLoading": "Errore nel caricamento dei giocatori",
+    "retry": "Riprova",
+    "empty": {
+      "title": "Nessun giocatore",
+      "description": "Aggiungi il tuo primo giocatore alla squadra"
+    },
+    "roles": {
+      "goalkeeper": "Portiere",
+      "defender": "Difensore",
+      "midfielder": "Centrocampista",
+      "attacker": "Attaccante"
+    },
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Inserisci il nome",
+      "surname": "Cognome",
+      "surnamePlaceholder": "Inserisci il cognome",
+      "nickname": "Soprannome",
+      "nicknamePlaceholder": "Inserisci un soprannome",
+      "jerseyNumber": "Numero maglia",
+      "roles": "Ruoli",
+      "rolesHint": "Seleziona uno o più ruoli",
+      "avatar": "Foto profilo",
+      "cancel": "Annulla",
+      "save": "Salva",
+      "saving": "Salvataggio..."
+    },
+    "avatar": {
+      "upload": "Carica foto",
+      "change": "Cambia foto",
+      "hint": "Formato consigliato: quadrato, max 5MB",
+      "cropTitle": "Ritaglia foto",
+      "zoom": "Zoom",
+      "cancel": "Annulla",
+      "save": "Salva",
+      "processing": "Elaborazione...",
+      "errorType": "Formato file non valido. Usa JPG, PNG o GIF.",
+      "errorSize": "File troppo grande. Dimensione massima: 5MB."
+    }
+  },
+  "invites": {
+    "unknownTeam": "Squadra sconosciuta",
+    "generator": {
+      "title": "Invita membri",
+      "button": "Genera link invito",
+      "generating": "Generazione...",
+      "maxUses": "Numero massimo di utilizzi",
+      "maxUsesHint": "Quante persone possono usare questo link",
+      "linkLabel": "Link invito",
+      "createNew": "Crea nuovo link",
+      "email": "Email"
+    },
+    "whatsapp": {
+      "message": "Unisciti alla mia squadra su Calcetto Manager!"
+    },
+    "email": {
+      "subject": "Invito a unirsi alla squadra",
+      "body": "Ciao! Ti invito a unirti alla mia squadra su Calcetto Manager. Clicca sul link per accettare:"
+    },
+    "invalid": {
+      "title": "Invito non valido",
+      "description": "Questo link invito è scaduto o non esiste.",
+      "backToTeams": "Torna alle squadre"
+    },
+    "join": {
+      "title": "Unisciti a {teamName}",
+      "description": "Sei stato invitato a unirti a questa squadra",
+      "button": "Unisciti alla squadra",
+      "joining": "Unione in corso...",
+      "cancel": "Annulla",
+      "loginRequired": "Devi accedere per unirti alla squadra",
+      "loginButton": "Accedi e unisciti",
+      "error": "Errore nell'unione alla squadra. Riprova."
+    },
+    "success": {
+      "title": "Benvenuto!",
+      "description": "Ti sei unito con successo a {teamName}"
+    },
+    "alreadyMember": {
+      "title": "Già membro",
+      "description": "Sei già un membro di {teamName}",
+      "viewTeam": "Vedi squadra"
+    }
+  },
+  "settings": {
+    "title": "Impostazioni squadra",
+    "backToTeam": "Torna alla squadra",
+    "notAdmin": "Solo gli admin possono accedere alle impostazioni",
+    "dangerZone": {
+      "title": "Zona pericolosa",
+      "description": "Azioni irreversibili per la squadra",
+      "deleteTeam": "Elimina squadra"
+    }
+  },
+  "roster": {
+    "pageTitle": "Rosa squadra",
+    "backToTeam": "Torna alla squadra",
+    "title": "Membri della squadra",
+    "you": "Tu",
+    "tabs": {
+      "players": "Giocatori",
+      "members": "Membri"
+    },
+    "roles": {
+      "admin": "Admin",
+      "coAdmin": "Co-Admin",
+      "member": "Membro"
+    },
+    "changeRole": "Cambia ruolo",
+    "cancel": "Annulla",
+    "noPlayers": "Nessun giocatore nella squadra",
+    "addPlayer": "Aggiungi giocatore",
+    "roleUpdateError": "Errore nell'aggiornamento del ruolo",
+    "removeError": "Errore nella rimozione del membro",
+    "remove": {
+      "confirmTitle": "Rimuovi membro",
+      "confirmDescription": "Sei sicuro di voler rimuovere questo membro dalla squadra?",
+      "cancel": "Annulla",
+      "confirm": "Rimuovi",
+      "removing": "Rimozione..."
+    }
   }
 }

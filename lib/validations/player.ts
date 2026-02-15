@@ -22,7 +22,7 @@ export const createPlayerSchema = z.object({
     .min(1, 'Il numero deve essere tra 1 e 99')
     .max(99, 'Il numero deve essere tra 1 e 99')
     .optional(),
-  roles: z.array(z.enum(['goalkeeper', 'defender', 'midfielder', 'attacker'])).default([]),
+  roles: z.array(z.enum(['goalkeeper', 'defender', 'midfielder', 'attacker'])),
 });
 
 export const updatePlayerSchema = createPlayerSchema.partial();
