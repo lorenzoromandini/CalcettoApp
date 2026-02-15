@@ -1,0 +1,187 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { Plus, ArrowLeft, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MatchCard } from "@/components/matches/match-card";
+import { useMatches } from "@/hooks/use-matches";
+import { useTeam } from "@/hooks/use-teams";
+import { isTeamAdmin } from "@/lib/db/teams";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+
+interface MatchesPageClientProps {
+  locale: string;
+  teamId: string;
+}
+
+export function MatchesPageClient({ locale, teamId }: MatchesPageClientProps) {
+  const t = useTranslations("matches");
+  const teamsT = useTranslations("teams");
+  const router = useRouter();
+  const { matches, upcomingMatches, pastMatches, isLoading, error, refetch } = useMatches(teamId);
+  const { team } = useTeam(teamId);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    async function checkAdmin() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const admin = await isTeamAdmin(teamId, user.id);
+        setIsAdmin(admin);
+      }
+    }
+    checkAdmin();
+  }, [teamId]);
+
+  const handleBack = () => {
+    router.push(`/${locale}/teams/${teamId}`);
+  };
+
+  const handleCreateMatch = () => {
+    router.push(`/${locale}/teams/${teamId}/matches/create`);
+  };
+
+  const handleMatchClick = (matchId: string) => {
+    router.push(`/${locale}/teams/${teamId}/matches/${matchId}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" onClick={handleBack} className="-ml-2">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {teamsT("back")}
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-lg bg-muted animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-6 w-48 bg-muted rounded animate-pulse" />
+                    <div className="h-4 w-full bg-muted rounded animate-pulse" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" onClick={handleBack} className="-ml-2">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {teamsT("back")}
+          </Button>
+        </div>
+        <Card className="border-destructive">
+          <CardContent className="p-6 text-center">
+            <p className="text-destructive">{t("errorLoading")}</p>
+            <Button onClick={refetch} variant="outline" className="mt-4">
+              {t("retry")}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={handleBack} className="-ml-2">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {teamsT("back")}
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{t("title")}</h1>
+            {team && (
+              <p className="text-sm text-muted-foreground">{team.name}</p>
+            )}
+          </div>
+        </div>
+        {isAdmin && (
+          <Button onClick={handleCreateMatch} className="h-12">
+            <Plus className="mr-2 h-4 w-4" />
+            {t("create")}
+          </Button>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="upcoming" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upcoming">{t("tabs.upcoming")}</TabsTrigger>
+          <TabsTrigger value="past">{t("tabs.past")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upcoming" className="space-y-4">
+          {upcomingMatches.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="p-8 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <CalendarDays className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{t("empty.upcoming.title")}</h3>
+                <p className="text-muted-foreground mb-4">{t("empty.upcoming.description")}</p>
+                {isAdmin && (
+                  <Button onClick={handleCreateMatch}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    {t("create")}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            upcomingMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                teamId={teamId}
+                onClick={() => handleMatchClick(match.id)}
+              />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="past" className="space-y-4">
+          {pastMatches.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="p-8 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <CalendarDays className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{t("empty.past.title")}</h3>
+                <p className="text-muted-foreground">{t("empty.past.description")}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            pastMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                teamId={teamId}
+                onClick={() => handleMatchClick(match.id)}
+              />
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
