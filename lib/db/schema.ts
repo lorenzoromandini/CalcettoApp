@@ -18,37 +18,92 @@ import type { DBSchema } from 'idb';
 export type SyncStatus = 'synced' | 'pending' | 'error';
 
 /**
+ * Team mode/formation type
+ */
+export type TeamMode = '5-a-side' | '8-a-side';
+
+/**
  * Team entity - a group of players
  */
 export interface Team {
   id: string;
   name: string;
   description?: string;
+  team_mode: TeamMode;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+  sync_status: SyncStatus;
+}
+
+/**
+ * Player role/position
+ */
+export type PlayerRole = 'goalkeeper' | 'defender' | 'midfielder' | 'attacker';
+
+/**
+ * Player entity - team-agnostic player profile
+ */
+export interface Player {
+  id: string;
+  name: string;
+  surname?: string;
+  nickname?: string;
+  avatar_url?: string;
+  user_id?: string; // Link to auth user if registered
+  roles: PlayerRole[];
   created_at: string;
   updated_at: string;
   sync_status: SyncStatus;
 }
 
 /**
- * Player role within a team
+ * Team role for members
  */
-export type PlayerRole = 'goalkeeper' | 'defender' | 'midfielder' | 'forward' | 'flexible';
+export type TeamRole = 'admin' | 'co-admin' | 'member';
 
 /**
- * Player entity - member of a team
+ * Team member junction entity
  */
-export interface Player {
+export interface TeamMember {
   id: string;
   team_id: string;
-  name: string;
-  surname: string;
-  nickname?: string;
-  jersey_number?: number;
-  avatar_url?: string;
-  roles: PlayerRole[];
-  created_at: string;
-  updated_at: string;
+  user_id?: string; // For registered users
+  player_id?: string; // For non-registered players
+  role: TeamRole;
+  joined_at: string;
   sync_status: SyncStatus;
+}
+
+/**
+ * Player-Team junction entity - supports players in multiple teams
+ */
+export interface PlayerTeam {
+  id: string;
+  player_id: string;
+  team_id: string;
+  jersey_number: number;
+  joined_at: string;
+  created_at: string;
+  sync_status: SyncStatus;
+}
+
+/**
+ * Team invite entity
+ */
+export interface TeamInvite {
+  id: string;
+  team_id: string;
+  created_by: string;
+  token: string;
+  email?: string;
+  expires_at: string;
+  used_at?: string;
+  used_by?: string;
+  max_uses: number;
+  use_count: number;
+  created_at: string;
 }
 
 /**
@@ -87,7 +142,7 @@ export type OfflineActionType = 'create' | 'update' | 'delete';
 /**
  * Table names that support offline actions
  */
-export type OfflineTable = 'teams' | 'players' | 'matches';
+export type OfflineTable = 'teams' | 'players' | 'matches' | 'team_members' | 'player_teams' | 'team_invites';
 
 /**
  * Offline action - queued mutation to sync later
@@ -113,14 +168,42 @@ export interface CalcettoDB extends DBSchema {
     indexes: {
       'by-sync-status': string;
       'by-created-at': string;
+      'by-created-by': string;
     };
   };
   players: {
     key: string;
     value: Player;
     indexes: {
+      'by-user-id': string;
+      'by-sync-status': string;
+    };
+  };
+  player_teams: {
+    key: string;
+    value: PlayerTeam;
+    indexes: {
+      'by-player-id': string;
       'by-team-id': string;
       'by-sync-status': string;
+    };
+  };
+  team_members: {
+    key: string;
+    value: TeamMember;
+    indexes: {
+      'by-team-id': string;
+      'by-user-id': string;
+      'by-player-id': string;
+      'by-sync-status': string;
+    };
+  };
+  team_invites: {
+    key: string;
+    value: TeamInvite;
+    indexes: {
+      'by-team-id': string;
+      'by-token': string;
     };
   };
   matches: {

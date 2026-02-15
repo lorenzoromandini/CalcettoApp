@@ -18,7 +18,7 @@ export const DB_NAME = 'calcetto-manager';
 /**
  * Database version - increment when schema changes
  */
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 /**
  * Database instance cache
@@ -43,15 +43,43 @@ export async function getDB(): Promise<IDBPDatabase<CalcettoDB>> {
         const teamsStore = db.createObjectStore('teams', { keyPath: 'id' });
         teamsStore.createIndex('by-sync-status', 'sync_status');
         teamsStore.createIndex('by-created-at', 'created_at');
+        teamsStore.createIndex('by-created-by', 'created_by');
         console.log('[IndexedDB] Created teams store');
       }
 
       // Players store
       if (!db.objectStoreNames.contains('players')) {
         const playersStore = db.createObjectStore('players', { keyPath: 'id' });
-        playersStore.createIndex('by-team-id', 'team_id');
+        playersStore.createIndex('by-user-id', 'user_id');
         playersStore.createIndex('by-sync-status', 'sync_status');
         console.log('[IndexedDB] Created players store');
+      }
+
+      // Player teams store
+      if (!db.objectStoreNames.contains('player_teams')) {
+        const playerTeamsStore = db.createObjectStore('player_teams', { keyPath: 'id' });
+        playerTeamsStore.createIndex('by-player-id', 'player_id');
+        playerTeamsStore.createIndex('by-team-id', 'team_id');
+        playerTeamsStore.createIndex('by-sync-status', 'sync_status');
+        console.log('[IndexedDB] Created player_teams store');
+      }
+
+      // Team members store
+      if (!db.objectStoreNames.contains('team_members')) {
+        const teamMembersStore = db.createObjectStore('team_members', { keyPath: 'id' });
+        teamMembersStore.createIndex('by-team-id', 'team_id');
+        teamMembersStore.createIndex('by-user-id', 'user_id');
+        teamMembersStore.createIndex('by-player-id', 'player_id');
+        teamMembersStore.createIndex('by-sync-status', 'sync_status');
+        console.log('[IndexedDB] Created team_members store');
+      }
+
+      // Team invites store
+      if (!db.objectStoreNames.contains('team_invites')) {
+        const teamInvitesStore = db.createObjectStore('team_invites', { keyPath: 'id' });
+        teamInvitesStore.createIndex('by-team-id', 'team_id');
+        teamInvitesStore.createIndex('by-token', 'token');
+        console.log('[IndexedDB] Created team_invites store');
       }
 
       // Matches store
