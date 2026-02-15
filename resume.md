@@ -3,42 +3,39 @@
 ## Session Info
 session_date: 2026-02-15
 project: Calcetto Manager
-phase: 1-foundation-auth
-phase_progress: ~90%
-current_plan: 01-07
+phase: 2-team-management
+phase_progress: ~30%
+current_plan: 02-02 and 02-03 (Wave 2)
 
-## Completed Plans (Phase 1)
-# 01-01 to 01-06: All completed
-
-## Major Refactor (Feb 15)
-- **Removed Supabase** - Too complex for self-hosted
-- **Added NextAuth v5** - Simple JWT-based auth
-- **Added Prisma** - Type-safe ORM for PostgreSQL
-- **PostgreSQL** - Running in Docker (calcetto-db on port 5432)
-- **Build fixed** - Node 20, Turbopack, async params
+## Completed Plans
+- Phase 1: All plans complete (01-01 to 01-07)
+- Phase 2:
+  - 02-01: Database schema ✓ (teams, players, invites, RLS)
+  - 02-02: Team CRUD (in progress)
+  - 02-03: Player management (in progress)
 
 ## Current State
-- App builds successfully (npm run build ✓)
-- Auth: NextAuth with credentials provider (email/password)
-- DB: PostgreSQL + Prisma (schema pushed)
+- Auth: Supabase Auth (PKCE flow)
+- DB: Supabase PostgreSQL + Prisma (if migrated) / Supabase
 - Offline: IndexedDB + Service Worker (Workbox)
 - i18n: next-intl (Italian/English)
 - Theme: next-themes (dark/light)
+- PWA: Next.js 15 manifest
 
-## What's Next (Plan 01-07)
-1. Integrate all providers in layouts
-2. Create protected dashboard at /[locale]/dashboard
-3. Add navigation header with theme/locale switchers
-4. Final build verification
-5. Human verification checkpoint
+## What's Next (Phase 2)
+1. Complete 02-02: Team CRUD (create, list, team mode selection)
+2. Complete 02-03: Player management (add, avatar crop, roles)
+3. Wave 3: 02-04 - Invite system
+4. Wave 4: 02-05 - Admin features
+5. Wave 5: 02-06 - Integration and verification
 
-## Prerequisites Before Continuing
-- PostgreSQL: docker run --name calcetto-db ... (already running)
-- Database: npx prisma db push
-- Node.js 20+ (installed)
+## Prerequisites
+- Supabase project linked
+- Database migrated (supabase migrations applied)
+- Node.js 20+
 
 ## Commands to Resume
-# cd /home/ubuntu/calcetto-app
+# cd C:\CalcettoApp
 # npm run dev
 # Read .planning/STATE.md
-# Read .planning/phases/01-foundation-auth/01-07-PLAN.md
+# Read .planning/phases/02-team-management/
