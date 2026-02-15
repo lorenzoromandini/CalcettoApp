@@ -299,5 +299,65 @@
       "description": "Visualizza e gestisci le partite programmate",
       "placeholder": "Nessuna partita programmata. Le partite verranno aggiunte in una fase futura."
     }
+  },
+  "matches": {
+    "title": "Partite",
+    "description": "Gestisci le partite della squadra",
+    "create": "Crea partita",
+    "createDescription": "Programma una nuova partita",
+    "back": "Indietro",
+    "tabs": {
+      "upcoming": "Prossime",
+      "past": "Passate"
+    },
+    "empty": {
+      "upcoming": {
+        "title": "Nessuna partita programmata",
+        "description": "Crea la tua prima partita per iniziare"
+      },
+      "past": {
+        "title": "Nessuna partita passata",
+        "description": "Le partite completate appariranno qui"
+      }
+    },
+    "errorLoading": "Errore nel caricamento delle partite",
+    "retry": "Riprova",
+    "status": {
+      "scheduled": "Programmata",
+      "inProgress": "In corso",
+      "completed": "Completata",
+      "cancelled": "Annullata"
+    },
+    "mode": {
+      "5vs5": "5 vs 5",
+      "8vs8": "8 vs 8"
+    },
+    "form": {
+      "scheduledAt": "Data e ora",
+      "location": "Location",
+      "locationPlaceholder": "Campo sportivo, indirizzo...",
+      "mode": {
+        "label": "Modalità",
+        "5vs5": "Calcio a 5",
+        "8vs8": "Calcio a 8"
+      },
+      "notes": "Note (opzionale)",
+      "notesPlaceholder": "Aggiungi note o informazioni extra...",
+      "submit": "Crea partita",
+      "submitting": "Creazione in corso...",
+      "error": "Si è verificato un errore. Riprova."
+    },
+    "detail": {
+      "title": "Dettagli partita",
+      "edit": "Modifica",
+      "cancel": "Annulla",
+      "uncancel": "Ripristina",
+      "cancelConfirm": "Sei sicuro di voler annullare questa partita?",
+      "sections": {
+        "rsvp": "Conferme di partecipazione",
+        "formation": "Formazione",
+        "stats": "Statistiche"
+      }
+    }
   }
 }

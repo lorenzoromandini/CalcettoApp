@@ -299,5 +299,65 @@
       "description": "View and manage scheduled matches",
       "placeholder": "No matches scheduled. Matches will be added in a future phase."
     }
+  },
+  "matches": {
+    "title": "Matches",
+    "description": "Manage team matches",
+    "create": "Create match",
+    "createDescription": "Schedule a new match",
+    "back": "Back",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "empty": {
+      "upcoming": {
+        "title": "No matches scheduled",
+        "description": "Create your first match to get started"
+      },
+      "past": {
+        "title": "No past matches",
+        "description": "Completed matches will appear here"
+      }
+    },
+    "errorLoading": "Error loading matches",
+    "retry": "Retry",
+    "status": {
+      "scheduled": "Scheduled",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "mode": {
+      "5vs5": "5 vs 5",
+      "8vs8": "8 vs 8"
+    },
+    "form": {
+      "scheduledAt": "Date and time",
+      "location": "Location",
+      "locationPlaceholder": "Sports field, address...",
+      "mode": {
+        "label": "Mode",
+        "5vs5": "5-a-side",
+        "8vs8": "8-a-side"
+      },
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Add notes or extra information...",
+      "submit": "Create match",
+      "submitting": "Creating...",
+      "error": "An error occurred. Please try again."
+    },
+    "detail": {
+      "title": "Match details",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "uncancel": "Restore",
+      "cancelConfirm": "Are you sure you want to cancel this match?",
+      "sections": {
+        "rsvp": "RSVPs",
+        "formation": "Formation",
+        "stats": "Statistics"
+      }
+    }
   }
 }
