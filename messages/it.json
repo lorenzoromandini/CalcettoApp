@@ -3,12 +3,14 @@
     "home": "Home",
     "login": "Accedi",
     "signup": "Registrati",
+    "dashboard": "Dashboard",
     "teams": "Squadre",
     "matches": "Partite",
     "players": "Giocatori",
     "statistics": "Statistiche",
     "settings": "Impostazioni",
-    "logout": "Esci"
+    "logout": "Esci",
+    "signIn": "Accedi"
   },
   "auth": {
     "email": "Email",
@@ -78,5 +80,28 @@
       "stats": "Statistiche",
       "ratings": "Valutazioni"
     }
+  },
+  "dashboard": {
+    "subtitle": "Ecco la panoramica della tua attività",
+    "stats": {
+      "teams": "Squadre",
+      "teamsDescription": "Squadre create",
+      "matches": "Partite",
+      "matchesDescription": "Partite giocate",
+      "victories": "Vittorie",
+      "victoriesDescription": "Partite vinte",
+      "rating": "Valutazione",
+      "ratingDescription": "La tua media"
+    },
+    "quickActions": {
+      "title": "Azioni rapide",
+      "description": "Crea nuovi contenuti"
+    },
+    "recentActivity": {
+      "title": "Attività recente",
+      "description": "Le tue ultime azioni"
+    },
+    "comingSoon": "Funzionalità in arrivo nella prossima fase",
+    "noActivity": "Nessuna attività recente"
   }
 }

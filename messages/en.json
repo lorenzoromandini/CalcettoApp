@@ -3,12 +3,14 @@
     "home": "Home",
     "login": "Login",
     "signup": "Sign Up",
+    "dashboard": "Dashboard",
     "teams": "Teams",
     "matches": "Matches",
     "players": "Players",
     "statistics": "Statistics",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "signIn": "Sign In"
   },
   "auth": {
     "email": "Email",
@@ -78,5 +80,28 @@
       "stats": "Statistics",
       "ratings": "Player ratings"
     }
+  },
+  "dashboard": {
+    "subtitle": "Here's an overview of your activity",
+    "stats": {
+      "teams": "Teams",
+      "teamsDescription": "Teams created",
+      "matches": "Matches",
+      "matchesDescription": "Matches played",
+      "victories": "Victories",
+      "victoriesDescription": "Matches won",
+      "rating": "Rating",
+      "ratingDescription": "Your average"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Create new content"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "description": "Your latest actions"
+    },
+    "comingSoon": "Features coming in the next phase",
+    "noActivity": "No recent activity"
   }
 }

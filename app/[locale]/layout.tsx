@@ -7,6 +7,7 @@ import { routing } from '@/lib/i18n/routing';
 import "../globals.css";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { AuthProvider } from "@/components/providers/auth-provider";
 import { OfflineBanner } from "@/components/offline-banner";
 
 const geistSans = Geist({
@@ -65,9 +66,12 @@ export default async function LocaleLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <NextIntlClientProvider messages={messages}>
-            {children}
-          </NextIntlClientProvider>
+          <AuthProvider>
+            <NextIntlClientProvider messages={messages}>
+              {children}
+              <OfflineBanner />
+            </NextIntlClientProvider>
+          </AuthProvider>
         </ThemeProvider>
         <ServiceWorkerRegister />
       </body>
