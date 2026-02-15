@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 1 — Foundation & Auth  
-**Last Updated:** 2026-02-14 (after Plan 01-06 completion)  
+**Last Updated:** 2026-02-15 (after Plan 02-01 completion)  
 
 ---
 
@@ -11,19 +11,19 @@
 
 | Property | Value |
 |----------|-------|
-| **Phase** | 1 — Foundation & Auth |
-| **Phase Goal** | Users can securely access the app and use it offline with instant loading |
-| **Plan** | 06 — Theme, i18n, and Onboarding |
+| **Phase** | 2 — Team Management |
+| **Phase Goal** | Users can create and manage teams, add players, and organize match participants |
+| **Plan** | 01 — Database Schema for Teams |
 | **Status** | ✅ Complete |
-| **Progress** | ~86% |
+| **Progress** | ~17% |
 
-### Phase 1 Progress Bar
+### Phase 2 Progress Bar
 
 ```
-[████████████░░░░░░] ~86%
+[██░░░░░░░░░░░░░░░░] ~17%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 ✅ Complete*
+*Plan 01 ✅ Complete, Plan 02 ⏳ Pending, Plan 03 ⏳ Pending, Plan 04 ⏳ Pending, Plan 05 ⏳ Pending, Plan 06 ⏳ Pending*
 
 ---
 
@@ -56,7 +56,7 @@
 | Phase | Goal | Requirements | Status | Progress |
 |-------|------|--------------|--------|----------|
 | 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
-| 2 | Team Management | 10 | 🔴 Not Started | 0% |
+| 2 | Team Management | 10 | 🟡 In Progress | 17% |
 | 3 | Match Management | 14 | 🔴 Not Started | 0% |
 | 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
 | 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
@@ -64,7 +64,7 @@
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
-**Overall:** 0/68 requirements complete (0%)
+**Overall:** 2/68 requirements complete (~3%)
 
 ---
 
@@ -91,6 +91,10 @@
 | 2026-02-14 | Italian as default locale | Primary market is Italy, English as fallback | ✅ Confirmed |
 | 2026-02-14 | next-themes with data-theme | Tailwind v4 compatible, system detection built-in | ✅ Confirmed |
 | 2026-02-14 | Client-side onboarding persistence | localStorage flag avoids server complexity, resets per device | ✅ Confirmed |
+| 2026-02-15 | Multi-team player support via junction table | Players can belong to multiple teams with different jersey numbers | ✅ Confirmed |
+| 2026-02-15 | Soft delete pattern for teams | Preserve match history when teams are "deleted" | ✅ Confirmed |
+| 2026-02-15 | SECURITY DEFINER helper functions | Reusable RLS authorization logic with better query planning | ✅ Confirmed |
+| 2026-02-15 | Unique jersey numbers per team | Constraint prevents duplicates within team, allows across teams | ✅ Confirmed |
 
 ---
 
@@ -237,27 +241,49 @@
 - Turbopack for fast dev iteration
 - Built-in PWA capabilities
 
+### From Plan 02-01 (Team Management Database Schema)
+
+**Implemented:**
+- ✅ Database migration with 5 tables: teams, team_members, players, player_teams, team_invites
+- ✅ RLS policies with helper functions: is_team_admin, is_team_member, is_player_in_team
+- ✅ Multi-team player support via player_teams junction table
+- ✅ IndexedDB schema v2 with player_teams, team_members, team_invites stores
+- ✅ TypeScript types for all database tables
+
+**Key Files for Future Phases:**
+- `supabase/migrations/20260215000001_teams_players_invites.sql` - Database schema reference
+- `types/database.ts` - TypeScript types for Supabase queries
+- `lib/db/schema.ts` - IndexedDB schema and TypeScript interfaces
+- `lib/db/index.ts` - Database initialization (DB_VERSION = 2)
+
+**Patterns Established:**
+- Junction tables for many-to-many relationships (team_members, player_teams)
+- Soft delete pattern with deleted_at column for data preservation
+- SECURITY DEFINER functions for efficient RLS checks
+- Player profiles are team-agnostic; jersey numbers in player_teams junction
+- Unique constraints enforce jersey number uniqueness per team
+
 ---
 
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-14
-- **Activity:** Executed Plan 01-06 (Theme, i18n, Onboarding) - 4 tasks, 16 files created
-- **Outcome:** Complete i18n with Italian/English, dark/light theme, 4-step onboarding tutorial
+- **Date:** 2026-02-15
+- **Activity:** Executed Plan 02-01 (Team Management Database Schema) - 3 tasks, 4 files created
+- **Outcome:** Complete database schema with RLS, multi-team player support, IndexedDB v2, TypeScript types
 
 ### Next Session
-- **Command:** `/gsd-execute-phase 01` to run Plan 07, or `/gsd-complete-phase 01` if all plans done
-- **Goal:** Check for remaining Phase 1 plans or transition to Phase 02 (Team Management)
-- **Expected Output:** Phase 1 completion or continue with Plan 07
+- **Command:** `/gsd-execute-phase 02` to run Plan 02-02 (Team Creation UI)
+- **Goal:** Implement team creation forms and UI components
+- **Expected Output:** Team creation page with form validation and offline support
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
-4. Read research/SUMMARY.md for technical context
-5. Run planning command for current phase
+4. Read 02-01-SUMMARY.md for database schema details
+5. Run `/gsd-execute-phase 02` to continue with Plan 02
 
 ---
 
