@@ -84,6 +84,24 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 - Implement: REST API patterns, optimistic UI updates
 - Avoid: Complex permission systems (anti-feature)
 
+**Plans:** 6 plans in 5 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 02-01 | Database schema (teams, players, invites, RLS) | 1 | 01-07 | supabase/migrations/*, lib/db/schema.ts |
+| 02-02 | Team CRUD (create, list, team mode selection) | 2 | 02-01 | lib/db/teams.ts, app/[locale]/teams/* |
+| 02-03 | Player management (add, avatar crop, roles) | 2 | 02-01 | lib/db/players.ts, components/players/* |
+| 02-04 | Invite system (generate links, join via invite) | 3 | 02-01, 02-02 | lib/db/invites.ts, app/[locale]/teams/invite/* |
+| 02-05 | Admin features (remove players, co-admin, roster) | 4 | 02-01, 02-02, 02-03 | lib/db/teams.ts, app/[locale]/teams/[teamId]/roster/* |
+| 02-06 | Integration, dashboard, and verification checkpoint | 5 | All | app/[locale]/teams/[teamId]/page.tsx, dashboard |
+
+**Wave Structure:**
+- **Wave 1:** 02-01 — Database foundation (teams, team_members, players, invites tables)
+- **Wave 2 (Parallel):** 02-02 + 02-03 — Team CRUD + Player management (independent features)
+- **Wave 3:** 02-04 — Invite system (needs teams from Wave 2)
+- **Wave 4:** 02-05 — Admin features (needs players and memberships)
+- **Wave 5:** 02-06 — Integration and verification
+
 ---
 
 ## Phase 3: Match Management
