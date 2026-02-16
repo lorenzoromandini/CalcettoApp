@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { TeamDashboard } from '@/components/teams/team-dashboard';
 import { TeamNav } from '@/components/navigation/team-nav';
 import { getTeam } from '@/lib/db/teams';
-import { getPlayersByTeam } from '@/lib/db/players';
-import { createClient } from '@/lib/supabase/client';
+import { getTeamPlayers } from '@/lib/db/players';
+import { useSession } from 'next-auth/react';
+import { prisma } from '@/lib/prisma';
 import type { Team } from '@/lib/db/schema';
 
 interface TeamDetailPageProps {
@@ -21,20 +22,18 @@ export function TeamDetailPage({ locale, teamId }: TeamDetailPageProps) {
   const [memberCount, setMemberCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
 
   useEffect(() => {
     loadTeamData();
-  }, [teamId]);
+  }, [teamId, session?.user?.id]);
 
   async function loadTeamData() {
     try {
       setIsLoading(true);
       
       // Check auth
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      if (!session?.user?.id) {
         router.push(`/${locale}/auth/login`);
         return;
       }
@@ -49,16 +48,16 @@ export function TeamDetailPage({ locale, teamId }: TeamDetailPageProps) {
       setTeam(teamData);
 
       // Get players
-      const players = await getPlayersByTeam(teamId);
+      const players = await getTeamPlayers(teamId);
       setPlayerCount(players.length);
 
       // Get membership info
-      const { data: membership } = await supabase
-        .from('team_members')
-        .select('role')
-        .eq('team_id', teamId)
-        .eq('user_id', user.id)
-        .single();
+      const membership = await prisma.teamMember.findFirst({
+        where: {
+          teamId: teamId,
+          userId: session.user.id,
+        },
+      });
 
       if (!membership) {
         router.push(`/${locale}/teams`);
@@ -68,12 +67,13 @@ export function TeamDetailPage({ locale, teamId }: TeamDetailPageProps) {
       setIsAdmin(membership.role === 'admin' || membership.role === 'co-admin');
 
       // Get member count
-      const { data: members } = await supabase
-        .from('team_members')
-        .select('id')
-        .eq('team_id', teamId);
+      const memberCount = await prisma.teamMember.count({
+        where: {
+          teamId: teamId,
+        },
+      });
       
-      setMemberCount(members?.length || 0);
+      setMemberCount(memberCount);
     } catch (error) {
       console.error('Failed to load team:', error);
     } finally {

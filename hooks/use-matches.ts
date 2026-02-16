@@ -1,12 +1,9 @@
 /**
- * Matches React Hooks
- * 
- * Provides data fetching and mutations for match management with
- * loading states, error handling, and cache invalidation.
+ * Matches React Hooks - NextAuth Version
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useSession } from 'next-auth/react';
 import { 
   getTeamMatches, 
   getMatch, 
@@ -21,7 +18,7 @@ import type { Match } from '@/lib/db/schema';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
 
 // ============================================================================
-// useMatches Hook - Get all matches for a team with upcoming/past split
+// useMatches Hook - Get all matches for a team
 // ============================================================================
 
 interface UseMatchesReturn {
@@ -132,22 +129,20 @@ interface UseCreateMatchReturn {
 }
 
 export function useCreateMatch(): UseCreateMatchReturn {
+  const { data: session } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const createMatch = useCallback(async (data: CreateMatchInput, teamId: string): Promise<string> => {
+    if (!session?.user?.id) {
+      throw new Error('User not authenticated');
+    }
+
     setIsPending(true);
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
-      const matchId = await createMatchDB(data, teamId, user.id);
+      const matchId = await createMatchDB(data, teamId, session.user.id);
       return matchId;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create match');
@@ -156,7 +151,7 @@ export function useCreateMatch(): UseCreateMatchReturn {
     } finally {
       setIsPending(false);
     }
-  }, []);
+  }, [session?.user?.id]);
 
   return {
     createMatch,

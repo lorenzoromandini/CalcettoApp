@@ -1,11 +1,11 @@
 /**
- * Players React Hooks
+ * Players React Hooks - NextAuth Version
  * 
- * Provides data fetching and mutations for player management with
- * loading states, error handling, and cache invalidation.
+ * Provides data fetching and mutations for player management.
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   getPlayersByTeam, 
   createPlayer, 
@@ -22,14 +22,14 @@ import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/pla
 // ============================================================================
 
 interface UsePlayersReturn {
-  players: (Player & { jersey_number?: number; player_team_id: string })[];
+  players: (Player & { jersey_number?: number })[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 }
 
 export function usePlayers(teamId: string | null): UsePlayersReturn {
-  const [players, setPlayers] = useState<(Player & { jersey_number?: number; player_team_id: string })[]>([]);
+  const [players, setPlayers] = useState<(Player & { jersey_number?: number })[]>([]);
   const [isLoading, setIsLoading] = useState(!!teamId);
   const [error, setError] = useState<Error | null>(null);
 
@@ -70,7 +70,7 @@ export function usePlayers(teamId: string | null): UsePlayersReturn {
 // ============================================================================
 
 interface UseCreatePlayerReturn {
-  createPlayer: (data: CreatePlayerInput, avatarBlob?: Blob) => Promise<Player & { jersey_number: number; player_team_id: string }>;
+  createPlayer: (data: CreatePlayerInput) => Promise<string>;
   isPending: boolean;
   error: Error | null;
 }
@@ -80,9 +80,8 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
   const [error, setError] = useState<Error | null>(null);
 
   const createPlayerMutation = useCallback(async (
-    data: CreatePlayerInput, 
-    avatarBlob?: Blob
-  ): Promise<Player & { jersey_number: number; player_team_id: string }> => {
+    data: CreatePlayerInput
+  ): Promise<string> => {
     if (!teamId) {
       throw new Error('Team ID is required');
     }
@@ -91,8 +90,8 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
     setError(null);
 
     try {
-      const player = await createPlayer(data, teamId, avatarBlob);
-      return player;
+      const playerId = await createPlayer(data, teamId);
+      return playerId;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create player');
       setError(error);
@@ -114,26 +113,24 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
 // ============================================================================
 
 interface UseUpdatePlayerReturn {
-  updatePlayer: (playerId: string, data: UpdatePlayerInput, avatarBlob?: Blob) => Promise<Player>;
+  updatePlayer: (playerId: string, data: UpdatePlayerInput) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useUpdatePlayer(): UseUpdatePlayerReturn {
+export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const updatePlayerMutation = useCallback(async (
     playerId: string, 
-    data: UpdatePlayerInput, 
-    avatarBlob?: Blob
-  ): Promise<Player> => {
+    data: UpdatePlayerInput
+  ): Promise<void> => {
     setIsPending(true);
     setError(null);
 
     try {
-      const player = await updatePlayer(playerId, data, avatarBlob);
-      return player;
+      await updatePlayer(playerId, data, teamId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update player');
       setError(error);
@@ -141,7 +138,7 @@ export function useUpdatePlayer(): UseUpdatePlayerReturn {
     } finally {
       setIsPending(false);
     }
-  }, []);
+  }, [teamId]);
 
   return {
     updatePlayer: updatePlayerMutation,
@@ -191,7 +188,7 @@ export function useDeletePlayer(): UseDeletePlayerReturn {
 // ============================================================================
 
 interface UseAddPlayerToTeamReturn {
-  addPlayerToTeam: (playerId: string, jerseyNumber: number) => Promise<PlayerTeam>;
+  addPlayerToTeam: (playerId: string, jerseyNumber: number) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
@@ -203,7 +200,7 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
   const addPlayerMutation = useCallback(async (
     playerId: string, 
     jerseyNumber: number
-  ): Promise<PlayerTeam> => {
+  ): Promise<void> => {
     if (!teamId) {
       throw new Error('Team ID is required');
     }
@@ -212,8 +209,7 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     setError(null);
 
     try {
-      const playerTeam = await addPlayerToTeam(playerId, teamId, jerseyNumber);
-      return playerTeam;
+      await addPlayerToTeam(playerId, teamId, jerseyNumber);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to add player to team');
       setError(error);
@@ -235,21 +231,25 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
 // ============================================================================
 
 interface UseRemovePlayerFromTeamReturn {
-  removePlayerFromTeam: (playerTeamId: string) => Promise<void>;
+  removePlayerFromTeam: (playerId: string) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useRemovePlayerFromTeam(): UseRemovePlayerFromTeamReturn {
+export function useRemovePlayerFromTeam(teamId: string | null): UseRemovePlayerFromTeamReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const removePlayerMutation = useCallback(async (playerTeamId: string): Promise<void> => {
+  const removePlayerMutation = useCallback(async (playerId: string): Promise<void> => {
+    if (!teamId) {
+      throw new Error('Team ID is required');
+    }
+
     setIsPending(true);
     setError(null);
 
     try {
-      await removePlayerFromTeam(playerTeamId);
+      await removePlayerFromTeam(playerId, teamId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to remove player from team');
       setError(error);
@@ -257,7 +257,7 @@ export function useRemovePlayerFromTeam(): UseRemovePlayerFromTeamReturn {
     } finally {
       setIsPending(false);
     }
-  }, []);
+  }, [teamId]);
 
   return {
     removePlayerFromTeam: removePlayerMutation,

@@ -7,6 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================================
+// NEXTAUTH MODELS
+// ============================================================================
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -17,8 +21,15 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
+  accounts      Account[]
+  sessions      Session[]
+  
+  // App relations
+  ownedTeams    Team[]         @relation("TeamOwner")
+  memberships   TeamMember[]
+  playerProfile Player?
+  createdMatches Match[]       @relation("MatchCreator")
+  createdInvites TeamInvite[]  @relation("InviteCreator")
 }
 
 model Account {
@@ -54,4 +65,209 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ============================================================================
+// APP MODELS
+// ============================================================================
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?   @map("image_url")
+  teamMode    String    @default("5-a-side") @map("team_mode")
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  syncStatus  String    @default("synced") @map("sync_status")
+
+  creator     User          @relation("TeamOwner", fields: [createdBy], references: [id])
+  members     TeamMember[]
+  playerTeams PlayerTeam[]
+  invites     TeamInvite[]
+  matches     Match[]
+
+  @@index([createdBy])
+  @@index([deletedAt])
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  teamId   String   @map("team_id")
+  userId   String?  @map("user_id")
+  playerId String?  @map("player_id")
+  role     String   @default("member")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  team   Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+model Player {
+  id         String   @id @default(cuid())
+  name       String
+  surname    String?
+  nickname   String?
+  avatarUrl  String?  @map("avatar_url")
+  userId     String?  @unique @map("user_id")
+  roles      String[]
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  syncStatus String   @default("synced") @map("sync_status")
+
+  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  memberships TeamMember[]
+  playerTeams PlayerTeam[]
+  matchPlayers MatchPlayer[]
+  formationPositions FormationPosition[]
+
+  @@index([userId])
+  @@map("players")
+}
+
+model PlayerTeam {
+  id           String   @id @default(cuid())
+  playerId     String   @map("player_id")
+  teamId       String   @map("team_id")
+  jerseyNumber Int      @map("jersey_number")
+  joinedAt     DateTime @default(now()) @map("joined_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  syncStatus   String   @default("synced") @map("sync_status")
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, teamId])
+  @@unique([teamId, jerseyNumber])
+  @@index([playerId])
+  @@index([teamId])
+  @@map("player_teams")
+}
+
+model TeamInvite {
+  id        String    @id @default(cuid())
+  teamId    String    @map("team_id")
+  createdBy String    @map("created_by")
+  token     String    @unique
+  email     String?
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  usedBy    String?   @map("used_by")
+  maxUses   Int       @default(50) @map("max_uses")
+  useCount  Int       @default(0) @map("use_count")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator User @relation("InviteCreator", fields: [createdBy], references: [id])
+
+  @@index([teamId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("team_invites")
+}
+
+model Match {
+  id          String    @id @default(cuid())
+  teamId      String    @map("team_id")
+  scheduledAt DateTime  @map("scheduled_at")
+  location    String?
+  mode        String
+  status      String    @default("scheduled")
+  homeScore   Int?      @map("home_score")
+  awayScore   Int?      @map("away_score")
+  notes       String?
+  createdBy   String?   @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  syncStatus  String    @default("synced") @map("sync_status")
+
+  team     Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator  User?      @relation("MatchCreator", fields: [createdBy], references: [id])
+  players  MatchPlayer[]
+  formation Formation?
+
+  @@index([teamId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("matches")
+}
+
+model MatchPlayer {
+  id             String   @id @default(cuid())
+  matchId        String   @map("match_id")
+  playerId       String   @map("player_id")
+  rsvpStatus     String   @default("maybe") @map("rsvp_status")
+  rsvpAt         DateTime? @map("rsvp_at")
+  positionOnPitch String? @map("position_on_pitch")
+  syncStatus     String   @default("synced") @map("sync_status")
+
+  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, playerId])
+  @@index([matchId])
+  @@index([playerId])
+  @@map("match_players")
+}
+
+model Formation {
+  id             String   @id @default(cuid())
+  matchId        String   @unique @map("match_id")
+  teamFormation  Json?    @map("team_formation")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  match     Match               @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  positions FormationPosition[]
+
+  @@index([matchId])
+  @@map("formations")
+}
+
+model FormationPosition {
+  id            String  @id @default(cuid())
+  formationId   String  @map("formation_id")
+  playerId      String? @map("player_id")
+  positionX     Int     @map("position_x")
+  positionY     Int     @map("position_y")
+  positionLabel String  @map("position_label")
+  isSubstitute  Boolean @default(false) @map("is_substitute")
+
+  formation Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  player    Player?   @relation(fields: [playerId], references: [id], onDelete: SetNull)
+
+  @@unique([formationId, positionX, positionY])
+  @@index([formationId])
+  @@index([playerId])
+  @@map("formation_positions")
+}
+
+// ============================================================================
+// OFFLINE SYNC MODELS
+// ============================================================================
+
+model OfflineAction {
+  id           String   @id @default(cuid())
+  actionType   String   @map("action_type")
+  tableName    String   @map("table_name")
+  recordId     String   @map("record_id")
+  data         Json?
+  timestamp    DateTime @default(now())
+  retryCount   Int      @default(0) @map("retry_count")
+  errorMessage String?  @map("error_message")
+  syncedAt     DateTime? @map("synced_at")
+
+  @@index([timestamp])
+  @@index([tableName])
+  @@index([syncedAt])
+  @@map("offline_actions")
 }

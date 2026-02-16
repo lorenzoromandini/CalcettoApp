@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Users, ChevronRight } from "lucide-react";
+import { Users, ChevronRight, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Team } from "@/lib/db/schema";
 
@@ -10,9 +10,10 @@ interface TeamCardProps {
   team: Team;
   onClick?: () => void;
   memberCount?: number;
+  userRole?: 'admin' | 'co-admin' | 'member';
 }
 
-export function TeamCard({ team, onClick, memberCount }: TeamCardProps) {
+export function TeamCard({ team, onClick, memberCount, userRole }: TeamCardProps) {
   const t = useTranslations("teams");
 
   const getTeamModeLabel = (mode: string) => {
@@ -43,23 +44,44 @@ export function TeamCard({ team, onClick, memberCount }: TeamCardProps) {
 
   return (
     <Card
-      className="cursor-pointer transition-all hover:shadow-md active:scale-[0.98]"
+      className="cursor-pointer transition-all hover:shadow-md active:scale-[0.98] overflow-hidden"
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-            {getTeamModeIcon(team.team_mode)}
+      <CardContent className="p-0">
+        <div className="flex items-stretch">
+          {/* Team Image or Initials */}
+          <div className="relative w-24 h-24 shrink-0 bg-muted">
+            {team.image_url ? (
+              <img
+                src={team.image_url}
+                alt={team.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                <span className="text-3xl font-bold text-primary/40">
+                  {team.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
           
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg truncate">{team.name}</h3>
-            
-            {team.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                {team.description}
-              </p>
-            )}
+          <div className="flex-1 p-4 flex flex-col justify-center min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-lg truncate">{team.name}</h3>
+                
+                {team.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
+                    {team.description}
+                  </p>
+                )}
+              </div>
+              
+              {userRole && userRole !== 'member' && (
+                <Shield className="h-4 w-4 text-primary shrink-0" />
+              )}
+            </div>
             
             <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1">
@@ -72,7 +94,9 @@ export function TeamCard({ team, onClick, memberCount }: TeamCardProps) {
             </div>
           </div>
 
-          <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 self-center" />
+          <div className="flex items-center pr-4">
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
         </div>
       </CardContent>
     </Card>

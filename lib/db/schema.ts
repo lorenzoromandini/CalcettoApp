@@ -29,6 +29,7 @@ export interface Team {
   id: string;
   name: string;
   description?: string;
+  image_url?: string;
   team_mode: TeamMode;
   created_by: string;
   created_at: string;

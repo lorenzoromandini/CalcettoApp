@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { createTeamSchema, type CreateTeamInput } from "@/lib/validations/team";
+import { TeamImageUploader } from "./team-image-uploader";
 import { AlertCircle, Users } from "lucide-react";
 
 interface TeamFormProps {
@@ -33,6 +34,7 @@ export function TeamForm({ onSubmit, isLoading = false, submitLabel }: TeamFormP
     defaultValues: {
       name: "",
       description: "",
+      image_url: undefined,
       team_mode: "5-a-side" as const,
     },
   });
@@ -61,6 +63,24 @@ export function TeamForm({ onSubmit, isLoading = false, submitLabel }: TeamFormP
             <p>{error}</p>
           </div>
         )}
+
+        {/* Team Image */}
+        <FormField
+          control={form.control}
+          name="image_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("image")}</FormLabel>
+              <FormControl>
+                <TeamImageUploader
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

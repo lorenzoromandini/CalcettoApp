@@ -23,8 +23,8 @@ export function CreatePlayerPageClient({ locale, teamId }: CreatePlayerPageClien
     router.push(`/${locale}/teams/${teamId}/players`);
   };
 
-  const handleSubmit = async (data: CreatePlayerInput, avatarBlob?: Blob) => {
-    await createPlayer(data, avatarBlob);
+  const handleSubmit = async (data: CreatePlayerInput) => {
+    await createPlayer(data);
     router.push(`/${locale}/teams/${teamId}/players`);
   };
 

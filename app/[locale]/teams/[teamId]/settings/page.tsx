@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Settings, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useSession } from 'next-auth/react';
+import { prisma } from '@/lib/prisma';
 
 export default function TeamSettingsPage() {
   const t = useTranslations('settings');
@@ -18,29 +19,27 @@ export default function TeamSettingsPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
 
   useEffect(() => {
     checkAdminStatus();
-  }, [teamId]);
+  }, [teamId, session?.user?.id]);
 
   async function checkAdminStatus() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!session?.user?.id) {
       setIsLoading(false);
       return;
     }
 
-    setUserId(user.id);
+    setUserId(session.user.id);
 
     // Check if user is admin
-    const { data: membership } = await supabase
-      .from('team_members')
-      .select('role')
-      .eq('team_id', teamId)
-      .eq('user_id', user.id)
-      .single();
+    const membership = await prisma.teamMember.findFirst({
+      where: {
+        teamId: teamId,
+        userId: session.user.id,
+      },
+    });
 
     setIsAdmin(membership?.role === 'admin' || membership?.role === 'co-admin');
     setIsLoading(false);

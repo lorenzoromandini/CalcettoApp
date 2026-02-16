@@ -1,12 +1,12 @@
 /**
- * Teams React Hooks
+ * Teams React Hooks - NextAuth Version
  * 
- * Provides data fetching and mutations for team management with
- * loading states, error handling, and cache invalidation.
+ * Provides data fetching and mutations for team management.
+ * Uses NextAuth for authentication.
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useSession } from 'next-auth/react';
 import { 
   getUserTeams, 
   getTeam, 
@@ -29,30 +29,29 @@ interface UseTeamsReturn {
 }
 
 export function useTeams(): UseTeamsReturn {
+  const { data: session } = useSession();
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchTeams = useCallback(async () => {
+    if (!session?.user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
-      const userTeams = await getUserTeams(user.id);
+      const userTeams = await getUserTeams(session.user.id);
       setTeams(userTeams);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch teams'));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [session?.user?.id]);
 
   useEffect(() => {
     fetchTeams();
@@ -125,22 +124,20 @@ interface UseCreateTeamReturn {
 }
 
 export function useCreateTeam(): UseCreateTeamReturn {
+  const { data: session } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const createTeam = useCallback(async (data: CreateTeamInput): Promise<string> => {
+    if (!session?.user?.id) {
+      throw new Error('User not authenticated');
+    }
+
     setIsPending(true);
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
-      const teamId = await createTeamDB(data, user.id);
+      const teamId = await createTeamDB(data, session.user.id);
       return teamId;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create team');
@@ -149,7 +146,7 @@ export function useCreateTeam(): UseCreateTeamReturn {
     } finally {
       setIsPending(false);
     }
-  }, []);
+  }, [session?.user?.id]);
 
   return {
     createTeam,

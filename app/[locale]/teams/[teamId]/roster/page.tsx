@@ -4,14 +4,14 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getTeamMembers } from '@/lib/db/teams';
-import { getPlayersByTeam } from '@/lib/db/players';
+import { getTeamPlayers } from '@/lib/db/players';
 import { TeamRosterManager } from '@/components/teams/team-roster-manager';
 import { PlayerCard } from '@/components/players/player-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Users, UserCircle } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useSession } from 'next-auth/react';
 import type { TeamMember, Player } from '@/lib/db/schema';
 
 export default function TeamRosterPage() {
@@ -25,24 +25,23 @@ export default function TeamRosterPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState<'players' | 'members'>('players');
+  const { data: session } = useSession();
 
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [membersData, playersData] = await Promise.all([
         getTeamMembers(teamId),
-        getPlayersByTeam(teamId),
+        getTeamPlayers(teamId),
       ]);
 
       setMembers(membersData);
       setPlayers(playersData);
 
       // Check current user role
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUserId(user.id);
-        const userMembership = membersData.find(m => m.user_id === user.id);
+      if (session?.user?.id) {
+        setCurrentUserId(session.user.id);
+        const userMembership = membersData.find((m: TeamMember) => m.user_id === session.user.id);
         setIsAdmin(userMembership?.role === 'admin' || userMembership?.role === 'co-admin');
       }
     } catch (error) {
@@ -50,7 +49,7 @@ export default function TeamRosterPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [teamId]);
+  }, [teamId, session?.user?.id]);
 
   useEffect(() => {
     loadData();

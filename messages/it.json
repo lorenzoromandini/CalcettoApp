@@ -126,6 +126,13 @@
       "namePlaceholder": "Inserisci il nome della squadra",
       "description": "Descrizione",
       "descriptionPlaceholder": "Opzionale - Aggiungi una descrizione",
+      "image": "Immagine squadra (opzionale)",
+      "imagePlaceholder": "Clicca per caricare un'immagine",
+      "imageHint": "Max 5MB",
+      "imageUploading": "Caricamento...",
+      "imageInvalidType": "Il file deve essere un'immagine",
+      "imageTooLarge": "L'immagine non può superare i 5MB",
+      "imageUploadError": "Errore nel caricamento dell'immagine",
       "teamMode": {
         "label": "Modalità di gioco",
         "5a-side": "5 vs 5",
@@ -135,7 +142,13 @@
       "submit": "Crea squadra",
       "creating": "Creazione in corso...",
       "error": "Si è verificato un errore. Riprova."
-    }
+    },
+    "myTeams": "Le mie squadre",
+    "team": "squadra",
+    "teams": "squadre",
+    "selectTeam": "Seleziona squadra",
+    "createFirst": "Crea la tua prima squadra",
+    "createNew": "Crea nuova squadra"
   },
   "players": {
     "title": "Giocatori",

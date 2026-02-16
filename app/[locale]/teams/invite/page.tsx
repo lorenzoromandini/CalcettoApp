@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getInviteByToken, joinTeamWithInvite } from '@/lib/db/invites';
-import { createClient } from '@/lib/supabase/client';
+import { getInviteByToken, redeemInvite } from '@/lib/db/invites';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, Users, AlertCircle } from 'lucide-react';
@@ -23,15 +23,14 @@ export default function InvitePage() {
   const [isJoining, setIsJoining] = useState(false);
   const [joinResult, setJoinResult] = useState<'success' | 'already_member' | 'error' | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     checkAuthAndInvite();
-  }, [token]);
+  }, [token, session?.user?.id]);
 
   async function checkAuthAndInvite() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    setIsAuthenticated(!!user);
+    setIsAuthenticated(!!session?.user);
 
     if (!token) {
       setInviteState('invalid');
@@ -45,39 +44,31 @@ export default function InvitePage() {
     }
 
     // Get team name
-    const { data: team } = await supabase
-      .from('teams')
-      .select('name')
-      .eq('id', invite.team_id)
-      .single();
+    const teamName = invite.team?.name || t('unknownTeam');
 
-    setTeamName(team?.name || t('unknownTeam'));
+    setTeamName(teamName);
     setInviteState('valid');
   }
 
   const handleJoin = async () => {
     if (!token) return;
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!session?.user?.id) {
       // Should not happen due to auth check, but handle gracefully
       setJoinResult('error');
       return;
     }
 
     setIsJoining(true);
-    const result = await joinTeamWithInvite(token, user.id);
+    const result = await redeemInvite(token, session.user.id);
     setIsJoining(false);
 
-    if (result.success) {
+    if (result) {
       setJoinResult('success');
       // Redirect to team page after delay
       setTimeout(() => {
-        router.push(`/teams/${result.teamId}`);
+        router.push(`/teams`);
       }, 2000);
-    } else if (result.error === 'already_member') {
-      setJoinResult('already_member');
     } else {
       setJoinResult('error');
     }

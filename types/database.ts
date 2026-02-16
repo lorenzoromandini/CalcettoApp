@@ -23,6 +23,7 @@ export interface Database {
           id: string;
           name: string;
           description: string | null;
+          image_url: string | null;
           team_mode: '5-a-side' | '8-a-side' | '11-a-side' | null;
           created_by: string;
           created_at: string;
@@ -34,6 +35,7 @@ export interface Database {
           id?: string;
           name: string;
           description?: string | null;
+          image_url?: string | null;
           team_mode?: '5-a-side' | '8-a-side' | '11-a-side' | null;
           created_by: string;
           created_at?: string;
@@ -45,6 +47,7 @@ export interface Database {
           id?: string;
           name?: string;
           description?: string | null;
+          image_url?: string | null;
           team_mode?: '5-a-side' | '8-a-side' | '11-a-side' | null;
           created_by?: string;
           created_at?: string;

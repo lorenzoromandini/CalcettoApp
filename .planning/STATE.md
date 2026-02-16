@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-15 (after Plan 03-01 completion)  
+**Last Updated:** 2026-02-16 (after Plan 03-02 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 01 — Match Management Database Schema |
+| **Plan** | 02 — Match Creation UI |
 | **Status** | ✅ Complete |
-| **Progress** | 17% |
+| **Progress** | 33% |
 
 ### Phase 3 Progress Bar
 
 ```
-[██░░░░░░░░░░░░░░░░] 17%
+[████░░░░░░░░░░░░░░] 33%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 🔴 Not Started, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
 
 ---
 
@@ -407,23 +407,55 @@
 
 ---
 
+### From Plan 03-02 (Match Creation UI)
+
+**Implemented:**
+- ✅ Match CRUD operations: createMatch, getTeamMatches, getMatch, updateMatch, cancelMatch, uncancelMatch
+- ✅ Match hooks: useMatches, useMatch, useCreateMatch, useUpdateMatch, useCancelMatch with loading/error states
+- ✅ Match form component with datetime-local picker, location, mode selector (5vs5/8vs8), notes
+- ✅ Match card component with status badges, date display, location
+- ✅ Match list page with upcoming/past tabs and empty states
+- ✅ Match creation page with admin-only access
+- ✅ Match detail page with edit and cancel/uncancel actions
+- ✅ Complete Italian translations for all match UI
+
+**Key Files for Future Phases:**
+- `lib/db/matches.ts` - CRUD operations for matches
+- `hooks/use-matches.ts` - React hooks for match data
+- `components/matches/match-form.tsx` - Match creation/editing form
+- `components/matches/match-card.tsx` - Match list item
+- `app/[locale]/teams/[teamId]/matches/page.tsx` - Match list with tabs
+- `app/[locale]/teams/[teamId]/matches/create/page.tsx` - Create match
+- `app/[locale]/teams/[teamId]/matches/[matchId]/page.tsx` - Match detail
+
+**Patterns Established:**
+- Date/time handling with datetime-local input for mobile-native pickers
+- Match status workflow: scheduled → in_progress → completed (or cancelled)
+- Admin-only match creation and management
+- Upcoming/past match separation with tabs
+- Status badges with color coding (scheduled=blue, in_progress=green, completed=gray, cancelled=red)
+
+---
+
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-15
-- **Activity:** Executed Plan 03-01 (Match Management Database Schema)
+- **Date:** 2026-02-16
+- **Activity:** Executed Plan 03-02 (Match Creation UI)
 - **Outcome:** 
-  - Created PostgreSQL migration with matches, match_players, formations, formation_positions tables
-  - Implemented RLS policies for team-based match access control
-  - Extended IndexedDB to v3 with match management stores
-  - Generated TypeScript types for all match entities
-  - Plan 03-01 SUMMARY.md created and committed
-  - Phase 3 match management foundation complete
+  - Match CRUD operations already existed in lib/db/matches.ts with offline queue integration
+  - Match React hooks already existed in hooks/use-matches.ts (useMatches, useMatch, useCreateMatch, useUpdateMatch, useCancelMatch)
+  - Match form and card components already existed with mobile-optimized UI
+  - Match list, create, and detail pages already existed with upcoming/past tabs
+  - Complete translations for match management already in place (IT/EN)
+  - Fixed TypeScript errors and installed missing shadcn/ui components (Badge, Separator, AlertDialog, Tabs, Textarea)
+  - Build successful - all match management features ready
+  - Phase 3 progress: 33% complete (2/6 plans)
 
 ### Next Session
 - **Status:** Ready to continue
-- **Action:** Execute Plan 03-02: Match Creation UI
-- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-02
+- **Action:** Execute Plan 03-03: RSVP System
+- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-03
 
 ### Context for Claude
 When resuming this project:

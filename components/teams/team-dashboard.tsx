@@ -2,10 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp } from 'lucide-react';
+import { MyTeamsSwitcher } from './my-teams-switcher';
 import type { Team } from '@/lib/db/schema';
 
 interface TeamDashboardProps {
@@ -22,25 +24,51 @@ export function TeamDashboard({
   isAdmin,
 }: TeamDashboardProps) {
   const t = useTranslations('teamDashboard');
+  const params = useParams();
+  const locale = params.locale as string;
 
   return (
     <div className="space-y-6">
+      {/* My Teams Switcher */}
+      <div className="flex justify-start">
+        <MyTeamsSwitcher currentTeamId={team.id} locale={locale} />
+      </div>
+
       {/* Team Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{team.name}</h1>
-          {team.description && (
-            <p className="text-muted-foreground mt-1">{team.description}</p>
-          )}
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant={team.team_mode === '5-a-side' ? 'default' : 'secondary'}>
-              {team.team_mode === '5-a-side' ? '5 vs 5' : '8 vs 8'}
-            </Badge>
-            {team.sync_status === 'pending' && (
-              <Badge variant="outline" className="text-yellow-600">
-                {t('syncing')}
-              </Badge>
+        <div className="flex items-start gap-4">
+          {/* Team Image */}
+          <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0">
+            {team.image_url ? (
+              <img
+                src={team.image_url}
+                alt={team.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                <span className="text-3xl font-bold text-primary/40">
+                  {team.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
             )}
+          </div>
+          
+          <div>
+            <h1 className="text-3xl font-bold">{team.name}</h1>
+            {team.description && (
+              <p className="text-muted-foreground mt-1">{team.description}</p>
+            )}
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={team.team_mode === '5-a-side' ? 'default' : 'secondary'}>
+                {team.team_mode === '5-a-side' ? '5 vs 5' : '8 vs 8'}
+              </Badge>
+              {team.sync_status === 'pending' && (
+                <Badge variant="outline" className="text-yellow-600">
+                  {t('syncing')}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
 

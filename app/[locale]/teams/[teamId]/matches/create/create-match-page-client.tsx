@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,6 @@ import { useTeam } from "@/hooks/use-teams";
 import { isTeamAdmin } from "@/lib/db/teams";
 import type { CreateMatchInput } from "@/lib/validations/match";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 interface CreateMatchPageClientProps {
   locale: string;
@@ -21,6 +21,7 @@ interface CreateMatchPageClientProps {
 export function CreateMatchPageClient({ locale, teamId }: CreateMatchPageClientProps) {
   const t = useTranslations("matches");
   const router = useRouter();
+  const { data: session } = useSession();
   const { createMatch, isPending } = useCreateMatch();
   const { team } = useTeam(teamId);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -28,16 +29,14 @@ export function CreateMatchPageClient({ locale, teamId }: CreateMatchPageClientP
 
   useEffect(() => {
     async function checkAdmin() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const admin = await isTeamAdmin(teamId, user.id);
+      if (session?.user?.id) {
+        const admin = await isTeamAdmin(teamId, session.user.id);
         setIsAdmin(admin);
       }
       setIsCheckingAdmin(false);
     }
     checkAdmin();
-  }, [teamId]);
+  }, [teamId, session?.user?.id]);
 
   // Redirect if not admin
   useEffect(() => {

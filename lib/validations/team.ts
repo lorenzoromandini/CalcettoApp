@@ -20,6 +20,10 @@ export const createTeamSchema = z.object({
     .string()
     .max(500, "La descrizione non può superare i 500 caratteri")
     .optional(),
+  image_url: z
+    .string()
+    .url("URL immagine non valido")
+    .optional(),
   team_mode: teamModeEnum,
 });
 
@@ -33,6 +37,10 @@ export const updateTeamSchema = z.object({
   description: z
     .string()
     .max(500, "La descrizione non può superare i 500 caratteri")
+    .optional(),
+  image_url: z
+    .string()
+    .url("URL immagine non valido")
     .optional(),
   team_mode: teamModeEnum.optional(),
 });

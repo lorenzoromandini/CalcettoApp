@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ArrowLeft, Calendar, MapPin, FileText, Edit, X, RotateCcw, Users, LayoutGrid, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,6 @@ import { useMatch, useCancelMatch } from "@/hooks/use-matches";
 import { useTeam } from "@/hooks/use-teams";
 import { isTeamAdmin } from "@/lib/db/teams";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import type { Match } from "@/lib/db/schema";
 import {
   AlertDialog,
@@ -38,6 +38,7 @@ export function MatchDetailPageClient({
 }: MatchDetailPageClientProps) {
   const t = useTranslations("matches");
   const router = useRouter();
+  const { data: session } = useSession();
   const { match, isLoading, error, refetch } = useMatch(matchId);
   const { team } = useTeam(teamId);
   const { cancelMatch, uncancelMatch, isPending: isActionPending } = useCancelMatch();
@@ -45,15 +46,13 @@ export function MatchDetailPageClient({
 
   useEffect(() => {
     async function checkAdmin() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const admin = await isTeamAdmin(teamId, user.id);
+      if (session?.user?.id) {
+        const admin = await isTeamAdmin(teamId, session.user.id);
         setIsAdmin(admin);
       }
     }
     checkAdmin();
-  }, [teamId]);
+  }, [teamId, session?.user?.id]);
 
   const handleBack = () => {
     router.push(`/${locale}/teams/${teamId}/matches`);

@@ -126,6 +126,13 @@
       "namePlaceholder": "Enter team name",
       "description": "Description",
       "descriptionPlaceholder": "Optional - Add a description",
+      "image": "Team image (optional)",
+      "imagePlaceholder": "Click to upload an image",
+      "imageHint": "Max 5MB",
+      "imageUploading": "Uploading...",
+      "imageInvalidType": "File must be an image",
+      "imageTooLarge": "Image must be less than 5MB",
+      "imageUploadError": "Error uploading image",
       "teamMode": {
         "label": "Game mode",
         "5a-side": "5 vs 5",
@@ -135,7 +142,13 @@
       "submit": "Create team",
       "creating": "Creating...",
       "error": "An error occurred. Please try again."
-    }
+    },
+    "myTeams": "My teams",
+    "team": "team",
+    "teams": "teams",
+    "selectTeam": "Select team",
+    "createFirst": "Create your first team",
+    "createNew": "Create new team"
   },
   "players": {
     "title": "Players",

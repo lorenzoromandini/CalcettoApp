@@ -6,7 +6,7 @@ import { Header } from '@/components/navigation/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, Trophy, TrendingUp, Plus } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -18,19 +18,22 @@ export default async function DashboardPage() {
   }
 
   // Get user's teams
-  const supabase = await createClient();
-  const { data: memberships } = await supabase
-    .from('team_members')
-    .select('team_id, role, teams:team_id(id, name, description, team_mode)')
-    .eq('user_id', session.user.id);
+  const memberships = await prisma.teamMember.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    include: {
+      team: true,
+    },
+  });
 
-  const teams = memberships?.map((m: any) => ({
-    id: m.team_id,
-    name: m.teams?.name || '',
-    description: m.teams?.description || '',
-    team_mode: m.teams?.team_mode || '5-a-side',
+  const teams = memberships.map((m) => ({
+    id: m.teamId,
+    name: m.team?.name || '',
+    description: m.team?.description || '',
+    team_mode: m.team?.teamMode || '5-a-side',
     role: m.role,
-  })) || [];
+  }));
 
   return (
     <div className="flex min-h-screen flex-col">

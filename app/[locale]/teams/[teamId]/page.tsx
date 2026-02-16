@@ -1,7 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
+import { auth } from '@/lib/auth';
 import { redirect, notFound } from 'next/navigation';
 import { TeamDashboard } from '@/components/teams/team-dashboard';
 import { TeamNav } from '@/components/navigation/team-nav';
+import type { Team, TeamMode, SyncStatus } from '@/lib/db/schema';
+import { prisma } from '@/lib/prisma';
 
 interface TeamPageProps {
   params: Promise<{
@@ -11,51 +13,65 @@ interface TeamPageProps {
 
 export default async function TeamPage({ params }: TeamPageProps) {
   const { teamId } = await params;
-  const supabase = await createClient();
 
   // Check auth
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const session = await auth();
+  if (!session?.user) {
     redirect('/auth/login');
   }
 
   // Get team
-  const { data: team } = await supabase
-    .from('teams')
-    .select('*')
-    .eq('id', teamId)
-    .is('deleted_at', null)
-    .single();
+  const team = await prisma.team.findFirst({
+    where: {
+      id: teamId,
+      deletedAt: null,
+    },
+  });
 
   if (!team) {
     notFound();
   }
 
   // Check membership
-  const { data: membership } = await supabase
-    .from('team_members')
-    .select('role')
-    .eq('team_id', teamId)
-    .eq('user_id', user.id)
-    .single();
+  const membership = await prisma.teamMember.findFirst({
+    where: {
+      teamId: teamId,
+      userId: session.user.id,
+    },
+  });
 
   if (!membership) {
     redirect('/teams');
   }
 
   // Get counts
-  const { count: playerCount } = await supabase
-    .from('players')
-    .select('*', { count: 'exact', head: true })
-    .eq('team_id', teamId)
-    .is('deleted_at', null);
+  const playerCount = await prisma.playerTeam.count({
+    where: {
+      teamId: teamId,
+    },
+  });
 
-  const { count: memberCount } = await supabase
-    .from('team_members')
-    .select('*', { count: 'exact', head: true })
-    .eq('team_id', teamId);
+  const memberCount = await prisma.teamMember.count({
+    where: {
+      teamId: teamId,
+    },
+  });
 
   const isAdmin = membership.role === 'admin' || membership.role === 'co-admin';
+
+  // Convert team to match Team type (null -> undefined)
+  const teamForDashboard: Team = {
+    id: team.id,
+    name: team.name,
+    description: team.description ?? undefined,
+    image_url: team.imageUrl ?? undefined,
+    created_by: team.createdBy,
+    created_at: team.createdAt.toISOString(),
+    updated_at: team.updatedAt.toISOString(),
+    deleted_at: team.deletedAt?.toISOString() ?? undefined,
+    sync_status: 'synced' as SyncStatus,
+    team_mode: (team.teamMode as TeamMode) ?? '5-a-side',
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,7 +79,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       
       <div className="mt-6">
         <TeamDashboard
-          team={team}
+          team={teamForDashboard}
           playerCount={playerCount || 0}
           memberCount={memberCount || 0}
           isAdmin={isAdmin}
