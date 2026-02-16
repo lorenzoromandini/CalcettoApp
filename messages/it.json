@@ -371,6 +371,77 @@
         "formation": "Formazione",
         "stats": "Statistiche"
       }
+    },
+    "rsvp": {
+      "in": "Ci sono!",
+      "inShort": "Ci sono",
+      "out": "Non posso",
+      "outShort": "Non posso",
+      "maybe": "Forse",
+      "maybeShort": "Forse",
+      "updateSuccess": "Risposta aggiornata",
+      "updateError": "Errore durante l'aggiornamento"
+    },
+    "availability": {
+      "title": "Chi viene?",
+      "confirmed": "confermati",
+      "full": "completa",
+      "in": "ci sono",
+      "out": "non possono",
+      "maybe": "forse",
+      "complete": "Squadra al completo!",
+      "halfway": "A metà squadra",
+      "needMore": "Servono più giocatori"
+    },
+    "rsvpList": {
+      "title": "Risposte",
+      "you": "Tu",
+      "responded": "ha risposto",
+      "justNow": "ora",
+      "minutesAgo": "{count} min fa",
+      "hoursAgo": "{count} ore fa",
+      "daysAgo": "{count} giorni fa",
+      "groups": {
+        "in": "Ci sono",
+        "out": "Non possono",
+        "maybe": "Forse"
+      },
+      "empty": {
+        "title": "Nessuna risposta",
+        "description": "Sii il primo a rispondere!"
+      }
+    }
+  },
+  "formations": {
+    "title": "Formazione",
+    "selectFormation": "Seleziona modulo",
+    "dragOrTap": "Trascina o tocca per posizionare",
+    "tapPlayerThenPosition": "Tocca una posizione per {player}",
+    "playerPool": "Giocatori disponibili",
+    "save": "Salva formazione",
+    "clear": "Cancella tutto",
+    "backToMatch": "Torna alla partita",
+    "assignedCount": "{count} di {total} posizioni assegnate",
+    "formationComplete": "Formazione completa",
+    "formationIncomplete": "Formazione incompleta"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "enable": "Attiva notifiche",
+    "description": "Ricevi promemoria prima delle partite",
+    "reminder24h": "Promemoria 24 ore prima",
+    "reminder2h": "Promemoria 2 ore prima",
+    "reminder30m": "Promemoria 30 minuti prima",
+    "test": "Prova notifica",
+    "enabled": "Notifiche attive",
+    "disabled": "Notifiche disattivate",
+    "permissionDenied": "Permesso negato. Abilita le notifiche nelle impostazioni del browser.",
+    "notSupported": "Le notifiche non sono supportate su questo dispositivo.",
+    "banner": {
+      "title": "Rimani aggiornato sulle partite",
+      "description": "Ricevi promemoria prima delle partite e aggiornamenti sulle convocazioni.",
+      "activate": "Attiva notifiche",
+      "notNow": "Non ora"
     }
   }
 }

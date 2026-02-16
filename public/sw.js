@@ -45,13 +45,19 @@ const {
 /// 
 /// 
 
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { 
   StaleWhileRevalidate, 
   CacheFirst, 
   NetworkOnly, 
   NetworkFirst 
 } from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
+import { BackgroundSyncPlugin } from 'workbox-background-sync';
+import { clientsClaim } from 'workbox-core';
 
+declare var self;
 
 /**
  * Claim clients immediately for instant control

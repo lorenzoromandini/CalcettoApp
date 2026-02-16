@@ -371,6 +371,77 @@
         "formation": "Formation",
         "stats": "Statistics"
       }
+    },
+    "rsvp": {
+      "in": "I'm in!",
+      "inShort": "In",
+      "out": "Can't make it",
+      "outShort": "Out",
+      "maybe": "Maybe",
+      "maybeShort": "Maybe",
+      "updateSuccess": "Response updated",
+      "updateError": "Error updating response"
+    },
+    "availability": {
+      "title": "Who's coming?",
+      "confirmed": "confirmed",
+      "full": "full",
+      "in": "in",
+      "out": "out",
+      "maybe": "maybe",
+      "complete": "Team complete!",
+      "halfway": "Halfway there",
+      "needMore": "Need more players"
+    },
+    "rsvpList": {
+      "title": "Responses",
+      "you": "You",
+      "responded": "responded",
+      "justNow": "just now",
+      "minutesAgo": "{count} min ago",
+      "hoursAgo": "{count} hours ago",
+      "daysAgo": "{count} days ago",
+      "groups": {
+        "in": "In",
+        "out": "Out",
+        "maybe": "Maybe"
+      },
+      "empty": {
+        "title": "No responses",
+        "description": "Be the first to respond!"
+      }
+    }
+  },
+  "formations": {
+    "title": "Formation",
+    "selectFormation": "Select formation",
+    "dragOrTap": "Drag or tap to position",
+    "tapPlayerThenPosition": "Tap a position for {player}",
+    "playerPool": "Available players",
+    "save": "Save formation",
+    "clear": "Clear all",
+    "backToMatch": "Back to match",
+    "assignedCount": "{count} of {total} positions assigned",
+    "formationComplete": "Formation complete",
+    "formationIncomplete": "Formation incomplete"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "enable": "Enable notifications",
+    "description": "Receive reminders before matches",
+    "reminder24h": "Reminder 24 hours before",
+    "reminder2h": "Reminder 2 hours before",
+    "reminder30m": "Reminder 30 minutes before",
+    "test": "Test notification",
+    "enabled": "Notifications enabled",
+    "disabled": "Notifications disabled",
+    "permissionDenied": "Permission denied. Enable notifications in browser settings.",
+    "notSupported": "Notifications are not supported on this device.",
+    "banner": {
+      "title": "Stay updated on matches",
+      "description": "Receive reminders before matches and updates on call-ups.",
+      "activate": "Enable notifications",
+      "notNow": "Not now"
     }
   }
 }

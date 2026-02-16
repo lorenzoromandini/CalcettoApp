@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-16 (after Plan 03-02 completion)  
+**Last Updated:** 2026-02-16 (after Plan 03-04 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 02 — Match Creation UI |
+| **Plan** | 04 — Formation Builder |
 | **Status** | ✅ Complete |
-| **Progress** | 33% |
+| **Progress** | 67% |
 
 ### Phase 3 Progress Bar
 
 ```
-[████░░░░░░░░░░░░░░] 33%
+[████████░░░░░░░░░░] 67%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
 
 ---
 
@@ -100,6 +100,9 @@
 | 2026-02-15 | One formation per match via UNIQUE(match_id) | Simplifies data model, formations are match-specific | ✅ Confirmed |
 | 2026-02-15 | Grid coordinates (0-9 x, 0-6 y) for pitch | Integer grid enables responsive pitch visualization | ✅ Confirmed |
 | 2026-02-15 | RSVP status enum (in/out/maybe) | Clear availability tracking with Italian-friendly labels | ✅ Confirmed |
+| 2026-02-16 | @dnd-kit for drag-and-drop | Better touch support than react-beautiful-dnd, modern API | ✅ Confirmed |
+| 2026-02-16 | Dual input: drag-and-drop + tap-to-place | Essential for mobile accessibility, works with wet fingers | ✅ Confirmed |
+| 2026-02-16 | 9x7 grid for pitch positioning | Enables magnetic snapping, responsive across screen sizes | ✅ Confirmed |
 
 ---
 
@@ -381,6 +384,89 @@
 
 ---
 
+### From Plan 03-02 (Match CRUD Operations)
+
+**Implemented:**
+- ✅ Match validation schemas with Italian error messages (createMatchSchema, updateMatchSchema)
+- ✅ Database operations with offline-first support (createMatch, getTeamMatches, getMatch, updateMatch, cancelMatch, uncancelMatch)
+- ✅ React hooks: useMatches, useMatch, useCreateMatch, useUpdateMatch, useCancelMatch
+- ✅ Match form component with datetime-local picker, location, mode selector
+- ✅ Match card component with date box, status badges, mode display
+- ✅ Match list page with upcoming/past tabs and admin-only create button
+- ✅ Match creation page with admin access control
+- ✅ Match detail page with edit, cancel, uncancel actions
+- ✅ Complete Italian/English translations for match UI
+
+**Key Files for Future Phases:**
+- `lib/validations/match.ts` - Validation schemas for match forms
+- `lib/db/matches.ts` - Match CRUD operations with offline support
+- `hooks/use-matches.ts` - React hooks for match data management
+- `components/matches/match-form.tsx` - Reusable match creation/editing form
+- `components/matches/match-card.tsx` - Match list item component
+- `app/[locale]/teams/[teamId]/matches/page.tsx` - Match list with tabs
+- `app/[locale]/teams/[teamId]/matches/create/page.tsx` - Create match page
+- `app/[locale]/teams/[teamId]/matches/[matchId]/page.tsx` - Match detail page
+
+**Patterns Established:**
+- datetime-local input for native mobile date/time picker
+- Min date validation prevents scheduling in the past
+- Mode selector with large touch targets (72px)
+- Client-side admin checks for role-based UI
+- Tab-based separation (upcoming vs past matches)
+- AlertDialog for destructive action confirmation
+- Date box component: month abbreviation + day number
+
+---
+
+### From Plan 03-03 (RSVP System)
+
+**Implemented:**
+- ✅ RSVP database operations with real-time support (lib/db/rsvps.ts)
+  - updateRSVP() with upsert logic for IN/OUT/Maybe responses
+  - getMatchRSVPs() with player details and status sorting
+  - getRSVPCounts() for efficient aggregation
+  - getMyRSVP() for current user's status
+  - subscribeToRSVPs() using Supabase Realtime
+- ✅ RSVP React hooks with optimistic updates (hooks/use-rsvps.ts)
+  - useRSVPs() with real-time subscription
+  - useRSVPCounts() derived from RSVP data
+  - useUpdateRSVP() with toast notifications
+  - useUpdateRSVPWithOptimistic() for instant UI feedback
+  - useMyRSVP() for current player status
+  - useRSVPData() combined hook for all state
+- ✅ RSVP UI components
+  - RSVPButton: Three-state segmented button with color coding
+  - AvailabilityCounter: Progress bar with status colors
+  - RSVPList: Grouped player responses with avatars
+- ✅ Integrated RSVP system into match detail page
+  - Availability counter prominently displayed
+  - RSVP button for current player
+  - RSVP list with real-time updates
+  - Mobile-optimized touch targets (48px+)
+- ✅ Complete Italian/English translations for RSVP features
+
+**Key Files for Future Phases:**
+- `lib/db/rsvps.ts` - RSVP CRUD operations with offline queue
+- `hooks/use-rsvps.ts` - React hooks for RSVP management
+- `components/matches/rsvp-button.tsx` - Three-state RSVP button
+- `components/matches/rsvp-list.tsx` - Grouped RSVP list
+- `components/matches/availability-counter.tsx` - Availability counter
+
+**Patterns Established:**
+- Optimistic updates: Update UI immediately, rollback on error
+- Real-time subscriptions: supabase.channel() with postgres_changes
+- Derived state: Calculate counts from array to avoid double-fetch
+- Three-state UI: IN (green), OUT (red), MAYBE (yellow)
+- Progress bar with color coding based on fill percentage
+- Grouped lists with visual separation and counters
+- Time formatting: "2 hours ago" style relative timestamps
+
+**Requirements Covered:**
+- MATCH-04: Player RSVP assignment (IN/OUT/Maybe) ✅
+- MATCH-05: Availability count display ✅
+
+---
+
 ### From Plan 03-01 (Match Management Database Schema)
 
 **Implemented:**
@@ -407,33 +493,46 @@
 
 ---
 
-### From Plan 03-02 (Match Creation UI)
+### From Plan 03-04 (Formation Builder)
 
 **Implemented:**
-- ✅ Match CRUD operations: createMatch, getTeamMatches, getMatch, updateMatch, cancelMatch, uncancelMatch
-- ✅ Match hooks: useMatches, useMatch, useCreateMatch, useUpdateMatch, useCancelMatch with loading/error states
-- ✅ Match form component with datetime-local picker, location, mode selector (5vs5/8vs8), notes
-- ✅ Match card component with status badges, date display, location
-- ✅ Match list page with upcoming/past tabs and empty states
-- ✅ Match creation page with admin-only access
-- ✅ Match detail page with edit and cancel/uncancel actions
-- ✅ Complete Italian translations for all match UI
+- ✅ @dnd-kit integration for drag-and-drop with touch support
+- ✅ Formation presets for 5vs5 (1-2-1 Diamante, 2-1-1 Piramide, 1-1-2 Attacco)
+- ✅ Formation presets for 8vs8 (3-3-1 Bilanciato, 2-3-2 Offensivo, 3-2-2 Difensivo)
+- ✅ Formation database operations (getFormation, saveFormation, deleteFormation)
+- ✅ useFormation hook with optimistic updates
+- ✅ FormationSelector component with preset dropdown
+- ✅ PitchGrid component with visual pitch and drop zones
+- ✅ PlayerPool component with draggable players
+- ✅ FormationBuilder container with dnd-kit context
+- ✅ Tap-to-place alternative interaction mode
+- ✅ Formation page at `/teams/[teamId]/matches/[matchId]/formation`
+- ✅ Touch-optimized UI (56px+ targets, 200ms touch delay)
+- ✅ Magnetic snapping via 9x7 grid positioning
+- ✅ Formation persistence with position assignments
 
 **Key Files for Future Phases:**
-- `lib/db/matches.ts` - CRUD operations for matches
-- `hooks/use-matches.ts` - React hooks for match data
-- `components/matches/match-form.tsx` - Match creation/editing form
-- `components/matches/match-card.tsx` - Match list item
-- `app/[locale]/teams/[teamId]/matches/page.tsx` - Match list with tabs
-- `app/[locale]/teams/[teamId]/matches/create/page.tsx` - Create match
-- `app/[locale]/teams/[teamId]/matches/[matchId]/page.tsx` - Match detail
+- `lib/formations/index.ts` - Formation presets, grid utilities, role colors
+- `lib/db/formations.ts` - Formation CRUD operations
+- `hooks/use-formation.ts` - Formation state management
+- `components/formations/formation-builder.tsx` - Main formation builder
+- `components/formations/pitch-grid.tsx` - Visual pitch with dnd-kit droppables
+- `components/formations/player-pool.tsx` - Draggable player list
+- `app/[locale]/teams/[teamId]/matches/[matchId]/formation/page.tsx` - Formation page
 
 **Patterns Established:**
-- Date/time handling with datetime-local input for mobile-native pickers
-- Match status workflow: scheduled → in_progress → completed (or cancelled)
-- Admin-only match creation and management
-- Upcoming/past match separation with tabs
-- Status badges with color coding (scheduled=blue, in_progress=green, completed=gray, cancelled=red)
+- dnd-kit with TouchSensor (200ms delay) for mobile
+- Tap-to-place as drag-and-drop alternative
+- Grid-based positioning (9 columns x 7 rows)
+- Portrait orientation (3:4 ratio) for mobile
+- Preserve assignments when switching formation presets
+- Drag overlay with player initials
+- Visual feedback during drag operations
+
+**Requirements Covered:**
+- MATCH-03: Formation module based on match mode ✅
+- MATCH-06: Drag-and-drop formation builder ✅
+- MATCH-06-alt: Tap-to-place interaction ✅
 
 ---
 
@@ -441,29 +540,31 @@
 
 ### Last Session
 - **Date:** 2026-02-16
-- **Activity:** Executed Plan 03-02 (Match Creation UI)
+- **Activity:** Executed Plan 03-04 (Formation Builder)
 - **Outcome:** 
-  - Match CRUD operations already existed in lib/db/matches.ts with offline queue integration
-  - Match React hooks already existed in hooks/use-matches.ts (useMatches, useMatch, useCreateMatch, useUpdateMatch, useCancelMatch)
-  - Match form and card components already existed with mobile-optimized UI
-  - Match list, create, and detail pages already existed with upcoming/past tabs
-  - Complete translations for match management already in place (IT/EN)
-  - Fixed TypeScript errors and installed missing shadcn/ui components (Badge, Separator, AlertDialog, Tabs, Textarea)
-  - Build successful - all match management features ready
-  - Phase 3 progress: 33% complete (2/6 plans)
+  - Installed @dnd-kit for drag-and-drop with touch support
+  - Created formation presets for 5vs5 and 8vs8 modes
+  - Implemented formation database operations and hook
+  - Built formation builder components (selector, pitch, player pool)
+  - Created main formation builder with dual interaction modes
+  - Added formation page at match formation route
+  - Added complete Italian/English translations
+  - Fixed pre-existing TypeScript errors in codebase
+  - Plan 03-04 SUMMARY.md created
+  - Phase 3 progress: 67% complete (4 of 6 plans)
 
 ### Next Session
 - **Status:** Ready to continue
-- **Action:** Execute Plan 03-03: RSVP System
-- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-03
+- **Action:** Execute Plan 03-05: Match Statistics (or next plan)
+- **When ready:** Run `/gsd-execute-phase 03` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
-4. Read 03-01-SUMMARY.md for match database schema details
-5. Run `/gsd-execute-phase 03` to continue with Plan 03
+4. Read 03-04-SUMMARY.md for formation builder details
+5. Run `/gsd-execute-phase 03` to continue with next plan
 
 ---
 

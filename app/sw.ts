@@ -219,22 +219,72 @@ self.addEventListener('sync', (event) => {
   }
 });
 
+// ============================================================================
+// Push Notification Event Handlers
+// ============================================================================
+
 /**
- * Push Event (placeholder for future push notifications)
+ * Push notification handler
+ * Handles match reminders with actions
  */
 self.addEventListener('push', (event) => {
   if (!event.data) return;
-  
+
   const data = event.data.json();
-  const options: NotificationOptions = {
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const options: any = {
     body: data.body,
-    icon: '/icon-192x192.png',
-    badge: '/badge-72x72.png',
-    tag: data.tag || 'default',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/badge-72x72.png',
+    tag: data.tag || 'match-reminder',
+    requireInteraction: false,
+    actions: data.actions || [
+      { action: 'confirm', title: 'Ci sono!' },
+      { action: 'view', title: 'Vedi dettagli' },
+    ],
+    data: {
+      url: data.url || '/',
+      matchId: data.matchId,
+    },
   };
 
   event.waitUntil(
     self.registration.showNotification(data.title, options)
+  );
+});
+
+/**
+ * Notification click handler
+ * Handles action button clicks from push notifications
+ */
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const data = event.notification.data;
+  let url = data?.url || '/';
+
+  // Handle actions
+  if (event.action === 'confirm') {
+    // Could track confirmation or navigate to RSVP
+    url = data?.url ? `${data.url}?rsvp=in` : '/';
+  } else if (event.action === 'view') {
+    url = data?.url || '/';
+  }
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+      // Focus existing window if open
+      for (const client of clientList) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Open new window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })
   );
 });
 
