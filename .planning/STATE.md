@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-16 (after Plan 03-03 completion)  
+**Last Updated:** 2026-02-16 (after Plan 03-04 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 03 — RSVP System |
+| **Plan** | 04 — Formation Builder |
 | **Status** | ✅ Complete |
-| **Progress** | 50% |
+| **Progress** | 67% |
 
 ### Phase 3 Progress Bar
 
 ```
-[██████░░░░░░░░░░░░] 50%
+[████████░░░░░░░░░░] 67%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
 
 ---
 
@@ -100,6 +100,9 @@
 | 2026-02-15 | One formation per match via UNIQUE(match_id) | Simplifies data model, formations are match-specific | ✅ Confirmed |
 | 2026-02-15 | Grid coordinates (0-9 x, 0-6 y) for pitch | Integer grid enables responsive pitch visualization | ✅ Confirmed |
 | 2026-02-15 | RSVP status enum (in/out/maybe) | Clear availability tracking with Italian-friendly labels | ✅ Confirmed |
+| 2026-02-16 | @dnd-kit for drag-and-drop | Better touch support than react-beautiful-dnd, modern API | ✅ Confirmed |
+| 2026-02-16 | Dual input: drag-and-drop + tap-to-place | Essential for mobile accessibility, works with wet fingers | ✅ Confirmed |
+| 2026-02-16 | 9x7 grid for pitch positioning | Enables magnetic snapping, responsive across screen sizes | ✅ Confirmed |
 
 ---
 
@@ -490,32 +493,78 @@
 
 ---
 
+### From Plan 03-04 (Formation Builder)
+
+**Implemented:**
+- ✅ @dnd-kit integration for drag-and-drop with touch support
+- ✅ Formation presets for 5vs5 (1-2-1 Diamante, 2-1-1 Piramide, 1-1-2 Attacco)
+- ✅ Formation presets for 8vs8 (3-3-1 Bilanciato, 2-3-2 Offensivo, 3-2-2 Difensivo)
+- ✅ Formation database operations (getFormation, saveFormation, deleteFormation)
+- ✅ useFormation hook with optimistic updates
+- ✅ FormationSelector component with preset dropdown
+- ✅ PitchGrid component with visual pitch and drop zones
+- ✅ PlayerPool component with draggable players
+- ✅ FormationBuilder container with dnd-kit context
+- ✅ Tap-to-place alternative interaction mode
+- ✅ Formation page at `/teams/[teamId]/matches/[matchId]/formation`
+- ✅ Touch-optimized UI (56px+ targets, 200ms touch delay)
+- ✅ Magnetic snapping via 9x7 grid positioning
+- ✅ Formation persistence with position assignments
+
+**Key Files for Future Phases:**
+- `lib/formations/index.ts` - Formation presets, grid utilities, role colors
+- `lib/db/formations.ts` - Formation CRUD operations
+- `hooks/use-formation.ts` - Formation state management
+- `components/formations/formation-builder.tsx` - Main formation builder
+- `components/formations/pitch-grid.tsx` - Visual pitch with dnd-kit droppables
+- `components/formations/player-pool.tsx` - Draggable player list
+- `app/[locale]/teams/[teamId]/matches/[matchId]/formation/page.tsx` - Formation page
+
+**Patterns Established:**
+- dnd-kit with TouchSensor (200ms delay) for mobile
+- Tap-to-place as drag-and-drop alternative
+- Grid-based positioning (9 columns x 7 rows)
+- Portrait orientation (3:4 ratio) for mobile
+- Preserve assignments when switching formation presets
+- Drag overlay with player initials
+- Visual feedback during drag operations
+
+**Requirements Covered:**
+- MATCH-03: Formation module based on match mode ✅
+- MATCH-06: Drag-and-drop formation builder ✅
+- MATCH-06-alt: Tap-to-place interaction ✅
+
+---
+
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-16
-- **Activity:** Executed Plan 03-03 (RSVP System)
+- **Activity:** Executed Plan 03-04 (Formation Builder)
 - **Outcome:** 
-  - Created RSVP database operations with real-time subscriptions
-  - Implemented RSVP React hooks with optimistic updates
-  - Built RSVP button, list, and availability counter components
-  - Integrated RSVP system into match detail page
+  - Installed @dnd-kit for drag-and-drop with touch support
+  - Created formation presets for 5vs5 and 8vs8 modes
+  - Implemented formation database operations and hook
+  - Built formation builder components (selector, pitch, player pool)
+  - Created main formation builder with dual interaction modes
+  - Added formation page at match formation route
   - Added complete Italian/English translations
-  - Plan 03-03 SUMMARY.md created
-  - Phase 3 progress: 50% complete (3 of 6 plans)
+  - Fixed pre-existing TypeScript errors in codebase
+  - Plan 03-04 SUMMARY.md created
+  - Phase 3 progress: 67% complete (4 of 6 plans)
 
 ### Next Session
 - **Status:** Ready to continue
-- **Action:** Execute Plan 03-04: Formation Builder
-- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-04
+- **Action:** Execute Plan 03-05: Match Statistics (or next plan)
+- **When ready:** Run `/gsd-execute-phase 03` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
-4. Read 03-03-SUMMARY.md for RSVP system details
-5. Run `/gsd-execute-phase 03` to continue with Plan 03-04
+4. Read 03-04-SUMMARY.md for formation builder details
+5. Run `/gsd-execute-phase 03` to continue with next plan
 
 ---
 
