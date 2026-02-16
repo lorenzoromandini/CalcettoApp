@@ -411,5 +411,24 @@
     "assignedCount": "{count} di {total} posizioni assegnate",
     "formationComplete": "Formazione completa",
     "formationIncomplete": "Formazione incompleta"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "enable": "Attiva notifiche",
+    "description": "Ricevi promemoria prima delle partite",
+    "reminder24h": "Promemoria 24 ore prima",
+    "reminder2h": "Promemoria 2 ore prima",
+    "reminder30m": "Promemoria 30 minuti prima",
+    "test": "Prova notifica",
+    "enabled": "Notifiche attive",
+    "disabled": "Notifiche disattivate",
+    "permissionDenied": "Permesso negato. Abilita le notifiche nelle impostazioni del browser.",
+    "notSupported": "Le notifiche non sono supportate su questo dispositivo.",
+    "banner": {
+      "title": "Rimani aggiornato sulle partite",
+      "description": "Ricevi promemoria prima delle partite e aggiornamenti sulle convocazioni.",
+      "activate": "Attiva notifiche",
+      "notNow": "Non ora"
+    }
   }
 }

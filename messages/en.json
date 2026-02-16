@@ -411,5 +411,24 @@
     "assignedCount": "{count} of {total} positions assigned",
     "formationComplete": "Formation complete",
     "formationIncomplete": "Formation incomplete"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "enable": "Enable notifications",
+    "description": "Receive reminders before matches",
+    "reminder24h": "Reminder 24 hours before",
+    "reminder2h": "Reminder 2 hours before",
+    "reminder30m": "Reminder 30 minutes before",
+    "test": "Test notification",
+    "enabled": "Notifications enabled",
+    "disabled": "Notifications disabled",
+    "permissionDenied": "Permission denied. Enable notifications in browser settings.",
+    "notSupported": "Notifications are not supported on this device.",
+    "banner": {
+      "title": "Stay updated on matches",
+      "description": "Receive reminders before matches and updates on call-ups.",
+      "activate": "Enable notifications",
+      "notNow": "Not now"
+    }
   }
 }
