@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-16 (after Plan 03-02 completion)  
+**Last Updated:** 2026-02-16 (after Plan 03-03 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 02 — Match CRUD Operations |
+| **Plan** | 03 — RSVP System |
 | **Status** | ✅ Complete |
-| **Progress** | 33% |
+| **Progress** | 50% |
 
 ### Phase 3 Progress Bar
 
 ```
-[████░░░░░░░░░░░░░░] 33%
+[██████░░░░░░░░░░░░] 50%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
 
 ---
 
@@ -415,6 +415,55 @@
 
 ---
 
+### From Plan 03-03 (RSVP System)
+
+**Implemented:**
+- ✅ RSVP database operations with real-time support (lib/db/rsvps.ts)
+  - updateRSVP() with upsert logic for IN/OUT/Maybe responses
+  - getMatchRSVPs() with player details and status sorting
+  - getRSVPCounts() for efficient aggregation
+  - getMyRSVP() for current user's status
+  - subscribeToRSVPs() using Supabase Realtime
+- ✅ RSVP React hooks with optimistic updates (hooks/use-rsvps.ts)
+  - useRSVPs() with real-time subscription
+  - useRSVPCounts() derived from RSVP data
+  - useUpdateRSVP() with toast notifications
+  - useUpdateRSVPWithOptimistic() for instant UI feedback
+  - useMyRSVP() for current player status
+  - useRSVPData() combined hook for all state
+- ✅ RSVP UI components
+  - RSVPButton: Three-state segmented button with color coding
+  - AvailabilityCounter: Progress bar with status colors
+  - RSVPList: Grouped player responses with avatars
+- ✅ Integrated RSVP system into match detail page
+  - Availability counter prominently displayed
+  - RSVP button for current player
+  - RSVP list with real-time updates
+  - Mobile-optimized touch targets (48px+)
+- ✅ Complete Italian/English translations for RSVP features
+
+**Key Files for Future Phases:**
+- `lib/db/rsvps.ts` - RSVP CRUD operations with offline queue
+- `hooks/use-rsvps.ts` - React hooks for RSVP management
+- `components/matches/rsvp-button.tsx` - Three-state RSVP button
+- `components/matches/rsvp-list.tsx` - Grouped RSVP list
+- `components/matches/availability-counter.tsx` - Availability counter
+
+**Patterns Established:**
+- Optimistic updates: Update UI immediately, rollback on error
+- Real-time subscriptions: supabase.channel() with postgres_changes
+- Derived state: Calculate counts from array to avoid double-fetch
+- Three-state UI: IN (green), OUT (red), MAYBE (yellow)
+- Progress bar with color coding based on fill percentage
+- Grouped lists with visual separation and counters
+- Time formatting: "2 hours ago" style relative timestamps
+
+**Requirements Covered:**
+- MATCH-04: Player RSVP assignment (IN/OUT/Maybe) ✅
+- MATCH-05: Availability count display ✅
+
+---
+
 ### From Plan 03-01 (Match Management Database Schema)
 
 **Implemented:**
@@ -445,33 +494,28 @@
 
 ### Last Session
 - **Date:** 2026-02-16
-- **Activity:** Executed Plan 03-02 (Match CRUD Operations)
+- **Activity:** Executed Plan 03-03 (RSVP System)
 - **Outcome:** 
-  - Created match validation schemas with Italian error messages
-  - Implemented database operations with offline-first support
-  - Created React hooks for match data management (5 hooks)
-  - Built match form component with datetime picker and mode selector
-  - Built match card component with status badges and date box
-  - Created match list page with upcoming/past tabs
-  - Created match creation page with admin-only access
-  - Created match detail page with edit/cancel/uncancel actions
+  - Created RSVP database operations with real-time subscriptions
+  - Implemented RSVP React hooks with optimistic updates
+  - Built RSVP button, list, and availability counter components
+  - Integrated RSVP system into match detail page
   - Added complete Italian/English translations
-  - Plan 03-02 SUMMARY.md created
-  - Phase 3 progress: 33% complete (2 of 6 plans)
+  - Plan 03-03 SUMMARY.md created
+  - Phase 3 progress: 50% complete (3 of 6 plans)
 
 ### Next Session
 - **Status:** Ready to continue
-- **Action:** Execute Plan 03-03: RSVP System
-- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-03
+- **Action:** Execute Plan 03-04: Formation Builder
+- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-04
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
-4. Read 03-01-SUMMARY.md for match database schema details
-5. Read 03-02-SUMMARY.md for match CRUD operations and UI patterns
-6. Run `/gsd-execute-phase 03` to continue with Plan 03-03
+4. Read 03-03-SUMMARY.md for RSVP system details
+5. Run `/gsd-execute-phase 03` to continue with Plan 03-04
 
 ---
 
