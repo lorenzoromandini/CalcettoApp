@@ -57,13 +57,22 @@ export default async function TeamPage({ params }: TeamPageProps) {
 
   const isAdmin = membership.role === 'admin' || membership.role === 'co-admin';
 
+  // Map team data to match Team type (convert null to undefined)
+  const mappedTeam = {
+    ...team,
+    description: team.description || undefined,
+    team_mode: team.team_mode || '5-a-side',
+    deleted_at: team.deleted_at || undefined,
+    sync_status: (team.sync_status as 'synced' | 'pending' | 'error') || 'synced',
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <TeamNav teamId={teamId} isAdmin={isAdmin} />
       
       <div className="mt-6">
         <TeamDashboard
-          team={team}
+          team={mappedTeam}
           playerCount={playerCount || 0}
           memberCount={memberCount || 0}
           isAdmin={isAdmin}

@@ -365,7 +365,7 @@ export function MatchDetailPageClient({
         <div className={canShowRSVP ? "" : "md:col-span-2"}>
           <RSVPList
             rsvps={rsvps}
-            currentPlayerId={currentPlayerId}
+            currentPlayerId={currentPlayerId || undefined}
             isLoading={isRSVPLoading}
           />
         </div>

@@ -40,7 +40,7 @@ function toLocalMatch(dbMatch: Tables<'matches'>): Match {
     home_score: dbMatch.home_score ?? undefined,
     away_score: dbMatch.away_score ?? undefined,
     notes: dbMatch.notes ?? undefined,
-    created_by: dbMatch.created_by,
+    created_by: dbMatch.created_by || '',
     created_at: dbMatch.created_at,
     updated_at: dbMatch.updated_at,
     sync_status: 'synced',
