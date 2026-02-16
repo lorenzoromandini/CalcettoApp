@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-16 (after Plan 03-04 completion)  
+**Last Updated:** 2026-02-16 (after merge of all Phase 3 plans)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 04 — Formation Builder |
-| **Status** | ✅ Complete |
-| **Progress** | 67% |
+| **Plan** | 06 — Integration |
+| **Status** | 🔄 In Progress |
+| **Progress** | 83% |
 
 ### Phase 3 Progress Bar
 
 ```
-[████████░░░░░░░░░░] 67%
+[████████████░░░░░░░] 83%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 🔄 In Progress*
 
 ---
 
