@@ -398,5 +398,18 @@
         "description": "Be the first to respond!"
       }
     }
+  },
+  "formations": {
+    "title": "Formation",
+    "selectFormation": "Select formation",
+    "dragOrTap": "Drag or tap to position",
+    "tapPlayerThenPosition": "Tap a position for {player}",
+    "playerPool": "Available players",
+    "save": "Save formation",
+    "clear": "Clear all",
+    "backToMatch": "Back to match",
+    "assignedCount": "{count} of {total} positions assigned",
+    "formationComplete": "Formation complete",
+    "formationIncomplete": "Formation incomplete"
   }
 }
