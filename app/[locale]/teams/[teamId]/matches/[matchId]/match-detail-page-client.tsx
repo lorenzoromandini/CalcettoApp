@@ -9,10 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useMatch, useCancelMatch } from "@/hooks/use-matches";
 import { useTeam } from "@/hooks/use-teams";
+import { usePlayers } from "@/hooks/use-players";
+import { useRSVPData, useUpdateRSVP } from "@/hooks/use-rsvps";
+import { RSVPButton } from "@/components/matches/rsvp-button";
+import { RSVPList } from "@/components/matches/rsvp-list";
+import { AvailabilityCounter } from "@/components/matches/availability-counter";
 import { isTeamAdmin } from "@/lib/db/teams";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Match } from "@/lib/db/schema";
+import type { Match, RSVPStatus } from "@/lib/db/schema";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,22 +43,54 @@ export function MatchDetailPageClient({
 }: MatchDetailPageClientProps) {
   const t = useTranslations("matches");
   const router = useRouter();
-  const { match, isLoading, error, refetch } = useMatch(matchId);
+  const { match, isLoading: isMatchLoading, error, refetch } = useMatch(matchId);
   const { team } = useTeam(teamId);
+  const { players: teamPlayers } = usePlayers(teamId);
   const { cancelMatch, uncancelMatch, isPending: isActionPending } = useCancelMatch();
+  
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Get RSVP data
+  const {
+    rsvps,
+    counts,
+    myRSVP,
+    isLoading: isRSVPLoading,
+    refetch: refetchRSVPs,
+  } = useRSVPData(matchId, currentPlayerId);
+
+  // RSVP mutation
+  const { updateRSVP, isPending: isRSVPPending } = useUpdateRSVP(matchId, () => {
+    refetchRSVPs();
+  });
 
   useEffect(() => {
-    async function checkAdmin() {
+    async function loadUserData() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (user) {
+        setCurrentUserId(user.id);
+        
+        // Check admin status
         const admin = await isTeamAdmin(teamId, user.id);
         setIsAdmin(admin);
+        
+        // Find current player's ID from team players
+        // Player with matching user_id
+        const currentPlayer = teamPlayers.find(p => p.user_id === user.id);
+        if (currentPlayer) {
+          setCurrentPlayerId(currentPlayer.id);
+        }
       }
     }
-    checkAdmin();
-  }, [teamId]);
+    
+    if (teamPlayers.length > 0) {
+      loadUserData();
+    }
+  }, [teamId, teamPlayers]);
 
   const handleBack = () => {
     router.push(`/${locale}/teams/${teamId}/matches`);
@@ -79,6 +116,16 @@ export function MatchDetailPageClient({
       refetch();
     } catch (err) {
       console.error("Failed to uncancel match:", err);
+    }
+  };
+
+  const handleRSVPChange = async (status: RSVPStatus) => {
+    if (!currentPlayerId) return;
+    
+    try {
+      await updateRSVP(currentPlayerId, status);
+    } catch (err) {
+      console.error("Failed to update RSVP:", err);
     }
   };
 
@@ -136,7 +183,13 @@ export function MatchDetailPageClient({
     }).format(date);
   };
 
-  if (isLoading) {
+  const isLoading = isMatchLoading || isRSVPLoading;
+  const canShowRSVP = match?.status === 'scheduled' && currentPlayerId;
+  const canEdit = isAdmin && match?.status === 'scheduled';
+  const canCancel = isAdmin && match?.status === 'scheduled';
+  const canUncancel = isAdmin && match?.status === 'cancelled';
+
+  if (isMatchLoading) {
     return (
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Button variant="ghost" onClick={handleBack} className="mb-4 -ml-2">
@@ -175,10 +228,6 @@ export function MatchDetailPageClient({
     );
   }
 
-  const canEdit = isAdmin && match.status === 'scheduled';
-  const canCancel = isAdmin && match.status === 'scheduled';
-  const canUncancel = isAdmin && match.status === 'cancelled';
-
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Back Button */}
@@ -190,9 +239,9 @@ export function MatchDetailPageClient({
       {/* Match Header Card */}
       <Card className="mb-6">
         <CardHeader className="pb-4">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 {getStatusBadge(match.status)}
                 <Badge variant="outline">{getModeLabel(match.mode)}</Badge>
               </div>
@@ -277,42 +326,69 @@ export function MatchDetailPageClient({
         </CardContent>
       </Card>
 
-      {/* Placeholder Sections for Future Plans */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* RSVP Section Placeholder */}
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              {t("detail.sections.rsvp")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              RSVP functionality coming in the next phase.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Formation Section Placeholder */}
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <LayoutGrid className="h-5 w-5" />
-              {t("detail.sections.formation")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Formation builder coming in a future phase.
-            </p>
-          </CardContent>
-        </Card>
+      {/* Availability Counter - Always visible */}
+      <div className="mb-6">
+        <AvailabilityCounter 
+          counts={counts} 
+          mode={match.mode} 
+          isLoading={isRSVPLoading}
+        />
       </div>
+
+      {/* RSVP Sections */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* My RSVP Section */}
+        {canShowRSVP && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">
+                {t("detail.sections.rvp")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RSVPButton
+                currentStatus={myRSVP}
+                onChange={handleRSVPChange}
+                disabled={!currentPlayerId}
+                isPending={isRSVPPending}
+              />
+              {!currentPlayerId && (
+                <p className="text-sm text-muted-foreground mt-3 text-center">
+                  Unisciti alla squadra come giocatore per rispondere
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* RSVP List */}
+        <div className={canShowRSVP ? "" : "md:col-span-2"}>
+          <RSVPList
+            rsvps={rsvps}
+            currentPlayerId={currentPlayerId}
+            isLoading={isRSVPLoading}
+          />
+        </div>
+      </div>
+
+      {/* Formation Section Placeholder */}
+      <Card className="mt-6 border-dashed">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <LayoutGrid className="h-5 w-5" />
+            {t("detail.sections.formation")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Formation builder coming in a future phase.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Stats Section Placeholder */}
       {match.status === 'completed' && (
-        <Card className="mt-4 border-dashed">
+        <Card className="mt-6 border-dashed">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
