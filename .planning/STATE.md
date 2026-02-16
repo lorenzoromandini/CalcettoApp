@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-15 (after Plan 03-01 completion)  
+**Last Updated:** 2026-02-16 (after Plan 03-02 completion)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 01 — Match Management Database Schema |
+| **Plan** | 02 — Match CRUD Operations |
 | **Status** | ✅ Complete |
-| **Progress** | 17% |
+| **Progress** | 33% |
 
 ### Phase 3 Progress Bar
 
 ```
-[██░░░░░░░░░░░░░░░░] 17%
+[████░░░░░░░░░░░░░░] 33%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 🔴 Not Started, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 🔴 Not Started, Plan 04 🔴 Not Started, Plan 05 🔴 Not Started, Plan 06 🔴 Not Started*
 
 ---
 
@@ -381,6 +381,40 @@
 
 ---
 
+### From Plan 03-02 (Match CRUD Operations)
+
+**Implemented:**
+- ✅ Match validation schemas with Italian error messages (createMatchSchema, updateMatchSchema)
+- ✅ Database operations with offline-first support (createMatch, getTeamMatches, getMatch, updateMatch, cancelMatch, uncancelMatch)
+- ✅ React hooks: useMatches, useMatch, useCreateMatch, useUpdateMatch, useCancelMatch
+- ✅ Match form component with datetime-local picker, location, mode selector
+- ✅ Match card component with date box, status badges, mode display
+- ✅ Match list page with upcoming/past tabs and admin-only create button
+- ✅ Match creation page with admin access control
+- ✅ Match detail page with edit, cancel, uncancel actions
+- ✅ Complete Italian/English translations for match UI
+
+**Key Files for Future Phases:**
+- `lib/validations/match.ts` - Validation schemas for match forms
+- `lib/db/matches.ts` - Match CRUD operations with offline support
+- `hooks/use-matches.ts` - React hooks for match data management
+- `components/matches/match-form.tsx` - Reusable match creation/editing form
+- `components/matches/match-card.tsx` - Match list item component
+- `app/[locale]/teams/[teamId]/matches/page.tsx` - Match list with tabs
+- `app/[locale]/teams/[teamId]/matches/create/page.tsx` - Create match page
+- `app/[locale]/teams/[teamId]/matches/[matchId]/page.tsx` - Match detail page
+
+**Patterns Established:**
+- datetime-local input for native mobile date/time picker
+- Min date validation prevents scheduling in the past
+- Mode selector with large touch targets (72px)
+- Client-side admin checks for role-based UI
+- Tab-based separation (upcoming vs past matches)
+- AlertDialog for destructive action confirmation
+- Date box component: month abbreviation + day number
+
+---
+
 ### From Plan 03-01 (Match Management Database Schema)
 
 **Implemented:**
@@ -410,20 +444,25 @@
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-15
-- **Activity:** Executed Plan 03-01 (Match Management Database Schema)
+- **Date:** 2026-02-16
+- **Activity:** Executed Plan 03-02 (Match CRUD Operations)
 - **Outcome:** 
-  - Created PostgreSQL migration with matches, match_players, formations, formation_positions tables
-  - Implemented RLS policies for team-based match access control
-  - Extended IndexedDB to v3 with match management stores
-  - Generated TypeScript types for all match entities
-  - Plan 03-01 SUMMARY.md created and committed
-  - Phase 3 match management foundation complete
+  - Created match validation schemas with Italian error messages
+  - Implemented database operations with offline-first support
+  - Created React hooks for match data management (5 hooks)
+  - Built match form component with datetime picker and mode selector
+  - Built match card component with status badges and date box
+  - Created match list page with upcoming/past tabs
+  - Created match creation page with admin-only access
+  - Created match detail page with edit/cancel/uncancel actions
+  - Added complete Italian/English translations
+  - Plan 03-02 SUMMARY.md created
+  - Phase 3 progress: 33% complete (2 of 6 plans)
 
 ### Next Session
 - **Status:** Ready to continue
-- **Action:** Execute Plan 03-02: Match Creation UI
-- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-02
+- **Action:** Execute Plan 03-03: RSVP System
+- **When ready:** Run `/gsd-execute-phase 03` to continue with Plan 03-03
 
 ### Context for Claude
 When resuming this project:
@@ -431,7 +470,8 @@ When resuming this project:
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
 4. Read 03-01-SUMMARY.md for match database schema details
-5. Run `/gsd-execute-phase 03` to continue with Plan 03
+5. Read 03-02-SUMMARY.md for match CRUD operations and UI patterns
+6. Run `/gsd-execute-phase 03` to continue with Plan 03-03
 
 ---
 
