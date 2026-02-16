@@ -358,6 +358,45 @@
         "formation": "Formazione",
         "stats": "Statistiche"
       }
+    },
+    "rsvp": {
+      "in": "Ci sono!",
+      "inShort": "Ci sono",
+      "out": "Non posso",
+      "outShort": "Non posso",
+      "maybe": "Forse",
+      "maybeShort": "Forse",
+      "updateSuccess": "Risposta aggiornata",
+      "updateError": "Errore durante l'aggiornamento"
+    },
+    "availability": {
+      "title": "Chi viene?",
+      "confirmed": "confermati",
+      "full": "completa",
+      "in": "ci sono",
+      "out": "non possono",
+      "maybe": "forse",
+      "complete": "Squadra al completo!",
+      "halfway": "A metà squadra",
+      "needMore": "Servono più giocatori"
+    },
+    "rsvpList": {
+      "title": "Risposte",
+      "you": "Tu",
+      "responded": "ha risposto",
+      "justNow": "ora",
+      "minutesAgo": "{count} min fa",
+      "hoursAgo": "{count} ore fa",
+      "daysAgo": "{count} giorni fa",
+      "groups": {
+        "in": "Ci sono",
+        "out": "Non possono",
+        "maybe": "Forse"
+      },
+      "empty": {
+        "title": "Nessuna risposta",
+        "description": "Sii il primo a rispondere!"
+      }
     }
   }
 }

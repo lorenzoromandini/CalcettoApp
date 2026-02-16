@@ -358,6 +358,45 @@
         "formation": "Formation",
         "stats": "Statistics"
       }
+    },
+    "rsvp": {
+      "in": "I'm in!",
+      "inShort": "In",
+      "out": "Can't make it",
+      "outShort": "Out",
+      "maybe": "Maybe",
+      "maybeShort": "Maybe",
+      "updateSuccess": "Response updated",
+      "updateError": "Error updating response"
+    },
+    "availability": {
+      "title": "Who's coming?",
+      "confirmed": "confirmed",
+      "full": "full",
+      "in": "in",
+      "out": "out",
+      "maybe": "maybe",
+      "complete": "Team complete!",
+      "halfway": "Halfway there",
+      "needMore": "Need more players"
+    },
+    "rsvpList": {
+      "title": "Responses",
+      "you": "You",
+      "responded": "responded",
+      "justNow": "just now",
+      "minutesAgo": "{count} min ago",
+      "hoursAgo": "{count} hours ago",
+      "daysAgo": "{count} days ago",
+      "groups": {
+        "in": "In",
+        "out": "Out",
+        "maybe": "Maybe"
+      },
+      "empty": {
+        "title": "No responses",
+        "description": "Be the first to respond!"
+      }
     }
   }
 }
