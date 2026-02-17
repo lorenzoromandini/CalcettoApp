@@ -83,6 +83,8 @@
   },
   "dashboard": {
     "subtitle": "Ecco la panoramica della tua attività",
+    "upcomingMatches": "Prossime partite",
+    "noUpcomingMatches": "Nessuna partita programmata",
     "stats": {
       "teams": "Squadre",
       "teamsDescription": "Squadre create",
@@ -280,6 +282,7 @@
   },
   "teamNav": {
     "overview": "Panoramica",
+    "matches": "Partite",
     "players": "Giocatori",
     "roster": "Rosa",
     "settings": "Impostazioni"

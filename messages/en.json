@@ -83,6 +83,8 @@
   },
   "dashboard": {
     "subtitle": "Here's an overview of your activity",
+    "upcomingMatches": "Upcoming matches",
+    "noUpcomingMatches": "No matches scheduled",
     "stats": {
       "teams": "Teams",
       "teamsDescription": "Teams created",
@@ -280,6 +282,7 @@
   },
   "teamNav": {
     "overview": "Overview",
+    "matches": "Matches",
     "players": "Players",
     "roster": "Roster",
     "settings": "Settings"
