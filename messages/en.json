@@ -363,6 +363,12 @@
       "submitting": "Creating...",
       "error": "An error occurred. Please try again."
     },
+    "notificationModal": {
+      "title": "Stay updated on matches",
+      "description": "Receive reminders before matches and updates on call-ups.",
+      "enable": "Enable notifications",
+      "skip": "Not now"
+    },
     "detail": {
       "title": "Match details",
       "edit": "Edit",

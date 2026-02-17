@@ -363,6 +363,12 @@
       "submitting": "Creazione in corso...",
       "error": "Si è verificato un errore. Riprova."
     },
+    "notificationModal": {
+      "title": "Rimani aggiornato sulle partite",
+      "description": "Ricevi promemoria prima delle partite e aggiornamenti sulle convocazioni.",
+      "enable": "Attiva notifiche",
+      "skip": "Non ora"
+    },
     "detail": {
       "title": "Dettagli partita",
       "edit": "Modifica",
