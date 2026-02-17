@@ -114,8 +114,9 @@ export type RSVPStatus = 'in' | 'out' | 'maybe';
 
 /**
  * Match status
+ * Aligned with Prisma MatchStatus enum
  */
-export type MatchStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+export type MatchStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
 
 /**
  * Match mode/formation

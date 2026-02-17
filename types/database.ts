@@ -277,7 +277,7 @@ export interface Database {
           scheduled_at: string;
           location: string | null;
           mode: '5vs5' | '8vs8';
-          status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+          status: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
           home_score: number | null;
           away_score: number | null;
           notes: string | null;
@@ -292,7 +292,7 @@ export interface Database {
           scheduled_at: string;
           location?: string | null;
           mode: '5vs5' | '8vs8';
-          status?: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+          status?: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
           home_score?: number | null;
           away_score?: number | null;
           notes?: string | null;
@@ -307,7 +307,7 @@ export interface Database {
           scheduled_at?: string;
           location?: string | null;
           mode?: '5vs5' | '8vs8';
-          status?: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+          status?: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
           home_score?: number | null;
           away_score?: number | null;
           notes?: string | null;

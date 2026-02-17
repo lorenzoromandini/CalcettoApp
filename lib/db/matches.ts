@@ -9,6 +9,7 @@
  */
 
 import { prisma } from './index';
+import { MatchStatus } from '@prisma/client';
 import type { Match, SyncStatus } from './schema';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
 
@@ -57,7 +58,7 @@ export async function createMatch(
       scheduledAt: new Date(data.scheduled_at),
       location: data.location,
       mode: data.mode,
-      status: 'scheduled',
+      status: MatchStatus.SCHEDULED,
       notes: data.notes,
       createdBy: userId,
     },
@@ -115,7 +116,7 @@ export async function getUpcomingMatches(teamId: string): Promise<Match[]> {
       scheduledAt: {
         gte: now,
       },
-      status: 'scheduled',
+      status: MatchStatus.SCHEDULED,
     },
     orderBy: {
       scheduledAt: 'asc',
@@ -146,7 +147,7 @@ export async function getPastMatches(teamId: string): Promise<Match[]> {
         },
         {
           status: {
-            in: ['completed', 'cancelled'],
+            in: [MatchStatus.COMPLETED, MatchStatus.CANCELLED],
           },
         },
       ],
@@ -179,7 +180,7 @@ export async function updateMatch(
     throw new Error('Match not found');
   }
 
-  if (existing.status !== 'scheduled') {
+  if (existing.status !== MatchStatus.SCHEDULED) {
     throw new Error('Cannot update match that has already started or been cancelled');
   }
 
@@ -210,14 +211,14 @@ export async function cancelMatch(matchId: string): Promise<void> {
     throw new Error('Match not found');
   }
 
-  if (existing.status !== 'scheduled') {
+  if (existing.status !== MatchStatus.SCHEDULED) {
     throw new Error('Cannot cancel match that has already started or been cancelled');
   }
 
   await prisma.match.update({
     where: { id: matchId },
     data: {
-      status: 'cancelled',
+      status: MatchStatus.CANCELLED,
     },
   });
 
@@ -239,14 +240,14 @@ export async function uncancelMatch(matchId: string): Promise<void> {
     throw new Error('Match not found');
   }
 
-  if (existing.status !== 'cancelled') {
+  if (existing.status !== MatchStatus.CANCELLED) {
     throw new Error('Cannot uncancel match that is not cancelled');
   }
 
   await prisma.match.update({
     where: { id: matchId },
     data: {
-      status: 'scheduled',
+      status: MatchStatus.SCHEDULED,
     },
   });
 
