@@ -104,7 +104,9 @@
       "description": "Your latest actions"
     },
     "comingSoon": "Features coming in the next phase",
-    "noActivity": "No recent activity"
+    "noActivity": "No recent activity",
+    "upcomingMatches": "Upcoming matches",
+    "noUpcomingMatches": "No matches scheduled"
   },
   "teams": {
     "title": "My Teams",

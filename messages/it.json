@@ -104,7 +104,9 @@
       "description": "Le tue ultime azioni"
     },
     "comingSoon": "Funzionalità in arrivo nella prossima fase",
-    "noActivity": "Nessuna attività recente"
+    "noActivity": "Nessuna attività recente",
+    "upcomingMatches": "Prossime partite",
+    "noUpcomingMatches": "Nessuna partita programmata"
   },
   "teams": {
     "title": "Le mie squadre",
