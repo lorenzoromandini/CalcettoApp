@@ -9,7 +9,6 @@
 
 - [x] **AUTH-01**: User can sign up with email and password
 - [x] **AUTH-02**: User can sign up with Google OAuth
-- [ ] **AUTH-03**: User receives email verification after signup
 - [x] **AUTH-04**: User can reset password via email link
 - [x] **AUTH-05**: User session persists across browser refresh
 - [x] **AUTH-06**: User can log out from any page
@@ -145,13 +144,12 @@
 
 ## Traceability
 
-### Phase 1: Foundation & Auth (14 requirements)
+### Phase 1: Foundation & Auth (13 requirements)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTH-01 | Phase 1 | ✅ Complete |
 | AUTH-02 | Phase 1 | ✅ Complete |
-| AUTH-03 | Phase 1 | 🔴 Not Started |
 | AUTH-04 | Phase 1 | ✅ Complete |
 | AUTH-05 | Phase 1 | ✅ Complete |
 | AUTH-06 | Phase 1 | ✅ Complete |
@@ -263,10 +261,10 @@
 | UIUX-06 | All | 🔴 Not Started |
 
 **Coverage Summary:**
-- v1 requirements: 68 total
-- Mapped to phases: 68
-- Completed: 34/68 (~50%)
-- Per-phase distribution: P1(13/14), P2(10/10), P3(10/10), P4(0/8), P5(0/9), P6(0/6), P7(0/8), P8(0/4)
+- v1 requirements: 67 total (AUTH-03 removed - email verification not needed)
+- Mapped to phases: 67
+- Completed: 33/67 (~49%)
+- Per-phase distribution: P1(13/13), P2(10/10), P3(10/10), P4(0/8), P5(0/9), P6(0/6), P7(0/8), P8(0/4)
 
 ---
 *Requirements defined: 2026-02-13*
