@@ -29,8 +29,7 @@ export function PlayersPageClient({ locale, teamId }: PlayersPageClientProps) {
   };
 
   const handlePlayerClick = (playerId: string) => {
-    // Navigate to player detail (to be implemented in future)
-    console.log('Player clicked:', playerId);
+    router.push(`/${locale}/teams/${teamId}/players/${playerId}`);
   };
 
   if (isLoading) {
