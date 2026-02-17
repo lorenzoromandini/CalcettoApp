@@ -2,7 +2,7 @@
  * Player Database Operations - Prisma Version
  */
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from './index';
 import type { Player, PlayerTeam } from '@/lib/db/schema';
 import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
 

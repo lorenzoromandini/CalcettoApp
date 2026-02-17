@@ -5,7 +5,7 @@
  * Replaces the Supabase-based implementation.
  */
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from './index';
 import type { Team, TeamMember } from '@/lib/db/schema';
 import type { CreateTeamInput, UpdateTeamInput } from '@/lib/validations/team';
 
