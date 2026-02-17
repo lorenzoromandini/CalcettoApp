@@ -10,6 +10,7 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/teams'
+import { initializeParticipation } from '@/lib/db/player-participation'
 import { MatchStatus } from '@prisma/client'
 import type { Match } from '@prisma/client'
 
@@ -120,6 +121,10 @@ export async function endMatch(matchId: string): Promise<Match> {
     },
   })
 
+  // Initialize participation: mark all RSVP 'in' players as played
+  // This is done after the match ends so admin can adjust later
+  await initializeParticipation(matchId)
+
   return toMatchType(updatedMatch)
 }
 
@@ -216,6 +221,10 @@ export async function inputFinalResults(
       awayScore,
     },
   })
+
+  // Initialize participation: mark all RSVP 'in' players as played
+  // This is done after the match ends so admin can adjust later
+  await initializeParticipation(matchId)
 
   return toMatchType(updatedMatch)
 }
