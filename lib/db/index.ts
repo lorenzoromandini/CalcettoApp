@@ -1,14 +1,32 @@
 /**
- * IndexedDB Database Initialization
+ * Database Layer for Calcetto Manager
  * 
- * Provides database connection and upgrade logic for Calcetto Manager.
- * Uses idb library for promise-based IndexedDB API.
+ * Provides Prisma client for server-side database operations
+ * and IndexedDB for client-side offline storage.
  * 
- * @see https://github.com/jakearchibald/idb
+ * @see https://github.com/jakearchibald/idb for IndexedDB
+ * @see https://www.prisma.io/docs for Prisma
  */
 
+import { PrismaClient } from '@prisma/client';
 import { openDB, type IDBPDatabase } from 'idb';
 import type { CalcettoDB } from './schema';
+
+// ============================================================================
+// Prisma Client Singleton
+// ============================================================================
+
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
+
+export default prisma;
 
 /**
  * Database name
