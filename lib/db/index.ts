@@ -149,13 +149,7 @@ export async function getDB(): Promise<IDBPDatabase<CalcettoDB>> {
           console.log('[IndexedDB] Created match_events store');
         }
 
-        // Add match_timers store
-        if (!db.objectStoreNames.contains('match_timers')) {
-          db.createObjectStore('match_timers', { keyPath: 'match_id' });
-          console.log('[IndexedDB] Created match_timers store');
-        }
-
-        console.log('[IndexedDB] Upgraded to v4 - added live match stores');
+        console.log('[IndexedDB] Upgraded to v4 - added match_events store');
       }
 
       // Offline actions queue

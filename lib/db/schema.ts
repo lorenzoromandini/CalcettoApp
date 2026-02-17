@@ -215,20 +215,6 @@ export interface MatchEvent {
 }
 
 /**
- * Match timer entity - tracks match timer state
- */
-export interface MatchTimer {
-  match_id: string;
-  started_at: string | null;
-  paused_at: string | null;
-  total_elapsed_seconds: number;
-  is_running: boolean;
-  updated_by: string;
-  updated_at: string;
-  sync_status: SyncStatus;
-}
-
-/**
  * Action type for offline queue
  */
 export type OfflineActionType = 'create' | 'update' | 'delete';
@@ -236,7 +222,7 @@ export type OfflineActionType = 'create' | 'update' | 'delete';
 /**
  * Table names that support offline actions
  */
-export type OfflineTable = 'teams' | 'players' | 'matches' | 'match_players' | 'formations' | 'formation_positions' | 'team_members' | 'player_teams' | 'team_invites' | 'match_events' | 'match_timers';
+export type OfflineTable = 'teams' | 'players' | 'matches' | 'match_players' | 'formations' | 'formation_positions' | 'team_members' | 'player_teams' | 'team_invites' | 'match_events';
 
 /**
  * Offline action - queued mutation to sync later
@@ -341,11 +327,6 @@ export interface CalcettoDB extends DBSchema {
       'by-event-type': string;
       'by-sync-status': string;
     };
-  };
-  match_timers: {
-    key: string;
-    value: MatchTimer;
-    indexes: {};
   };
   offline_actions: {
     key: string;
