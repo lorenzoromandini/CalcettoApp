@@ -8,6 +8,18 @@ datasource db {
 }
 
 // ============================================================================
+// ENUMS
+// ============================================================================
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  FINISHED
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================================================
 // NEXTAUTH MODELS
 // ============================================================================
 
@@ -176,19 +188,19 @@ model TeamInvite {
 }
 
 model Match {
-  id          String    @id @default(cuid())
-  teamId      String    @map("team_id")
-  scheduledAt DateTime  @map("scheduled_at")
+  id          String      @id @default(cuid())
+  teamId      String      @map("team_id")
+  scheduledAt DateTime    @map("scheduled_at")
   location    String?
   mode        String
-  status      String    @default("scheduled")
-  homeScore   Int?      @map("home_score")
-  awayScore   Int?      @map("away_score")
+  status      MatchStatus @default(SCHEDULED)
+  homeScore   Int?        @map("home_score")
+  awayScore   Int?        @map("away_score")
   notes       String?
-  createdBy   String?   @map("created_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  syncStatus  String    @default("synced") @map("sync_status")
+  createdBy   String?     @map("created_by")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  syncStatus  String      @default("synced") @map("sync_status")
 
   team     Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
   creator  User?      @relation("MatchCreator", fields: [createdBy], references: [id])
