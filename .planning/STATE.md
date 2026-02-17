@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-16 (after merge of all Phase 3 plans)  
+**Last Updated:** 2026-02-17 (Phase 3 Match Management complete)  
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 06 — Integration |
-| **Status** | 🔄 In Progress |
-| **Progress** | 83% |
+| **Plan** | 05 — Push Notification Reminders |
+| **Status** | ✅ Complete |
+| **Progress** | 100% |
 
 ### Phase 3 Progress Bar
 
 ```
-[████████████░░░░░░░] 83%
+[████████████████████] 100%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 🔄 In Progress*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete*
 
 ---
 
@@ -57,14 +57,14 @@
 |-------|------|--------------|--------|----------|
 | 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
 | 2 | Team Management | 10 | 🟢 Complete | 100% |
-| 3 | Match Management | 14 | 🟡 In Progress | 17% |
+| 3 | Match Management | 14 | 🟢 Complete | 100% |
 | 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
 | 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
 | 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
-**Overall:** 3/68 requirements complete (~4%)
+**Overall:** 14/68 requirements complete (~21%)
 
 ---
 
@@ -103,6 +103,9 @@
 | 2026-02-16 | @dnd-kit for drag-and-drop | Better touch support than react-beautiful-dnd, modern API | ✅ Confirmed |
 | 2026-02-16 | Dual input: drag-and-drop + tap-to-place | Essential for mobile accessibility, works with wet fingers | ✅ Confirmed |
 | 2026-02-16 | 9x7 grid for pitch positioning | Enables magnetic snapping, responsive across screen sizes | ✅ Confirmed |
+| 2026-02-17 | VAPID for web push authentication | Industry standard, prevents unauthorized push servers | ✅ Confirmed |
+| 2026-02-17 | Permission request after first match | Better UX than immediate request, user sees value first | ✅ Confirmed |
+| 2026-02-17 | One subscription per user (simplified) | Covers 95% of use cases, reduces complexity | ✅ Confirmed |
 
 ---
 
@@ -493,6 +496,38 @@
 
 ---
 
+### From Plan 03-05 (Push Notification Reminders)
+
+**Implemented:**
+- ✅ Database migration for push subscriptions, notification preferences, and notification logs
+- ✅ Web Push API integration with VAPID authentication (public/private keys)
+- ✅ Service Worker push event handler with notification display
+- ✅ Service Worker notification click handler with action buttons (confirm/view)
+- ✅ React hook `useNotifications` for permission management and preferences
+- ✅ Permission request UI component (non-intrusive bottom banner)
+- ✅ Italian/English translations for notification features
+- ✅ Database function `get_users_for_match_reminder()` for scheduled queries
+- ✅ VAPID keys configured in .env.local
+
+**Key Files for Future Phases:**
+- `supabase/migrations/20260215000003_push_subscriptions.sql` - Push notification tables
+- `lib/notifications/push.ts` - Push subscription utilities
+- `hooks/use-notifications.ts` - Notification state management
+- `components/notifications/permission-request.tsx` - Permission request UI
+- `app/sw.ts` - Push event and notification click handlers
+
+**Patterns Established:**
+- Request notification permission after user demonstrates value (creates/joins match)
+- VAPID authentication for secure web push
+- Service Worker handles push events with action buttons
+- Granular notification preferences (24h, 2h, 30m reminders)
+- Database-driven notification scheduling with helper function
+
+**Requirements Covered:**
+- MATCH-10: Push notification reminders before match ✅
+
+---
+
 ### From Plan 03-04 (Formation Builder)
 
 **Implemented:**
@@ -539,32 +574,30 @@
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-16
-- **Activity:** Executed Plan 03-04 (Formation Builder)
+- **Date:** 2026-02-17
+- **Activity:** Executed Plan 03-05 (Push Notification Reminders)
 - **Outcome:** 
-  - Installed @dnd-kit for drag-and-drop with touch support
-  - Created formation presets for 5vs5 and 8vs8 modes
-  - Implemented formation database operations and hook
-  - Built formation builder components (selector, pitch, player pool)
-  - Created main formation builder with dual interaction modes
-  - Added formation page at match formation route
-  - Added complete Italian/English translations
-  - Fixed pre-existing TypeScript errors in codebase
-  - Plan 03-04 SUMMARY.md created
-  - Phase 3 progress: 67% complete (4 of 6 plans)
+  - Created database schema for push subscriptions and notification preferences
+  - Implemented Web Push API with VAPID authentication
+  - Added push event handlers to Service Worker
+  - Created useNotifications hook for permission management
+  - Built PermissionRequest UI component
+  - Configured VAPID keys in environment
+  - Plan 03-05 SUMMARY.md created
+  - Phase 3 complete: 100% (5 of 5 plans)
 
 ### Next Session
-- **Status:** Ready to continue
-- **Action:** Execute Plan 03-05: Match Statistics (or next plan)
-- **When ready:** Run `/gsd-execute-phase 03` to continue
+- **Status:** Phase 3 Complete
+- **Action:** Execute Phase 4: Live Match Experience
+- **When ready:** Run `/gsd-plan-phase 04` to plan next phase
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
-4. Read 03-04-SUMMARY.md for formation builder details
-5. Run `/gsd-execute-phase 03` to continue with next plan
+4. Read 03-05-SUMMARY.md for push notification details
+5. Run `/gsd-plan-phase 04` to start next phase
 
 ---
 
@@ -600,8 +633,21 @@ Every feature must work without connectivity:
 ### GDPR Compliance (Ongoing)
 - Privacy policy required
 - Data deletion capability
-- User consent for notifications
+- ✅ User consent for notifications (implemented in 03-05)
 - Minimal data collection principle
+
+### Phase 3 Completion Notes
+All Match Management requirements implemented:
+- MATCH-01: Match scheduling with date/time/location
+- MATCH-02: Match listing with upcoming/past separation  
+- MATCH-03: Formation module with presets for 5vs5/8vs8
+- MATCH-04: RSVP system with IN/OUT/Maybe
+- MATCH-05: Availability count with progress indicator
+- MATCH-06: Drag-and-drop formation builder
+- MATCH-07: Match cancellation with reason
+- MATCH-08: Team-based match access control
+- MATCH-09: Match detail with all information
+- MATCH-10: Push notification reminders (24h, 2h, 30m)
 
 ---
 
