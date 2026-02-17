@@ -201,39 +201,40 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 ## Phase 5: Post-Match Statistics
 
-**Goal:** Users can view comprehensive match and player statistics
+**Goal:** Users can view individual player statistics and team leaderboards
 
 **Dependencies:** Phase 4 (goals and ratings required to calculate statistics)
 
 **Requirements:**
-- STAT-01 through STAT-06 (match stats, player aggregation, history, records, averages)
-- STAT-02: Goalkeeper saves tracking
+- STAT-01: Match statistics display (scorers in history)
+- STAT-03: Player statistics aggregation (goals, assists, appearances)
+- STAT-06: Average rating calculation
 
 **Success Criteria (3 criteria):**
 
-1. **System calculates and displays match statistics** — Goals, assists per match visible in match history
-2. **Player statistics aggregated over time** — Career totals for goals, assists, appearances; goalkeeper saves tracked separately
-3. **User can view win/loss/draw records and averages** — Team record displayed; goals per match average calculated
+1. **Player statistics aggregated over time** — Career totals for goals, assists, appearances per player
+2. **User can view leaderboards** — Top scorers, top assisters, MVP (highest avg rating)
+3. **Match history shows scorers** — Goal scorers displayed on completed match cards
 
-**Research Alignment:** "Season aggregation expected by users; offline match recording enables stats even without connectivity."
+**Note:** No team records (W/L/D) because teams change each match. No goalkeeper saves tracking.
 
 **Plans:** 3 plans in 3 waves
 
 | Plan | Objective | Wave | Dependencies | Files |
 |------|-----------|------|--------------|-------|
-| 05-01 | Schema changes (saves field) + statistics aggregation functions | 1 | None | prisma/schema.prisma, lib/db/statistics.ts |
-| 05-02 | Statistics UI (player stats card, team record badge, leaderboards, stats page) | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/*, app/[locale]/teams/[teamId]/stats/* |
-| 05-03 | Integration (navigation, dashboard, history enhancements) | 3 | 05-01, 05-02 | components/navigation/team-nav.tsx, components/dashboard/team-stats-section.tsx, messages/*.json |
+| 05-01 | Statistics aggregation functions (goals, assists, appearances, avg rating) | 1 | None | lib/db/statistics.ts |
+| 05-02 | Statistics UI (player stats card, leaderboards, stats page) | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/* |
+| 05-03 | Integration (navigation, match history scorers) | 3 | 05-01, 05-02 | components/navigation/team-nav.tsx, match-history-card.tsx |
 
 **Wave Structure:**
-- **Wave 1:** 05-01 — Database schema + statistics aggregation layer
-- **Wave 2:** 05-02 — Statistics UI components and page
-- **Wave 3:** 05-03 — Integration into navigation, dashboard, and history
+- **Wave 1:** 05-01 — Statistics aggregation layer
+- **Wave 2:** 05-02 — UI components and stats page
+- **Wave 3:** 05-03 — Navigation integration and match history
 
 **Technical Notes:**
-- Stack: Prisma aggregations ($queryRaw for complex queries)
-- Implement: On-demand statistics computation (no caching for MVP)
-- Pattern: Statistics only for COMPLETED matches
+- Stack: Prisma aggregations
+- Statistics only for COMPLETED matches
+- On-demand computation (no caching for MVP)
 
 ---
 
