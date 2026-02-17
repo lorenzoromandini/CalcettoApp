@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, Calendar, Trophy, TrendingUp, Plus, MapPin } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import { MatchStatus } from '@prisma/client';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -63,7 +64,7 @@ export default async function DashboardPage() {
       scheduledAt: {
         gte: now,
       },
-      status: 'scheduled',
+      status: MatchStatus.SCHEDULED,
     },
     orderBy: {
       scheduledAt: 'asc',

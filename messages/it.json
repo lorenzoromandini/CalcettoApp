@@ -343,6 +343,7 @@
     "status": {
       "scheduled": "Programmata",
       "inProgress": "In corso",
+      "finished": "Terminata",
       "completed": "Completata",
       "cancelled": "Annullata"
     },

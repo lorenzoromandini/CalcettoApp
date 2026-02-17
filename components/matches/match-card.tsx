@@ -38,25 +38,31 @@ export function MatchCard({ match, teamId, onClick, showRSVPCount = false }: Mat
 
   const getStatusBadge = (status: Match['status']) => {
     switch (status) {
-      case 'scheduled':
+      case 'SCHEDULED':
         return (
           <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
             {t("status.scheduled")}
           </Badge>
         );
-      case 'in_progress':
+      case 'IN_PROGRESS':
         return (
           <Badge variant="default" className="bg-green-500 hover:bg-green-600">
             {t("status.inProgress")}
           </Badge>
         );
-      case 'completed':
+      case 'FINISHED':
+        return (
+          <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+            {t("status.finished")}
+          </Badge>
+        );
+      case 'COMPLETED':
         return (
           <Badge variant="secondary">
             {t("status.completed")}
           </Badge>
         );
-      case 'cancelled':
+      case 'CANCELLED':
         return (
           <Badge variant="destructive">
             {t("status.cancelled")}

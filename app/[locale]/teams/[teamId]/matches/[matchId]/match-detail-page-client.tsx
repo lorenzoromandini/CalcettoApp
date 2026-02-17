@@ -134,25 +134,31 @@ export function MatchDetailPageClient({
 
   const getStatusBadge = (status: Match['status']) => {
     switch (status) {
-      case 'scheduled':
+      case 'SCHEDULED':
         return (
           <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
             {t("status.scheduled")}
           </Badge>
         );
-      case 'in_progress':
+      case 'IN_PROGRESS':
         return (
           <Badge variant="default" className="bg-green-500 hover:bg-green-600">
             {t("status.inProgress")}
           </Badge>
         );
-      case 'completed':
+      case 'FINISHED':
+        return (
+          <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+            {t("status.finished")}
+          </Badge>
+        );
+      case 'COMPLETED':
         return (
           <Badge variant="secondary">
             {t("status.completed")}
           </Badge>
         );
-      case 'cancelled':
+      case 'CANCELLED':
         return (
           <Badge variant="destructive">
             {t("status.cancelled")}
@@ -187,10 +193,10 @@ export function MatchDetailPageClient({
   };
 
   const isLoading = isMatchLoading || isRSVPLoading;
-  const canShowRSVP = match?.status === 'scheduled' && currentPlayerId;
-  const canEdit = isAdmin && match?.status === 'scheduled';
-  const canCancel = isAdmin && match?.status === 'scheduled';
-  const canUncancel = isAdmin && match?.status === 'cancelled';
+  const canShowRSVP = match?.status === 'SCHEDULED' && currentPlayerId;
+  const canEdit = isAdmin && match?.status === 'SCHEDULED';
+  const canCancel = isAdmin && match?.status === 'SCHEDULED';
+  const canUncancel = isAdmin && match?.status === 'CANCELLED';
 
   if (isMatchLoading) {
     return (
@@ -446,7 +452,7 @@ export function MatchDetailPageClient({
       </Card>
 
       {/* Stats Section Placeholder */}
-      {match.status === 'completed' && (
+      {match.status === 'COMPLETED' && (
         <Card className="mt-6 border-dashed">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
