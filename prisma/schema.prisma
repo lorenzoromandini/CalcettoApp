@@ -100,6 +100,7 @@ model Team {
   playerTeams PlayerTeam[]
   invites     TeamInvite[]
   matches     Match[]
+  goals       Goal[]
 
   @@index([createdBy])
   @@index([deletedAt])
@@ -141,6 +142,8 @@ model Player {
   playerTeams PlayerTeam[]
   matchPlayers MatchPlayer[]
   formationPositions FormationPosition[]
+  scoredGoals  Goal[] @relation("GoalScorer")
+  assistedGoals Goal[] @relation("GoalAssister")
 
   @@index([userId])
   @@map("players")
@@ -206,6 +209,7 @@ model Match {
   creator  User?      @relation("MatchCreator", fields: [createdBy], references: [id])
   players  MatchPlayer[]
   formation Formation?
+  goals    Goal[]
 
   @@index([teamId])
   @@index([scheduledAt])
@@ -261,6 +265,27 @@ model FormationPosition {
   @@index([formationId])
   @@index([playerId])
   @@map("formation_positions")
+}
+
+model Goal {
+  id         String   @id @default(cuid())
+  matchId    String   @map("match_id")
+  teamId     String   @map("team_id")
+  scorerId   String   @map("scorer_id")
+  assisterId String?  @map("assister_id")
+  isOwnGoal  Boolean  @default(false) @map("is_own_goal")
+  order      Int
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  scorer   Player  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
+  assister Player? @relation("GoalAssister", fields: [assisterId], references: [id], onDelete: SetNull)
+
+  @@unique([matchId, order])
+  @@index([matchId])
+  @@index([scorerId])
+  @@map("goals")
 }
 
 // ============================================================================
