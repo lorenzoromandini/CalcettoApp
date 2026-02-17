@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 5 — Post-Match Statistics  
-**Last Updated:** 2026-02-17 (Phase 4 Complete - Match Results & Player Ratings)
+**Last Updated:** 2026-02-17 (Phase 5 Plan 01 Complete - Statistics Foundation)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 5 — Post-Match Statistics |
 | **Phase Goal** | View comprehensive match and player statistics with media support |
-| **Plan** | — |
-| **Status** | 🔴 Not Started |
-| **Progress** | 0% |
+| **Plan** | 01 of 03 |
+| **Status** | 🟡 In Progress |
+| **Progress** | 33% |
 
 ### Phase 5 Progress Bar
 
 ```
-[░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+[████████░░░░░░░░░░░░░░] 33%
 ```
 
-*Phase 5 not yet started*
+*Plan 01/03 complete: Statistics foundation with side field, RoleSelector redesign, and aggregation module*
 
 ---
 
@@ -60,7 +60,7 @@
 | 2 | Team Management | 10 | 🟢 Complete | 100% |
 | 3 | Match Management | 14 | 🟢 Complete | 100% |
 | 4 | Match Results & Ratings | 8 | 🟢 Complete | 100% |
-| 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
+| 5 | Post-Match Statistics | 9 | 🟡 In Progress | 33% |
 | 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
@@ -115,6 +115,10 @@
 | 2026-02-17 | COMPLETED status shows CompletedMatchDetail | Read-only view with all match info (goals, ratings, formation) | ✅ Confirmed |
 | 2026-02-17 | History page filters by result type | Users can filter by wins, losses, draws | ✅ Confirmed |
 | 2026-02-17 | Match detail adapts to status | SCHEDULED (RSVP), IN_PROGRESS (score), FINISHED (ratings), COMPLETED (read-only) | ✅ Confirmed |
+| 2026-02-17 | FormationPosition.side field for team assignment | positionX < 5 = home, positionX >= 5 = away, set in completeMatch | ✅ Confirmed |
+| 2026-02-17 | RoleSelector primary/other role separation | roles[0] = primary role (required), roles[1:] = other roles (optional) | ✅ Confirmed |
+| 2026-02-17 | Goals conceded only for GKs in GK position | Player must have 'goalkeeper' in roles AND play at positionLabel='GK' | ✅ Confirmed |
+| 2026-02-17 | All statistics from COMPLETED matches only | Statistics aggregation filters by MatchStatus.COMPLETED | ✅ Confirmed |
 
 ---
 
@@ -703,26 +707,29 @@
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 04-06 (Match Completion & History)
+- **Activity:** Executed Plan 05-01 (Statistics Foundation)
 - **Outcome:** 
-  - Created MatchHistoryCard with color-coded results (win/loss/draw)
-  - Built CompletedMatchDetail read-only view for completed matches
-  - Created match history page with filtering and stats
-  - Added History tab to team navigation
-  - Updated match detail page for status-based rendering
-  - Created RecentResultsSection for dashboard
+  - Added side field to FormationPosition for team assignment tracking
+  - Redesigned RoleSelector with primary/other roles separation
+  - Created complete statistics aggregation module with 9 functions
+  - Implemented all 7 leaderboard functions (top 3 each)
   - Added Italian/English translations
-  - Phase 4: Complete (6/6 plans)
+  - Phase 5: Plan 1 of 3 complete (33%)
 
 ### Next Session
-- **Status:** Phase 4 Complete - Ready for Phase 5
-- **Action:** Plan Phase 5 (Post-Match Statistics)
-- **When ready:** Run `/gsd-plan-phase 5` to start next phase
+- **Status:** Phase 5 In Progress - Plan 01 Complete
+- **Action:** Execute Plan 05-02 (Player Profile + Team Stats Pages)
+- **When ready:** Run `/gsd-execute-phase 05` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 4 complete - match lifecycle, goals, participation, ratings, history all functional
+2. Phase 5 in progress - statistics foundation complete
+3. Read 05-01-SUMMARY.md for statistics implementation details
+4. FormationPosition.side tracks home/away team assignment
+5. RoleSelector uses primary role (roles[0]) and other roles (roles[1:])
+6. Statistics module at lib/db/statistics.ts provides all aggregation functions
+7. Run `/gsd-execute-phase 05` to continue with Plan 02
 3. Read 04-06-SUMMARY.md for history implementation details
 4. MatchStatus uses uppercase values (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED)
 5. COMPLETED matches show read-only CompletedMatchDetail
