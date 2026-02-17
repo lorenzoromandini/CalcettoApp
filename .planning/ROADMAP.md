@@ -149,45 +149,53 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 ---
 
-## Phase 4: Live Match Experience
+## Phase 4: Match Results & Player Ratings
 
-**Goal:** Users can track live matches with timer, scores, and events optimized for mobile
+**Goal:** Users can manage match lifecycle, record goals/assists, and rate players with nuanced scores
 
-**Dependencies:** Phase 3 (matches must exist to go live)
+**Dependencies:** Phase 3 (matches must exist to add results)
 
 **Requirements:**
-- LIVE-01 through LIVE-08 (timer, scoring, cards, real-time updates, offline recording)
+- LIVE-02, LIVE-03 (score recording, goal attribution - adapted)
+- RATE-01, RATE-02, RATE-03 (ratings, comments, averages - moved from Phase 6)
 
-**Success Criteria (5 criteria):**
+**Success Criteria (7 criteria):**
 
-1. **Designated user can start/pause/resume live match timer** — Timer controls accessible during match; time displays clearly
-2. **User can record goals, assists, and cards during match** — Each event captured with player attribution; scoreboard updates
-3. **Scoreboard updates in real-time for all connected users** — Other users see goals/cards instantly via Supabase Realtime (SSE)
-4. **Live match UI works offline and syncs when reconnected** — Match continues recording without connection; data syncs automatically
-5. **Interface optimized for one-handed mobile use in any condition** — Large buttons, no accidental inputs, works with wet fingers; swipe navigation disabled during matches
+1. **Admin can choose "Start Match" or "Final Results"** — Two entry modes for different workflows
+2. **Admin can record goal scorers and optional assists** — Each goal linked to player with own-goal flag
+3. **Admin can mark which players actually played** — Only played players can be rated
+4. **Admin can rate players with nuanced scale** — 38 values: X, X-, X+, X.5 (e.g., 6, 6-, 6+, 6.5)
+5. **Admin can add optional comments per player** — Free text alongside rating
+6. **Admin can complete match** — Locks match, moves to team history (read-only)
+7. **Users can view match history** — Completed matches visible with full details
 
-**Research Alignment:** "High-engagement differentiator that must be designed carefully to avoid UX pitfalls. Critical phase with highest pitfall density."
+**Key Design Decisions (from user discussion):**
+- No timer/clock tracking (simplified from original design)
+- Two entry modes: live updates during play OR final results at end
+- Match lifecycle: scheduled → in_progress → finished → completed
+- Nuanced rating scale matches Italian school grading style
+- No real-time sync (users refresh to see updates)
 
 **Technical Notes:**
-- Stack: Supabase Realtime (SSE), Background Sync API
-- Avoid: WebSocket-only reliability (Pitfall #1), touch gesture conflicts (Pitfall #5)
-- Critical: Match 'lock mode' to prevent accidental inputs
+- Stack: Prisma + PostgreSQL (standard CRUD, no real-time infrastructure)
+- Rating storage: Decimal(3,2) for averaging (6.25 = 6-, 6.5, 6.75 = 6+)
+- Match status enum: SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED
 
 **Plans:** 6 plans in 3 waves
 
 | Plan | Objective | Wave | Dependencies | Files |
 |------|-----------|------|--------------|-------|
-| 04-01 | Database schema for match timers and events | 1 | None | supabase/migrations/20260217000004_live_match.sql, lib/db/schema.ts, lib/db/index.ts, types/database.ts |
-| 04-02 | Timer system with accuracy and wake lock | 1 | 04-01 | lib/db/match-timers.ts, hooks/use-match-timer.ts, hooks/use-wake-lock.ts |
-| 04-03 | Live scoreboard with real-time updates | 2 | 04-01 | hooks/use-realtime-match.ts, hooks/use-realtime-connection.ts, components/matches/scoreboard.tsx |
-| 04-04 | Event recording with optimistic updates | 2 | 04-01 | lib/db/match-events.ts, hooks/use-match-events.ts, components/matches/event-recorder.tsx |
-| 04-05 | Offline recording with Background Sync | 3 | 04-02, 04-04 | app/sw.ts, lib/db/sync-queue.ts, hooks/use-background-sync.ts |
-| 04-06 | Mobile UI with lock mode and verification | 3 | 04-03, 04-04, 04-05 | components/matches/live-match-page.tsx, components/matches/lock-mode-overlay.tsx, app/[locale]/teams/[teamId]/matches/[matchId]/live/page.tsx |
+| 04-01 | Database schema (MatchStatus enum, Goal, PlayerRating models) | 1 | None | prisma/schema.prisma, prisma/migrations/... |
+| 04-02 | Match lifecycle (Start, End, Complete, Final Results) | 1 | None | lib/db/match-lifecycle.ts, components/matches/match-lifecycle-buttons.tsx |
+| 04-03 | Goal tracking (add/remove goals with scorer, assist) | 2 | 04-01 | lib/db/goals.ts, components/matches/goal-*.tsx |
+| 04-04 | Player participation (mark who played) | 2 | 04-01 | lib/db/player-participation.ts, components/matches/player-participation-list.tsx |
+| 04-05 | Player ratings (38-value scale, comments) | 3 | 04-01, 04-04 | lib/db/player-ratings.ts, components/matches/rating-*.tsx |
+| 04-06 | Match history and integration | 3 | 04-02, 04-03, 04-05 | app/[locale]/teams/[teamId]/history/page.tsx, integration |
 
 **Wave Structure:**
-- **Wave 1 (Parallel):** 04-01 + 04-02 — Database foundation + Timer system (independent)
-- **Wave 2 (Parallel):** 04-03 + 04-04 — Realtime scoreboard + Event recording (both need schema)
-- **Wave 3 (Parallel):** 04-05 + 04-06 — Offline sync + Mobile UI with verification (needs timer + events)
+- **Wave 1 (Parallel):** 04-01 + 04-02 — Database schema + Match lifecycle (independent)
+- **Wave 2 (Parallel):** 04-03 + 04-04 — Goal tracking + Participation (both need schema)
+- **Wave 3:** 04-05 + 04-06 — Ratings + History/integration (needs all prior work)
 
 ---
 
@@ -195,7 +203,7 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 **Goal:** Users can view comprehensive match and player statistics with media support
 
-**Dependencies:** Phase 4 (match events required to calculate statistics)
+**Dependencies:** Phase 4 (goals and ratings required to calculate statistics)
 
 **Requirements:**
 - STAT-01 through STAT-08 (match stats, player aggregation, history, photos)
@@ -217,27 +225,27 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 ---
 
-## Phase 6: Player Ratings
+## Phase 6: Rating Trends & History
 
-**Goal:** Users can submit and view player ratings with comments and trends
+**Goal:** Users can view rating evolution and trends over time
 
-**Dependencies:** Phase 5 (matches and player data required for ratings context)
+**Dependencies:** Phase 4 (ratings now entered as part of match completion)
 
 **Requirements:**
-- RATE-01 through RATE-06 (ratings, comments, averages, anonymity, trends)
+- RATE-04, RATE-06 (rating history, trend visualization - remaining from original Phase 6)
 
-**Success Criteria (4 criteria):**
+**Success Criteria (2 criteria):**
 
-1. **Users can submit ratings (1-10) for each player post-match** — Rating interface available after match ends; all players rateable
-2. **Users can add optional comment with rating** — Comments stored and displayed with ratings
-3. **System calculates average ratings per match and overall** — Match average and career average visible on player profiles
-4. **Users can view rating history with trends** — Rating evolution over time displayed as chart/list; anonymous option works when enabled
+1. **Users can view rating history** — All past ratings visible per player
+2. **Users can view rating trends** — Rating evolution over time displayed as chart
 
-**Research Alignment:** "Player ratings are HIGH engagement driver; creates banter and 'obsession' as seen in competitors."
+**Note:** Core rating functionality (RATE-01, RATE-02, RATE-03) moved to Phase 4 as part of post-match workflow.
+
+**Research Alignment:** "Trend visualization adds engagement - players can see improvement or decline over time."
 
 **Technical Notes:**
-- Critical: Conflict resolution for offline ratings (Pitfall #3)
-- Consider: Event sourcing pattern for match events
+- Stack: Recharts or similar charting library
+- Implement: Rating timeline per player
 
 ---
 
@@ -245,7 +253,7 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 **Goal:** Users can discover top performers and track player evolution through visual dashboards
 
-**Dependencies:** Phase 5-6 (statistics and ratings required for leaderboards)
+**Dependencies:** Phase 4-5 (ratings and statistics required for leaderboards)
 
 **Requirements:**
 - DASH-01 through DASH-08 (top scorers, assists, clean sheets, MVP, profiles, streaks, charts)
@@ -334,13 +342,13 @@ Phases requiring deeper research during planning (per research/SUMMARY.md):
 | Phase | Research Flag | Risk |
 |-------|--------------|------|
 | Phase 1 | Service Worker cache invalidation | Cache corruption, stale data |
-| Phase 4 | SSE vs WebSocket verification | Mobile suspend/reconnection |
-| Phase 6 | Conflict resolution for offline ratings | Data loss with "last write wins" |
 
 Phases with standard patterns (skip extra research):
-- Phase 2: Standard CRUD with Supabase
+- Phase 2: Standard CRUD with Prisma
 - Phase 3: Standard scheduling/RSVP patterns
+- Phase 4: Standard CRUD (simplified from original real-time design)
 - Phase 5: Standard statistics aggregation
+- Phase 6: Standard charting/trends
 - Phase 7: Standard dashboard queries
 - Phase 8: Standard Web APIs (Push, Share)
 
@@ -353,9 +361,9 @@ Phases with standard patterns (skip extra research):
 | Phase 1: Foundation & Auth | ✅ Complete | 2026-02-13 | 2026-02-14 |
 | Phase 2: Team Management | ✅ Complete | 2026-02-14 | 2026-02-15 |
 | Phase 3: Match Management | ✅ Complete | 2026-02-15 | 2026-02-17 |
-| Phase 4: Live Match Experience | 🔴 Not Started | — | — |
+| Phase 4: Match Results & Ratings | 🔵 Planned | — | — |
 | Phase 5: Post-Match Statistics | 🔴 Not Started | — | — |
-| Phase 6: Player Ratings | 🔴 Not Started | — | — |
+| Phase 6: Rating Trends & History | 🔴 Not Started | — | — |
 | Phase 7: Dashboard & Leaderboards | 🔴 Not Started | — | — |
 | Phase 8: Social & Sharing | 🔴 Not Started | — | — |
 
