@@ -502,5 +502,29 @@
       "activate": "Enable notifications",
       "notNow": "Not now"
     }
+  },
+  "goals": {
+    "title": "Goals",
+    "empty": "No goals recorded",
+    "addGoal": "Add Goal",
+    "addGoalDescription": "Record who scored the goal",
+    "adding": "Adding...",
+    "selectTeam": "Team",
+    "ourTeam": "Our Team",
+    "opponent": "Opponent",
+    "scorer": "Scorer",
+    "selectScorer": "Select the scorer",
+    "assister": "Assist",
+    "selectAssister": "Select who made the assist",
+    "optional": "optional",
+    "ownGoal": "Own Goal",
+    "opponentGoalNote": "Goal scored by the opponents. The score will be updated automatically.",
+    "assist": "Assist:",
+    "removeConfirm": {
+      "title": "Remove Goal",
+      "description": "Are you sure you want to remove this goal? The score will be recalculated."
+    },
+    "completedNote": "Goals can be viewed but not modified for completed matches.",
+    "completedMatchReadonly": "This match has been completed and results are locked."
   }
 }

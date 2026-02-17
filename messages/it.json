@@ -502,5 +502,29 @@
       "activate": "Attiva notifiche",
       "notNow": "Non ora"
     }
+  },
+  "goals": {
+    "title": "Gol",
+    "empty": "Nessun gol registrato",
+    "addGoal": "Aggiungi gol",
+    "addGoalDescription": "Registra chi ha segnato il gol",
+    "adding": "Aggiunta in corso...",
+    "selectTeam": "Squadra",
+    "ourTeam": "La nostra squadra",
+    "opponent": "Avversari",
+    "scorer": "Marcatore",
+    "selectScorer": "Seleziona il marcatore",
+    "assister": "Assist",
+    "selectAssister": "Seleziona chi ha fatto l'assist",
+    "optional": "opzionale",
+    "ownGoal": "Autogol",
+    "opponentGoalNote": "Gol segnato dagli avversari. Il punteggio verrà aggiornato automaticamente.",
+    "assist": "Assist:",
+    "removeConfirm": {
+      "title": "Rimuovi gol",
+      "description": "Sei sicuro di voler rimuovere questo gol? Il punteggio verrà ricalcolato."
+    },
+    "completedNote": "I gol possono essere visualizzati ma non modificati per le partite completate.",
+    "completedMatchReadonly": "Questa partita è stata completata e i risultati sono bloccati."
   }
 }
