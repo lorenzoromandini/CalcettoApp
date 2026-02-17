@@ -451,6 +451,24 @@
         "title": "Enter Final Results",
         "description": "Enter the final score. The match will be marked as finished."
       }
+    },
+    "participation": {
+      "title": "Who Played?",
+      "played": "Played",
+      "notPlayed": "Didn't play",
+      "toggleLabel": "Mark {name} as played/not played",
+      "playedCount": "{count}/{total} played",
+      "countSummary": "{played} of {total} players",
+      "groups": {
+        "in": "Confirmed",
+        "maybe": "Maybe",
+        "out": "Absent"
+      },
+      "empty": {
+        "title": "No participants",
+        "description": "No players have responded yet"
+      },
+      "helpText": "Toggle the switch for players who actually played. Only played players can be rated."
     }
   },
   "formations": {

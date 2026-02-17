@@ -451,6 +451,24 @@
         "title": "Inserisci risultati finali",
         "description": "Inserisci il punteggio finale. La partita verrà segnata come terminata."
       }
+    },
+    "participation": {
+      "title": "Chi ha giocato?",
+      "played": "Giocato",
+      "notPlayed": "Non giocato",
+      "toggleLabel": "Segna {name} come giocato/non giocato",
+      "playedCount": "{count}/{total} giocato",
+      "countSummary": "{played} di {total} giocatori",
+      "groups": {
+        "in": "Confermati",
+        "maybe": "Forse",
+        "out": "Assenti"
+      },
+      "empty": {
+        "title": "Nessun partecipante",
+        "description": "Nessun giocatore ha ancora risposto"
+      },
+      "helpText": "Attiva l'interruttore per i giocatori che hanno effettivamente giocato. Solo i giocatori che hanno giocato possono essere valutati."
     }
   },
   "formations": {
