@@ -144,6 +144,7 @@ model Player {
   formationPositions FormationPosition[]
   scoredGoals  Goal[] @relation("GoalScorer")
   assistedGoals Goal[] @relation("GoalAssister")
+  ratings     PlayerRating[]
 
   @@index([userId])
   @@map("players")
@@ -210,6 +211,7 @@ model Match {
   players  MatchPlayer[]
   formation Formation?
   goals    Goal[]
+  ratings  PlayerRating[]
 
   @@index([teamId])
   @@index([scheduledAt])
@@ -286,6 +288,24 @@ model Goal {
   @@index([matchId])
   @@index([scorerId])
   @@map("goals")
+}
+
+model PlayerRating {
+  id        String    @id @default(cuid())
+  matchId   String    @map("match_id")
+  playerId  String    @map("player_id")
+  rating    Decimal   @db.Decimal(3, 2)
+  comment   String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, playerId])
+  @@index([matchId])
+  @@index([playerId])
+  @@map("player_ratings")
 }
 
 // ============================================================================
