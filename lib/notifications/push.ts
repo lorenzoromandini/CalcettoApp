@@ -1,4 +1,11 @@
-import { createClient } from '@/lib/supabase/client';
+/**
+ * Push Notification Utilities
+ * 
+ * Note: Push notification persistence is not yet implemented with Prisma.
+ * This is a stub for UI compatibility until Phase 8 (Social & Sharing).
+ * 
+ * Push subscriptions will be stored in the database in a future phase.
+ */
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 
@@ -59,13 +66,8 @@ export async function subscribeToPush(): Promise<PushSubscriptionData | null> {
     },
   };
 
-  // Save to database
-  const supabase = createClient();
-  await (supabase as any)
-    .from('push_subscriptions')
-    .upsert({
-      subscription: subscriptionData,
-    }, { onConflict: 'user_id' });
+  // TODO: Save subscription to database (Phase 8)
+  console.log('[Push] Subscription created:', subscriptionData.endpoint);
 
   return subscriptionData;
 }
@@ -79,15 +81,8 @@ export async function unsubscribeFromPush(): Promise<void> {
     await subscription.unsubscribe();
   }
 
-  // Remove from database
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    await (supabase as any)
-      .from('push_subscriptions')
-      .delete()
-      .eq('user_id', user.id);
-  }
+  // TODO: Remove subscription from database (Phase 8)
+  console.log('[Push] Unsubscribed');
 }
 
 // Helper to convert VAPID key from base64 to Uint8Array

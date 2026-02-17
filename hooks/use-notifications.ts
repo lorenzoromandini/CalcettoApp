@@ -6,7 +6,6 @@ import {
   unsubscribeFromPush,
   sendLocalNotification,
 } from '@/lib/notifications/push';
-import { createClient } from '@/lib/supabase/client';
 
 export function useNotifications() {
   const [isSupported, setIsSupported] = useState(false);
@@ -22,29 +21,13 @@ export function useNotifications() {
   useEffect(() => {
     setIsSupported(isPushSupported());
     checkPermission();
-    loadPreferences();
+    // TODO: Load preferences from database when implemented (Phase 8)
   }, []);
 
   const checkPermission = async () => {
     const perm = await getNotificationPermission();
     setPermission(perm);
     setIsSubscribed(perm === 'granted');
-  };
-
-  const loadPreferences = async () => {
-    const supabase = createClient();
-    const { data } = await (supabase as any)
-      .from('notification_preferences')
-      .select('*')
-      .single();
-    
-    if (data) {
-      setPreferences({
-        match_reminder_24h: data.match_reminder_24h,
-        match_reminder_2h: data.match_reminder_2h,
-        match_reminder_30m: data.match_reminder_30m,
-      });
-    }
   };
 
   const requestPermission = useCallback(async () => {
@@ -75,14 +58,8 @@ export function useNotifications() {
     const updated = { ...preferences, ...newPrefs };
     setPreferences(updated);
 
-    const supabase = createClient();
-    await (supabase as any)
-      .from('notification_preferences')
-      .upsert({
-        match_reminder_24h: updated.match_reminder_24h,
-        match_reminder_2h: updated.match_reminder_2h,
-        match_reminder_30m: updated.match_reminder_30m,
-      }, { onConflict: 'user_id' });
+    // TODO: Save preferences to database when implemented (Phase 8)
+    console.log('[Notifications] Preferences updated:', updated);
   }, [preferences]);
 
   const testNotification = useCallback(async () => {

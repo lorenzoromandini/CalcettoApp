@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 import { Link } from '@/lib/i18n/navigation';
 import { FormationBuilder } from '@/components/formations/formation-builder';
 import { Button } from '@/components/ui/button';
@@ -18,33 +19,37 @@ interface FormationPageProps {
 export default async function FormationPage({ params }: FormationPageProps) {
   const { locale, teamId, matchId } = await params;
   const t = await getTranslations('formations');
-  const supabase = await createClient();
 
-  // Check auth
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  // Check auth with NextAuth
+  const session = await auth();
+  if (!session?.user?.id) {
     redirect('/auth/login');
   }
 
+  const userId = session.user.id;
+
   // Get match
-  const { data: match } = await supabase
-    .from('matches')
-    .select('*')
-    .eq('id', matchId)
-    .eq('team_id', teamId)
-    .single();
+  const match = await prisma.match.findFirst({
+    where: {
+      id: matchId,
+      teamId,
+    },
+  });
 
   if (!match) {
     notFound();
   }
 
   // Check team membership
-  const { data: membership } = await supabase
-    .from('team_members')
-    .select('role')
-    .eq('team_id', teamId)
-    .eq('user_id', user.id)
-    .single();
+  const membership = await prisma.teamMember.findFirst({
+    where: {
+      teamId,
+      userId,
+    },
+    select: {
+      role: true,
+    },
+  });
 
   if (!membership) {
     redirect(`/teams/${teamId}`);
@@ -52,28 +57,36 @@ export default async function FormationPage({ params }: FormationPageProps) {
 
   const isAdmin = membership.role === 'admin' || membership.role === 'co-admin';
 
-  // Get players with RSVPs
-  const { data: teamPlayers } = await supabase
-    .from('players')
-    .select('id, name, avatar_url')
-    .eq('team_id', teamId)
-    .is('deleted_at', null)
-    .order('name');
+  // Get players in team with their details
+  const playerTeams = await prisma.playerTeam.findMany({
+    where: { teamId },
+    include: {
+      player: true,
+    },
+    orderBy: {
+      player: {
+        name: 'asc',
+      },
+    },
+  });
 
   // Get RSVPs for this match
-  const { data: rsvps } = await supabase
-    .from('match_players')
-    .select('player_id, rsvp_status')
-    .eq('match_id', matchId);
+  const rsvps = await prisma.matchPlayer.findMany({
+    where: { matchId },
+    select: {
+      playerId: true,
+      rsvpStatus: true,
+    },
+  });
 
   // Combine players with RSVPs
-  const players = (teamPlayers || []).map((player) => {
-    const rsvp = rsvps?.find((r) => r.player_id === player.id);
+  const players = playerTeams.map((pt) => {
+    const rsvp = rsvps.find((r) => r.playerId === pt.playerId);
     return {
-      id: player.id,
-      name: player.name,
-      avatar: player.avatar_url || undefined,
-      rsvp: (rsvp?.rsvp_status as 'in' | 'out' | 'maybe') || 'out',
+      id: pt.player.id,
+      name: pt.player.name,
+      avatar: pt.player.avatarUrl || undefined,
+      rsvp: (rsvp?.rsvpStatus as 'in' | 'out' | 'maybe') || 'out',
     };
   });
 
