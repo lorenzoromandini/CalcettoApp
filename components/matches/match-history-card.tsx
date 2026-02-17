@@ -70,14 +70,15 @@ function getResult(match: Match): 'win' | 'loss' | 'draw' {
   return 'draw'
 }
 
-function getTopScorer(
+function getScorers(
   goals: GoalWithPlayers[], 
-  teamId: string
-): { name: string; count: number } | null {
+  teamId: string,
+  maxDisplay: number = 3
+): { scorers: Array<{ name: string; count: number }>; extra: number } {
   // Filter goals for our team (not opponent goals, not own goals)
   const ourGoals = goals.filter(g => g.teamId === teamId && !g.isOwnGoal)
 
-  if (ourGoals.length === 0) return null
+  if (ourGoals.length === 0) return { scorers: [], extra: 0 }
 
   // Count goals per player
   const scorerMap = new Map<string, { name: string; count: number }>()
@@ -97,15 +98,14 @@ function getTopScorer(
     }
   }
 
-  // Find top scorer
-  let topScorer: { name: string; count: number } | null = null
-  for (const scorer of scorerMap.values()) {
-    if (!topScorer || scorer.count > topScorer.count) {
-      topScorer = scorer
-    }
-  }
+  // Sort by count (descending) and take top scorers
+  const sortedScorers = Array.from(scorerMap.values())
+    .sort((a, b) => b.count - a.count)
+  
+  const displayedScorers = sortedScorers.slice(0, maxDisplay)
+  const extra = sortedScorers.length - maxDisplay
 
-  return topScorer
+  return { scorers: displayedScorers, extra: extra > 0 ? extra : 0 }
 }
 
 function getBestRated(ratings: PlayerRatingWithPlayer[]): { name: string; rating: string } | null {
@@ -127,6 +127,7 @@ function getBestRated(ratings: PlayerRatingWithPlayer[]): { name: string; rating
 
 export function MatchHistoryCard({ data, teamId, locale }: MatchHistoryCardProps) {
   const t = useTranslations('history')
+  const tStats = useTranslations('statistics')
   const tMatches = useTranslations('matches')
 
   const { match, goals, ratings } = data
@@ -134,7 +135,7 @@ export function MatchHistoryCard({ data, teamId, locale }: MatchHistoryCardProps
   const result = getResult(match)
   const homeScore = match.home_score ?? 0
   const awayScore = match.away_score ?? 0
-  const topScorer = getTopScorer(goals, teamId)
+  const { scorers, extra } = getScorers(goals, teamId)
   const bestRated = getBestRated(ratings)
 
   // Color coding based on result
@@ -210,14 +211,20 @@ export function MatchHistoryCard({ data, teamId, locale }: MatchHistoryCardProps
 
               {/* Stats Row */}
               <div className="flex flex-wrap gap-3 text-sm">
-                {/* Top Scorer */}
-                {topScorer && (
+                {/* Scorers */}
+                {scorers.length > 0 && (
                   <div className="flex items-center gap-1.5">
                     <Trophy className="h-4 w-4 text-yellow-500" />
-                    <span className="text-muted-foreground">{topScorer.name}</span>
-                    <Badge variant="secondary" className="text-xs h-5 px-1.5">
-                      {topScorer.count}
-                    </Badge>
+                    <span className="text-muted-foreground">
+                      {scorers.map((s, i) => (
+                        <span key={i}>
+                          {s.name} ({s.count}){i < scorers.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                      {extra > 0 && (
+                        <span className="text-muted-foreground/70"> +{extra}</span>
+                      )}
+                    </span>
                   </div>
                 )}
 
