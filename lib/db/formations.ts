@@ -1,4 +1,11 @@
-import { createClient } from '@/lib/supabase/client';
+/**
+ * Formation Database Operations - Prisma Version
+ * 
+ * Provides CRUD operations for formations using Prisma and PostgreSQL.
+ * Replaces the Supabase-based implementation.
+ */
+
+import { prisma } from './index';
 import type { FormationMode } from '@/lib/formations';
 
 export interface FormationPosition {
@@ -13,107 +20,91 @@ export interface FormationData {
   positions: FormationPosition[];
 }
 
+/**
+ * Get formation for a match
+ * 
+ * @param matchId - Match ID
+ * @returns Formation data or null if not found
+ */
 export async function getFormation(matchId: string): Promise<FormationData | null> {
-  const supabase = createClient();
-  
-  // Get formation
-  const { data: formation, error: formationError } = await supabase
-    .from('formations')
-    .select('*')
-    .eq('match_id', matchId)
-    .single();
-  
-  if (formationError || !formation) {
-    if (formationError?.code === 'PGRST116') {
-      // No rows returned - formation doesn't exist yet
-      return null;
-    }
-    throw formationError;
+  const formation = await prisma.formation.findUnique({
+    where: { matchId },
+    include: {
+      positions: true,
+    },
+  });
+
+  if (!formation) {
+    return null;
   }
-  
-  // Get positions
-  const { data: positions, error: positionsError } = await supabase
-    .from('formation_positions')
-    .select('*')
-    .eq('formation_id', formation.id);
-  
-  if (positionsError) {
-    throw positionsError;
-  }
-  
-  const teamFormation = formation.team_formation as { formation?: string } | null;
-  
+
+  const teamFormation = formation.teamFormation as { formation?: string } | null;
+
   return {
     formation: teamFormation?.formation || '5-1-2-1',
-    positions: positions?.map(p => ({
-      x: p.position_x,
-      y: p.position_y,
-      label: p.position_label,
-      playerId: p.player_id || undefined,
-    })) || [],
+    positions: formation.positions.map(p => ({
+      x: p.positionX,
+      y: p.positionY,
+      label: p.positionLabel,
+      playerId: p.playerId || undefined,
+    })),
   };
 }
 
+/**
+ * Save formation for a match
+ * Uses upsert to handle both create and update
+ * 
+ * @param matchId - Match ID
+ * @param data - Formation data
+ */
 export async function saveFormation(
-  matchId: string, 
+  matchId: string,
   data: FormationData
 ): Promise<void> {
-  const supabase = createClient();
-  
   // Upsert formation
-  const { data: formation, error: formationError } = await supabase
-    .from('formations')
-    .upsert({
-      match_id: matchId,
-      team_formation: { formation: data.formation },
-    }, { onConflict: 'match_id' })
-    .select()
-    .single();
-  
-  if (formationError || !formation) {
-    throw formationError || new Error('Failed to save formation');
-  }
-  
+  const formation = await prisma.formation.upsert({
+    where: { matchId },
+    update: {
+      teamFormation: { formation: data.formation },
+    },
+    create: {
+      matchId,
+      teamFormation: { formation: data.formation },
+    },
+  });
+
   // Delete old positions
-  const { error: deleteError } = await supabase
-    .from('formation_positions')
-    .delete()
-    .eq('formation_id', formation.id);
-  
-  if (deleteError) {
-    throw deleteError;
-  }
-  
+  await prisma.formationPosition.deleteMany({
+    where: { formationId: formation.id },
+  });
+
   // Insert new positions
   if (data.positions.length > 0) {
-    const { error: insertError } = await supabase
-      .from('formation_positions')
-      .insert(
-        data.positions.map(p => ({
-          formation_id: formation.id,
-          player_id: p.playerId || null,
-          position_x: p.x,
-          position_y: p.y,
-          position_label: p.label,
-          is_substitute: false,
-        }))
-      );
-    
-    if (insertError) {
-      throw insertError;
-    }
+    await prisma.formationPosition.createMany({
+      data: data.positions.map(p => ({
+        formationId: formation.id,
+        playerId: p.playerId || null,
+        positionX: p.x,
+        positionY: p.y,
+        positionLabel: p.label,
+        isSubstitute: false,
+      })),
+    });
   }
+
+  console.log('[FormationDB] Formation saved:', matchId);
 }
 
+/**
+ * Delete formation for a match
+ * 
+ * @param matchId - Match ID
+ */
 export async function deleteFormation(matchId: string): Promise<void> {
-  const supabase = createClient();
-  
-  const { error } = await supabase
-    .from('formations')
-    .delete()
-    .eq('match_id', matchId);
-  
-  if (error) {
-    throw error;
-  }
+  await prisma.formation.delete({
+    where: { matchId },
+  });
+
+  console.log('[FormationDB] Formation deleted:', matchId);
 }
