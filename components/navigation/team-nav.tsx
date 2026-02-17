@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Users, Settings, Trophy, CalendarDays } from 'lucide-react';
+import { Users, Settings, Trophy, CalendarDays, Clock } from 'lucide-react';
 
 interface TeamNavProps {
   teamId: string;
@@ -36,6 +36,11 @@ export function TeamNav({ teamId, isAdmin }: TeamNavProps) {
       href: `/teams/${teamId}/roster`,
       label: t('roster'),
       icon: Users,
+    },
+    {
+      href: `/teams/${teamId}/history`,
+      label: t('history'),
+      icon: Clock,
     },
     {
       href: `/teams/${teamId}/settings`,
