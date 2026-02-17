@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-17 (Phase 3 Match Management complete)  
+**Last Updated:** 2026-02-17 (Phase 3 complete - all match management features integrated and verified)  
 
 ---
 
@@ -13,7 +13,7 @@
 |----------|-------|
 | **Phase** | 3 — Match Management |
 | **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 05 — Push Notification Reminders |
+| **Plan** | 06 — Feature Integration and Verification |
 | **Status** | ✅ Complete |
 | **Progress** | 100% |
 
@@ -496,6 +496,31 @@
 
 ---
 
+### From Plan 03-06 (Feature Integration and Verification)
+
+**Implemented:**
+- ✅ Team navigation updated with Matches tab (second position after Overview)
+- ✅ Dashboard upcoming matches section showing matches across all teams
+- ✅ Match cards with RSVP count badges (IN/needed format with color coding)
+- ✅ Formation section on match detail with preview and edit links
+- ✅ Notification permission request shown after creating first match
+- ✅ Complete Italian/English translations for matches, dashboard, notifications
+
+**Key Files for Future Phases:**
+- `components/dashboard/upcoming-matches-section.tsx` - Dashboard matches display
+- `components/navigation/team-nav.tsx` - Updated team navigation
+- `components/matches/match-card.tsx` - Match card with RSVP badge
+- `app/[locale]/teams/[teamId]/matches/[matchId]/match-detail-page-client.tsx` - Match detail with formation
+
+**Patterns Established:**
+- Navigation: Matches tab in primary team navigation
+- Dashboard aggregation: Show upcoming matches across all teams, sorted by date
+- RSVP display: "confirmed/needed" format with green/yellow/red color coding
+- Permission timing: Request after user demonstrates value (creates content)
+- Formation UI: Admin sees edit/create, members see view/empty state
+
+---
+
 ### From Plan 03-05 (Push Notification Reminders)
 
 **Implemented:**
@@ -575,16 +600,16 @@
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 03-05 (Push Notification Reminders)
+- **Activity:** Executed Plan 03-06 (Feature Integration and Verification)
 - **Outcome:** 
-  - Created database schema for push subscriptions and notification preferences
-  - Implemented Web Push API with VAPID authentication
-  - Added push event handlers to Service Worker
-  - Created useNotifications hook for permission management
-  - Built PermissionRequest UI component
-  - Configured VAPID keys in environment
-  - Plan 03-05 SUMMARY.md created
-  - Phase 3 complete: 100% (5 of 5 plans)
+  - Integrated Matches tab into team navigation
+  - Added upcoming matches section to dashboard
+  - Implemented RSVP count badges on match cards
+  - Added formation preview and edit links to match detail
+  - Implemented notification permission request after first match
+  - Completed Italian/English translations for all match features
+  - Plan 03-06 SUMMARY.md created
+  - Phase 3 officially complete: 100% (6 of 6 plans)
 
 ### Next Session
 - **Status:** Phase 3 Complete
