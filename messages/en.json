@@ -369,6 +369,10 @@
       "cancel": "Cancel",
       "uncancel": "Restore",
       "cancelConfirm": "Are you sure you want to cancel this match?",
+      "viewFormation": "View formation",
+      "editFormation": "Edit formation",
+      "createFormation": "Create formation",
+      "noFormation": "No formation set",
       "sections": {
         "rsvp": "RSVPs",
         "formation": "Formation",

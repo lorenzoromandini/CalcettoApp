@@ -369,6 +369,10 @@
       "cancel": "Annulla",
       "uncancel": "Ripristina",
       "cancelConfirm": "Sei sicuro di voler annullare questa partita?",
+      "viewFormation": "Vedi formazione",
+      "editFormation": "Modifica formazione",
+      "createFormation": "Crea formazione",
+      "noFormation": "Nessuna formazione impostata",
       "sections": {
         "rsvp": "Conferme di partecipazione",
         "formation": "Formazione",

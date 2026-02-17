@@ -2,20 +2,39 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Calendar, MapPin, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Calendar, MapPin, ChevronRight, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getRSVPCounts } from "@/lib/db/rsvps";
+import { cn } from "@/lib/utils";
 import type { Match } from "@/lib/db/schema";
 
 interface MatchCardProps {
   match: Match;
   teamId: string;
   onClick?: () => void;
+  showRSVPCount?: boolean;
 }
 
-export function MatchCard({ match, teamId, onClick }: MatchCardProps) {
+export function MatchCard({ match, teamId, onClick, showRSVPCount = false }: MatchCardProps) {
   const t = useTranslations("matches");
   const common = useTranslations("common");
+  const [rsvpCount, setRsvpCount] = useState(0);
+  const [isLoadingRSVP, setIsLoadingRSVP] = useState(false);
+
+  useEffect(() => {
+    if (showRSVPCount) {
+      setIsLoadingRSVP(true);
+      getRSVPCounts(match.id)
+        .then(counts => setRsvpCount(counts.in))
+        .finally(() => setIsLoadingRSVP(false));
+    }
+  }, [match.id, showRSVPCount]);
+
+  const playersNeeded = match.mode === '5vs5' ? 10 : 16;
+  const isFull = rsvpCount >= playersNeeded;
+  const isPartial = rsvpCount >= playersNeeded / 2;
 
   const getStatusBadge = (status: Match['status']) => {
     switch (status) {
@@ -120,7 +139,25 @@ export function MatchCard({ match, teamId, onClick }: MatchCardProps) {
             </div>
           </div>
 
-          <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 self-center" />
+          <div className="flex flex-col items-end gap-2">
+            {showRSVPCount && (
+              <div className={cn(
+                "flex items-center gap-1 text-sm",
+                isFull ? "text-green-600" : isPartial ? "text-yellow-600" : "text-red-600"
+              )}>
+                <Users className="h-4 w-4" />
+                {isLoadingRSVP ? (
+                  <span className="w-8 h-4 bg-muted rounded animate-pulse" />
+                ) : (
+                  <>
+                    <span className="font-medium">{rsvpCount}</span>
+                    <span className="text-muted-foreground">/{playersNeeded}</span>
+                  </>
+                )}
+              </div>
+            )}
+            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+          </div>
         </div>
       </CardContent>
     </Card>

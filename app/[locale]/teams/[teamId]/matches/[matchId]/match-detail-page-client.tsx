@@ -11,10 +11,12 @@ import { useMatch, useCancelMatch } from "@/hooks/use-matches";
 import { useTeam } from "@/hooks/use-teams";
 import { usePlayers } from "@/hooks/use-players";
 import { useRSVPData, useUpdateRSVP } from "@/hooks/use-rsvps";
+import { useFormation } from "@/hooks/use-formation";
 import { RSVPButton } from "@/components/matches/rsvp-button";
 import { RSVPList } from "@/components/matches/rsvp-list";
 import { AvailabilityCounter } from "@/components/matches/availability-counter";
 import { isTeamAdmin } from "@/lib/db/teams";
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Match, RSVPStatus } from "@/lib/db/schema";
@@ -47,6 +49,9 @@ export function MatchDetailPageClient({
   const { team } = useTeam(teamId);
   const { players: teamPlayers } = usePlayers(teamId);
   const { cancelMatch, uncancelMatch, isPending: isActionPending } = useCancelMatch();
+  
+  // Get formation data
+  const { formation, isLoading: isFormationLoading } = useFormation(matchId, match?.mode || '5vs5');
   
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
@@ -371,8 +376,8 @@ export function MatchDetailPageClient({
         </div>
       </div>
 
-      {/* Formation Section Placeholder */}
-      <Card className="mt-6 border-dashed">
+      {/* Formation Section */}
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <LayoutGrid className="h-5 w-5" />
@@ -380,9 +385,65 @@ export function MatchDetailPageClient({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Formation builder coming in a future phase.
-          </p>
+          {isFormationLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : formation ? (
+            <div className="space-y-4">
+              {/* Formation Preview */}
+              <div className="relative aspect-[3/4] max-w-[200px] mx-auto bg-green-800 rounded-lg overflow-hidden">
+                {/* Pitch markings */}
+                <div className="absolute inset-0 border-2 border-white/30" />
+                <div className="absolute top-0 left-1/4 right-1/4 h-[15%] border-b-2 border-x-2 border-white/30" />
+                <div className="absolute bottom-0 left-1/4 right-1/4 h-[15%] border-t-2 border-x-2 border-white/30" />
+                <div className="absolute top-1/2 left-0 right-0 h-px bg-white/30" />
+                <div className="absolute top-1/2 left-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 border-2 border-white/30 rounded-full" />
+                
+                {/* Player dots */}
+                {formation.positions.filter(p => p.playerId).map((pos, idx) => (
+                  <div
+                    key={idx}
+                    className="absolute w-4 h-4 bg-white rounded-full border-2 border-primary shadow-lg"
+                    style={{
+                      left: `${(pos.x / 9) * 100}%`,
+                      top: `${(pos.y / 7) * 100}%`,
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                ))}
+              </div>
+              
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <span>{formation.positions.filter(p => p.playerId).length}</span>
+                <span>/</span>
+                <span>{formation.positions.length}</span>
+                <span>giocatori posizionati</span>
+              </div>
+              
+              <Button asChild variant="outline" className="w-full">
+                <Link href={`/teams/${teamId}/matches/${matchId}/formation`}>
+                  {isAdmin ? t("detail.editFormation") : t("detail.viewFormation")}
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="text-center py-8 space-y-4">
+              <div className="relative aspect-[3/4] max-w-[150px] mx-auto bg-muted rounded-lg flex items-center justify-center">
+                <LayoutGrid className="h-12 w-12 text-muted-foreground/50" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t("detail.noFormation")}
+              </p>
+              {isAdmin && (
+                <Button asChild>
+                  <Link href={`/teams/${teamId}/matches/${matchId}/formation`}>
+                    {t("detail.createFormation")}
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
