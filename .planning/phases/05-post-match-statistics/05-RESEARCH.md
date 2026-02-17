@@ -7,14 +7,16 @@
 
 ## Executive Summary
 
-Phase 5 builds on Phase 4's goal and rating data to provide aggregated statistics and match photo uploads. The core work involves:
+Phase 5 builds on Phase 4's goal and rating data to provide aggregated statistics. The core work involves:
 
 1. **Statistics Aggregation** - Leverage existing Goal and PlayerRating models
-2. **Match Photo Uploads** - New feature requiring client-side compression
-3. **Win/Loss/Draw Records** - Calculate from existing match scores
-4. **Player Career Stats** - Aggregate goals, assists, appearances across matches
+2. **Win/Loss/Draw Records** - Calculate from existing match scores
+3. **Player Career Stats** - Aggregate goals, assists, appearances across matches
+4. **Goalkeeper Saves** - Track goalkeeper performance
 
-**Key Insight:** Phase 4 already implemented goals, ratings, and match history display. Phase 5 adds aggregation queries and photo uploads.
+**Key Insight:** Phase 4 already implemented goals, ratings, and match history display. Phase 5 adds aggregation queries.
+
+**Note:** Match photo uploads removed from scope. Match sharing via WhatsApp is planned for Phase 8 (Social & Sharing).
 
 ---
 

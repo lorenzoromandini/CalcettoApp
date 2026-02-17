@@ -201,42 +201,39 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 ## Phase 5: Post-Match Statistics
 
-**Goal:** Users can view comprehensive match and player statistics with media support
+**Goal:** Users can view comprehensive match and player statistics
 
 **Dependencies:** Phase 4 (goals and ratings required to calculate statistics)
 
 **Requirements:**
-- STAT-01 through STAT-08 (match stats, player aggregation, history, photos)
-- UIUX-07 (lazy loading for images/statistics)
+- STAT-01 through STAT-06 (match stats, player aggregation, history, records, averages)
+- STAT-02: Goalkeeper saves tracking
 
-**Success Criteria (4 criteria):**
+**Success Criteria (3 criteria):**
 
-1. **System calculates and displays match statistics** — Goals, assists, cards per match visible in match history
+1. **System calculates and displays match statistics** — Goals, assists per match visible in match history
 2. **Player statistics aggregated over time** — Career totals for goals, assists, appearances; goalkeeper saves tracked separately
 3. **User can view win/loss/draw records and averages** — Team record displayed; goals per match average calculated
-4. **User can upload match highlight photos** — Photos upload with client-side compression; visible in match gallery
 
 **Research Alignment:** "Season aggregation expected by users; offline match recording enables stats even without connectivity."
 
-**Plans:** 4 plans in 3 waves
+**Plans:** 3 plans in 3 waves
 
 | Plan | Objective | Wave | Dependencies | Files |
 |------|-----------|------|--------------|-------|
 | 05-01 | Schema changes (saves field) + statistics aggregation functions | 1 | None | prisma/schema.prisma, lib/db/statistics.ts |
 | 05-02 | Statistics UI (player stats card, team record badge, leaderboards, stats page) | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/*, app/[locale]/teams/[teamId]/stats/* |
-| 05-03 | Match photo upload with compression + gallery | 2 | None | lib/db/match-photos.ts, components/matches/match-photo-*.tsx, browser-image-compression |
-| 05-04 | Integration (navigation, dashboard, history enhancements) | 3 | 05-02, 05-03 | components/navigation/team-nav.tsx, components/dashboard/team-stats-section.tsx, messages/*.json |
+| 05-03 | Integration (navigation, dashboard, history enhancements) | 3 | 05-01, 05-02 | components/navigation/team-nav.tsx, components/dashboard/team-stats-section.tsx, messages/*.json |
 
 **Wave Structure:**
 - **Wave 1:** 05-01 — Database schema + statistics aggregation layer
-- **Wave 2 (Parallel):** 05-02 + 05-03 — Statistics UI + Photo upload (independent features)
-- **Wave 3:** 05-04 — Integration and verification
+- **Wave 2:** 05-02 — Statistics UI components and page
+- **Wave 3:** 05-03 — Integration into navigation, dashboard, and history
 
 **Technical Notes:**
-- Stack: browser-image-compression (new), Prisma aggregations
-- Implement: Lazy loading for photos, on-demand statistics computation
-- Critical: Client-side image compression before upload (max 1MB)
-- Pattern: Base64 photo storage in JSON field for MVP
+- Stack: Prisma aggregations ($queryRaw for complex queries)
+- Implement: On-demand statistics computation (no caching for MVP)
+- Pattern: Statistics only for COMPLETED matches
 
 ---
 
