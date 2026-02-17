@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 4 — Match Results & Player Ratings  
-**Last Updated:** 2026-02-17 (Phase 4 Plan 05 complete - player ratings with 38-value scale implemented)
+**Last Updated:** 2026-02-17 (Phase 4 Plan 06 complete - match history and integration implemented)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 4 — Match Results & Player Ratings |
 | **Phase Goal** | Enable match lifecycle transitions, results entry, and player ratings |
-| **Plan** | 05 — Player Ratings |
+| **Plan** | 06 — Match Completion & History |
 | **Status** | ✅ Complete |
-| **Progress** | 83% |
+| **Progress** | 100% |
 
 ### Phase 4 Progress Bar
 
 ```
-[████████████████░░░░░░] 83%
+[████████████████████████] 100%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 ✅ Complete*
 
 ---
 
@@ -59,7 +59,7 @@
 | 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
 | 2 | Team Management | 10 | 🟢 Complete | 100% |
 | 3 | Match Management | 14 | 🟢 Complete | 100% |
-| 4 | Match Results & Ratings | 8 | 🟡 In Progress | 33% |
+| 4 | Match Results & Ratings | 8 | 🟢 Complete | 100% |
 | 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
 | 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
@@ -112,6 +112,9 @@
 | 2026-02-17 | Rating storage as Decimal(3,2) | Enables easy averaging, maps to 38 display values (6.0, 6.25, 6.5, 6.75) | ✅ Confirmed |
 | 2026-02-17 | Two-part rating selector (base + modifier) | Better mobile UX than single dropdown with 38 values | ✅ Confirmed |
 | 2026-02-17 | Ratings editable only in FINISHED status | COMPLETED matches have read-only ratings | ✅ Confirmed |
+| 2026-02-17 | COMPLETED status shows CompletedMatchDetail | Read-only view with all match info (goals, ratings, formation) | ✅ Confirmed |
+| 2026-02-17 | History page filters by result type | Users can filter by wins, losses, draws | ✅ Confirmed |
+| 2026-02-17 | Match detail adapts to status | SCHEDULED (RSVP), IN_PROGRESS (score), FINISHED (ratings), COMPLETED (read-only) | ✅ Confirmed |
 
 ---
 
@@ -665,35 +668,67 @@
 
 ---
 
+### From Plan 04-06 (Match Completion & History)
+
+**Implemented:**
+- ✅ MatchHistoryCard component with color-coded results (win/loss/draw)
+- ✅ CompletedMatchDetail read-only view for completed matches
+- ✅ Match history page with result filtering and stats summary
+- ✅ History tab added to team navigation
+- ✅ Match detail page updated for status-based rendering
+- ✅ RecentResultsSection for dashboard showing last 3 completed matches
+- ✅ Italian/English translations for history UI
+
+**Key Files for Future Phases:**
+- `components/matches/match-history-card.tsx` - Card for history list
+- `components/matches/completed-match-detail.tsx` - Read-only completed match view
+- `app/[locale]/teams/[teamId]/history/page.tsx` - History page
+- `app/[locale]/teams/[teamId]/history/match-history-page-client.tsx` - History client component
+- `components/dashboard/recent-results-section.tsx` - Dashboard recent results
+
+**Patterns Established:**
+- Status-based conditional rendering in match detail
+- Color-coded result indicators (green/red/gray for W/L/D)
+- Filter by result type in history view
+- Read-only CompletedMatchDetail for COMPLETED status
+- Stats summary (total matches, wins, losses, goals)
+
+**Requirements Covered:**
+- D08: View completed matches in history ✅
+- D09: Match detail shows all info based on status ✅
+
+---
+
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 04-05 (Player Ratings)
+- **Activity:** Executed Plan 04-06 (Match Completion & History)
 - **Outcome:** 
-  - Created 38-value rating scale with decimal storage
-  - Built rating utilities (ratingToDecimal, decimalToRating)
-  - Created player ratings CRUD with admin/played/finished validation
-  - Built usePlayerRatings hook with optimistic updates
-  - Created RatingSelector, PlayerRatingCard, RatingsList components
-  - Added ratings page for FINISHED/COMPLETED matches
+  - Created MatchHistoryCard with color-coded results (win/loss/draw)
+  - Built CompletedMatchDetail read-only view for completed matches
+  - Created match history page with filtering and stats
+  - Added History tab to team navigation
+  - Updated match detail page for status-based rendering
+  - Created RecentResultsSection for dashboard
   - Added Italian/English translations
-  - Plan 04-05: Complete
+  - Phase 4: Complete (6/6 plans)
 
 ### Next Session
-- **Status:** Phase 4 in Progress (5/6 plans complete)
-- **Action:** Execute Plan 04-06 (Match Completion & History)
-- **When ready:** Run `/gsd-execute-phase 04` to continue
+- **Status:** Phase 4 Complete - Ready for Phase 5
+- **Action:** Plan Phase 5 (Post-Match Statistics)
+- **When ready:** Run `/gsd-plan-phase 5` to start next phase
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 4 in progress - player ratings functional
-3. Read 04-05-SUMMARY.md for ratings implementation details
+2. Phase 4 complete - match lifecycle, goals, participation, ratings, history all functional
+3. Read 04-06-SUMMARY.md for history implementation details
 4. MatchStatus uses uppercase values (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED)
-5. Only played players (played=true) can be rated
-6. Ratings editable only in FINISHED state, read-only in COMPLETED
-7. Run `/gsd-execute-phase 04` to continue with next plan
+5. COMPLETED matches show read-only CompletedMatchDetail
+6. Match detail page adapts UI based on match status
+7. History page at /teams/[teamId]/history lists completed matches
+8. Run `/gsd-plan-phase 5` to start next phase
 
 ---
 
