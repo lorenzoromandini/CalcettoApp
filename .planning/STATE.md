@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 4 — Match Results & Player Ratings  
-**Last Updated:** 2026-02-17 (Phase 4 Plan 04 complete - player participation tracking implemented)
+**Last Updated:** 2026-02-17 (Phase 4 Plan 05 complete - player ratings with 38-value scale implemented)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 4 — Match Results & Player Ratings |
 | **Phase Goal** | Enable match lifecycle transitions, results entry, and player ratings |
-| **Plan** | 04 — Player Participation Tracking |
+| **Plan** | 05 — Player Ratings |
 | **Status** | ✅ Complete |
-| **Progress** | 67% |
+| **Progress** | 83% |
 
 ### Phase 4 Progress Bar
 
 ```
-[████████████░░░░░░░░░░] 67%
+[████████████████░░░░░░] 83%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete*
 
 ---
 
@@ -109,6 +109,9 @@
 | 2026-02-17 | Add FINISHED status for lifecycle transitions | Supports in_progress → finished → completed flow per CONTEXT.md | ✅ Confirmed |
 | 2026-02-17 | AlertDialog for all lifecycle confirmations | Prevents accidental match state transitions | ✅ Confirmed |
 | 2026-02-17 | initializeParticipation on match end | Sets played=true for RSVP 'in' players automatically, admin can adjust | ✅ Confirmed |
+| 2026-02-17 | Rating storage as Decimal(3,2) | Enables easy averaging, maps to 38 display values (6.0, 6.25, 6.5, 6.75) | ✅ Confirmed |
+| 2026-02-17 | Two-part rating selector (base + modifier) | Better mobile UX than single dropdown with 38 values | ✅ Confirmed |
+| 2026-02-17 | Ratings editable only in FINISHED status | COMPLETED matches have read-only ratings | ✅ Confirmed |
 
 ---
 
@@ -628,32 +631,69 @@
 
 ---
 
+### From Plan 04-05 (Player Ratings)
+
+**Implemented:**
+- ✅ 38-value rating scale (1-10 with -, +, .5 modifiers)
+- ✅ Rating utilities with decimal conversion functions
+- ✅ Player rating server actions (upsertPlayerRating, getMatchRatings, getPlayerAverageRating)
+- ✅ usePlayerRatings hook with optimistic updates
+- ✅ RatingSelector component with two-part UI (base + modifier)
+- ✅ PlayerRatingCard with collapsible comments
+- ✅ RatingsList with average display and ranking
+- ✅ Ratings page at `/teams/[teamId]/matches/[matchId]/ratings`
+- ✅ Italian/English translations for ratings
+
+**Key Files for Future Phases:**
+- `lib/rating-utils.ts` - Rating conversion utilities
+- `lib/db/player-ratings.ts` - Rating CRUD operations
+- `hooks/use-player-ratings.ts` - Rating state management
+- `components/matches/rating-selector.tsx` - Rating input component
+- `components/matches/ratings-list.tsx` - Read-only ratings display
+
+**Patterns Established:**
+- Decimal storage for ratings (6.0, 6.25, 6.5, 6.75) for easy averaging
+- Two-part selector for mobile-friendly rating input
+- Optimistic updates with toast notifications
+- Progress tracking (rated/played count)
+- Only FINISHED matches can be rated, COMPLETED are read-only
+
+**Requirements Covered:**
+- RATE-01: Submit ratings with 38-value scale ✅
+- RATE-02: Optional comments per player ✅
+- RATE-03: Average ratings calculation ✅
+
+---
+
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 04-04 (Player Participation Tracking)
+- **Activity:** Executed Plan 04-05 (Player Ratings)
 - **Outcome:** 
-  - Created player participation server actions (updatePlayerParticipation, getMatchParticipants, bulkUpdateParticipation, initializeParticipation)
-  - Created usePlayerParticipation hook with optimistic updates
-  - Built PlayerParticipationList component with toggle switches
-  - Integrated initializeParticipation into match lifecycle (endMatch, inputFinalResults)
-  - Added Switch UI component from shadcn
-  - Plan 04-04: Complete
+  - Created 38-value rating scale with decimal storage
+  - Built rating utilities (ratingToDecimal, decimalToRating)
+  - Created player ratings CRUD with admin/played/finished validation
+  - Built usePlayerRatings hook with optimistic updates
+  - Created RatingSelector, PlayerRatingCard, RatingsList components
+  - Added ratings page for FINISHED/COMPLETED matches
+  - Added Italian/English translations
+  - Plan 04-05: Complete
 
 ### Next Session
-- **Status:** Phase 4 in Progress (4/6 plans complete)
-- **Action:** Execute Plan 04-05 (Player Ratings)
+- **Status:** Phase 4 in Progress (5/6 plans complete)
+- **Action:** Execute Plan 04-06 (Match Completion & History)
 - **When ready:** Run `/gsd-execute-phase 04` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 4 in progress - player participation tracking functional
-3. Read 04-04-SUMMARY.md for participation implementation details
+2. Phase 4 in progress - player ratings functional
+3. Read 04-05-SUMMARY.md for ratings implementation details
 4. MatchStatus uses uppercase values (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED)
 5. Only played players (played=true) can be rated
-6. Run `/gsd-execute-phase 04` to continue with next plan
+6. Ratings editable only in FINISHED state, read-only in COMPLETED
+7. Run `/gsd-execute-phase 04` to continue with next plan
 
 ---
 
