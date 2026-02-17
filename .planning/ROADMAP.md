@@ -246,7 +246,7 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 - Win: player on home side AND homeScore > awayScore, OR player on away side AND awayScore > homeScore
 - Loss: opposite of win
 - Draw: homeScore = awayScore
-- Goals conceded: only for goalkeepers (roles[0] = 'goalkeeper') in GK position (positionLabel = 'GK')
+- Goals conceded: only for players with 'goalkeeper' in roles (primary or secondary) in GK position (positionLabel = 'GK')
 - All leaderboards return TOP 3 by default
 - Goals conceded leaderboard: fewer = better (sorted ASC)
 

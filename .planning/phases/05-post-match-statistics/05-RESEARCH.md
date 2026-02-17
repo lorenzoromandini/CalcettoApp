@@ -65,16 +65,17 @@ For each player in a completed match:
 
 A player gets goals conceded counted ONLY if BOTH conditions are met:
 
-1. **Primary role is goalkeeper:** `player.roles[0] = 'goalkeeper'`
+1. **Has goalkeeper role:** `'goalkeeper'` is in `player.roles` array (can be primary or secondary role)
 2. **Played in GK position:** `FormationPosition.positionLabel = 'GK'`
 
 ### Examples
 
-| Player | Primary Role | Position in Match | Goals Conceded? |
-|--------|--------------|-------------------|-----------------|
-| Marco | goalkeeper | GK (y=6 or y=0) | ✅ Yes |
-| Luca | attacker | GK (no GK available) | ❌ No |
-| Giuseppe | goalkeeper | DEF (outfield) | ❌ No |
+| Player | Roles | Position in Match | Goals Conceded? |
+|--------|-------|-------------------|-----------------|
+| Marco | [goalkeeper] | GK (y=6 or y=0) | ✅ Yes |
+| Luca | [attacker] | GK (no GK available) | ❌ No |
+| Giuseppe | [goalkeeper] | DEF (outfield) | ❌ No |
+| Paolo | [defender, goalkeeper] | GK | ✅ Yes (GK is secondary role) |
 
 ### Calculation
 
