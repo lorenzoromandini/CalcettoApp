@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 5 — Post-Match Statistics  
-**Last Updated:** 2026-02-17 (Phase 5 Plan 02 Complete - Player Profile + Team Stats Pages)
+**Last Updated:** 2026-02-17 (Phase 5 Complete - Statistics Integration)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 5 — Post-Match Statistics |
 | **Phase Goal** | View comprehensive match and player statistics with media support |
-| **Plan** | 02 of 03 |
-| **Status** | 🟡 In Progress |
-| **Progress** | 67% |
+| **Plan** | 03 of 03 |
+| **Status** | 🟢 Complete |
+| **Progress** | 100% |
 
 ### Phase 5 Progress Bar
 
 ```
-[████████████████░░░░░░░░] 67%
+[████████████████████████] 100%
 ```
 
-*Plan 02/03 complete: Player profile page, team statistics with 7 leaderboards*
+*Plan 03/03 complete: Statistics integration with player links and match scorers*
 
 ---
 
@@ -60,7 +60,7 @@
 | 2 | Team Management | 10 | 🟢 Complete | 100% |
 | 3 | Match Management | 14 | 🟢 Complete | 100% |
 | 4 | Match Results & Ratings | 8 | 🟢 Complete | 100% |
-| 5 | Post-Match Statistics | 9 | 🟡 In Progress | 33% |
+| 5 | Post-Match Statistics | 9 | 🟢 Complete | 100% |
 | 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
@@ -122,6 +122,9 @@
 | 2026-02-17 | Goals conceded leaderboard: lower = better | Shows best goalkeeper (fewest goals conceded) first | ✅ Confirmed |
 | 2026-02-17 | PlayerStatsCard shows goals_conceded only for GKs | Conditional display based on null check for goals_conceded field | ✅ Confirmed |
 | 2026-02-17 | All leaderboards show top 3 with medal badges | Gold/silver/bronze position badges, consistent visual design | ✅ Confirmed |
+| 2026-02-17 | Player cards link to player profile | Clickable cards wrap in Next.js Link, navigate to /teams/[teamId]/players/[playerId] | ✅ Confirmed |
+| 2026-02-17 | Match history shows multiple scorers | Up to 3 scorers with goal counts, '+N' for additional | ✅ Confirmed |
+| 2026-02-17 | Scorer format in match history | "Name (count), Name2 (count)" for clarity | ✅ Confirmed |
 
 ---
 
@@ -710,31 +713,29 @@
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 05-02 (Player Profile + Team Stats Pages)
+- **Activity:** Executed Plan 05-03 (Statistics Integration)
 - **Outcome:** 
-  - Created statistics React hooks (usePlayerStats, useTeamLeaderboards)
-  - Built PlayerStatsCard with goalkeeper goals_conceded section
-  - Implemented PlayerLeaderboard with gold/silver/bronze badges
-  - Added player profile page with full statistics display
-  - Created team stats page with 7 leaderboards (top 3 each)
-  - Phase 5: Plan 2 of 3 complete (67%)
+  - Verified Statistics tab already present in team navigation
+  - Made player cards clickable linking to player profiles
+  - Updated match history cards to show up to 3 scorers
+  - All player card usages updated with teamId prop
+  - Phase 5: Complete (100%)
 
 ### Next Session
-- **Status:** Phase 5 In Progress - Plan 02 Complete
-- **Action:** Execute Plan 05-03 (Media Support)
-- **When ready:** Run `/gsd-execute-phase 05` to continue
+- **Status:** Phase 5 Complete
+- **Action:** Plan Phase 6 (Player Ratings) with `/gsd-plan-phase 06`
+- **When ready:** Run `/gsd-plan-phase 06` to start next phase
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 5 in progress - statistics UI layer complete
+2. Phase 5 complete - statistics fully integrated
 3. Read 05-01-SUMMARY.md for statistics aggregation implementation
 4. Read 05-02-SUMMARY.md for statistics UI implementation
-5. usePlayerStats fetches player stats including goals_conceded for GKs
-6. useTeamLeaderboards fetches all 7 leaderboards (top 3 each)
-7. Player profile at /teams/[teamId]/players/[playerId] shows full stats
-8. Team stats at /teams/[teamId]/stats shows 7 leaderboards
-9. Run `/gsd-execute-phase 05` to continue with Plan 03
+5. Read 05-03-SUMMARY.md for statistics integration
+6. Player cards link to /teams/[teamId]/players/[playerId]
+7. Match history shows multiple scorers with goal counts
+8. Run `/gsd-plan-phase 06` to continue with Player Ratings
 
 ---
 
