@@ -31,6 +31,39 @@ const ERRORS = {
 }
 
 // ============================================================================
+// Helper: Set side for all positions in a match's formation
+// ============================================================================
+
+/**
+ * Set the side field for all FormationPosition records based on positionX
+ * - positionX < 5 → 'home' (left side of pitch)
+ * - positionX >= 5 → 'away' (right side of pitch)
+ */
+async function setPositionSides(matchId: string): Promise<void> {
+  // Get the formation for this match
+  const formation = await prisma.formation.findUnique({
+    where: { matchId },
+    include: { positions: true },
+  })
+
+  if (!formation) {
+    console.log('[MatchLifecycle] No formation found for match:', matchId)
+    return
+  }
+
+  // Update each position with its side
+  for (const position of formation.positions) {
+    const side = position.positionX < 5 ? 'home' : 'away'
+    await prisma.formationPosition.update({
+      where: { id: position.id },
+      data: { side },
+    })
+  }
+
+  console.log('[MatchLifecycle] Set sides for', formation.positions.length, 'positions in match:', matchId)
+}
+
+// ============================================================================
 // Helper: Convert Prisma Match to app Match type
 // ============================================================================
 
@@ -159,6 +192,10 @@ export async function completeMatch(matchId: string): Promise<Match> {
   if (match.status !== MatchStatus.FINISHED) {
     throw new Error(ERRORS.INVALID_STATUS.COMPLETE)
   }
+
+  // Set side for all positions before completing
+  // This records which team each player was on for statistics
+  await setPositionSides(matchId)
 
   // Update match status
   const updatedMatch = await prisma.match.update({
