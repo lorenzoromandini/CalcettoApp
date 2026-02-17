@@ -2,8 +2,8 @@
 
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
-**Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-17 (Phase 3 complete - all match management features integrated and verified)
+**Current Focus:** Phase 4 — Match Results & Player Ratings  
+**Last Updated:** 2026-02-17 (Phase 4 Plan 02 complete - match lifecycle transitions implemented)
 
 ---
 
@@ -11,19 +11,19 @@
 
 | Property | Value |
 |----------|-------|
-| **Phase** | 3 — Match Management |
-| **Phase Goal** | Users can schedule matches, track RSVPs, and build tactical formations |
-| **Plan** | 06 — Feature Integration and Verification |
+| **Phase** | 4 — Match Results & Player Ratings |
+| **Phase Goal** | Enable match lifecycle transitions, results entry, and player ratings |
+| **Plan** | 02 — Match Lifecycle Transitions |
 | **Status** | ✅ Complete |
-| **Progress** | 100% |
+| **Progress** | 33% |
 
-### Phase 3 Progress Bar
+### Phase 4 Progress Bar
 
 ```
-[████████████████████] 100%
+[██████░░░░░░░░░░░░░░] 33%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete*
 
 ---
 
@@ -59,13 +59,13 @@
 | 1 | Foundation & Auth | 14 | 🟢 Complete | 100% |
 | 2 | Team Management | 10 | 🟢 Complete | 100% |
 | 3 | Match Management | 14 | 🟢 Complete | 100% |
-| 4 | Live Match Experience | 8 | 🔴 Not Started | 0% |
+| 4 | Match Results & Ratings | 8 | 🟡 In Progress | 33% |
 | 5 | Post-Match Statistics | 9 | 🔴 Not Started | 0% |
 | 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
-**Overall:** 14/68 requirements complete (~21%)
+**Overall:** 18/68 requirements complete (~26%)
 
 ---
 
@@ -105,6 +105,9 @@
 | 2026-02-16 | Dual input: drag-and-drop + tap-to-place | Essential for mobile accessibility, works with wet fingers | ✅ Confirmed |
 | 2026-02-16 | 9x7 grid for pitch positioning | Enables magnetic snapping, responsive across screen sizes | ✅ Confirmed |
 | 2026-02-17 | Migrated database layer from Supabase to Prisma | Project uses NextAuth + Prisma, Supabase was architectural mismatch | ✅ Complete |
+| 2026-02-17 | MatchStatus uses uppercase Prisma enum values | Type safety alignment with database schema (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED) | ✅ Confirmed |
+| 2026-02-17 | Add FINISHED status for lifecycle transitions | Supports in_progress → finished → completed flow per CONTEXT.md | ✅ Confirmed |
+| 2026-02-17 | AlertDialog for all lifecycle confirmations | Prevents accidental match state transitions | ✅ Confirmed |
 
 ---
 
@@ -599,33 +602,29 @@
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 03-07 (Database Layer Refactor to Prisma) + Build Verification
+- **Activity:** Executed Plan 04-02 (Match Lifecycle Transitions)
 - **Outcome:** 
-  - Migrated all database operations from Supabase to Prisma
-  - Created Prisma client singleton in lib/db/index.ts
-  - Refactored matches.ts, rsvps.ts, formations.ts to use Prisma
-  - Updated players.ts and teams.ts imports
-  - Removed Supabase stub files (lib/supabase/client.ts, server.ts)
-  - Updated server components to use NextAuth + Prisma
-  - Removed all Supabase imports from the codebase
-  - Fixed build errors: removed supabase imports, installed dnd-kit
-  - Added MatchTimer model to Prisma schema for Phase 4
-  - Updated use-match-timer hook to use NextAuth session
-  - Build verification passed successfully
-  - Phase 3: 100% complete
+  - Created match lifecycle server actions (startMatch, endMatch, completeMatch, inputFinalResults)
+  - Added validation schemas with Italian error messages
+  - Created useMatchLifecycle hook with toast notifications
+  - Built MatchStatusBadge and MatchLifecycleButtons components
+  - Fixed MatchStatus type to align with Prisma uppercase enum
+  - Added FINISHED status for lifecycle transitions
+  - Added success Badge variant for completed status
+  - Plan 04-02: Complete
 
 ### Next Session
-- **Status:** Phase 3 Complete
-- **Action:** Execute Phase 4: Live Match Experience
-- **When ready:** Run `/gsd-plan-phase 04` to plan next phase
+- **Status:** Phase 4 in Progress (2/6 plans complete)
+- **Action:** Execute Plan 04-03 (Goal/Assist Entry)
+- **When ready:** Run `/gsd-execute-phase 04` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 3 is complete - match management fully functional with Prisma
-3. Read 03-07-SUMMARY.md for database layer details
-4. All database operations now use Prisma ORM
-5. Run `/gsd-plan-phase 04` to plan Live Match Experience
+2. Phase 4 in progress - lifecycle transitions functional
+3. Read 04-02-SUMMARY.md for lifecycle implementation details
+4. MatchStatus uses uppercase values (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED)
+5. Run `/gsd-execute-phase 04` to continue with next plan
 
 ---
 
