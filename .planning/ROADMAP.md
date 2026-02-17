@@ -218,10 +218,25 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 **Research Alignment:** "Season aggregation expected by users; offline match recording enables stats even without connectivity."
 
+**Plans:** 4 plans in 3 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 05-01 | Schema changes (saves field) + statistics aggregation functions | 1 | None | prisma/schema.prisma, lib/db/statistics.ts |
+| 05-02 | Statistics UI (player stats card, team record badge, leaderboards, stats page) | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/*, app/[locale]/teams/[teamId]/stats/* |
+| 05-03 | Match photo upload with compression + gallery | 2 | None | lib/db/match-photos.ts, components/matches/match-photo-*.tsx, browser-image-compression |
+| 05-04 | Integration (navigation, dashboard, history enhancements) | 3 | 05-02, 05-03 | components/navigation/team-nav.tsx, components/dashboard/team-stats-section.tsx, messages/*.json |
+
+**Wave Structure:**
+- **Wave 1:** 05-01 — Database schema + statistics aggregation layer
+- **Wave 2 (Parallel):** 05-02 + 05-03 — Statistics UI + Photo upload (independent features)
+- **Wave 3:** 05-04 — Integration and verification
+
 **Technical Notes:**
-- Stack: browser-image-compression, Supabase Storage
-- Implement: Lazy loading for performance
-- Critical: Client-side image compression before upload
+- Stack: browser-image-compression (new), Prisma aggregations
+- Implement: Lazy loading for photos, on-demand statistics computation
+- Critical: Client-side image compression before upload (max 1MB)
+- Pattern: Base64 photo storage in JSON field for MVP
 
 ---
 
@@ -362,7 +377,7 @@ Phases with standard patterns (skip extra research):
 | Phase 2: Team Management | ✅ Complete | 2026-02-14 | 2026-02-15 |
 | Phase 3: Match Management | ✅ Complete | 2026-02-15 | 2026-02-17 |
 | Phase 4: Match Results & Ratings | ✅ Complete | 2026-02-17 | 2026-02-17 |
-| Phase 5: Post-Match Statistics | 🔴 Not Started | — | — |
+| Phase 5: Post-Match Statistics | 🟡 Planned | 2026-02-17 | — |
 | Phase 6: Rating Trends & History | 🔴 Not Started | — | — |
 | Phase 7: Dashboard & Leaderboards | 🔴 Not Started | — | — |
 | Phase 8: Social & Sharing | 🔴 Not Started | — | — |
