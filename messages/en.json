@@ -555,5 +555,32 @@
     },
     "completedNote": "Goals can be viewed but not modified for completed matches.",
     "completedMatchReadonly": "This match has been completed and results are locked."
+  },
+  "history": {
+    "title": "Match History",
+    "description": "All completed matches",
+    "noMatches": "No completed matches",
+    "noMatchesDescription": "Completed matches will appear here",
+    "noFilteredMatches": "No results found",
+    "noFilteredMatchesDescription": "Try changing the filter",
+    "clearFilter": "Clear filter",
+    "filterAll": "All",
+    "win": "Win",
+    "loss": "Loss",
+    "draw": "Draw",
+    "recentResults": "Recent Results",
+    "viewAll": "View all",
+    "scorers": "Scorers",
+    "topRated": "MVP",
+    "back": "Back",
+    "totalMatches": "Matches",
+    "wins": "Wins",
+    "losses": "Losses",
+    "goalsScored": "Goals scored",
+    "averageRating": "Average rating",
+    "players": "players",
+    "player": "player",
+    "comments": "Comments",
+    "noRatings": "No ratings entered"
   }
 }

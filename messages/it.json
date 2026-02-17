@@ -555,5 +555,32 @@
     },
     "completedNote": "I gol possono essere visualizzati ma non modificati per le partite completate.",
     "completedMatchReadonly": "Questa partita è stata completata e i risultati sono bloccati."
+  },
+  "history": {
+    "title": "Cronologia Partite",
+    "description": "Tutte le partite completate",
+    "noMatches": "Nessuna partita completata",
+    "noMatchesDescription": "Le partite completate appariranno qui",
+    "noFilteredMatches": "Nessun risultato trovato",
+    "noFilteredMatchesDescription": "Prova a cambiare il filtro",
+    "clearFilter": "Cancella filtro",
+    "filterAll": "Tutte",
+    "win": "Vittoria",
+    "loss": "Sconfitta",
+    "draw": "Pareggio",
+    "recentResults": "Risultati Recenti",
+    "viewAll": "Vedi tutte",
+    "scorers": "Marcatori",
+    "topRated": "MVP",
+    "back": "Indietro",
+    "totalMatches": "Partite",
+    "wins": "Vittorie",
+    "losses": "Sconfitte",
+    "goalsScored": "Gol fatti",
+    "averageRating": "Media voti",
+    "players": "giocatori",
+    "player": "giocatore",
+    "comments": "Commenti",
+    "noRatings": "Nessun voto inserito"
   }
 }
