@@ -186,6 +186,48 @@ export interface FormationPosition {
 }
 
 /**
+ * Match event types
+ */
+export type MatchEventType = 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
+
+/**
+ * Match event entity - goals, assists, cards, etc.
+ */
+export interface MatchEvent {
+  id: string;                    // UUID, client-generated
+  match_id: string;
+  event_type: MatchEventType;
+  player_id: string;
+  player_id_secondary?: string;  // For assists, substitutions
+  team_id: string;
+  match_time_seconds: number;
+  match_time_display: string;    // MM:SS format
+  timestamp: string;             // ISO 8601
+  client_timestamp: string;      // Client timestamp for ordering
+  metadata?: {
+    body_part?: 'left_foot' | 'right_foot' | 'head' | 'other';
+    goal_type?: 'open_play' | 'penalty' | 'free_kick' | 'corner';
+    card_reason?: string;
+  };
+  recorded_by: string;
+  sync_status: SyncStatus;
+}
+
+/**
+ * Match timer entity - tracks match timer state
+ */
+export interface MatchTimer {
+  match_id: string;
+  started_at: string | null;
+  paused_at: string | null;
+  total_elapsed_seconds: number;
+  is_running: boolean;
+  updated_by: string;
+  updated_at: string;
+  sync_status: SyncStatus;
+}
+
+/**
  * Action type for offline queue
  */
 export type OfflineActionType = 'create' | 'update' | 'delete';
@@ -193,7 +235,7 @@ export type OfflineActionType = 'create' | 'update' | 'delete';
 /**
  * Table names that support offline actions
  */
-export type OfflineTable = 'teams' | 'players' | 'matches' | 'match_players' | 'formations' | 'formation_positions' | 'team_members' | 'player_teams' | 'team_invites';
+export type OfflineTable = 'teams' | 'players' | 'matches' | 'match_players' | 'formations' | 'formation_positions' | 'team_members' | 'player_teams' | 'team_invites' | 'match_events' | 'match_timers';
 
 /**
  * Offline action - queued mutation to sync later
@@ -288,6 +330,21 @@ export interface CalcettoDB extends DBSchema {
     indexes: {
       'by-formation-id': string;
     };
+  };
+  match_events: {
+    key: string;
+    value: MatchEvent;
+    indexes: {
+      'by-match-id': string;
+      'by-player-id': string;
+      'by-event-type': string;
+      'by-sync-status': string;
+    };
+  };
+  match_timers: {
+    key: string;
+    value: MatchTimer;
+    indexes: {};
   };
   offline_actions: {
     key: string;

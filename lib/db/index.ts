@@ -18,7 +18,7 @@ export const DB_NAME = 'calcetto-manager';
 /**
  * Database version - increment when schema changes
  */
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 /**
  * Database instance cache
@@ -117,6 +117,27 @@ export async function getDB(): Promise<IDBPDatabase<CalcettoDB>> {
         }
 
         console.log('[IndexedDB] Upgraded to v3 - added match management stores');
+      }
+
+      // v4: Add live match experience stores
+      if (oldVersion < 4) {
+        // Add match_events store
+        if (!db.objectStoreNames.contains('match_events')) {
+          const matchEventsStore = db.createObjectStore('match_events', { keyPath: 'id' });
+          matchEventsStore.createIndex('by-match-id', 'match_id');
+          matchEventsStore.createIndex('by-player-id', 'player_id');
+          matchEventsStore.createIndex('by-event-type', 'event_type');
+          matchEventsStore.createIndex('by-sync-status', 'sync_status');
+          console.log('[IndexedDB] Created match_events store');
+        }
+
+        // Add match_timers store
+        if (!db.objectStoreNames.contains('match_timers')) {
+          db.createObjectStore('match_timers', { keyPath: 'match_id' });
+          console.log('[IndexedDB] Created match_timers store');
+        }
+
+        console.log('[IndexedDB] Upgraded to v4 - added live match stores');
       }
 
       // Offline actions queue
