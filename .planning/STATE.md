@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 3 — Match Management  
-**Last Updated:** 2026-02-17 (Phase 3 complete - all match management features integrated and verified)  
+**Last Updated:** 2026-02-17 (Phase 3 complete - all match management features integrated and verified)
 
 ---
 
@@ -39,10 +39,11 @@
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
 | Frontend | React 19 + Next.js 15 | Modern PWA foundation, Turbopack, Actions API |
-| Backend | Supabase | BaaS with PostgreSQL, Auth, Storage, Realtime |
+| Database | Prisma + PostgreSQL | Type-safe ORM with NextAuth integration |
+| Auth | NextAuth.js | Flexible authentication with credentials + OAuth |
 | Offline | idb + Workbox | IndexedDB wrapper, Service Worker management |
 | Styling | Tailwind CSS 4.x + shadcn/ui | Mobile-first, accessible components |
-| Real-time | Supabase Realtime (SSE) | Better than WebSockets for mobile |
+| Real-time | To be determined | WebSockets, SSE, or polling (Phase 4) |
 
 ### v1 Requirements Summary
 - **Total:** 68 requirements
@@ -103,9 +104,15 @@
 | 2026-02-16 | @dnd-kit for drag-and-drop | Better touch support than react-beautiful-dnd, modern API | ✅ Confirmed |
 | 2026-02-16 | Dual input: drag-and-drop + tap-to-place | Essential for mobile accessibility, works with wet fingers | ✅ Confirmed |
 | 2026-02-16 | 9x7 grid for pitch positioning | Enables magnetic snapping, responsive across screen sizes | ✅ Confirmed |
+<<<<<<< HEAD
 | 2026-02-17 | VAPID for web push authentication | Industry standard, prevents unauthorized push servers | ✅ Confirmed |
 | 2026-02-17 | Permission request after first match | Better UX than immediate request, user sees value first | ✅ Confirmed |
 | 2026-02-17 | One subscription per user (simplified) | Covers 95% of use cases, reduces complexity | ✅ Confirmed |
+=======
+| 2026-02-17 | Skipped push notification permission request | Push notifications deferred to future phase per plan | ✅ Confirmed |
+| 2026-02-17 | Migrated database layer from Supabase to Prisma | Project uses NextAuth + Prisma, Supabase was architectural mismatch | ✅ Complete |
+| 2026-02-17 | Created Supabase stubs for build compatibility | Pre-existing architecture mismatch requires Phase-level decision | ✅ Resolved (removed) |
+>>>>>>> dbf9d79 (docs(03-07): complete plan and update state)
 
 ---
 
@@ -600,6 +607,7 @@
 
 ### Last Session
 - **Date:** 2026-02-17
+<<<<<<< HEAD
 - **Activity:** Executed Plan 03-06 (Feature Integration and Verification)
 - **Outcome:** 
   - Integrated Matches tab into team navigation
@@ -610,6 +618,19 @@
   - Completed Italian/English translations for all match features
   - Plan 03-06 SUMMARY.md created
   - Phase 3 officially complete: 100% (6 of 6 plans)
+=======
+- **Activity:** Executed Plan 03-07 (Database Layer Refactor to Prisma)
+- **Outcome:** 
+  - Migrated all database operations from Supabase to Prisma
+  - Created Prisma client singleton in lib/db/index.ts
+  - Refactored matches.ts, rsvps.ts, formations.ts to use Prisma
+  - Updated players.ts and teams.ts imports
+  - Removed Supabase stub files (lib/supabase/client.ts, server.ts)
+  - Updated server components to use NextAuth + Prisma
+  - Removed all Supabase imports from the codebase
+  - Plan 03-07 SUMMARY.md created
+  - Phase 3: 100% complete including gap closure
+>>>>>>> dbf9d79 (docs(03-07): complete plan and update state)
 
 ### Next Session
 - **Status:** Phase 3 Complete
@@ -619,10 +640,17 @@
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
+<<<<<<< HEAD
 2. Check current phase status
 3. Read ROADMAP.md for phase goals and success criteria
 4. Read 03-05-SUMMARY.md for push notification details
 5. Run `/gsd-plan-phase 04` to start next phase
+=======
+2. Phase 3 is complete - match management fully functional with Prisma
+3. Read 03-07-SUMMARY.md for database layer details
+4. All database operations now use Prisma ORM
+5. Run `/gsd-plan-phase 04` to plan Live Match Experience
+>>>>>>> dbf9d79 (docs(03-07): complete plan and update state)
 
 ---
 
