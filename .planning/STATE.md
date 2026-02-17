@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 5 — Post-Match Statistics  
-**Last Updated:** 2026-02-17 (Phase 5 Plan 01 Complete - Statistics Foundation)
+**Last Updated:** 2026-02-17 (Phase 5 Plan 02 Complete - Player Profile + Team Stats Pages)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 5 — Post-Match Statistics |
 | **Phase Goal** | View comprehensive match and player statistics with media support |
-| **Plan** | 01 of 03 |
+| **Plan** | 02 of 03 |
 | **Status** | 🟡 In Progress |
-| **Progress** | 33% |
+| **Progress** | 67% |
 
 ### Phase 5 Progress Bar
 
 ```
-[████████░░░░░░░░░░░░░░] 33%
+[████████████████░░░░░░░░] 67%
 ```
 
-*Plan 01/03 complete: Statistics foundation with side field, RoleSelector redesign, and aggregation module*
+*Plan 02/03 complete: Player profile page, team statistics with 7 leaderboards*
 
 ---
 
@@ -119,6 +119,9 @@
 | 2026-02-17 | RoleSelector primary/other role separation | roles[0] = primary role (required), roles[1:] = other roles (optional) | ✅ Confirmed |
 | 2026-02-17 | Goals conceded only for GKs in GK position | Player must have 'goalkeeper' in roles AND play at positionLabel='GK' | ✅ Confirmed |
 | 2026-02-17 | All statistics from COMPLETED matches only | Statistics aggregation filters by MatchStatus.COMPLETED | ✅ Confirmed |
+| 2026-02-17 | Goals conceded leaderboard: lower = better | Shows best goalkeeper (fewest goals conceded) first | ✅ Confirmed |
+| 2026-02-17 | PlayerStatsCard shows goals_conceded only for GKs | Conditional display based on null check for goals_conceded field | ✅ Confirmed |
+| 2026-02-17 | All leaderboards show top 3 with medal badges | Gold/silver/bronze position badges, consistent visual design | ✅ Confirmed |
 
 ---
 
@@ -707,35 +710,31 @@
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 05-01 (Statistics Foundation)
+- **Activity:** Executed Plan 05-02 (Player Profile + Team Stats Pages)
 - **Outcome:** 
-  - Added side field to FormationPosition for team assignment tracking
-  - Redesigned RoleSelector with primary/other roles separation
-  - Created complete statistics aggregation module with 9 functions
-  - Implemented all 7 leaderboard functions (top 3 each)
-  - Added Italian/English translations
-  - Phase 5: Plan 1 of 3 complete (33%)
+  - Created statistics React hooks (usePlayerStats, useTeamLeaderboards)
+  - Built PlayerStatsCard with goalkeeper goals_conceded section
+  - Implemented PlayerLeaderboard with gold/silver/bronze badges
+  - Added player profile page with full statistics display
+  - Created team stats page with 7 leaderboards (top 3 each)
+  - Phase 5: Plan 2 of 3 complete (67%)
 
 ### Next Session
-- **Status:** Phase 5 In Progress - Plan 01 Complete
-- **Action:** Execute Plan 05-02 (Player Profile + Team Stats Pages)
+- **Status:** Phase 5 In Progress - Plan 02 Complete
+- **Action:** Execute Plan 05-03 (Media Support)
 - **When ready:** Run `/gsd-execute-phase 05` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 5 in progress - statistics foundation complete
-3. Read 05-01-SUMMARY.md for statistics implementation details
-4. FormationPosition.side tracks home/away team assignment
-5. RoleSelector uses primary role (roles[0]) and other roles (roles[1:])
-6. Statistics module at lib/db/statistics.ts provides all aggregation functions
-7. Run `/gsd-execute-phase 05` to continue with Plan 02
-3. Read 04-06-SUMMARY.md for history implementation details
-4. MatchStatus uses uppercase values (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED)
-5. COMPLETED matches show read-only CompletedMatchDetail
-6. Match detail page adapts UI based on match status
-7. History page at /teams/[teamId]/history lists completed matches
-8. Run `/gsd-plan-phase 5` to start next phase
+2. Phase 5 in progress - statistics UI layer complete
+3. Read 05-01-SUMMARY.md for statistics aggregation implementation
+4. Read 05-02-SUMMARY.md for statistics UI implementation
+5. usePlayerStats fetches player stats including goals_conceded for GKs
+6. useTeamLeaderboards fetches all 7 leaderboards (top 3 each)
+7. Player profile at /teams/[teamId]/players/[playerId] shows full stats
+8. Team stats at /teams/[teamId]/stats shows 7 leaderboards
+9. Run `/gsd-execute-phase 05` to continue with Plan 03
 
 ---
 
