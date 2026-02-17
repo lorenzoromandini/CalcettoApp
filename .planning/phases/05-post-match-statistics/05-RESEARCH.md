@@ -10,22 +10,57 @@
 
 Phase 5 builds on Phase 4's goal and rating data to provide aggregated player statistics. The core work involves:
 
-1. **Player Statistics Aggregation** — Goals, assists, appearances, average rating
-2. **Leaderboards** — Top scorers, top assisters, MVP by average rating
-3. **Match History Integration** — Show scorers on completed match cards
+1. **Player Statistics Aggregation** — Goals, assists, appearances, wins, losses, draws, average rating
+2. **Leaderboards** — Top scorers, top assists, top appearances, top wins, top losses, MVP
+3. **Player Profiles** — Individual player pages with full statistics
+4. **Match History Integration** — Show scorers on completed match cards
 
-**Key Insight:** Phase 4 already implemented goals, ratings, and match history display. Phase 5 adds aggregation queries.
+**Key Insight:** Phase 4 already implemented goals, ratings, and match history display. Phase 5 adds aggregation queries and player profile pages.
 
 **Important Clarifications:**
-- **No team records (W/L/D)** — Teams change each match, players are mixed
-- **No goalkeeper saves** — Not tracking saves
+- **No team records (W/L/D)** — Teams change each match, players are shuffled
+- **Win/Loss/Draw stats are INDIVIDUAL** — Calculated per player based on which team they played on
 - **Match sharing via WhatsApp** — Planned for Phase 8 (Social & Sharing)
 
 ---
 
-## 1. Current State Analysis
+## 1. How Teams Work
 
-### 1.1 Existing Database Schema (Phase 4 Complete)
+### Team Assignment in Formation Builder
+
+When creating a match, the formation builder defines two teams:
+
+1. **Home Team (Squadra Casa)** — Left side of the pitch
+   - `positionX < 5` in FormationPosition
+   
+2. **Away Team (Squadra Trasferta)** — Right side of the pitch
+   - `positionX >= 5` in FormationPosition
+
+### Schema Change Needed
+
+Add `side` field to `FormationPosition` to track team assignment:
+
+```prisma
+model FormationPosition {
+  // ... existing fields
+  side String? @map("side")  // 'home' | 'away'
+}
+```
+
+This field is set when the match is completed, based on positionX.
+
+### Win/Loss/Draw Calculation
+
+For each player in a completed match:
+- **Win:** Player was on home side AND homeScore > awayScore, OR player was on away side AND awayScore > homeScore
+- **Loss:** Opposite of win
+- **Draw:** homeScore = awayScore
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Existing Database Schema (Phase 4 Complete)
 
 ```
 Match
@@ -50,9 +85,14 @@ MatchPlayer
 ├── matchId, playerId
 ├── rsvpStatus, played: Boolean
 └── Track who actually played
+
+FormationPosition
+├── positionX (0-8), positionY (0-6)
+├── playerId
+└── isSubstitute
 ```
 
-### 1.2 Already Implemented (Phase 4)
+### 2.2 Already Implemented (Phase 4)
 
 | Feature | Status | Location |
 |---------|--------|----------|
@@ -61,129 +101,102 @@ MatchPlayer
 | Match lifecycle (status flow) | ✅ Complete | `lib/db/match-lifecycle.ts` |
 | Participation tracking | ✅ Complete | `lib/db/player-participation.ts` |
 | Match history card display | ✅ Complete | `components/matches/match-history-card.tsx` |
-| Completed match detail view | ✅ Complete | `components/matches/completed-match-detail.tsx` |
-| Average rating calculation | ✅ Complete | `lib/rating-utils.ts` |
+| Formation builder | ✅ Complete | `components/formations/*` |
+| Roster page | ✅ Complete | `app/[locale]/teams/[teamId]/players/page.tsx` |
 
-### 1.3 Missing for Phase 5
+### 2.3 Missing for Phase 5
 
 | Feature | Gap | Priority |
 |---------|-----|----------|
+| FormationPosition.side field | No field to track team assignment | HIGH |
 | Player career stats aggregation | No aggregation queries exist | HIGH |
-| Leaderboards (scorers, assists, MVP) | No queries exist | HIGH |
+| Win/loss/draw calculation | No queries exist | HIGH |
+| Leaderboards | No queries exist | HIGH |
+| Player profile page | No page exists | HIGH |
 | Scorers on match history cards | Card doesn't show scorers | MEDIUM |
 
 ---
 
-## 2. Technical Research
+## 3. Statistics Functions Needed
 
-### 2.1 Statistics Aggregation Patterns
+### lib/db/statistics.ts
 
-**Player Statistics Query Pattern:**
 ```typescript
-// Goals per player (career)
-SELECT scorer_id, COUNT(*) as goals
-FROM goals g
-JOIN matches m ON g.match_id = m.id
-WHERE m.status = 'COMPLETED' AND g.is_own_goal = false
-GROUP BY scorer_id
+// Player full statistics
+getPlayerStats(playerId, teamId?) → {
+  goals, assists, appearances,
+  wins, losses, draws,
+  avg_rating
+}
 
-// Assists per player (career)
-SELECT assister_id, COUNT(*) as assists
-FROM goals g
-JOIN matches m ON g.match_id = m.id
-WHERE m.status = 'COMPLETED' AND g.assister_id IS NOT NULL
-GROUP BY assister_id
+// Leaderboards
+getTopScorers(teamId, limit?) → [{ player_id, player_name, value }]
+getTopAssisters(teamId, limit?) → [...]
+getTopAppearances(teamId, limit?) → [...]
+getTopWins(teamId, limit?) → [...]
+getTopLosses(teamId, limit?) → [...]
+getTopRatedPlayers(teamId, limit?) → [...]
 
-// Appearances per player
-SELECT mp.player_id, COUNT(*) as appearances
-FROM match_players mp
-JOIN matches m ON mp.match_id = m.id
-WHERE m.status = 'COMPLETED' AND mp.played = true
-GROUP BY mp.player_id
-
-// Average rating per player
-SELECT pr.player_id, AVG(pr.rating) as avg_rating
-FROM player_ratings pr
-JOIN matches m ON pr.match_id = m.id
-WHERE m.status = 'COMPLETED'
-GROUP BY pr.player_id
-```
-
-**Prisma Implementation:**
-- Use `$queryRaw` for complex aggregations
-- Or application-level computation for simpler queries
-
----
-
-## 3. Component Structure Plan
-
-### New Components Needed
-
-```
-components/
-├── statistics/
-│   ├── player-stats-card.tsx      # Individual player career stats
-│   └── player-leaderboard.tsx     # Top scorers, assists, ratings
-```
-
-### New Server Actions
-
-```
-lib/db/
-└── statistics.ts                  # NEW: Aggregation queries
-    ├── getPlayerStats(playerId, teamId?)
-    ├── getTopScorers(teamId, limit?)
-    ├── getTopAssisters(teamId, limit?)
-    ├── getTopRatedPlayers(teamId, limit?)
-    └── getMatchScorers(matchId)
+// Match scorers
+getMatchScorers(matchId) → [{ player_name, count }]
 ```
 
 ---
 
-## 4. Implementation Complexity Assessment
+## 4. Component Structure
+
+### New Components
+
+```
+components/statistics/
+├── player-stats-card.tsx      # Full player stats display
+└── player-leaderboard.tsx     # Top N players by metric
+```
+
+### New Pages
+
+```
+app/[locale]/teams/[teamId]/
+├── players/[playerId]/
+│   └── page.tsx               # Player profile with stats
+└── stats/
+    └── page.tsx               # Team leaderboards
+```
+
+### Modified Components
+
+```
+components/players/player-card.tsx  → Make clickable, link to profile
+components/navigation/team-nav.tsx  → Add Stats tab
+components/matches/match-history-card.tsx → Add scorers
+```
+
+---
+
+## 5. Player Profile Flow
+
+1. User views Roster page (`/teams/[teamId]/players`)
+2. User clicks on a player card
+3. Navigates to player profile (`/teams/[teamId]/players/[playerId]`)
+4. Profile shows:
+   - Player info (name, nickname, avatar, jersey number, roles)
+   - Full statistics (goals, assists, appearances, wins, losses, draws, avg rating)
+
+---
+
+## 6. Implementation Complexity
 
 | Feature | Complexity | Dependencies | Risk |
 |---------|------------|--------------|------|
+| Schema change (side field) | Low | None | Low |
 | Player stats aggregation | Medium | None | Low |
+| Win/loss calculation | Medium | side field | Low |
 | Leaderboards | Low | None | Low |
+| Player profile page | Medium | hooks | Low |
+| Stats page | Low | components | Low |
 | Scorers on history cards | Low | None | Low |
 
 **Overall Risk:** LOW — Well-defined scope, existing patterns to follow.
-
----
-
-## 5. Patterns to Follow
-
-### From Phase 4 (Apply Consistently)
-
-1. **Server Actions:** All mutations in `lib/db/*.ts` with `'use server'`
-2. **React Hooks:** Wrap server actions in `hooks/use-*.ts`
-3. **Italian First:** Error messages in Italian, translations in `messages/it.json`
-4. **Mobile-first:** 48px touch targets, responsive design
-
----
-
-## 6. Summary for PLAN Phase
-
-### What's Already Done
-- ✅ Goal scoring with scorer/assist tracking
-- ✅ Player ratings with 38-value scale
-- ✅ Match history display
-- ✅ Completed match detail view
-- ✅ Match lifecycle management
-- ✅ Participation tracking
-
-### What Needs Implementation
-1. **Statistics Aggregation Layer** — `lib/db/statistics.ts`
-2. **Player Stats UI** — Stats card, leaderboard components
-3. **Team Stats Page** — `/teams/[teamId]/stats`
-4. **Navigation Integration** — Stats tab, scorers on history
-
-### Estimated Scope
-- **Files to Create:** ~6-8
-- **Files to Modify:** ~4-5
-- **Schema Changes:** None
-- **New Dependencies:** None
 
 ---
 

@@ -207,34 +207,42 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 **Requirements:**
 - STAT-01: Match statistics display (scorers in history)
-- STAT-03: Player statistics aggregation (goals, assists, appearances)
+- STAT-03: Player statistics aggregation (goals, assists, appearances, wins, losses, draws)
 - STAT-06: Average rating calculation
+- Player profile page accessible from Roster
 
-**Success Criteria (3 criteria):**
+**Success Criteria (4 criteria):**
 
-1. **Player statistics aggregated over time** — Career totals for goals, assists, appearances per player
-2. **User can view leaderboards** — Top scorers, top assisters, MVP (highest avg rating)
+1. **Player statistics aggregated over time** — Career totals for goals, assists, appearances, wins, losses, draws per player
+2. **User can view leaderboards** — Top scorers, top assists, top appearances, top wins, top losses, MVP
 3. **Match history shows scorers** — Goal scorers displayed on completed match cards
+4. **Player profiles accessible** — Click on player from Roster to see full statistics
 
-**Note:** No team records (W/L/D) because teams change each match. No goalkeeper saves tracking.
+**Important Notes:**
+- No team records (W/L/D) because teams change each match — players are shuffled
+- Win/loss/draw stats are INDIVIDUAL per player, based on which team they played on
+- Teams are defined in Formation builder: Home (left side, positionX < 5) vs Away (right side, positionX >= 5)
 
 **Plans:** 3 plans in 3 waves
 
 | Plan | Objective | Wave | Dependencies | Files |
 |------|-----------|------|--------------|-------|
-| 05-01 | Statistics aggregation functions (goals, assists, appearances, avg rating) | 1 | None | lib/db/statistics.ts |
-| 05-02 | Statistics UI (player stats card, leaderboards, stats page) | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/* |
-| 05-03 | Integration (navigation, match history scorers) | 3 | 05-01, 05-02 | components/navigation/team-nav.tsx, match-history-card.tsx |
+| 05-01 | Add side field to FormationPosition + statistics aggregation functions | 1 | None | prisma/schema.prisma, lib/db/statistics.ts |
+| 05-02 | Player profile page + team stats page with all leaderboards | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/*, players/[playerId], stats/page.tsx |
+| 05-03 | Integration (navigation, clickable player cards, match history scorers) | 3 | 05-01, 05-02 | team-nav.tsx, player-card.tsx, match-history-card.tsx |
 
 **Wave Structure:**
-- **Wave 1:** 05-01 — Statistics aggregation layer
-- **Wave 2:** 05-02 — UI components and stats page
-- **Wave 3:** 05-03 — Navigation integration and match history
+- **Wave 1:** 05-01 — Schema change (side field) + statistics aggregation layer
+- **Wave 2:** 05-02 — Player profile page + team stats page
+- **Wave 3:** 05-03 — Navigation integration, player cards link to profile
 
 **Technical Notes:**
-- Stack: Prisma aggregations
+- Stack: Prisma aggregations ($queryRaw for complex win/loss queries)
 - Statistics only for COMPLETED matches
-- On-demand computation (no caching for MVP)
+- Side determined by positionX in FormationPosition (< 5 = home, >= 5 = away)
+- Win: player on home side and homeScore > awayScore, OR player on away side and awayScore > homeScore
+- Loss: opposite of win
+- Draw: homeScore = awayScore
 
 ---
 
