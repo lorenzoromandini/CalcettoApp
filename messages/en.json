@@ -426,6 +426,31 @@
         "title": "No responses",
         "description": "Be the first to respond!"
       }
+    },
+    "lifecycle": {
+      "startMatch": "Start Match",
+      "endMatch": "End Match",
+      "completeMatch": "Complete Match",
+      "finalResults": "Final Results",
+      "saveResults": "Save Results",
+      "homeScore": "Home Score",
+      "awayScore": "Away Score",
+      "startMatchConfirm": {
+        "title": "Start Match",
+        "description": "Are you sure you want to start the match? You can still edit results after it ends."
+      },
+      "endMatchConfirm": {
+        "title": "End Match",
+        "description": "Are you sure you want to end the match? You can add results and ratings afterwards."
+      },
+      "completeMatchConfirm": {
+        "title": "Complete Match",
+        "description": "Are you sure you want to complete the match? This will lock all edits and add the match to team history."
+      },
+      "finalResultsConfirm": {
+        "title": "Enter Final Results",
+        "description": "Enter the final score. The match will be marked as finished."
+      }
     }
   },
   "formations": {

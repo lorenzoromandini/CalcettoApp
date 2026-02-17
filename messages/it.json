@@ -426,6 +426,31 @@
         "title": "Nessuna risposta",
         "description": "Sii il primo a rispondere!"
       }
+    },
+    "lifecycle": {
+      "startMatch": "Avvia partita",
+      "endMatch": "Termina partita",
+      "completeMatch": "Completa partita",
+      "finalResults": "Risultati finali",
+      "saveResults": "Salva risultati",
+      "homeScore": "Punteggio casa",
+      "awayScore": "Punteggio trasferta",
+      "startMatchConfirm": {
+        "title": "Avvia partita",
+        "description": "Sei sicuro di voler avviare la partita? Potrai comunque modificare i risultati dopo la fine."
+      },
+      "endMatchConfirm": {
+        "title": "Termina partita",
+        "description": "Sei sicuro di voler terminare la partita? Potrai aggiungere risultati e valutazioni dopo."
+      },
+      "completeMatchConfirm": {
+        "title": "Completa partita",
+        "description": "Sei sicuro di voler completare la partita? Questa azione bloccherà tutte le modifiche e la partita verrà aggiunta alla cronologia della squadra."
+      },
+      "finalResultsConfirm": {
+        "title": "Inserisci risultati finali",
+        "description": "Inserisci il punteggio finale. La partita verrà segnata come terminata."
+      }
     }
   },
   "formations": {
