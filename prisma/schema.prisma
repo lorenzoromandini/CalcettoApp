@@ -260,6 +260,7 @@ model FormationPosition {
   positionY     Int     @map("position_y")
   positionLabel String  @map("position_label")
   isSubstitute  Boolean @default(false) @map("is_substitute")
+  side          String? @map("side")  // 'home' | 'away' - set when match completes
 
   formation Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
   player    Player?   @relation(fields: [playerId], references: [id], onDelete: SetNull)
@@ -267,6 +268,7 @@ model FormationPosition {
   @@unique([formationId, positionX, positionY])
   @@index([formationId])
   @@index([playerId])
+  @@index([side])
   @@map("formation_positions")
 }
 
