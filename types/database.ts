@@ -455,6 +455,135 @@ export interface Database {
           }
         ];
       };
+      match_timers: {
+        Row: {
+          match_id: string;
+          started_at: string | null;
+          paused_at: string | null;
+          total_elapsed_seconds: number;
+          is_running: boolean;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          match_id: string;
+          started_at?: string | null;
+          paused_at?: string | null;
+          total_elapsed_seconds?: number;
+          is_running?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          match_id?: string;
+          started_at?: string | null;
+          paused_at?: string | null;
+          total_elapsed_seconds?: number;
+          is_running?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "match_timers_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: true;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_timers_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      match_events: {
+        Row: {
+          id: string;
+          match_id: string;
+          event_type: 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
+          player_id: string;
+          player_id_secondary: string | null;
+          team_id: string;
+          match_time_seconds: number;
+          match_time_display: string;
+          recorded_by: string | null;
+          timestamp: string;
+          client_timestamp: string;
+          metadata: Json | null;
+          sync_status: string | null;
+        };
+        Insert: {
+          id: string;
+          match_id: string;
+          event_type: 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
+          player_id: string;
+          player_id_secondary?: string | null;
+          team_id: string;
+          match_time_seconds: number;
+          match_time_display: string;
+          recorded_by?: string | null;
+          timestamp?: string;
+          client_timestamp: string;
+          metadata?: Json | null;
+          sync_status?: string | null;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          event_type?: 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
+          player_id?: string;
+          player_id_secondary?: string | null;
+          team_id?: string;
+          match_time_seconds?: number;
+          match_time_display?: string;
+          recorded_by?: string | null;
+          timestamp?: string;
+          client_timestamp?: string;
+          metadata?: Json | null;
+          sync_status?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "match_events_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_player_id_secondary_fkey";
+            columns: ["player_id_secondary"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_team_id_fkey";
+            columns: ["team_id"];
+            isOneToOne: false;
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_recorded_by_fkey";
+            columns: ["recorded_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -486,6 +615,12 @@ export interface Database {
         Returns: boolean;
       };
       is_match_participant: {
+        Args: {
+          match_uuid: string;
+        };
+        Returns: boolean;
+      };
+      can_record_match_events: {
         Args: {
           match_uuid: string;
         };
