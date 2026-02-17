@@ -116,7 +116,7 @@ export default function TeamRosterPage() {
               <PlayerCard
                 key={player.id}
                 player={player}
-                onClick={() => {}}
+                teamId={teamId}
               />
             ))
           )}

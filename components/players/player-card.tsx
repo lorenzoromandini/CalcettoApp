@@ -2,12 +2,14 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import Link from 'next/link';
 import { User, Shield, UserCircle, Zap, Target } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import type { Player, PlayerRole } from '@/lib/db/schema';
 
 interface PlayerCardProps {
   player: Player & { jersey_number?: number };
+  teamId: string;
   onClick?: () => void;
 }
 
@@ -18,7 +20,7 @@ const ROLE_ICONS: Record<PlayerRole, typeof Shield> = {
   attacker: Target,
 };
 
-export function PlayerCard({ player, onClick }: PlayerCardProps) {
+export function PlayerCard({ player, teamId, onClick }: PlayerCardProps) {
   const t = useTranslations('players');
 
   const getRoleLabel = (role: PlayerRole) => {
@@ -32,11 +34,14 @@ export function PlayerCard({ player, onClick }: PlayerCardProps) {
     return (first + last).toUpperCase() || player.name?.charAt(0).toUpperCase() || '?';
   };
 
+  const playerProfileUrl = `/teams/${teamId}/players/${player.id}`;
+
   return (
-    <Card
-      className="cursor-pointer transition-all hover:shadow-lg active:scale-[0.98] overflow-hidden group"
-      onClick={onClick}
-    >
+    <Link href={playerProfileUrl}>
+      <Card
+        className="cursor-pointer transition-all hover:shadow-lg hover:bg-accent/50 active:scale-[0.98] overflow-hidden group"
+        onClick={onClick}
+      >
       {/* Card with 3/4 aspect ratio container */}
       <div className="relative aspect-[3/4] w-full">
         {/* Player Image or Placeholder */}
@@ -112,6 +117,7 @@ export function PlayerCard({ player, onClick }: PlayerCardProps) {
           )}
         </div>
       </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }

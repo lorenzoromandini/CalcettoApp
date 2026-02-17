@@ -120,7 +120,7 @@ export function PlayersPageClient({ locale, teamId }: PlayersPageClientProps) {
             <PlayerCard
               key={player.id}
               player={player}
-              onClick={() => handlePlayerClick(player.id)}
+              teamId={teamId}
             />
           ))}
         </div>
