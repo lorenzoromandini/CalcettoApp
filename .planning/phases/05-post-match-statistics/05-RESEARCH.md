@@ -10,17 +10,18 @@
 
 Phase 5 builds on Phase 4's goal and rating data to provide aggregated player statistics. The core work involves:
 
-1. **Player Statistics Aggregation** — Goals, assists, appearances, wins, losses, draws, average rating
-2. **Leaderboards** — Top scorers, top assists, top appearances, top wins, top losses, MVP
+1. **Player Statistics Aggregation** — Goals, assists, appearances, wins, losses, draws, average rating, goals conceded (GK)
+2. **7 Leaderboards (Top 3)** — Scorers, assists, appearances, wins, losses, MVP, best goalkeeper
 3. **Player Profiles** — Individual player pages with full statistics
 4. **Match History Integration** — Show scorers on completed match cards
+5. **RoleSelector Update** — Separate primary role from other roles
 
-**Key Insight:** Phase 4 already implemented goals, ratings, and match history display. Phase 5 adds aggregation queries and player profile pages.
-
-**Important Clarifications:**
+**Key Clarifications:**
 - **No team records (W/L/D)** — Teams change each match, players are shuffled
 - **Win/Loss/Draw stats are INDIVIDUAL** — Calculated per player based on which team they played on
-- **Match sharing via WhatsApp** — Planned for Phase 8 (Social & Sharing)
+- **Goals conceded only for goalkeepers** — Must have roles[0] = 'goalkeeper' AND play in GK position
+- **All leaderboards show TOP 3**
+- **Match sharing via WhatsApp** — Planned for Phase 8
 
 ---
 
@@ -36,9 +37,9 @@ When creating a match, the formation builder defines two teams:
 2. **Away Team (Squadra Trasferta)** — Right side of the pitch
    - `positionX >= 5` in FormationPosition
 
-### Schema Change Needed
+### Schema Change: FormationPosition.side
 
-Add `side` field to `FormationPosition` to track team assignment:
+Add `side` field to track team assignment:
 
 ```prisma
 model FormationPosition {
@@ -47,77 +48,83 @@ model FormationPosition {
 }
 ```
 
-This field is set when the match is completed, based on positionX.
+Set when match is completed, based on positionX.
 
 ### Win/Loss/Draw Calculation
 
 For each player in a completed match:
-- **Win:** Player was on home side AND homeScore > awayScore, OR player was on away side AND awayScore > homeScore
+- **Win:** Player on home side AND homeScore > awayScore, OR player on away side AND awayScore > homeScore
 - **Loss:** Opposite of win
 - **Draw:** homeScore = awayScore
 
 ---
 
-## 2. Current State Analysis
+## 2. Goalkeeper Goals Conceded
 
-### 2.1 Existing Database Schema (Phase 4 Complete)
+### Conditions for Tracking Goals Conceded
 
-```
-Match
-├── status: SCHEDULED | IN_PROGRESS | FINISHED | COMPLETED | CANCELLED
-├── homeScore, awayScore (nullable Int)
-├── scheduledAt, location, mode
-└── relations: goals[], ratings[], players[], formation
+A player gets goals conceded counted ONLY if BOTH conditions are met:
 
-Goal
-├── matchId, teamId, scorerId, assisterId (nullable)
-├── isOwnGoal: Boolean
-├── order: Int (sequential)
-└── relations: scorer, assister (Player)
+1. **Primary role is goalkeeper:** `player.roles[0] = 'goalkeeper'`
+2. **Played in GK position:** `FormationPosition.positionLabel = 'GK'`
 
-PlayerRating
-├── matchId, playerId
-├── rating: Decimal(3,2) - stores 38-value scale
-├── comment: String (nullable)
-└── relations: match, player
+### Examples
 
-MatchPlayer
-├── matchId, playerId
-├── rsvpStatus, played: Boolean
-└── Track who actually played
+| Player | Primary Role | Position in Match | Goals Conceded? |
+|--------|--------------|-------------------|-----------------|
+| Marco | goalkeeper | GK (y=6 or y=0) | ✅ Yes |
+| Luca | attacker | GK (no GK available) | ❌ No |
+| Giuseppe | goalkeeper | DEF (outfield) | ❌ No |
 
-FormationPosition
-├── positionX (0-8), positionY (0-6)
-├── playerId
-└── isSubstitute
-```
+### Calculation
 
-### 2.2 Already Implemented (Phase 4)
-
-| Feature | Status | Location |
-|---------|--------|----------|
-| Goal CRUD with scorer/assist | ✅ Complete | `lib/db/goals.ts` |
-| Rating CRUD with 38-value scale | ✅ Complete | `lib/db/player-ratings.ts` |
-| Match lifecycle (status flow) | ✅ Complete | `lib/db/match-lifecycle.ts` |
-| Participation tracking | ✅ Complete | `lib/db/player-participation.ts` |
-| Match history card display | ✅ Complete | `components/matches/match-history-card.tsx` |
-| Formation builder | ✅ Complete | `components/formations/*` |
-| Roster page | ✅ Complete | `app/[locale]/teams/[teamId]/players/page.tsx` |
-
-### 2.3 Missing for Phase 5
-
-| Feature | Gap | Priority |
-|---------|-----|----------|
-| FormationPosition.side field | No field to track team assignment | HIGH |
-| Player career stats aggregation | No aggregation queries exist | HIGH |
-| Win/loss/draw calculation | No queries exist | HIGH |
-| Leaderboards | No queries exist | HIGH |
-| Player profile page | No page exists | HIGH |
-| Scorers on match history cards | Card doesn't show scorers | MEDIUM |
+- **Home GK:** goals_conceded = awayScore
+- **Away GK:** goals_conceded = homeScore
 
 ---
 
-## 3. Statistics Functions Needed
+## 3. RoleSelector Update
+
+### Current State
+
+Simple multi-select — all roles are equal in the array.
+
+### New Design
+
+```
+┌─────────────────────────────────────┐
+│ Ruolo principale *                  │
+│ [POR] [DIF] [CEN] [ATT]             │  ← Single select (required)
+├─────────────────────────────────────┤
+│ Altri ruoli (opzionale)             │
+│ [POR] [DIF] [CEN] [ATT]             │  ← Multi-select (optional)
+└─────────────────────────────────────┘
+```
+
+### Data Storage
+
+- `roles[0]` = primary role (always present)
+- `roles[1:]` = other roles (optional)
+
+No schema change needed — just UI/UX update.
+
+---
+
+## 4. 7 Leaderboards (Top 3 Each)
+
+| # | Leaderboard | Value | Sort |
+|---|-------------|-------|------|
+| 1 | Top Marcatori | Goals | DESC |
+| 2 | Top Assist | Assists | DESC |
+| 3 | Top Presenze | Appearances | DESC |
+| 4 | Top Vittorie | Wins | DESC |
+| 5 | Top Sconfitte | Losses | DESC |
+| 6 | Top MVP | Avg Rating | DESC |
+| 7 | Miglior Portiere | Goals Conceded | ASC (fewer = better) |
+
+---
+
+## 5. Statistics Functions
 
 ### lib/db/statistics.ts
 
@@ -126,75 +133,51 @@ FormationPosition
 getPlayerStats(playerId, teamId?) → {
   goals, assists, appearances,
   wins, losses, draws,
+  goals_conceded, // only for GKs
   avg_rating
 }
 
-// Leaderboards
-getTopScorers(teamId, limit?) → [{ player_id, player_name, value }]
-getTopAssisters(teamId, limit?) → [...]
-getTopAppearances(teamId, limit?) → [...]
-getTopWins(teamId, limit?) → [...]
-getTopLosses(teamId, limit?) → [...]
-getTopRatedPlayers(teamId, limit?) → [...]
+// 7 Leaderboards (all return top 3)
+getTopScorers(teamId, limit=3)
+getTopAssisters(teamId, limit=3)
+getTopAppearances(teamId, limit=3)
+getTopWins(teamId, limit=3)
+getTopLosses(teamId, limit=3)
+getTopRatedPlayers(teamId, limit=3)
+getTopGoalsConceded(teamId, limit=3)  // ASC order
 
-// Match scorers
-getMatchScorers(matchId) → [{ player_name, count }]
+// Match scorers for history
+getMatchScorers(matchId)
 ```
 
 ---
 
-## 4. Component Structure
+## 6. Player Profile Flow
 
-### New Components
-
-```
-components/statistics/
-├── player-stats-card.tsx      # Full player stats display
-└── player-leaderboard.tsx     # Top N players by metric
-```
-
-### New Pages
-
-```
-app/[locale]/teams/[teamId]/
-├── players/[playerId]/
-│   └── page.tsx               # Player profile with stats
-└── stats/
-    └── page.tsx               # Team leaderboards
-```
-
-### Modified Components
-
-```
-components/players/player-card.tsx  → Make clickable, link to profile
-components/navigation/team-nav.tsx  → Add Stats tab
-components/matches/match-history-card.tsx → Add scorers
-```
-
----
-
-## 5. Player Profile Flow
-
-1. User views Roster page (`/teams/[teamId]/players`)
+1. User views Roster (`/teams/[teamId]/players`)
 2. User clicks on a player card
-3. Navigates to player profile (`/teams/[teamId]/players/[playerId]`)
+3. Navigates to profile (`/teams/[teamId]/players/[playerId]`)
 4. Profile shows:
-   - Player info (name, nickname, avatar, jersey number, roles)
+   - Player info (name, nickname, avatar, jersey number)
+   - Primary role (roles[0])
+   - Other roles (roles[1:])
    - Full statistics (goals, assists, appearances, wins, losses, draws, avg rating)
+   - Goals conceded (if goalkeeper)
 
 ---
 
-## 6. Implementation Complexity
+## 7. Implementation Complexity
 
-| Feature | Complexity | Dependencies | Risk |
-|---------|------------|--------------|------|
-| Schema change (side field) | Low | None | Low |
-| Player stats aggregation | Medium | None | Low |
-| Win/loss calculation | Medium | side field | Low |
-| Leaderboards | Low | None | Low |
-| Player profile page | Medium | hooks | Low |
-| Stats page | Low | components | Low |
-| Scorers on history cards | Low | None | Low |
+| Feature | Complexity | Risk |
+|---------|------------|------|
+| Schema change (side field) | Low | Low |
+| RoleSelector redesign | Low | Low |
+| Player stats aggregation | Medium | Low |
+| Win/loss calculation | Medium | Low |
+| Goals conceded calculation | Medium | Low |
+| Player profile page | Medium | Low |
+| 7 leaderboards | Low | Low |
+| Scorers on history cards | Low | Low |
 
 **Overall Risk:** LOW — Well-defined scope, existing patterns to follow.
 

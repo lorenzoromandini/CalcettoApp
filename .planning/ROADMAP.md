@@ -201,20 +201,21 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 ## Phase 5: Post-Match Statistics
 
-**Goal:** Users can view individual player statistics and team leaderboards
+**Goal:** Users can view individual player statistics and team leaderboards (top 3)
 
 **Dependencies:** Phase 4 (goals and ratings required to calculate statistics)
 
 **Requirements:**
 - STAT-01: Match statistics display (scorers in history)
-- STAT-03: Player statistics aggregation (goals, assists, appearances, wins, losses, draws)
+- STAT-03: Player statistics aggregation (goals, assists, appearances, wins, losses, draws, goals conceded)
 - STAT-06: Average rating calculation
 - Player profile page accessible from Roster
+- Goalkeeper-specific stats (goals conceded)
 
 **Success Criteria (4 criteria):**
 
-1. **Player statistics aggregated over time** — Career totals for goals, assists, appearances, wins, losses, draws per player
-2. **User can view leaderboards** — Top scorers, top assists, top appearances, top wins, top losses, MVP
+1. **Player statistics aggregated over time** — Career totals for goals, assists, appearances, wins, losses, draws, goals conceded (GK only)
+2. **User can view 7 leaderboards (top 3 each)** — Top scorers, top assists, top appearances, top wins, top losses, top MVP, best goalkeeper (fewest goals conceded)
 3. **Match history shows scorers** — Goal scorers displayed on completed match cards
 4. **Player profiles accessible** — Click on player from Roster to see full statistics
 
@@ -222,27 +223,32 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 - No team records (W/L/D) because teams change each match — players are shuffled
 - Win/loss/draw stats are INDIVIDUAL per player, based on which team they played on
 - Teams are defined in Formation builder: Home (left side, positionX < 5) vs Away (right side, positionX >= 5)
+- Goals conceded only for goalkeepers: player.roles[0] = 'goalkeeper' AND played in GK position
+- RoleSelector updated: primary role (roles[0]) separate from other roles (roles[1:])
 
 **Plans:** 3 plans in 3 waves
 
 | Plan | Objective | Wave | Dependencies | Files |
 |------|-----------|------|--------------|-------|
-| 05-01 | Add side field to FormationPosition + statistics aggregation functions | 1 | None | prisma/schema.prisma, lib/db/statistics.ts |
-| 05-02 | Player profile page + team stats page with all leaderboards | 2 | 05-01 | hooks/use-statistics.ts, components/statistics/*, players/[playerId], stats/page.tsx |
+| 05-01 | Add side field + RoleSelector redesign + all stats functions (incl. goals conceded) | 1 | None | prisma/schema.prisma, role-selector.tsx, lib/db/statistics.ts |
+| 05-02 | Player profile page + team stats page (7 leaderboards, top 3 each) | 2 | 05-01 | hooks/use-statistics.ts, players/[playerId]/page.tsx, stats/page.tsx |
 | 05-03 | Integration (navigation, clickable player cards, match history scorers) | 3 | 05-01, 05-02 | team-nav.tsx, player-card.tsx, match-history-card.tsx |
 
 **Wave Structure:**
-- **Wave 1:** 05-01 — Schema change (side field) + statistics aggregation layer
-- **Wave 2:** 05-02 — Player profile page + team stats page
-- **Wave 3:** 05-03 — Navigation integration, player cards link to profile
+- **Wave 1:** 05-01 — Schema (side field) + RoleSelector + statistics functions
+- **Wave 2:** 05-02 — Player profile + team stats page (7 leaderboards)
+- **Wave 3:** 05-03 — Navigation + player cards + match history
 
 **Technical Notes:**
-- Stack: Prisma aggregations ($queryRaw for complex win/loss queries)
+- Stack: Prisma aggregations ($queryRaw for complex queries)
 - Statistics only for COMPLETED matches
-- Side determined by positionX in FormationPosition (< 5 = home, >= 5 = away)
-- Win: player on home side and homeScore > awayScore, OR player on away side and awayScore > homeScore
+- Side determined by positionX (< 5 = home, >= 5 = away)
+- Win: player on home side AND homeScore > awayScore, OR player on away side AND awayScore > homeScore
 - Loss: opposite of win
 - Draw: homeScore = awayScore
+- Goals conceded: only for goalkeepers (roles[0] = 'goalkeeper') in GK position (positionLabel = 'GK')
+- All leaderboards return TOP 3 by default
+- Goals conceded leaderboard: fewer = better (sorted ASC)
 
 ---
 
