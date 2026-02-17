@@ -173,6 +173,22 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 - Avoid: WebSocket-only reliability (Pitfall #1), touch gesture conflicts (Pitfall #5)
 - Critical: Match 'lock mode' to prevent accidental inputs
 
+**Plans:** 6 plans in 3 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 04-01 | Database schema for match timers and events | 1 | None | supabase/migrations/20260217000004_live_match.sql, lib/db/schema.ts, lib/db/index.ts, types/database.ts |
+| 04-02 | Timer system with accuracy and wake lock | 1 | 04-01 | lib/db/match-timers.ts, hooks/use-match-timer.ts, hooks/use-wake-lock.ts |
+| 04-03 | Live scoreboard with real-time updates | 2 | 04-01 | hooks/use-realtime-match.ts, hooks/use-realtime-connection.ts, components/matches/scoreboard.tsx |
+| 04-04 | Event recording with optimistic updates | 2 | 04-01 | lib/db/match-events.ts, hooks/use-match-events.ts, components/matches/event-recorder.tsx |
+| 04-05 | Offline recording with Background Sync | 3 | 04-02, 04-04 | app/sw.ts, lib/db/sync-queue.ts, hooks/use-background-sync.ts |
+| 04-06 | Mobile UI with lock mode and verification | 3 | 04-03, 04-04, 04-05 | components/matches/live-match-page.tsx, components/matches/lock-mode-overlay.tsx, app/[locale]/teams/[teamId]/matches/[matchId]/live/page.tsx |
+
+**Wave Structure:**
+- **Wave 1 (Parallel):** 04-01 + 04-02 — Database foundation + Timer system (independent)
+- **Wave 2 (Parallel):** 04-03 + 04-04 — Realtime scoreboard + Event recording (both need schema)
+- **Wave 3 (Parallel):** 04-05 + 04-06 — Offline sync + Mobile UI with verification (needs timer + events)
+
 ---
 
 ## Phase 5: Post-Match Statistics
