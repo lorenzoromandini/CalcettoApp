@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { createPlayerSchema, type CreatePlayerInput } from '@/lib/validations/player';
 import { AvatarCropper } from './avatar-cropper';
-import { RoleSelector } from './role-selector';
+import { LegacyRoleSelector } from './role-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -236,11 +236,16 @@ export function PlayerForm({ teamId, onSubmit, onCancel }: PlayerFormProps) {
             )}
           </div>
 
-          {/* Roles */}
-          <RoleSelector
+{/* Roles - roles[0] = primary role (required), roles[1:] = other roles */}
+          <LegacyRoleSelector
             value={form.watch('roles') as PlayerRole[]}
             onChange={(roles) => form.setValue('roles', roles)}
           />
+          {form.formState.errors.roles && (
+            <p className="text-sm text-destructive">
+              {form.formState.errors.roles.message}
+            </p>
+          )}
 
           {/* Actions */}
           <div className="flex gap-2 pt-4">

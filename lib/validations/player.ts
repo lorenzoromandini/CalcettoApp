@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import type { PlayerRole } from '@/lib/db/schema';
 
+// Player roles enum
+const playerRoles = ['goalkeeper', 'defender', 'midfielder', 'attacker'] as const;
+
 export const createPlayerSchema = z.object({
   name: z
     .string()
@@ -22,7 +25,10 @@ export const createPlayerSchema = z.object({
     .min(1, 'Il numero deve essere tra 1 e 99')
     .max(99, 'Il numero deve essere tra 1 e 99')
     .optional(),
-  roles: z.array(z.enum(['goalkeeper', 'defender', 'midfielder', 'attacker'])),
+  // roles[0] = primary role (required), roles[1:] = other roles (optional)
+  roles: z
+    .array(z.enum(playerRoles))
+    .min(1, 'Seleziona almeno un ruolo principale'),
 });
 
 export const updatePlayerSchema = createPlayerSchema.partial();

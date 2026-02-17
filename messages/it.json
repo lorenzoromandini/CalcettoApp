@@ -172,7 +172,7 @@
       "midfielder": "Centrocampista",
       "attacker": "Attaccante"
     },
-    "form": {
+"form": {
       "name": "Nome",
       "namePlaceholder": "Inserisci il nome",
       "surname": "Cognome",
@@ -182,6 +182,9 @@
       "jerseyNumber": "Numero maglia",
       "roles": "Ruoli",
       "rolesHint": "Seleziona uno o più ruoli",
+      "primaryRole": "Ruolo principale",
+      "otherRoles": "Altri ruoli (opzionale)",
+      "otherRolesHint": "Ruoli secondari che il giocatore può ricoprire",
       "avatar": "Foto profilo",
       "cancel": "Annulla",
       "save": "Salva",

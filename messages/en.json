@@ -172,7 +172,7 @@
       "midfielder": "Midfielder",
       "attacker": "Attacker"
     },
-    "form": {
+"form": {
       "name": "Name",
       "namePlaceholder": "Enter name",
       "surname": "Surname",
@@ -182,6 +182,9 @@
       "jerseyNumber": "Jersey number",
       "roles": "Roles",
       "rolesHint": "Select one or more roles",
+      "primaryRole": "Primary role",
+      "otherRoles": "Other roles (optional)",
+      "otherRolesHint": "Secondary roles the player can cover",
       "avatar": "Profile photo",
       "cancel": "Cancel",
       "save": "Save",
