@@ -2,22 +2,22 @@
  * Match Timer Database Operations
  * 
  * Provides CRUD operations for match timers with offline-first support.
- * Integrates with Supabase for server sync and IndexedDB for local caching.
+ * Uses Prisma for server sync and IndexedDB for local caching.
  * 
  * @see RESEARCH.md Pattern 1 for timer state management
  */
 
 import { getDB, DB_VERSION } from './index';
 import { queueOfflineAction } from './actions';
+import { prisma } from '@/lib/prisma';
 import type { MatchTimer } from './schema';
 
 // ============================================================================
-// Supabase Client (Dynamic Import for SSR compatibility)
+// Prisma Client (singleton)
 // ============================================================================
 
-async function getSupabaseClient() {
-  const { createClient } = await import('@/lib/supabase/client');
-  return createClient();
+function getPrismaClient() {
+  return prisma;
 }
 
 // ============================================================================
@@ -59,32 +59,30 @@ export async function getMatchTimer(matchId: string): Promise<MatchTimer | null>
   const localTimer = await getTimerFromIndexedDB(matchId);
   
   try {
-    // Try to fetch from Supabase
-    const supabase = await getSupabaseClient();
+    // Try to fetch from Prisma
+    const db = getPrismaClient();
     
-    const { data, error } = await supabase
-      .from('match_timers')
-      .select('*')
-      .eq('match_id', matchId)
-      .single();
+    const timer = await db.matchTimer.findUnique({
+      where: { matchId },
+    });
 
-    if (!error && data) {
+    if (timer) {
       // Convert server data to local format
-      const timer: MatchTimer = {
-        match_id: data.match_id,
-        started_at: data.started_at,
-        paused_at: data.paused_at,
-        total_elapsed_seconds: data.total_elapsed_seconds ?? 0,
-        is_running: data.is_running ?? false,
-        updated_by: data.updated_by,
-        updated_at: data.updated_at,
+      const timerData: MatchTimer = {
+        match_id: timer.matchId,
+        started_at: timer.startedAt?.toISOString() ?? null,
+        paused_at: timer.pausedAt?.toISOString() ?? null,
+        total_elapsed_seconds: timer.totalElapsedSeconds,
+        is_running: timer.isRunning,
+        updated_by: timer.updatedBy || '',
+        updated_at: timer.updatedAt.toISOString(),
         sync_status: 'synced',
       };
       
       // Update local cache
-      await saveTimerToIndexedDB(timer);
+      await saveTimerToIndexedDB(timerData);
       
-      return timer;
+      return timerData;
     }
   } catch (error) {
     console.log('[MatchTimerDB] Using cached timer for match:', matchId);
@@ -99,45 +97,44 @@ export async function getMatchTimer(matchId: string): Promise<MatchTimer | null>
  * Creates new timer record or resets existing
  * 
  * @param matchId - Match ID to start timer for
+ * @param userId - User ID starting the timer
  */
-export async function startMatchTimer(matchId: string): Promise<void> {
-  const now = new Date().toISOString();
-  const userId = await getCurrentUserId();
+export async function startMatchTimer(matchId: string, userId: string): Promise<void> {
+  const now = new Date();
   
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
-
   const timer: MatchTimer = {
     match_id: matchId,
-    started_at: now,
+    started_at: now.toISOString(),
     paused_at: null,
     total_elapsed_seconds: 0,
     is_running: true,
     updated_by: userId,
-    updated_at: now,
+    updated_at: now.toISOString(),
     sync_status: 'pending',
   };
 
   try {
-    // Try to sync with Supabase
-    const supabase = await getSupabaseClient();
+    // Try to sync with Prisma
+    const db = getPrismaClient();
     
-    const { error } = await supabase
-      .from('match_timers')
-      .upsert({
-        match_id: matchId,
-        started_at: now,
-        paused_at: null,
-        total_elapsed_seconds: 0,
-        is_running: true,
-        updated_by: userId,
-        updated_at: now,
-      }, {
-        onConflict: 'match_id',
-      });
-
-    if (error) throw error;
+    await db.matchTimer.upsert({
+      where: { matchId },
+      update: {
+        startedAt: now,
+        pausedAt: null,
+        totalElapsedSeconds: 0,
+        isRunning: true,
+        updatedBy: userId,
+      },
+      create: {
+        matchId,
+        startedAt: now,
+        pausedAt: null,
+        totalElapsedSeconds: 0,
+        isRunning: true,
+        updatedBy: userId,
+      },
+    });
 
     // Mark as synced
     timer.sync_status = 'synced';
@@ -148,12 +145,12 @@ export async function startMatchTimer(matchId: string): Promise<void> {
     
     await queueOfflineAction('create', 'match_timers', {
       match_id: matchId,
-      started_at: now,
+      started_at: now.toISOString(),
       paused_at: null,
       total_elapsed_seconds: 0,
       is_running: true,
       updated_by: userId,
-      updated_at: now,
+      updated_at: now.toISOString(),
     });
   }
 
@@ -167,45 +164,44 @@ export async function startMatchTimer(matchId: string): Promise<void> {
  * 
  * @param matchId - Match ID to pause timer for
  * @param elapsedSeconds - Current elapsed seconds to save
+ * @param userId - User ID pausing the timer
  */
-export async function pauseMatchTimer(matchId: string, elapsedSeconds: number): Promise<void> {
-  const now = new Date().toISOString();
-  const userId = await getCurrentUserId();
+export async function pauseMatchTimer(matchId: string, elapsedSeconds: number, userId: string): Promise<void> {
+  const now = new Date();
   
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
-
   const timer: MatchTimer = {
     match_id: matchId,
     started_at: null,
-    paused_at: now,
+    paused_at: now.toISOString(),
     total_elapsed_seconds: elapsedSeconds,
     is_running: false,
     updated_by: userId,
-    updated_at: now,
+    updated_at: now.toISOString(),
     sync_status: 'pending',
   };
 
   try {
-    // Try to sync with Supabase
-    const supabase = await getSupabaseClient();
+    // Try to sync with Prisma
+    const db = getPrismaClient();
     
-    const { error } = await supabase
-      .from('match_timers')
-      .upsert({
-        match_id: matchId,
-        started_at: null,
-        paused_at: now,
-        total_elapsed_seconds: elapsedSeconds,
-        is_running: false,
-        updated_by: userId,
-        updated_at: now,
-      }, {
-        onConflict: 'match_id',
-      });
-
-    if (error) throw error;
+    await db.matchTimer.upsert({
+      where: { matchId },
+      update: {
+        startedAt: null,
+        pausedAt: now,
+        totalElapsedSeconds: elapsedSeconds,
+        isRunning: false,
+        updatedBy: userId,
+      },
+      create: {
+        matchId,
+        startedAt: null,
+        pausedAt: now,
+        totalElapsedSeconds: elapsedSeconds,
+        isRunning: false,
+        updatedBy: userId,
+      },
+    });
 
     // Mark as synced
     timer.sync_status = 'synced';
@@ -217,11 +213,11 @@ export async function pauseMatchTimer(matchId: string, elapsedSeconds: number): 
     await queueOfflineAction('update', 'match_timers', {
       match_id: matchId,
       started_at: null,
-      paused_at: now,
+      paused_at: now.toISOString(),
       total_elapsed_seconds: elapsedSeconds,
       is_running: false,
       updated_by: userId,
-      updated_at: now,
+      updated_at: now.toISOString(),
     });
   }
 
@@ -235,45 +231,44 @@ export async function pauseMatchTimer(matchId: string, elapsedSeconds: number): 
  * 
  * @param matchId - Match ID to resume timer for
  * @param elapsedSeconds - Elapsed seconds before resuming (preserved)
+ * @param userId - User ID resuming the timer
  */
-export async function resumeMatchTimer(matchId: string, elapsedSeconds: number): Promise<void> {
-  const now = new Date().toISOString();
-  const userId = await getCurrentUserId();
+export async function resumeMatchTimer(matchId: string, elapsedSeconds: number, userId: string): Promise<void> {
+  const now = new Date();
   
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
-
   const timer: MatchTimer = {
     match_id: matchId,
-    started_at: now,
+    started_at: now.toISOString(),
     paused_at: null,
     total_elapsed_seconds: elapsedSeconds,
     is_running: true,
     updated_by: userId,
-    updated_at: now,
+    updated_at: now.toISOString(),
     sync_status: 'pending',
   };
 
   try {
-    // Try to sync with Supabase
-    const supabase = await getSupabaseClient();
+    // Try to sync with Prisma
+    const db = getPrismaClient();
     
-    const { error } = await supabase
-      .from('match_timers')
-      .upsert({
-        match_id: matchId,
-        started_at: now,
-        paused_at: null,
-        total_elapsed_seconds: elapsedSeconds,
-        is_running: true,
-        updated_by: userId,
-        updated_at: now,
-      }, {
-        onConflict: 'match_id',
-      });
-
-    if (error) throw error;
+    await db.matchTimer.upsert({
+      where: { matchId },
+      update: {
+        startedAt: now,
+        pausedAt: null,
+        totalElapsedSeconds: elapsedSeconds,
+        isRunning: true,
+        updatedBy: userId,
+      },
+      create: {
+        matchId,
+        startedAt: now,
+        pausedAt: null,
+        totalElapsedSeconds: elapsedSeconds,
+        isRunning: true,
+        updatedBy: userId,
+      },
+    });
 
     // Mark as synced
     timer.sync_status = 'synced';
@@ -284,12 +279,12 @@ export async function resumeMatchTimer(matchId: string, elapsedSeconds: number):
     
     await queueOfflineAction('update', 'match_timers', {
       match_id: matchId,
-      started_at: now,
+      started_at: now.toISOString(),
       paused_at: null,
       total_elapsed_seconds: elapsedSeconds,
       is_running: true,
       updated_by: userId,
-      updated_at: now,
+      updated_at: now.toISOString(),
     });
   }
 
@@ -302,15 +297,11 @@ export async function resumeMatchTimer(matchId: string, elapsedSeconds: number):
  * Clears timer state
  * 
  * @param matchId - Match ID to reset timer for
+ * @param userId - User ID resetting the timer
  */
-export async function resetMatchTimer(matchId: string): Promise<void> {
-  const now = new Date().toISOString();
-  const userId = await getCurrentUserId();
+export async function resetMatchTimer(matchId: string, userId: string): Promise<void> {
+  const now = new Date();
   
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
-
   const timer: MatchTimer = {
     match_id: matchId,
     started_at: null,
@@ -318,29 +309,32 @@ export async function resetMatchTimer(matchId: string): Promise<void> {
     total_elapsed_seconds: 0,
     is_running: false,
     updated_by: userId,
-    updated_at: now,
+    updated_at: now.toISOString(),
     sync_status: 'pending',
   };
 
   try {
-    // Try to sync with Supabase
-    const supabase = await getSupabaseClient();
+    // Try to sync with Prisma
+    const db = getPrismaClient();
     
-    const { error } = await supabase
-      .from('match_timers')
-      .upsert({
-        match_id: matchId,
-        started_at: null,
-        paused_at: null,
-        total_elapsed_seconds: 0,
-        is_running: false,
-        updated_by: userId,
-        updated_at: now,
-      }, {
-        onConflict: 'match_id',
-      });
-
-    if (error) throw error;
+    await db.matchTimer.upsert({
+      where: { matchId },
+      update: {
+        startedAt: null,
+        pausedAt: null,
+        totalElapsedSeconds: 0,
+        isRunning: false,
+        updatedBy: userId,
+      },
+      create: {
+        matchId,
+        startedAt: null,
+        pausedAt: null,
+        totalElapsedSeconds: 0,
+        isRunning: false,
+        updatedBy: userId,
+      },
+    });
 
     // Mark as synced
     timer.sync_status = 'synced';
@@ -356,7 +350,7 @@ export async function resetMatchTimer(matchId: string): Promise<void> {
       total_elapsed_seconds: 0,
       is_running: false,
       updated_by: userId,
-      updated_at: now,
+      updated_at: now.toISOString(),
     });
   }
 
@@ -385,21 +379,6 @@ async function saveTimerToIndexedDB(timer: MatchTimer): Promise<void> {
     console.log('[MatchTimerDB] Timer saved to IndexedDB:', timer.match_id);
   } catch (error) {
     console.error('[MatchTimerDB] Failed to save to IndexedDB:', error);
-  }
-}
-
-/**
- * Get current user ID from session
- */
-async function getCurrentUserId(): Promise<string | null> {
-  try {
-    // Dynamic import to avoid SSR issues
-    const { getSession } = await import('next-auth/react');
-    const session = await getSession();
-    return session?.user?.id ?? null;
-  } catch (error) {
-    console.error('[MatchTimerDB] Failed to get user session:', error);
-    return null;
   }
 }
 

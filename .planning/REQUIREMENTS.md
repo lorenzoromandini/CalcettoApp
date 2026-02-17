@@ -7,39 +7,39 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign up with email and password
-- [ ] **AUTH-02**: User can sign up with Google OAuth
+- [x] **AUTH-01**: User can sign up with email and password
+- [x] **AUTH-02**: User can sign up with Google OAuth
 - [ ] **AUTH-03**: User receives email verification after signup
-- [ ] **AUTH-04**: User can reset password via email link
-- [ ] **AUTH-05**: User session persists across browser refresh
-- [ ] **AUTH-06**: User can log out from any page
+- [x] **AUTH-04**: User can reset password via email link
+- [x] **AUTH-05**: User session persists across browser refresh
+- [x] **AUTH-06**: User can log out from any page
 
 ### Team Management
 
-- [ ] **TEAM-01**: User can create a team with name and description
-- [ ] **TEAM-02**: User can add players to team with name, surname, nickname, and jersey number (jersey number is unique within team and required)
-- [ ] **TEAM-02a**: A player can belong to multiple teams with different jersey numbers in each team
-- [ ] **TEAM-03**: User can upload player avatar with automatic square cropping
-- [ ] **TEAM-04**: User can assign multiple roles to players (goalkeeper, defender, midfielder, attacker)
-- [ ] **TEAM-05**: User can generate invite link to share via WhatsApp/email
-- [ ] **TEAM-06**: Invited users can join team via link
-- [ ] **TEAM-07**: Team admin can remove players from team
-- [ ] **TEAM-08**: Team admin can assign co-admin privileges
-- [ ] **TEAM-09**: User can view team roster with player details (including jersey numbers)
-- [ ] **TEAM-10**: Support both 5-a-side and 8-a-side team modes
+- [x] **TEAM-01**: User can create a team with name and description
+- [x] **TEAM-02**: User can add players to team with name, surname, nickname, and jersey number (jersey number is unique within team and required)
+- [x] **TEAM-02a**: A player can belong to multiple teams with different jersey numbers in each team
+- [x] **TEAM-03**: User can upload player avatar with automatic square cropping
+- [x] **TEAM-04**: User can assign multiple roles to players (goalkeeper, defender, midfielder, attacker)
+- [x] **TEAM-05**: User can generate invite link to share via WhatsApp/email
+- [x] **TEAM-06**: Invited users can join team via link
+- [x] **TEAM-07**: Team admin can remove players from team
+- [x] **TEAM-08**: Team admin can assign co-admin privileges
+- [x] **TEAM-09**: User can view team roster with player details (including jersey numbers)
+- [x] **TEAM-10**: Support both 5-a-side and 8-a-side team modes
 
 ### Match Management
 
-- [ ] **MATCH-01**: User can create match with date, time, location
-- [ ] **MATCH-02**: User can select match mode (5vs5 or 8vs8)
-- [ ] **MATCH-03**: User can select formation module based on match mode
-- [ ] **MATCH-04**: User can assign players to match via RSVP system (IN/OUT/Maybe)
-- [ ] **MATCH-05**: System displays availability count (confirmed players)
-- [ ] **MATCH-06**: User can build formation with drag-and-drop interface
-- [ ] **MATCH-07**: User can view match list with upcoming and past matches
-- [ ] **MATCH-08**: User can edit match details before start
-- [ ] **MATCH-09**: User can cancel match
-- [ ] **MATCH-10**: System sends push notification reminders before match
+- [x] **MATCH-01**: User can create match with date, time, location
+- [x] **MATCH-02**: User can select match mode (5vs5 or 8vs8)
+- [x] **MATCH-03**: User can select formation module based on match mode
+- [x] **MATCH-04**: User can assign players to match via RSVP system (IN/OUT/Maybe)
+- [x] **MATCH-05**: System displays availability count (confirmed players)
+- [x] **MATCH-06**: User can build formation with drag-and-drop interface
+- [x] **MATCH-07**: User can view match list with upcoming and past matches
+- [x] **MATCH-08**: User can edit match details before start
+- [x] **MATCH-09**: User can cancel match
+- [x] **MATCH-10**: System sends push notification reminders before match
 
 ### Live Match Experience
 
@@ -92,19 +92,19 @@
 
 ### Offline Support
 
-- [ ] **OFFL-01**: App works offline with cached data
-- [ ] **OFFL-02**: User actions queue when offline
-- [ ] **OFFL-03**: System syncs queued actions when connection restored
-- [ ] **OFFL-04**: Service Worker caches app shell for instant load
-- [ ] **OFFL-05**: Background sync for match statistics
+- [x] **OFFL-01**: App works offline with cached data
+- [x] **OFFL-02**: User actions queue when offline
+- [x] **OFFL-03**: System syncs queued actions when connection restored
+- [x] **OFFL-04**: Service Worker caches app shell for instant load
+- [x] **OFFL-05**: Background sync for match statistics
 
 ### UI/UX
 
-- [ ] **UIUX-01**: Mobile-first responsive design
-- [ ] **UIUX-02**: Touch-friendly interface with 44px+ touch targets
-- [ ] **UIUX-03**: Dark/light theme support
-- [ ] **UIUX-04**: Italian and English language support
-- [ ] **UIUX-05**: Onboarding tutorial for new users
+- [x] **UIUX-01**: Mobile-first responsive design
+- [x] **UIUX-02**: Touch-friendly interface with 44px+ touch targets
+- [x] **UIUX-03**: Dark/light theme support
+- [x] **UIUX-04**: Italian and English language support
+- [x] **UIUX-05**: Onboarding tutorial for new users
 - [ ] **UIUX-06**: Loading times under 2 seconds
 - [ ] **UIUX-07**: Lazy loading for images and statistics
 
@@ -149,50 +149,50 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | 🔴 Not Started |
-| AUTH-02 | Phase 1 | 🔴 Not Started |
+| AUTH-01 | Phase 1 | ✅ Complete |
+| AUTH-02 | Phase 1 | ✅ Complete |
 | AUTH-03 | Phase 1 | 🔴 Not Started |
-| AUTH-04 | Phase 1 | 🔴 Not Started |
-| AUTH-05 | Phase 1 | 🔴 Not Started |
-| AUTH-06 | Phase 1 | 🔴 Not Started |
-| OFFL-01 | Phase 1 | 🔴 Not Started |
-| OFFL-02 | Phase 1 | 🔴 Not Started |
-| OFFL-03 | Phase 1 | 🔴 Not Started |
-| OFFL-04 | Phase 1 | 🔴 Not Started |
-| OFFL-05 | Phase 1 | 🔴 Not Started |
-| UIUX-03 | Phase 1 | 🔴 Not Started |
-| UIUX-04 | Phase 1 | 🔴 Not Started |
-| UIUX-05 | Phase 1 | 🔴 Not Started |
+| AUTH-04 | Phase 1 | ✅ Complete |
+| AUTH-05 | Phase 1 | ✅ Complete |
+| AUTH-06 | Phase 1 | ✅ Complete |
+| OFFL-01 | Phase 1 | ✅ Complete |
+| OFFL-02 | Phase 1 | ✅ Complete |
+| OFFL-03 | Phase 1 | ✅ Complete |
+| OFFL-04 | Phase 1 | ✅ Complete |
+| OFFL-05 | Phase 1 | ✅ Complete |
+| UIUX-03 | Phase 1 | ✅ Complete |
+| UIUX-04 | Phase 1 | ✅ Complete |
+| UIUX-05 | Phase 1 | ✅ Complete |
 
 ### Phase 2: Team Management (10 requirements)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TEAM-01 | Phase 2 | 🔴 Not Started |
-| TEAM-02 | Phase 2 | 🔴 Not Started |
-| TEAM-03 | Phase 2 | 🔴 Not Started |
-| TEAM-04 | Phase 2 | 🔴 Not Started |
-| TEAM-05 | Phase 2 | 🔴 Not Started |
-| TEAM-06 | Phase 2 | 🔴 Not Started |
-| TEAM-07 | Phase 2 | 🔴 Not Started |
-| TEAM-08 | Phase 2 | 🔴 Not Started |
-| TEAM-09 | Phase 2 | 🔴 Not Started |
-| TEAM-10 | Phase 2 | 🔴 Not Started |
+| TEAM-01 | Phase 2 | ✅ Complete |
+| TEAM-02 | Phase 2 | ✅ Complete |
+| TEAM-03 | Phase 2 | ✅ Complete |
+| TEAM-04 | Phase 2 | ✅ Complete |
+| TEAM-05 | Phase 2 | ✅ Complete |
+| TEAM-06 | Phase 2 | ✅ Complete |
+| TEAM-07 | Phase 2 | ✅ Complete |
+| TEAM-08 | Phase 2 | ✅ Complete |
+| TEAM-09 | Phase 2 | ✅ Complete |
+| TEAM-10 | Phase 2 | ✅ Complete |
 
 ### Phase 3: Match Management (10 requirements)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MATCH-01 | Phase 3 | 🔴 Not Started |
-| MATCH-02 | Phase 3 | 🔴 Not Started |
-| MATCH-03 | Phase 3 | 🔴 Not Started |
-| MATCH-04 | Phase 3 | 🔴 Not Started |
-| MATCH-05 | Phase 3 | 🔴 Not Started |
-| MATCH-06 | Phase 3 | 🔴 Not Started |
-| MATCH-07 | Phase 3 | 🔴 Not Started |
-| MATCH-08 | Phase 3 | 🔴 Not Started |
-| MATCH-09 | Phase 3 | 🔴 Not Started |
-| MATCH-10 | Phase 3 | 🔴 Not Started |
+| MATCH-01 | Phase 3 | ✅ Complete |
+| MATCH-02 | Phase 3 | ✅ Complete |
+| MATCH-03 | Phase 3 | ✅ Complete |
+| MATCH-04 | Phase 3 | ✅ Complete |
+| MATCH-05 | Phase 3 | ✅ Complete |
+| MATCH-06 | Phase 3 | ✅ Complete |
+| MATCH-07 | Phase 3 | ✅ Complete |
+| MATCH-08 | Phase 3 | ✅ Complete |
+| MATCH-09 | Phase 3 | ✅ Complete |
+| MATCH-10 | Phase 3 | ✅ Complete |
 
 ### Phase 4: Live Match Experience (8 requirements)
 
@@ -258,16 +258,16 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UIUX-01 | All | 🔴 Not Started |
-| UIUX-02 | All | 🔴 Not Started |
+| UIUX-01 | All | ✅ Complete |
+| UIUX-02 | All | ✅ Complete |
 | UIUX-06 | All | 🔴 Not Started |
 
 **Coverage Summary:**
 - v1 requirements: 68 total
 - Mapped to phases: 68
-- Unmapped: 0 ✓
-- Per-phase distribution: P1(14), P2(10), P3(10), P4(8), P5(9), P6(6), P7(8), P8(4)
+- Completed: 34/68 (~50%)
+- Per-phase distribution: P1(13/14), P2(10/10), P3(10/10), P4(0/8), P5(0/9), P6(0/6), P7(0/8), P8(0/4)
 
 ---
 *Requirements defined: 2026-02-13*
-*Last updated: 2026-02-13 after initial definition*
+*Last updated: 2026-02-17 after build verification*

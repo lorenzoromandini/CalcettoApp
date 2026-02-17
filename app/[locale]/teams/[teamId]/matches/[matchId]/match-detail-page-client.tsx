@@ -18,7 +18,7 @@ import { AvailabilityCounter } from "@/components/matches/availability-counter";
 import { isTeamAdmin } from "@/lib/db/teams";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useSession } from "next-auth/react";
 import type { Match, RSVPStatus } from "@/lib/db/schema";
 import {
   AlertDialog,
@@ -71,31 +71,29 @@ export function MatchDetailPageClient({
     refetchRSVPs();
   });
 
+  const { data: session } = useSession();
+  
   useEffect(() => {
     async function loadUserData() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!session?.user?.id) return;
       
-      if (user) {
-        setCurrentUserId(user.id);
-        
-        // Check admin status
-        const admin = await isTeamAdmin(teamId, user.id);
-        setIsAdmin(admin);
-        
-        // Find current player's ID from team players
-        // Player with matching user_id
-        const currentPlayer = teamPlayers.find(p => p.user_id === user.id);
-        if (currentPlayer) {
-          setCurrentPlayerId(currentPlayer.id);
-        }
+      setCurrentUserId(session.user.id);
+      
+      // Check admin status
+      const admin = await isTeamAdmin(teamId, session.user.id);
+      setIsAdmin(admin);
+      
+      // Find current player's ID from team players
+      const currentPlayer = teamPlayers.find(p => p.user_id === session.user.id);
+      if (currentPlayer) {
+        setCurrentPlayerId(currentPlayer.id);
       }
     }
     
-    if (teamPlayers.length > 0) {
+    if (teamPlayers.length > 0 && session?.user?.id) {
       loadUserData();
     }
-  }, [teamId, teamPlayers]);
+  }, [teamId, teamPlayers, session]);
 
   const handleBack = () => {
     router.push(`/${locale}/teams/${teamId}/matches`);

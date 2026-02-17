@@ -11,6 +11,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import { startMatchTimer, pauseMatchTimer, resumeMatchTimer } from '@/lib/db/match-timers';
 
 export type TimerStatus = 'idle' | 'running' | 'paused';
@@ -96,6 +97,8 @@ export function useMatchTimer(
   matchId: string,
   initialElapsedSeconds = 0
 ): UseMatchTimerReturn {
+  const { data: session } = useSession();
+  
   // State
   const [elapsedMs, setElapsedMs] = useState(initialElapsedSeconds * 1000);
   const [isRunning, setIsRunning] = useState(false);
@@ -112,11 +115,14 @@ export function useMatchTimer(
    */
   const syncToServer = useCallback(
     debounce(async (seconds: number, timerStatus: TimerStatus) => {
+      const userId = session?.user?.id;
+      if (!userId) return;
+      
       try {
         if (timerStatus === 'running') {
-          await resumeMatchTimer(matchId, seconds);
+          await resumeMatchTimer(matchId, seconds, userId);
         } else if (timerStatus === 'paused') {
-          await pauseMatchTimer(matchId, seconds);
+          await pauseMatchTimer(matchId, seconds, userId);
         }
         lastSyncRef.current = Date.now();
         console.log('[MatchTimer] Synced to server:', seconds, 'status:', timerStatus);
@@ -124,13 +130,16 @@ export function useMatchTimer(
         console.error('[MatchTimer] Failed to sync timer:', error);
       }
     }, 5000),
-    [matchId]
+    [matchId, session]
   );
 
   /**
    * Start the timer from zero
    */
   const start = useCallback(async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+    
     const now = performance.now();
     startTimeRef.current = now;
     pausedElapsedRef.current = 0;
@@ -139,17 +148,20 @@ export function useMatchTimer(
     setStatus('running');
     
     try {
-      await startMatchTimer(matchId);
+      await startMatchTimer(matchId, userId);
       console.log('[MatchTimer] Timer started for match:', matchId);
     } catch (error) {
       console.error('[MatchTimer] Failed to start timer on server:', error);
     }
-  }, [matchId]);
+  }, [matchId, session]);
 
   /**
    * Pause the timer, preserving elapsed time
    */
   const pause = useCallback(async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+    
     if (startTimeRef.current) {
       const now = performance.now();
       pausedElapsedRef.current += now - startTimeRef.current;
@@ -163,29 +175,32 @@ export function useMatchTimer(
     // Immediate sync on pause
     try {
       const seconds = Math.floor(pausedElapsedRef.current / 1000);
-      await pauseMatchTimer(matchId, seconds);
+      await pauseMatchTimer(matchId, seconds, userId);
       console.log('[MatchTimer] Timer paused at:', seconds, 'seconds');
     } catch (error) {
       console.error('[MatchTimer] Failed to pause timer on server:', error);
     }
-  }, [matchId]);
+  }, [matchId, session]);
 
   /**
    * Resume the timer from pause point
    */
   const resume = useCallback(async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+    
     startTimeRef.current = performance.now();
     setIsRunning(true);
     setStatus('running');
     
     try {
       const seconds = Math.floor(pausedElapsedRef.current / 1000);
-      await resumeMatchTimer(matchId, seconds);
+      await resumeMatchTimer(matchId, seconds, userId);
       console.log('[MatchTimer] Timer resumed from:', seconds, 'seconds');
     } catch (error) {
       console.error('[MatchTimer] Failed to resume timer on server:', error);
     }
-  }, [matchId]);
+  }, [matchId, session]);
 
   /**
    * Reset timer to zero and stop
@@ -277,14 +292,15 @@ export function useMatchTimer(
         clearInterval(intervalRef.current);
       }
       // Sync final state if running
-      if (isRunning && status === 'running') {
+      const userId = session?.user?.id;
+      if (isRunning && status === 'running' && userId) {
         const seconds = Math.floor(elapsedMs / 1000);
-        pauseMatchTimer(matchId, seconds).catch((err: Error) => {
+        pauseMatchTimer(matchId, seconds, userId).catch((err: Error) => {
           console.error('[MatchTimer] Failed to sync on unmount:', err);
         });
       }
     };
-  }, [isRunning, status, elapsedMs, matchId]);
+  }, [isRunning, status, elapsedMs, matchId, session]);
 
   const formattedTime = formatTime(elapsedMs);
   const elapsedSeconds = Math.floor(elapsedMs / 1000);

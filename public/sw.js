@@ -45,19 +45,13 @@ const {
 /// 
 /// 
 
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
-import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { 
   StaleWhileRevalidate, 
   CacheFirst, 
   NetworkOnly, 
   NetworkFirst 
 } from 'workbox-strategies';
-import { ExpirationPlugin } from 'workbox-expiration';
-import { BackgroundSyncPlugin } from 'workbox-background-sync';
-import { clientsClaim } from 'workbox-core';
 
-declare var self;
 
 /**
  * Claim clients immediately for instant control
@@ -249,22 +243,72 @@ self.addEventListener('sync', (event) => {
   }
 });
 
+// ============================================================================
+// Push Notification Event Handlers
+// ============================================================================
+
 /**
- * Push Event (placeholder for future push notifications)
+ * Push notification handler
+ * Handles match reminders with actions
  */
 self.addEventListener('push', (event) => {
   if (!event.data) return;
-  
+
   var data = event.data.json();
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   var options = {
     body.body,
-    icon: '/icon-192x192.png',
-    badge: '/badge-72x72.png',
-    tag.tag || 'default',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/badge-72x72.png',
+    tag.tag || 'match-reminder',
+    requireInteraction,
+    actions.actions || [
+      { action: 'confirm', title: 'Ci sono!' },
+      { action: 'view', title: 'Vedi dettagli' },
+    ],
+    data: {
+      url.url || '/',
+      matchId.matchId,
+    },
   };
 
   event.waitUntil(
     self.registration.showNotification(data.title, options)
+  );
+});
+
+/**
+ * Notification click handler
+ * Handles action button clicks from push notifications
+ */
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  var data = event.notification.data;
+  let url = data.url || '/';
+
+  // Handle actions
+  if (event.action === 'confirm') {
+    // Could track confirmation or navigate to RSVP
+    url = data.url ? `${data.url}?rsvp=in` : '/';
+  } else if (event.action === 'view') {
+    url = data.url || '/';
+  }
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+      // Focus existing window if open
+      for (var client of clientList) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Open new window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })
   );
 });
 

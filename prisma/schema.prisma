@@ -271,3 +271,22 @@ model OfflineAction {
   @@index([syncedAt])
   @@map("offline_actions")
 }
+
+// ============================================================================
+// LIVE MATCH MODELS (Phase 4)
+// ============================================================================
+
+model MatchTimer {
+  id                   String   @id @default(cuid())
+  matchId              String   @unique @map("match_id")
+  startedAt            DateTime? @map("started_at")
+  pausedAt             DateTime? @map("paused_at")
+  totalElapsedSeconds Int      @default(0) @map("total_elapsed_seconds")
+  isRunning            Boolean  @default(false) @map("is_running")
+  updatedBy            String?  @map("updated_by")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@index([matchId])
+  @@map("match_timers")
+}
