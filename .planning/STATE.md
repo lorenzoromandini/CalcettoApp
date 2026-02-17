@@ -2,8 +2,8 @@
 
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
-**Current Focus:** Phase 4 — Match Results & Player Ratings  
-**Last Updated:** 2026-02-17 (Phase 4 Plan 06 complete - match history and integration implemented)
+**Current Focus:** Phase 5 — Post-Match Statistics  
+**Last Updated:** 2026-02-17 (Phase 4 Complete - Match Results & Player Ratings)
 
 ---
 
@@ -11,19 +11,19 @@
 
 | Property | Value |
 |----------|-------|
-| **Phase** | 4 — Match Results & Player Ratings |
-| **Phase Goal** | Enable match lifecycle transitions, results entry, and player ratings |
-| **Plan** | 06 — Match Completion & History |
-| **Status** | ✅ Complete |
-| **Progress** | 100% |
+| **Phase** | 5 — Post-Match Statistics |
+| **Phase Goal** | View comprehensive match and player statistics with media support |
+| **Plan** | — |
+| **Status** | 🔴 Not Started |
+| **Progress** | 0% |
 
-### Phase 4 Progress Bar
+### Phase 5 Progress Bar
 
 ```
-[████████████████████████] 100%
+[░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete, Plan 05 ✅ Complete, Plan 06 ✅ Complete*
+*Phase 5 not yet started*
 
 ---
 
@@ -65,7 +65,7 @@
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
-**Overall:** 18/68 requirements complete (~26%)
+**Overall:** 36/68 requirements complete (~53%)
 
 ---
 
