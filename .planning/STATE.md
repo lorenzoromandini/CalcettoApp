@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 4 — Match Results & Player Ratings  
-**Last Updated:** 2026-02-17 (Phase 4 Plan 02 complete - match lifecycle transitions implemented)
+**Last Updated:** 2026-02-17 (Phase 4 Plan 04 complete - player participation tracking implemented)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 4 — Match Results & Player Ratings |
 | **Phase Goal** | Enable match lifecycle transitions, results entry, and player ratings |
-| **Plan** | 02 — Match Lifecycle Transitions |
+| **Plan** | 04 — Player Participation Tracking |
 | **Status** | ✅ Complete |
-| **Progress** | 33% |
+| **Progress** | 67% |
 
 ### Phase 4 Progress Bar
 
 ```
-[██████░░░░░░░░░░░░░░] 33%
+[████████████░░░░░░░░░░] 67%
 ```
 
-*Plan 01 ✅ Complete, Plan 02 ✅ Complete*
+*Plan 01 ✅ Complete, Plan 02 ✅ Complete, Plan 03 ✅ Complete, Plan 04 ✅ Complete*
 
 ---
 
@@ -108,6 +108,7 @@
 | 2026-02-17 | MatchStatus uses uppercase Prisma enum values | Type safety alignment with database schema (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED) | ✅ Confirmed |
 | 2026-02-17 | Add FINISHED status for lifecycle transitions | Supports in_progress → finished → completed flow per CONTEXT.md | ✅ Confirmed |
 | 2026-02-17 | AlertDialog for all lifecycle confirmations | Prevents accidental match state transitions | ✅ Confirmed |
+| 2026-02-17 | initializeParticipation on match end | Sets played=true for RSVP 'in' players automatically, admin can adjust | ✅ Confirmed |
 
 ---
 
@@ -598,33 +599,61 @@
 
 ---
 
+### From Plan 04-04 (Player Participation Tracking)
+
+**Implemented:**
+- ✅ Player participation server actions (updatePlayerParticipation, getMatchParticipants, bulkUpdateParticipation, initializeParticipation)
+- ✅ usePlayerParticipation hook with optimistic updates and rollback
+- ✅ PlayerParticipationList component with toggle switches
+- ✅ Switch UI component from shadcn for boolean toggles
+- ✅ Automatic participation initialization on match end (both endMatch and inputFinalResults)
+- ✅ Jersey number display from player_teams junction table
+- ✅ Italian/English translations for participation UI
+
+**Key Files for Future Phases:**
+- `lib/db/player-participation.ts` - Participation CRUD operations
+- `hooks/use-player-participation.ts` - Participation state management
+- `components/matches/player-participation-list.tsx` - Participation UI component
+- `components/ui/switch.tsx` - Reusable switch component
+
+**Patterns Established:**
+- Participation tied to match lifecycle (init on FINISHED status)
+- Default played=true for RSVP 'in' players, admin can adjust
+- Switch component for boolean toggles with optimistic updates
+- Grouped player list by RSVP status (in > maybe > out)
+- Only played players can be rated (prerequisite for ratings)
+
+**Requirements Covered:**
+- D13: Rate only players who played ✅
+
+---
+
 ## Session Continuity
 
 ### Last Session
 - **Date:** 2026-02-17
-- **Activity:** Executed Plan 04-02 (Match Lifecycle Transitions)
+- **Activity:** Executed Plan 04-04 (Player Participation Tracking)
 - **Outcome:** 
-  - Created match lifecycle server actions (startMatch, endMatch, completeMatch, inputFinalResults)
-  - Added validation schemas with Italian error messages
-  - Created useMatchLifecycle hook with toast notifications
-  - Built MatchStatusBadge and MatchLifecycleButtons components
-  - Fixed MatchStatus type to align with Prisma uppercase enum
-  - Added FINISHED status for lifecycle transitions
-  - Added success Badge variant for completed status
-  - Plan 04-02: Complete
+  - Created player participation server actions (updatePlayerParticipation, getMatchParticipants, bulkUpdateParticipation, initializeParticipation)
+  - Created usePlayerParticipation hook with optimistic updates
+  - Built PlayerParticipationList component with toggle switches
+  - Integrated initializeParticipation into match lifecycle (endMatch, inputFinalResults)
+  - Added Switch UI component from shadcn
+  - Plan 04-04: Complete
 
 ### Next Session
-- **Status:** Phase 4 in Progress (2/6 plans complete)
-- **Action:** Execute Plan 04-03 (Goal/Assist Entry)
+- **Status:** Phase 4 in Progress (4/6 plans complete)
+- **Action:** Execute Plan 04-05 (Player Ratings)
 - **When ready:** Run `/gsd-execute-phase 04` to continue
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 4 in progress - lifecycle transitions functional
-3. Read 04-02-SUMMARY.md for lifecycle implementation details
+2. Phase 4 in progress - player participation tracking functional
+3. Read 04-04-SUMMARY.md for participation implementation details
 4. MatchStatus uses uppercase values (SCHEDULED, IN_PROGRESS, FINISHED, COMPLETED, CANCELLED)
-5. Run `/gsd-execute-phase 04` to continue with next plan
+5. Only played players (played=true) can be rated
+6. Run `/gsd-execute-phase 04` to continue with next plan
 
 ---
 
