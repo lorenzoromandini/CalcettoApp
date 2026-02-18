@@ -525,3 +525,64 @@ export async function bulkUpsertRatings(
 
   return results.map(toPlayerRating)
 }
+
+// ============================================================================
+// Rating History
+// ============================================================================
+
+/**
+ * Rating history entry for chart visualization
+ */
+export interface RatingHistoryEntry {
+  match_id: string
+  match_date: Date
+  rating: number
+  rating_display: string
+  comment?: string
+}
+
+/**
+ * Get player's rating history ordered chronologically by match date
+ * 
+ * Fetches all ratings for a player from COMPLETED matches.
+ * Used for rating trend visualization on player profile.
+ * 
+ * @param playerId - Player ID
+ * @param teamId - Optional team ID to filter history
+ * @returns Array of rating history entries ordered by match date
+ */
+export async function getPlayerRatingHistory(
+  playerId: string,
+  teamId?: string
+): Promise<RatingHistoryEntry[]> {
+  const ratings = await prisma.playerRating.findMany({
+    where: {
+      playerId,
+      match: {
+        status: MatchStatus.COMPLETED,
+        ...(teamId ? { teamId } : {}),
+      },
+    },
+    include: {
+      match: {
+        select: {
+          id: true,
+          scheduledAt: true,
+        },
+      },
+    },
+    orderBy: {
+      match: {
+        scheduledAt: 'asc',
+      },
+    },
+  })
+
+  return ratings.map(r => ({
+    match_id: r.matchId,
+    match_date: r.match.scheduledAt,
+    rating: r.rating.toNumber(),
+    rating_display: decimalToRating(r.rating.toNumber()),
+    comment: r.comment ?? undefined,
+  }))
+}
