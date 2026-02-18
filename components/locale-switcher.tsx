@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from '@/lib/i18n/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Globe } from 'lucide-react';
 
 export function LocaleSwitcher() {
@@ -13,7 +13,10 @@ export function LocaleSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLocaleChange = (newLocale: string) => {
-    router.replace(pathname, { locale: newLocale });
+    // Remove current locale from pathname and add new locale
+    const pathWithoutLocale = pathname.replace(/^\/(it|en)/, '') || '/';
+    const newPath = `/${newLocale}${pathWithoutLocale}`;
+    router.push(newPath);
     setIsOpen(false);
   };
 
