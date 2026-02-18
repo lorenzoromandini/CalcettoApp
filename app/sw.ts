@@ -13,10 +13,9 @@
  */
 
 /// <reference lib="webworker" />
-/// <reference types="workbox-precaching" />
 
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
-import { registerRoute, NavigationRoute } from 'workbox-routing';
+import { registerRoute } from 'workbox-routing';
 import { 
   StaleWhileRevalidate, 
   CacheFirst, 

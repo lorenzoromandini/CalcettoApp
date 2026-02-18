@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -28,6 +28,9 @@ export function SignupForm() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
+      firstName: "",
+      lastName: "",
+      nickname: "",
       password: "",
       confirmPassword: "",
     },
@@ -41,7 +44,13 @@ export function SignupForm() {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password }),
+        body: JSON.stringify({
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          nickname: data.nickname || null,
+          password: data.password,
+        }),
       });
 
       const result = await response.json();
@@ -52,7 +61,7 @@ export function SignupForm() {
       }
 
       setIsSuccess(true);
-    } catch (err) {
+    } catch {
       setError("Si è verificato un errore imprevisto. Riprova più tardi.");
     } finally {
       setIsLoading(false);
@@ -63,18 +72,19 @@ export function SignupForm() {
     return (
       <div className="space-y-4 text-center">
         <div className="flex justify-center">
-          <CheckCircle2 className="h-12 w-12 text-green-500" />
+          <div className="rounded-full bg-green-500/10 p-3">
+            <CheckCircle2 className="h-8 w-8 text-green-500" />
+          </div>
         </div>
         <h3 className="text-lg font-semibold">Registrazione completata!</h3>
         <p className="text-sm text-muted-foreground">
-          Ora puoi accedere con le tue credenziali.
+          Il tuo account è stato creato con successo.
         </p>
         <Button
-          variant="outline"
           className="w-full"
           onClick={() => router.push("/auth/login")}
         >
-          Torna al login
+          Vai al login
         </Button>
       </div>
     );
@@ -90,12 +100,73 @@ export function SignupForm() {
           </div>
         )}
 
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome *</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Mario"
+                    autoComplete="given-name"
+                    disabled={isLoading}
+                    className="h-12"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cognome *</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Rossi"
+                    autoComplete="family-name"
+                    disabled={isLoading}
+                    className="h-12"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="nickname"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nickname (opzionale)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Il tuo soprannome"
+                  disabled={isLoading}
+                  className="h-12"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email *</FormLabel>
               <FormControl>
                 <Input
                   type="email"
@@ -116,7 +187,7 @@ export function SignupForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Password *</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -137,7 +208,7 @@ export function SignupForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Conferma password</FormLabel>
+              <FormLabel>Conferma password *</FormLabel>
               <FormControl>
                 <Input
                   type="password"

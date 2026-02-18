@@ -21,11 +21,11 @@ import {
 import { cn } from '@/lib/utils'
 import {
   RATING_BASES,
-  RATING_MODIFIERS,
   getValidModifiers,
   formatRating,
   parseRating,
-  type RatingValue,
+  decimalToRating,
+  ratingToDecimal,
   type RatingBase,
   type RatingModifier,
 } from '@/lib/rating-utils'
@@ -194,12 +194,9 @@ interface RatingDisplayProps {
 export function RatingDisplay({
   rating,
   size = 'md',
-  showLabel = false,
   className,
 }: RatingDisplayProps) {
-  const { decimalToRating } = require('@/lib/rating-utils')
   const ratingStr = typeof rating === 'number' ? decimalToRating(rating) : rating
-  const { ratingToDecimal } = require('@/lib/rating-utils')
   const decimal = typeof rating === 'number' ? rating : ratingToDecimal(rating)
 
   // Color based on rating value

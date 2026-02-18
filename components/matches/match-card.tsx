@@ -25,6 +25,7 @@ export function MatchCard({ match, teamId, onClick, showRSVPCount = false }: Mat
 
   useEffect(() => {
     if (showRSVPCount) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoadingRSVP(true);
       getRSVPCounts(match.id)
         .then(counts => setRsvpCount(counts.in))

@@ -24,14 +24,17 @@ enum MatchStatus {
 // ============================================================================
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  emailVerified    DateTime?
+  firstName        String    @map("first_name")
+  lastName         String    @map("last_name")
+  nickname         String?   @map("nickname")
+  image            String?
+  password         String?
+  verificationToken String?  @map("verification_token")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   accounts      Account[]
   sessions      Session[]
