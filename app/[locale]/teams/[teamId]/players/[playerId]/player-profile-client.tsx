@@ -11,6 +11,8 @@ import { RatingTrendChart } from '@/components/ratings/rating-trend-chart'
 import { RatingHistoryList } from '@/components/ratings/rating-history-list'
 import { usePlayerStats } from '@/hooks/use-statistics'
 import { useRatingHistory } from '@/hooks/use-rating-history'
+import { usePlayerEvolution } from '@/hooks/use-player-evolution'
+import { PlayerEvolutionChart } from '@/components/dashboard/player-evolution-chart'
 import type { Player } from '@/lib/db/schema'
 import type { PlayerRole } from '@/lib/db/schema'
 
@@ -39,6 +41,7 @@ export function PlayerProfileClient({
   const router = useRouter()
   const { stats, isLoading, error } = usePlayerStats(playerId, teamId)
   const { history, isLoading: historyLoading } = useRatingHistory(playerId, teamId)
+  const { evolution, isLoading: evolutionLoading } = usePlayerEvolution(playerId, teamId)
 
   const handleBack = () => {
     router.push(`/${locale}/teams/${teamId}/players`)
@@ -215,6 +218,37 @@ export function PlayerProfileClient({
         <Card className="border-dashed">
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground">{t('no_ratings_yet')}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Player Evolution Section */}
+      <h2 className="text-lg font-semibold mt-6 mb-3 flex items-center gap-2">
+        <TrendingUp className="h-5 w-5" />
+        {t('evolution.title')}
+      </h2>
+
+      {evolutionLoading && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!evolutionLoading && evolution.length >= 2 && (
+        <PlayerEvolutionChart 
+          data={evolution} 
+          title={t('evolution.chart_title')} 
+        />
+      )}
+
+      {!evolutionLoading && evolution.length < 2 && (
+        <Card className="border-dashed">
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">{t('evolution.no_data')}</p>
           </CardContent>
         </Card>
       )}
