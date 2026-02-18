@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 6 — Rating Trends & History  
-**Last Updated:** 2026-02-17 (Phase 5 Complete - Individual Player Statistics)
+**Last Updated:** 2026-02-18 (Plan 06-01 Complete - Rating History Backend)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 6 — Rating Trends & History |
 | **Phase Goal** | Users can view rating evolution and trends over time |
-| **Plan** | — |
-| **Status** | 🔴 Not Started |
-| **Progress** | 0% |
+| **Plan** | 01 Complete, 02 Next |
+| **Status** | 🟡 In Progress |
+| **Progress** | 50% |
 
 ### Phase 6 Progress Bar
 
 ```
-[░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+[████████████░░░░░░░░░░░░] 50%
 ```
 
-*Phase 6 not yet started*
+*Plan 06-01 complete: Rating history backend with Recharts*
 
 ---
 
@@ -125,6 +125,9 @@
 | 2026-02-17 | Player cards link to player profile | Clickable cards wrap in Next.js Link, navigate to /teams/[teamId]/players/[playerId] | ✅ Confirmed |
 | 2026-02-17 | Match history shows multiple scorers | Up to 3 scorers with goal counts, '+N' for additional | ✅ Confirmed |
 | 2026-02-17 | Scorer format in match history | "Name (count), Name2 (count)" for clarity | ✅ Confirmed |
+| 2026-02-18 | Recharts for chart visualization | Most popular React charting library (3.6M+ downloads) | ✅ Confirmed |
+| 2026-02-18 | Rating history from COMPLETED matches | Historical accuracy, matches ordered by scheduledAt | ✅ Confirmed |
+| 2026-02-18 | useRatingHistory hook pattern | Follows use-statistics.ts with isLoading/error/refetch | ✅ Confirmed |
 
 ---
 
@@ -712,30 +715,28 @@
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-17
-- **Activity:** Executed Plan 05-03 (Statistics Integration)
+- **Date:** 2026-02-18
+- **Activity:** Executed Plan 06-01 (Rating History Backend)
 - **Outcome:** 
-  - Verified Statistics tab already present in team navigation
-  - Made player cards clickable linking to player profiles
-  - Updated match history cards to show up to 3 scorers
-  - All player card usages updated with teamId prop
-  - Phase 5: Complete (100%)
+  - Installed Recharts v3.7.0 for chart visualization
+  - Added getPlayerRatingHistory function to lib/db/player-ratings.ts
+  - Created useRatingHistory hook in hooks/use-rating-history.ts
+  - Phase 6: 50% Complete (1 of 2 plans)
 
 ### Next Session
-- **Status:** Phase 5 Complete
-- **Action:** Plan Phase 6 (Player Ratings) with `/gsd-plan-phase 06`
-- **When ready:** Run `/gsd-plan-phase 06` to start next phase
+- **Status:** Phase 6 In Progress
+- **Action:** Execute Plan 06-02 with `/gsd-execute-phase 06`
+- **When ready:** Run `/gsd-execute-phase 06` to complete Rating Trends UI
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 5 complete - statistics fully integrated
-3. Read 05-01-SUMMARY.md for statistics aggregation implementation
-4. Read 05-02-SUMMARY.md for statistics UI implementation
-5. Read 05-03-SUMMARY.md for statistics integration
-6. Player cards link to /teams/[teamId]/players/[playerId]
-7. Match history shows multiple scorers with goal counts
-8. Run `/gsd-plan-phase 06` to continue with Player Ratings
+2. Phase 6 in progress - rating history backend complete
+3. Read 06-01-SUMMARY.md for rating history backend implementation
+4. getPlayerRatingHistory fetches ratings from COMPLETED matches
+5. useRatingHistory hook ready for chart integration
+6. Recharts library installed for trend visualization
+7. Run `/gsd-execute-phase 06` to continue with Plan 06-02
 
 ---
 
