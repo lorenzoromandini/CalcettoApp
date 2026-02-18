@@ -598,7 +598,15 @@
     "retry": "Riprova",
     "rating_history": "Cronologia voti",
     "rating_list": "Voti",
-    "no_ratings_yet": "Nessun voto ancora registrato"
+    "no_ratings_yet": "Nessun voto ancora registrato",
+    "evolution": {
+      "title": "Evoluzione",
+      "chart_title": "Andamento prestazioni",
+      "no_data": "Servono almeno 2 partite per il grafico",
+      "goals": "Gol",
+      "assists": "Assist",
+      "rating": "Voto"
+    }
   },
   "history": {
     "title": "Cronologia Partite",
