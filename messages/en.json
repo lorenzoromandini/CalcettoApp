@@ -25,7 +25,17 @@
     "signInWith": "Sign in with {provider}",
     "orContinueWith": "Or continue with",
     "logout": "Logout",
-    "profile": "Profile"
+    "profile": "Profile",
+    "welcomeBack": "Welcome back",
+    "loginDescription": "Enter your credentials to sign in",
+    "createAccountDescription": "Enter your details to create an account",
+    "termsPrefix": "By clicking \"Sign Up\", you agree to our",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "forgotPasswordDescription": "Contact the administrator to reset your password",
+    "forgotPasswordInstructions": "To reset your password, please contact the system administrator.",
+    "backTo": "Back to"
   },
   "common": {
     "loading": "Loading...",

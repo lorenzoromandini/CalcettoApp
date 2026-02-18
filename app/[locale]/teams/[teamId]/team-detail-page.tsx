@@ -34,7 +34,7 @@ export function TeamDetailPage({ locale, teamId }: TeamDetailPageProps) {
       
       // Check auth
       if (!session?.user?.id) {
-        router.push(`/${locale}/auth/login`);
+        router.push(`/auth/login`);
         return;
       }
 

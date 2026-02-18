@@ -29,7 +29,7 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
   // Get session
   const session = await auth()
   if (!session?.user?.id) {
-    redirect(`/${locale}/auth/login`)
+    redirect(`/auth/login`)
   }
 
   // Check admin status

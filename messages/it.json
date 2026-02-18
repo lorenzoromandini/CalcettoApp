@@ -25,7 +25,17 @@
     "signInWith": "Accedi con {provider}",
     "orContinueWith": "Oppure continua con",
     "logout": "Esci",
-    "profile": "Profilo"
+    "profile": "Profilo",
+    "welcomeBack": "Bentornato",
+    "loginDescription": "Inserisci le tue credenziali per accedere",
+    "createAccountDescription": "Inserisci i tuoi dati per creare un account",
+    "termsPrefix": "Cliccando su \"Registrati\", accetti i nostri",
+    "termsOfService": "Termini di servizio",
+    "and": "e la",
+    "privacyPolicy": "Privacy Policy",
+    "forgotPasswordDescription": "Contatta l'amministratore per reimpostare la password",
+    "forgotPasswordInstructions": "Per reimpostare la password, contatta l'amministratore del sistema.",
+    "backTo": "Torna al"
   },
   "common": {
     "loading": "Caricamento...",

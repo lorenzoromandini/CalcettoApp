@@ -19,11 +19,26 @@ function isServiceWorkerSupported(): boolean {
 }
 
 /**
+ * Check if we should register service worker (localhost only in dev)
+ */
+function shouldRegisterServiceWorker(): boolean {
+  if (!isServiceWorkerSupported()) return false;
+  
+  // Only register on localhost or same origin in production
+  // Skip for dev tunnels (cloudflare, ngrok, etc.)
+  const isLocalhost = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.hostname.startsWith('192.168.');
+  
+  return isLocalhost || process.env.NODE_ENV === 'production';
+}
+
+/**
  * Register the service worker
  */
 async function registerServiceWorker(): Promise<void> {
-  if (!isServiceWorkerSupported()) {
-    console.log('[SW] Service workers not supported');
+  if (!shouldRegisterServiceWorker()) {
+    console.log('[SW] Skipping registration (not localhost or production)');
     return;
   }
 
