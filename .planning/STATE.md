@@ -3,7 +3,7 @@
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
 **Current Focus:** Phase 6 — Rating Trends & History  
-**Last Updated:** 2026-02-18 (Plan 06-01 Complete - Rating History Backend)
+**Last Updated:** 2026-02-18 (Phase 6 Complete - Rating Trends & History)
 
 ---
 
@@ -13,17 +13,17 @@
 |----------|-------|
 | **Phase** | 6 — Rating Trends & History |
 | **Phase Goal** | Users can view rating evolution and trends over time |
-| **Plan** | 01 Complete, 02 Next |
-| **Status** | 🟡 In Progress |
-| **Progress** | 50% |
+| **Plan** | 01-02 Complete |
+| **Status** | 🟢 Complete |
+| **Progress** | 100% |
 
 ### Phase 6 Progress Bar
 
 ```
-[████████████░░░░░░░░░░░░] 50%
+[████████████████████████] 100%
 ```
 
-*Plan 06-01 complete: Rating history backend with Recharts*
+*Phase 6 complete: Rating history backend + UI with Recharts charts*
 
 ---
 
@@ -61,7 +61,7 @@
 | 3 | Match Management | 14 | 🟢 Complete | 100% |
 | 4 | Match Results & Ratings | 8 | 🟢 Complete | 100% |
 | 5 | Post-Match Statistics | 9 | 🟢 Complete | 100% |
-| 6 | Player Ratings | 6 | 🔴 Not Started | 0% |
+| 6 | Player Ratings | 6 | 🟢 Complete | 100% |
 | 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
 | 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
@@ -128,6 +128,9 @@
 | 2026-02-18 | Recharts for chart visualization | Most popular React charting library (3.6M+ downloads) | ✅ Confirmed |
 | 2026-02-18 | Rating history from COMPLETED matches | Historical accuracy, matches ordered by scheduledAt | ✅ Confirmed |
 | 2026-02-18 | useRatingHistory hook pattern | Follows use-statistics.ts with isLoading/error/refetch | ✅ Confirmed |
+| 2026-02-18 | Chart only for 3+ ratings | LineChart with fewer points looks wrong | ✅ Confirmed |
+| 2026-02-18 | ResponsiveContainer with initialDimension | Prevents width/height warning on first render | ✅ Confirmed |
+| 2026-02-18 | Y-axis domain [1, 10] with reference at 6 | Italian school passing grade visualization | ✅ Confirmed |
 
 ---
 
@@ -716,27 +719,28 @@
 
 ### Last Session
 - **Date:** 2026-02-18
-- **Activity:** Executed Plan 06-01 (Rating History Backend)
+- **Activity:** Executed Plan 06-02 (Rating Trends UI)
 - **Outcome:** 
-  - Installed Recharts v3.7.0 for chart visualization
-  - Added getPlayerRatingHistory function to lib/db/player-ratings.ts
-  - Created useRatingHistory hook in hooks/use-rating-history.ts
-  - Phase 6: 50% Complete (1 of 2 plans)
+  - Created RatingTrendChart component with Recharts LineChart
+  - Created RatingHistoryList component for displaying rating history
+  - Integrated rating history into player profile page
+  - Added Italian/English translation keys
+  - Phase 6: 100% Complete
 
 ### Next Session
-- **Status:** Phase 6 In Progress
-- **Action:** Execute Plan 06-02 with `/gsd-execute-phase 06`
-- **When ready:** Run `/gsd-execute-phase 06` to complete Rating Trends UI
+- **Status:** Phase 6 Complete
+- **Action:** Begin Phase 7 (Dashboard & Leaderboards) with `/gsd-plan-phase 7`
+- **When ready:** Run `/gsd-plan-phase 7` to plan dashboard features
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 6 in progress - rating history backend complete
-3. Read 06-01-SUMMARY.md for rating history backend implementation
-4. getPlayerRatingHistory fetches ratings from COMPLETED matches
-5. useRatingHistory hook ready for chart integration
-6. Recharts library installed for trend visualization
-7. Run `/gsd-execute-phase 06` to continue with Plan 06-02
+2. Phase 6 complete - rating trends visualization fully implemented
+3. Read 06-01-SUMMARY.md and 06-02-SUMMARY.md for implementation details
+4. RatingTrendChart shows LineChart for players with 3+ ratings
+5. RatingHistoryList shows all ratings in reverse chronological order
+6. Player profile shows chart/list/empty state based on rating count
+7. Run `/gsd-plan-phase 7` to continue with Dashboard & Leaderboards
 
 ---
 
