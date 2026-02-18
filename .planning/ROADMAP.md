@@ -309,8 +309,22 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 **Research Alignment:** "Fantasy-style points and leaderboards drive retention and 'obsession' — essential for gamification."
 
 **Technical Notes:**
-- Stack: Supabase PostgreSQL aggregations
-- Implement: Efficient querying for leaderboards; caching strategies
+- Stack: Prisma + PostgreSQL with window functions for streaks
+- Recharts for multi-line evolution charts (already integrated)
+- Time period filtering via dateRange parameter on statistics queries
+
+**Plans:** 4 plans in 2 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 07-01 | Time period filtering (dateRange parameter, TimePeriodFilter component) | 1 | None | lib/db/statistics.ts, hooks/use-statistics.ts, components/dashboard/time-period-filter.tsx |
+| 07-02 | Attendance streaks (SQL window functions, streak card) | 1 | None | lib/db/streaks.ts, hooks/use-streaks.ts, components/dashboard/attendance-streak-card.tsx |
+| 07-03 | Player evolution charts (3-line chart with goals/assists/rating) | 1 | None | lib/db/player-evolution.ts, hooks/use-player-evolution.ts, components/dashboard/player-evolution-chart.tsx |
+| 07-04 | Dashboard integration (TopPerformersSection, stats filter, profile evolution) + checkpoint | 2 | 07-01 | team-dashboard.tsx, stats-page-client.tsx, player-profile-client.tsx, top-performers-section.tsx |
+
+**Wave Structure:**
+- **Wave 1 (Parallel):** 07-01 + 07-02 + 07-03 — Time filter + Streaks + Evolution (all independent)
+- **Wave 2:** 07-04 — Dashboard integration with checkpoint (depends on 07-01 for time filter)
 
 ---
 
@@ -404,7 +418,7 @@ Phases with standard patterns (skip extra research):
 | Phase 4: Match Results & Ratings | ✅ Complete | 2026-02-17 | 2026-02-17 |
 | Phase 5: Post-Match Statistics | ✅ Complete | 2026-02-17 | 2026-02-17 |
 | Phase 6: Rating Trends & History | ✅ Complete | 2026-02-18 | 2026-02-18 |
-| Phase 7: Dashboard & Leaderboards | 🔴 Not Started | — | — |
+| Phase 7: Dashboard & Leaderboards | 🟡 Planned | 2026-02-18 | — |
 | Phase 8: Social & Sharing | 🔴 Not Started | — | — |
 
 **Overall Progress:** 6/8 phases (75%)
