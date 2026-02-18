@@ -268,11 +268,24 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 **Note:** Core rating functionality (RATE-01, RATE-02, RATE-03) moved to Phase 4 as part of post-match workflow.
 
+**Plans:** 2 plans in 2 waves
+
+| Plan | Objective | Wave | Dependencies | Files |
+|------|-----------|------|--------------|-------|
+| 06-01 | Install Recharts + getPlayerRatingHistory + useRatingHistory hook | 1 | None | package.json, lib/db/player-ratings.ts, hooks/use-rating-history.ts |
+| 06-02 | RatingTrendChart + RatingHistoryList + player profile integration | 2 | 06-01 | components/ratings/*.tsx, player-profile-client.tsx, messages/*.json |
+
+**Wave Structure:**
+- **Wave 1:** 06-01 — Recharts installation + backend (history function + hook)
+- **Wave 2:** 06-02 — Frontend (chart + list components + integration)
+
 **Research Alignment:** "Trend visualization adds engagement - players can see improvement or decline over time."
 
 **Technical Notes:**
-- Stack: Recharts or similar charting library
-- Implement: Rating timeline per player
+- Stack: Recharts (3.6M+ weekly downloads, declarative React API)
+- Minimum threshold: Show chart for 3+ ratings; show list for 1-2 ratings
+- Y-axis domain [1, 10] with reference line at 6 (Italian passing grade)
+- ResponsiveContainer with initialDimension to avoid width warning
 
 ---
 
