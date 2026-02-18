@@ -5,13 +5,16 @@ import { z } from "zod"
 
 const signupSchema = z.object({
   email: z.string().email("Email non valida"),
+  firstName: z.string().min(2, "Il nome deve avere almeno 2 caratteri"),
+  lastName: z.string().min(2, "Il cognome deve avere almeno 2 caratteri"),
+  nickname: z.string().max(30).optional().nullable(),
   password: z.string().min(6, "La password deve essere di almeno 6 caratteri"),
 })
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { email, password } = signupSchema.parse(body)
+    const { email, firstName, lastName, nickname, password } = signupSchema.parse(body)
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -26,10 +29,14 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
+        firstName,
+        lastName,
+        nickname: nickname || null,
         password: hashedPassword,
+        emailVerified: new Date(),
       },
     })
 
@@ -41,6 +48,7 @@ export async function POST(req: Request) {
         { status: 400 }
       )
     }
+    console.error("Signup error:", error)
     return NextResponse.json(
       { error: "Si è verificato un errore" },
       { status: 500 }

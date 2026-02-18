@@ -43,6 +43,7 @@ export function useOfflineQueue(): OfflineQueueState {
 
   useEffect(() => {
     // Set initial online status
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOnline(navigator.onLine);
 
     // Initial queue count

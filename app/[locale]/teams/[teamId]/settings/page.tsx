@@ -1,6 +1,7 @@
 'use client';
+'use no memo';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { InviteGenerator } from '@/components/teams/invite-generator';
@@ -21,11 +22,7 @@ export default function TeamSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
 
-  useEffect(() => {
-    checkAdminStatus();
-  }, [teamId, session?.user?.id]);
-
-  async function checkAdminStatus() {
+  const checkAdminStatus = useCallback(async () => {
     if (!session?.user?.id) {
       setIsLoading(false);
       return;
@@ -43,7 +40,12 @@ export default function TeamSettingsPage() {
 
     setIsAdmin(membership?.role === 'admin' || membership?.role === 'co-admin');
     setIsLoading(false);
-  }
+  }, [teamId, session]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    checkAdminStatus();
+  }, [checkAdminStatus]);
 
   if (isLoading) {
     return (

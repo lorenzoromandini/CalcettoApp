@@ -111,7 +111,7 @@ export default async function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold">
-            {t('common.welcome')}, {session.user.name || session.user.email}
+            {t('common.welcome')}, {session.user.firstName || session.user.email}
           </h1>
           <p className="text-muted-foreground mt-2">
             {t('dashboard.subtitle')}

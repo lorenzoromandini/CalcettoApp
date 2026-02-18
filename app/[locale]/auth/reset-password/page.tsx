@@ -14,7 +14,7 @@ export default function ResetPasswordPage() {
     >
       <div className="space-y-4 text-center">
         <p className="text-sm text-muted-foreground">
-          Per reimpostare la password, contatta l'amministratore del sistema.
+          Per reimpostare la password, contatta l&apos;amministratore del sistema.
         </p>
       </div>
     </AuthCard>

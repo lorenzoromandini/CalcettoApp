@@ -6,6 +6,8 @@
  * This script runs after Next.js build.
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const fs = require('fs');
 const path = require('path');
 

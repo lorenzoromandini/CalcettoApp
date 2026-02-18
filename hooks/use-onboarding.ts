@@ -19,6 +19,7 @@ export function useOnboarding(): UseOnboardingReturn {
   useEffect(() => {
     // Check if onboarding has been completed
     const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowOnboarding(completed !== 'true');
     setIsLoading(false);
   }, []);

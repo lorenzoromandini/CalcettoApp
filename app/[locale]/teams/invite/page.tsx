@@ -1,6 +1,7 @@
 'use client';
+'use no memo';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getInviteByToken, redeemInvite } from '@/lib/db/invites';
@@ -25,11 +26,7 @@ export default function InvitePage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const { data: session } = useSession();
 
-  useEffect(() => {
-    checkAuthAndInvite();
-  }, [token, session?.user?.id]);
-
-  async function checkAuthAndInvite() {
+  const checkAuthAndInvite = useCallback(async () => {
     setIsAuthenticated(!!session?.user);
 
     if (!token) {
@@ -48,7 +45,12 @@ export default function InvitePage() {
 
     setTeamName(teamName);
     setInviteState('valid');
-  }
+  }, [token, session?.user, t]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    checkAuthAndInvite();
+  }, [checkAuthAndInvite]);
 
   const handleJoin = async () => {
     if (!token) return;

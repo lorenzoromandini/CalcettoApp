@@ -9,7 +9,9 @@ import { Link } from '@/lib/i18n/navigation';
 interface UserMenuProps {
   user: {
     id?: string;
-    name?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    nickname?: string | null;
     email?: string | null;
     image?: string | null;
   };
@@ -23,6 +25,9 @@ export function UserMenu({ user }: UserMenuProps) {
     await signOut({ callbackUrl: '/' });
   };
 
+  const displayName = user.nickname || user.firstName || user.email?.split('@')[0];
+  const initials = user.firstName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U';
+
   return (
     <div className="relative">
       <button
@@ -31,10 +36,10 @@ export function UserMenu({ user }: UserMenuProps) {
         aria-label="User menu"
       >
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-          {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+          {initials}
         </div>
         <span className="hidden sm:inline max-w-[120px] truncate">
-          {user.name || user.email}
+          {displayName}
         </span>
         <ChevronDown className="h-4 w-4" />
       </button>

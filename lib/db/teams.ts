@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Team Database Operations - Prisma Version
  * 
@@ -159,7 +161,9 @@ export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
       user: {
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
+          nickname: true,
           email: true,
           image: true,
         },

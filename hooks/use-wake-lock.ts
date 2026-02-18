@@ -108,6 +108,7 @@ export function useWakeLock(enabled: boolean): UseWakeLockReturn {
     if (!supported) return;
 
     if (enabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       request();
     } else {
       release();
