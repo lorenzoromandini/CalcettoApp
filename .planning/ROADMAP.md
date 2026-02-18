@@ -289,42 +289,34 @@ This roadmap delivers Calcetto Manager in **8 phases**, progressing from offline
 
 ---
 
-## Phase 7: Dashboard & Leaderboards
+## Phase 7: Player Evolution Charts
 
-**Goal:** Users can discover top performers and track player evolution through visual dashboards
+**Goal:** Users can visualize player performance trends over time
 
-**Dependencies:** Phase 4-5 (ratings and statistics required for leaderboards)
+**Dependencies:** Phase 4-5 (ratings and statistics required for evolution data)
 
 **Requirements:**
-- DASH-01 through DASH-08 (top scorers, assists, clean sheets, MVP, profiles, streaks, charts)
+- DASH-08 (player evolution charts showing goals, assists, rating over time)
 
-**Success Criteria (5 criteria):**
+*Note: DASH-01 to DASH-05 (leaderboards, player profiles) are already implemented in Phase 5. DASH-06 (streaks) and DASH-07 (time filtering) deferred.*
 
-1. **Dashboard displays category leaders** — Top scorer, top assister, best goalkeeper (clean sheets), MVP (highest rating) prominently shown
-2. **User can view detailed player profiles** — Complete statistics, ratings, match history per player
-3. **System displays attendance streaks** — Consecutive matches attended tracked and displayed
-4. **User can filter statistics by time period** — Season view, monthly view selectable; stats recalculate per period
-5. **System displays charts for player evolution** — Visual trend lines for goals, ratings, appearances over time
+**Success Criteria (1 criterion):**
 
-**Research Alignment:** "Fantasy-style points and leaderboards drive retention and 'obsession' — essential for gamification."
+1. **System displays charts for player evolution** — Visual trend lines for goals, assists, and rating over time on player profile
 
 **Technical Notes:**
-- Stack: Prisma + PostgreSQL with window functions for streaks
-- Recharts for multi-line evolution charts (already integrated)
-- Time period filtering via dateRange parameter on statistics queries
+- Stack: Prisma + PostgreSQL for data aggregation
+- Recharts for multi-line evolution charts (already integrated from Phase 6)
+- Follow RatingTrendChart pattern with 3 metrics (goals/assists/rating)
 
-**Plans:** 4 plans in 2 waves
+**Plans:** 1 plan in 1 wave
 
 | Plan | Objective | Wave | Dependencies | Files |
 |------|-----------|------|--------------|-------|
-| 07-01 | Time period filtering (dateRange parameter, TimePeriodFilter component) | 1 | None | lib/db/statistics.ts, hooks/use-statistics.ts, components/dashboard/time-period-filter.tsx |
-| 07-02 | Attendance streaks (SQL window functions, streak card) | 1 | None | lib/db/streaks.ts, hooks/use-streaks.ts, components/dashboard/attendance-streak-card.tsx |
-| 07-03 | Player evolution charts (3-line chart with goals/assists/rating) | 1 | None | lib/db/player-evolution.ts, hooks/use-player-evolution.ts, components/dashboard/player-evolution-chart.tsx |
-| 07-04 | Dashboard integration (TopPerformersSection, stats filter, profile evolution) + checkpoint | 2 | 07-01 | team-dashboard.tsx, stats-page-client.tsx, player-profile-client.tsx, top-performers-section.tsx |
+| 07-01 | Player evolution (data aggregation + hook + chart + profile integration) + checkpoint | 1 | None | lib/db/player-evolution.ts, hooks/use-player-evolution.ts, components/dashboard/player-evolution-chart.tsx, player-profile-client.tsx |
 
 **Wave Structure:**
-- **Wave 1 (Parallel):** 07-01 + 07-02 + 07-03 — Time filter + Streaks + Evolution (all independent)
-- **Wave 2:** 07-04 — Dashboard integration with checkpoint (depends on 07-01 for time filter)
+- **Wave 1:** 07-01 — Player evolution with verification checkpoint
 
 ---
 
