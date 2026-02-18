@@ -595,7 +595,10 @@
     "no_stats_yet": "No statistics yet",
     "no_stats_description": "Statistics will appear after the first completed match",
     "no_team_stats_description": "Complete the first match to see team statistics",
-    "retry": "Retry"
+    "retry": "Retry",
+    "rating_history": "Rating history",
+    "rating_list": "Ratings",
+    "no_ratings_yet": "No ratings recorded yet"
   },
   "history": {
     "title": "Match History",
