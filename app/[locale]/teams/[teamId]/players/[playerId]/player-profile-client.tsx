@@ -3,11 +3,14 @@
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ArrowLeft, Shirt, UserCircle, Users } from 'lucide-react'
+import { ArrowLeft, Shirt, UserCircle, Users, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlayerStatsCard } from '@/components/statistics/player-stats-card'
+import { RatingTrendChart } from '@/components/ratings/rating-trend-chart'
+import { RatingHistoryList } from '@/components/ratings/rating-history-list'
 import { usePlayerStats } from '@/hooks/use-statistics'
+import { useRatingHistory } from '@/hooks/use-rating-history'
 import type { Player } from '@/lib/db/schema'
 import type { PlayerRole } from '@/lib/db/schema'
 
@@ -35,6 +38,7 @@ export function PlayerProfileClient({
   const tPlayers = useTranslations('players')
   const router = useRouter()
   const { stats, isLoading, error } = usePlayerStats(playerId, teamId)
+  const { history, isLoading: historyLoading } = useRatingHistory(playerId, teamId)
 
   const handleBack = () => {
     router.push(`/${locale}/teams/${teamId}/players`)
@@ -179,6 +183,38 @@ export function PlayerProfileClient({
             </div>
             <h3 className="text-lg font-semibold mb-2">{t('no_stats_yet')}</h3>
             <p className="text-muted-foreground">{t('no_stats_description')}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Rating History Section */}
+      <h2 className="text-lg font-semibold mt-6 mb-3 flex items-center gap-2">
+        <TrendingUp className="h-5 w-5" />
+        {t('rating_history')}
+      </h2>
+
+      {historyLoading && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!historyLoading && history.length >= 3 && (
+        <RatingTrendChart data={history} />
+      )}
+
+      {!historyLoading && history.length > 0 && history.length < 3 && (
+        <RatingHistoryList data={history} title={t('rating_list')} />
+      )}
+
+      {!historyLoading && history.length === 0 && (
+        <Card className="border-dashed">
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">{t('no_ratings_yet')}</p>
           </CardContent>
         </Card>
       )}
