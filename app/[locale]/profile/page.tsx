@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { Header } from '@/components/navigation/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
@@ -20,6 +21,37 @@ export default async function ProfilePage() {
   if (!session?.user?.id) {
     redirect('/auth/login');
   }
+
+  const userWithTeams = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: {
+      memberships: {
+        include: {
+          team: true,
+          player: true,
+        },
+      },
+    },
+  });
+
+  const teams = userWithTeams?.memberships.map((m) => ({
+    id: m.team.id,
+    name: m.team.name,
+    jerseyNumber: m.player?.id 
+      ? (prisma.playerTeam.findFirst({
+          where: { playerId: m.player.id, teamId: m.team.id },
+          select: { jerseyNumber: true },
+        }).then((pt) => pt?.jerseyNumber ?? null))
+      : null,
+    playerId: m.player?.id ?? null,
+  })) || [];
+
+  const teamsWithJersey = await Promise.all(
+    teams.map(async (t) => ({
+      ...t,
+      jerseyNumber: await t.jerseyNumber,
+    }))
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -44,8 +76,9 @@ export default async function ProfilePage() {
                   firstName: session.user.firstName || '',
                   lastName: session.user.lastName || '',
                   nickname: session.user.nickname || '',
-                  email: session.user.email || '',
+                  image: userWithTeams?.image || null,
                 }}
+                teams={teamsWithJersey}
               />
             </CardContent>
           </Card>

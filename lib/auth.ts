@@ -9,6 +9,7 @@ declare module "next-auth" {
     firstName?: string | null
     lastName?: string | null
     nickname?: string | null
+    image?: string | null
   }
   interface Session {
     user: {
@@ -17,6 +18,7 @@ declare module "next-auth" {
       firstName?: string | null
       lastName?: string | null
       nickname?: string | null
+      image?: string | null
     }
   }
 }
@@ -27,6 +29,7 @@ declare module "@auth/core/jwt" {
     firstName?: string | null
     lastName?: string | null
     nickname?: string | null
+    image?: string | null
   }
 }
 
@@ -76,6 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           firstName: user.firstName,
           lastName: user.lastName,
           nickname: user.nickname,
+          image: user.image,
         }
       },
     }),
@@ -87,6 +91,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.firstName = user.firstName
         token.lastName = user.lastName
         token.nickname = user.nickname
+        token.image = user.image
       }
       return token
     },
@@ -96,6 +101,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.firstName = token.firstName as string | null | undefined
         session.user.lastName = token.lastName as string | null | undefined
         session.user.nickname = token.nickname as string | null | undefined
+        session.user.image = token.image as string | null | undefined
       }
       return session
     },
