@@ -50,7 +50,6 @@ export default async function DashboardPage() {
     id: m.teamId,
     name: m.team?.name || '',
     description: m.team?.description || '',
-    team_mode: m.team?.teamMode || '5-a-side',
     role: m.role,
   }));
 
@@ -322,9 +321,6 @@ export default async function DashboardPage() {
                         </p>
                       )}
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {team.team_mode === '5-a-side' ? '5 vs 5' : team.team_mode === '8-a-side' ? '8 vs 8' : '11 vs 11'}
-                        </span>
                         <span className="text-muted-foreground capitalize">
                           {team.role}
                         </span>

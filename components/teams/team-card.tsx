@@ -16,32 +16,6 @@ interface TeamCardProps {
 export function TeamCard({ team, onClick, memberCount, userRole }: TeamCardProps) {
   const t = useTranslations("teams");
 
-  const getTeamModeLabel = (mode: string) => {
-    switch (mode) {
-      case "5-a-side":
-        return t("teamMode.5a-side");
-      case "8-a-side":
-        return t("teamMode.8a-side");
-      case "11-a-side":
-        return t("teamMode.11a-side");
-      default:
-        return mode;
-    }
-  };
-
-  const getTeamModeIcon = (mode: string) => {
-    switch (mode) {
-      case "5-a-side":
-        return "5";
-      case "8-a-side":
-        return "8";
-      case "11-a-side":
-        return "11";
-      default:
-        return "?";
-    }
-  };
-
   return (
     <Card
       className="cursor-pointer transition-all hover:shadow-md active:scale-[0.98] overflow-hidden"
@@ -86,10 +60,7 @@ export function TeamCard({ team, onClick, memberCount, userRole }: TeamCardProps
             <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Users className="h-4 w-4" />
-                {memberCount ?? 0}
-              </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary">
-                {getTeamModeLabel(team.team_mode)}
+                {memberCount ?? 0} {t("members")}
               </span>
             </div>
           </div>

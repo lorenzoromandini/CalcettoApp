@@ -21,7 +21,6 @@ function toTeamType(dbTeam: any): Team {
     name: dbTeam.name,
     description: dbTeam.description ?? undefined,
     image_url: dbTeam.imageUrl ?? undefined,
-    team_mode: dbTeam.teamMode as Team['team_mode'],
     created_by: dbTeam.createdBy,
     created_at: dbTeam.createdAt.toISOString(),
     updated_at: dbTeam.updatedAt.toISOString(),
@@ -55,7 +54,6 @@ export async function createTeam(
       name: data.name,
       description: data.description,
       imageUrl: data.image_url,
-      teamMode: data.team_mode,
       createdBy: userId,
     },
   });
@@ -115,7 +113,6 @@ export async function updateTeam(
       name: data.name,
       description: data.description,
       imageUrl: data.image_url,
-      teamMode: data.team_mode,
     },
   });
 }

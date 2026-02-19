@@ -21,7 +21,6 @@ export function DashboardClient({ teams, userName }: DashboardClientProps) {
     id: team.id,
     name: team.name,
     description: team.description || '',
-    team_mode: team.team_mode,
     role: 'member' as const, // Will be determined by actual membership
   }));
 
@@ -145,9 +144,6 @@ export function DashboardClient({ teams, userName }: DashboardClientProps) {
                           </p>
                         )}
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            {team.team_mode === '5-a-side' ? '5 vs 5' : team.team_mode === '8-a-side' ? '8 vs 8' : '11 vs 11'}
-                          </span>
                           <span className="text-muted-foreground capitalize">
                             {team.role}
                           </span>

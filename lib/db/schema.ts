@@ -18,11 +18,6 @@ import type { DBSchema } from 'idb';
 export type SyncStatus = 'synced' | 'pending' | 'error';
 
 /**
- * Team mode/formation type
- */
-export type TeamMode = '5-a-side' | '8-a-side' | '11-a-side';
-
-/**
  * Team entity - a group of players
  */
 export interface Team {
@@ -30,7 +25,6 @@ export interface Team {
   name: string;
   description?: string;
   image_url?: string;
-  team_mode: TeamMode;
   created_by: string;
   created_at: string;
   updated_at: string;

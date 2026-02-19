@@ -122,7 +122,7 @@ export function MyTeamsSwitcher({ currentTeamId, locale }: MyTeamsSwitcherProps)
                 {team.name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {team.team_mode === '5-a-side' ? '5 vs 5' : team.team_mode === '8-a-side' ? '8 vs 8' : '11 vs 11'}
+                {t('member', { count: 1 })}
               </p>
             </div>
             {team.id === currentTeamId && (
