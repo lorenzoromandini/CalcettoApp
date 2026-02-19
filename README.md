@@ -1,6 +1,14 @@
-# Calcetto Manager
+<p align="center">
+  <img src="public/icons/logo.png" alt="Calcetto Manager Logo" width="128" height="128">
+</p>
 
-A mobile-first web app for organizing football matches with friends. Track games, players, and statistics.
+<h1 align="center">Calcetto Manager</h1>
+
+<p align="center">
+  A mobile-first web app for organizing football matches with friends. Track games, players, and statistics.
+</p>
+
+---
 
 ## Features
 
