@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Settings, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { prisma } from '@/lib/prisma';
 
 export default function TeamSettingsPage() {
   const t = useTranslations('settings');
@@ -30,15 +29,14 @@ export default function TeamSettingsPage() {
 
     setUserId(session.user.id);
 
-    // Check if user is admin
-    const membership = await prisma.teamMember.findFirst({
-      where: {
-        teamId: teamId,
-        userId: session.user.id,
-      },
-    });
-
-    setIsAdmin(membership?.role === 'admin' || membership?.role === 'co-admin');
+    try {
+      const res = await fetch(`/api/teams/${teamId}/admin`);
+      const data = await res.json();
+      setIsAdmin(data.isAdmin);
+    } catch {
+      setIsAdmin(false);
+    }
+    
     setIsLoading(false);
   }, [teamId, session]);
 
