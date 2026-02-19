@@ -253,10 +253,19 @@
       "viewTeam": "Vedi squadra"
     }
   },
-  "settings": {
+"settings": {
     "title": "Impostazioni squadra",
     "backToTeam": "Torna alla squadra",
     "notAdmin": "Solo gli admin possono accedere alle impostazioni",
+    "save": "Salva modifiche",
+    "saving": "Salvataggio...",
+    "saveSuccess": "Modifiche salvate con successo",
+    "saveError": "Errore nel salvataggio",
+    "teamInfo": {
+      "title": "Informazioni squadra",
+      "name": "Nome squadra",
+      "description": "Descrizione"
+    },
     "dangerZone": {
       "title": "Zona pericolosa",
       "description": "Azioni irreversibili per la squadra",
@@ -300,9 +309,11 @@
     "stats": "Statistiche",
     "settings": "Impostazioni"
   },
-  "teamDashboard": {
+"teamDashboard": {
     "syncing": "Sincronizzazione...",
     "settings": "Impostazioni",
+    "inviteLinkCopied": "Link copiato negli appunti",
+    "clickToGenerate": "Clicca per generare un link di invito",
     "stats": {
       "players": "Giocatori",
       "registeredPlayers": "Giocatori registrati",

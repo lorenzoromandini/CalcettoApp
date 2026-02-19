@@ -1,25 +1,7 @@
-/**
- * Players React Hooks - NextAuth Version
- * 
- * Provides data fetching and mutations for player management.
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { 
-  getPlayersByTeam, 
-  createPlayer, 
-  updatePlayer, 
-  deletePlayer,
-  addPlayerToTeam,
-  removePlayerFromTeam
-} from '@/lib/db/players';
 import type { Player, PlayerTeam } from '@/lib/db/schema';
 import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
-
-// ============================================================================
-// usePlayers Hook - Get all players for a team
-// ============================================================================
 
 interface UsePlayersReturn {
   players: (Player & { jersey_number?: number })[];
@@ -44,8 +26,10 @@ export function usePlayers(teamId: string | null): UsePlayersReturn {
     setError(null);
 
     try {
-      const teamPlayers = await getPlayersByTeam(teamId);
-      setPlayers(teamPlayers);
+      const response = await fetch(`/api/teams/${teamId}/players`);
+      if (!response.ok) throw new Error('Failed to fetch players');
+      const data = await response.json();
+      setPlayers(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch players'));
     } finally {
@@ -64,10 +48,6 @@ export function usePlayers(teamId: string | null): UsePlayersReturn {
     refetch: fetchPlayers,
   };
 }
-
-// ============================================================================
-// useCreatePlayer Hook - Create player mutation
-// ============================================================================
 
 interface UseCreatePlayerReturn {
   createPlayer: (data: CreatePlayerInput) => Promise<string>;
@@ -90,8 +70,14 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
     setError(null);
 
     try {
-      const playerId = await createPlayer(data, teamId);
-      return playerId;
+      const response = await fetch(`/api/teams/${teamId}/players`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to create player');
+      const result = await response.json();
+      return result.id;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create player');
       setError(error);
@@ -107,10 +93,6 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
     error,
   };
 }
-
-// ============================================================================
-// useUpdatePlayer Hook - Update player mutation
-// ============================================================================
 
 interface UseUpdatePlayerReturn {
   updatePlayer: (playerId: string, data: UpdatePlayerInput) => Promise<void>;
@@ -130,7 +112,12 @@ export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
     setError(null);
 
     try {
-      await updatePlayer(playerId, data, teamId);
+      const response = await fetch(`/api/teams/${teamId}/players/${playerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update player');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update player');
       setError(error);
@@ -147,17 +134,13 @@ export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
   };
 }
 
-// ============================================================================
-// useDeletePlayer Hook - Delete player mutation
-// ============================================================================
-
 interface UseDeletePlayerReturn {
   deletePlayer: (playerId: string) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useDeletePlayer(): UseDeletePlayerReturn {
+export function useDeletePlayer(teamId: string): UseDeletePlayerReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -166,7 +149,10 @@ export function useDeletePlayer(): UseDeletePlayerReturn {
     setError(null);
 
     try {
-      await deletePlayer(playerId);
+      const response = await fetch(`/api/teams/${teamId}/players/${playerId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete player');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to delete player');
       setError(error);
@@ -174,7 +160,7 @@ export function useDeletePlayer(): UseDeletePlayerReturn {
     } finally {
       setIsPending(false);
     }
-  }, []);
+  }, [teamId]);
 
   return {
     deletePlayer: deletePlayerMutation,
@@ -182,10 +168,6 @@ export function useDeletePlayer(): UseDeletePlayerReturn {
     error,
   };
 }
-
-// ============================================================================
-// useAddPlayerToTeam Hook - Add existing player to team
-// ============================================================================
 
 interface UseAddPlayerToTeamReturn {
   addPlayerToTeam: (playerId: string, jerseyNumber: number) => Promise<void>;
@@ -209,7 +191,12 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     setError(null);
 
     try {
-      await addPlayerToTeam(playerId, teamId, jerseyNumber);
+      const response = await fetch(`/api/teams/${teamId}/players/${playerId}/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jerseyNumber }),
+      });
+      if (!response.ok) throw new Error('Failed to add player to team');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to add player to team');
       setError(error);
@@ -225,10 +212,6 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     error,
   };
 }
-
-// ============================================================================
-// useRemovePlayerFromTeam Hook - Remove player from team
-// ============================================================================
 
 interface UseRemovePlayerFromTeamReturn {
   removePlayerFromTeam: (playerId: string) => Promise<void>;
@@ -249,7 +232,10 @@ export function useRemovePlayerFromTeam(teamId: string | null): UseRemovePlayerF
     setError(null);
 
     try {
-      await removePlayerFromTeam(playerId, teamId);
+      const response = await fetch(`/api/teams/${teamId}/players/${playerId}/remove`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to remove player from team');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to remove player from team');
       setError(error);

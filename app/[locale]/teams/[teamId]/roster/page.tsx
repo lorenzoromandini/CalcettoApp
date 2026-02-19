@@ -18,6 +18,7 @@ export default function TeamRosterPage() {
   const t = useTranslations('roster');
   const params = useParams();
   const teamId = params.teamId as string;
+  const locale = params.locale as string;
 
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [players, setPlayers] = useState<(Player & { jersey_number?: number })[]>([]);
@@ -66,10 +67,10 @@ export default function TeamRosterPage() {
     );
   }
 
-  return (
+return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-6">
-        <Link href={`/teams/${teamId}`}>
+        <Link href={`/${locale}/teams/${teamId}`}>
           <Button variant="ghost" className="pl-0">
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('backToTeam')}
@@ -106,7 +107,7 @@ export default function TeamRosterPage() {
             <Card className="border-dashed">
               <CardContent className="p-8 text-center">
                 <p className="text-muted-foreground">{t('noPlayers')}</p>
-                <Link href={`/teams/${teamId}/players/create`} className="mt-4 inline-block">
+                <Link href={`/${locale}/teams/${teamId}/players/create`} className="mt-4 inline-block">
                   <Button>{t('addPlayer')}</Button>
                 </Link>
               </CardContent>

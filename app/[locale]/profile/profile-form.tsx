@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from '@/lib/i18n/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { profileSchema, type ProfileInput } from '@/lib/validations/auth';
 import { AvatarCropper } from '@/components/players/avatar-cropper';
-import { Shirt, User, Upload, X, Loader2 } from 'lucide-react';
+import { Shirt, User, Upload, X, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import {
   Select,
@@ -21,6 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface TeamWithJersey {
   id: string;
@@ -49,7 +56,8 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
   const [showCropper, setShowCropper] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [teams, setTeams] = useState<TeamWithJersey[]>(initialTeams);
-  const [savingTeamId, setSavingTeamId] = useState<string | null>(null);
+  const [originalTeams, setOriginalTeams] = useState<TeamWithJersey[]>(initialTeams);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const {
     register,
@@ -63,6 +71,17 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
       nickname: user.nickname || '',
     },
   });
+
+  useEffect(() => {
+    setOriginalTeams(initialTeams);
+  }, [initialTeams]);
+
+  const hasChanges = useCallback(() => {
+    const jerseyChanged = teams.some((team, index) => 
+      team.jerseyNumber !== originalTeams[index]?.jerseyNumber
+    );
+    return avatarBlob !== undefined || jerseyChanged;
+  }, [teams, originalTeams, avatarBlob]);
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -107,46 +126,14 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
     }
   };
 
-  const handleJerseyChange = async (teamId: string, jerseyNumber: string) => {
+  const handleJerseyChange = (teamId: string, jerseyNumber: string) => {
     const number = parseInt(jerseyNumber, 10);
     if (isNaN(number) || number < 1 || number > 99) {
-      toast.error('Numero non valido', {
-        description: 'Il numero deve essere tra 1 e 99',
-      });
       return;
     }
-
-    setSavingTeamId(teamId);
-    try {
-      const response = await fetch('/api/user/jersey', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId, jerseyNumber: number }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        toast.error('Errore', {
-          description: result.error || 'Si è verificato un errore',
-        });
-        return;
-      }
-
-      setTeams(teams.map(t => 
-        t.id === teamId ? { ...t, jerseyNumber: number } : t
-      ));
-      
-      toast.success('Numero maglia aggiornato', {
-        description: `Il tuo numero è ora ${number}`,
-      });
-    } catch {
-      toast.error('Errore', {
-        description: 'Si è verificato un errore durante il salvataggio',
-      });
-    } finally {
-      setSavingTeamId(null);
-    }
+    setTeams(teams.map(t => 
+      t.id === teamId ? { ...t, jerseyNumber: number } : t
+    ));
   };
 
   const getAvailableNumbers = () => {
@@ -160,10 +147,19 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
       formData.append('firstName', data.firstName);
       formData.append('lastName', data.lastName);
       formData.append('nickname', data.nickname || '');
+      
       if (avatarBlob) {
         formData.append('image', avatarBlob);
       } else if (avatarImage === null && user.image) {
         formData.append('removeImage', 'true');
+      }
+
+      const jerseyChanges = teams.filter((team, index) => 
+        team.jerseyNumber !== originalTeams[index]?.jerseyNumber
+      ).map(t => ({ teamId: t.id, jerseyNumber: t.jerseyNumber }));
+      
+      if (jerseyChanges.length > 0) {
+        formData.append('jerseyChanges', JSON.stringify(jerseyChanges));
       }
 
       const response = await fetch('/api/user/profile', {
@@ -171,11 +167,14 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Errore durante il salvataggio');
-      }
-
       const result = await response.json();
+
+      if (!response.ok) {
+        toast.error('Errore', {
+          description: result.error || 'Si è verificato un errore durante il salvataggio',
+        });
+        return;
+      }
       
       await updateSession({
         firstName: result.firstName,
@@ -183,9 +182,9 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         nickname: result.nickname,
       });
 
-      toast.success('Profilo aggiornato', {
-        description: 'Le modifiche sono state salvate con successo',
-      });
+      setOriginalTeams(teams);
+      setAvatarBlob(undefined);
+      setShowSuccessDialog(true);
       router.refresh();
     } catch {
       toast.error('Errore', {
@@ -219,27 +218,27 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         <Label>Foto profilo</Label>
         <div className="flex items-center gap-4">
           {avatarImage ? (
-            <div className="relative">
-              <Image
-                src={avatarImage}
-                alt="Avatar preview"
-                width={80}
-                height={80}
-                className="rounded-full object-cover"
-              />
-              <button
-                type="button"
-                onClick={handleRemoveAvatar}
-                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-              <User className="h-8 w-8 text-muted-foreground" />
-            </div>
-          )}
+             <div className="relative">
+               <Image
+                 src={avatarImage}
+                 alt="Avatar preview"
+                 width={60}
+                 height={80}
+                 className="rounded-lg object-cover"
+               />
+               <button
+                 type="button"
+                 onClick={handleRemoveAvatar}
+                 className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1"
+               >
+                 <X className="h-3 w-3" />
+               </button>
+             </div>
+           ) : (
+             <div className="w-[60px] h-[80px] rounded-lg bg-muted flex items-center justify-center">
+               <User className="h-8 w-8 text-muted-foreground" />
+             </div>
+           )}
           <div className="flex-1">
             <input
               ref={fileInputRef}
@@ -305,12 +304,8 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         )}
       </div>
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? 'Salvataggio...' : 'Salva modifiche'}
-      </Button>
-
       {teams.length > 0 && (
-        <Card className="mt-6">
+        <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Shirt className="h-5 w-5 text-primary" />
@@ -328,7 +323,6 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
                   <Select
                     value={team.jerseyNumber?.toString() || ''}
                     onValueChange={(value) => handleJerseyChange(team.id, value)}
-                    disabled={savingTeamId === team.id}
                   >
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Seleziona numero" />
@@ -342,14 +336,37 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                {savingTeamId === team.id && (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                )}
               </div>
             ))}
           </CardContent>
         </Card>
       )}
+
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? 'Salvataggio...' : 'Salva modifiche'}
+        {hasChanges() && !isLoading && (
+          <span className="ml-2 text-xs opacity-70">(modifiche in sospeso)</span>
+        )}
+      </Button>
+
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="rounded-full bg-green-100 p-3">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-xl">Modifiche salvate</DialogTitle>
+            <DialogDescription className="text-center">
+              Le modifiche al profilo sono state applicate correttamente.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => setShowSuccessDialog(false)} className="mt-4">
+            Chiudi
+          </Button>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

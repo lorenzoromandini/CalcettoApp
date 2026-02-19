@@ -16,6 +16,7 @@ export async function PATCH(request: NextRequest) {
     const nickname = formData.get('nickname') as string | null;
     const imageFile = formData.get('image') as Blob | null;
     const removeImage = formData.get('removeImage') === 'true';
+    const jerseyChangesStr = formData.get('jerseyChanges') as string | null;
 
     if (!firstName || firstName.length < 2) {
       return NextResponse.json({ error: 'Il nome deve avere almeno 2 caratteri' }, { status: 400 });
@@ -67,6 +68,31 @@ export async function PATCH(request: NextRequest) {
           avatarUrl: avatarUrl,
         },
       });
+    }
+
+    if (jerseyChangesStr) {
+      try {
+        const jerseyChanges = JSON.parse(jerseyChangesStr) as Array<{
+          teamId: string;
+          jerseyNumber: number | null;
+        }>;
+
+        for (const change of jerseyChanges) {
+          if (change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
+            await prisma.playerTeam.updateMany({
+              where: {
+                playerId: updatedUser.playerProfile?.id,
+                teamId: change.teamId,
+              },
+              data: {
+                jerseyNumber: change.jerseyNumber,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Error updating jersey numbers:', e);
+      }
     }
 
     return NextResponse.json({ 

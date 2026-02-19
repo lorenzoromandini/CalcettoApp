@@ -20,8 +20,8 @@ export function PlayersPageClient({ locale, teamId }: PlayersPageClientProps) {
   const { players, isLoading, error, refetch } = usePlayers(teamId);
   const { team } = useTeam(teamId);
 
-  const handleBack = () => {
-    router.push(`/${locale}/teams`);
+const handleBack = () => {
+    router.push(`/${locale}/teams/${teamId}`);
   };
 
   const handleCreatePlayer = () => {
