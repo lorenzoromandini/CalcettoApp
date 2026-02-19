@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Link } from "@/lib/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Image from "next/image";
 
 interface AuthCardProps {
   title: string;
@@ -17,10 +18,15 @@ export function AuthCard({ title, description, children, footer }: AuthCardProps
       <Card className="w-full max-w-[400px] shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
-            {/* Logo placeholder - can be replaced with actual logo */}
-            <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground text-xl font-bold">C</span>
-            </div>
+            <Link href="/">
+              <Image
+                src="/icons/logo.png"
+                alt="Calcetto Manager"
+                width={64}
+                height={64}
+                className="h-16 w-auto"
+              />
+            </Link>
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">{title}</CardTitle>
           {description && (

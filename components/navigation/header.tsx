@@ -8,6 +8,7 @@ import { UserMenu } from './user-menu';
 import { Link } from '@/lib/i18n/navigation';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export function Header() {
   const t = useTranslations('navigation');
@@ -19,6 +20,13 @@ export function Header() {
       <div className="container flex h-14 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/icons/logo.png"
+            alt="Calcetto Manager"
+            width={28}
+            height={28}
+            className="h-7 w-auto"
+          />
           <span className="text-xl font-bold text-primary">Calcetto Manager</span>
         </Link>
 
