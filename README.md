@@ -131,4 +131,4 @@ MIT
 
 ---
 
-Built with **Opencode**, **GET SHIT DONE**, and **models Kimi K2.5 free and GLM-5 free**
+Built with **Opencode**, **GET SHIT DONE**, and models **Kimi K2.5 free** and **GLM-5 free**
