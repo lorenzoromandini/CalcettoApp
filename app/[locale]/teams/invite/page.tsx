@@ -4,7 +4,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getInviteByToken, redeemInvite } from '@/lib/db/invites';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,6 +12,18 @@ import Link from 'next/link';
 
 type InviteState = 'loading' | 'valid' | 'invalid' | 'expired' | 'maxed';
 
+interface InviteData {
+  id: string;
+  team: {
+    id: string;
+    name: string;
+    imageUrl?: string;
+  };
+  expiresAt: string;
+  useCount: number;
+  maxUses: number;
+}
+
 export default function InvitePage() {
   const t = useTranslations('invites');
   const searchParams = useSearchParams();
@@ -20,7 +31,7 @@ export default function InvitePage() {
   const token = searchParams.get('token');
 
   const [inviteState, setInviteState] = useState<InviteState>('loading');
-  const [teamName, setTeamName] = useState<string>('');
+  const [inviteData, setInviteData] = useState<InviteData | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [joinResult, setJoinResult] = useState<'success' | 'already_member' | 'error' | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -34,18 +45,28 @@ export default function InvitePage() {
       return;
     }
 
-    const invite = await getInviteByToken(token);
-    if (!invite) {
+    try {
+      const res = await fetch(`/api/invites/${token}`);
+      
+      if (!res.ok) {
+        const data = await res.json();
+        if (data.error === 'Expired') {
+          setInviteState('expired');
+        } else if (data.error === 'Max uses reached') {
+          setInviteState('maxed');
+        } else {
+          setInviteState('invalid');
+        }
+        return;
+      }
+
+      const data: InviteData = await res.json();
+      setInviteData(data);
+      setInviteState('valid');
+    } catch {
       setInviteState('invalid');
-      return;
     }
-
-    // Get team name
-    const teamName = invite.team?.name || t('unknownTeam');
-
-    setTeamName(teamName);
-    setInviteState('valid');
-  }, [token, session?.user, t]);
+  }, [token, session?.user]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -56,25 +77,37 @@ export default function InvitePage() {
     if (!token) return;
 
     if (!session?.user?.id) {
-      // Should not happen due to auth check, but handle gracefully
       setJoinResult('error');
       return;
     }
 
     setIsJoining(true);
-    const result = await redeemInvite(token, session.user.id);
-    setIsJoining(false);
+    
+    try {
+      const res = await fetch(`/api/invites/${token}/redeem`, {
+        method: 'POST',
+      });
 
-    if (result) {
-      setJoinResult('success');
-      // Redirect to team page after delay
-      setTimeout(() => {
-        router.push(`/teams`);
-      }, 2000);
-    } else {
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setJoinResult('success');
+        setTimeout(() => {
+          router.push(`/teams/${data.teamId}`);
+        }, 2000);
+      } else if (data.error === 'Already a member') {
+        setJoinResult('already_member');
+      } else {
+        setJoinResult('error');
+      }
+    } catch {
       setJoinResult('error');
     }
+    
+    setIsJoining(false);
   };
+
+  const teamName = inviteData?.team?.name || t('unknownTeam');
 
   if (inviteState === 'loading') {
     return (
