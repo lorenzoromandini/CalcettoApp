@@ -51,8 +51,8 @@ export function AvatarCropper({ image, onCropComplete, onCancel }: AvatarCropper
           image={image}
           crop={crop}
           zoom={zoom}
-          aspect={1}
-          cropShape="round"
+          aspect={3 / 4}
+          cropShape="rect"
           showGrid={false}
           onCropChange={setCrop}
           onZoomChange={setZoom}

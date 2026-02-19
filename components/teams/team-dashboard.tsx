@@ -1,13 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp, Link2, Copy, Check, Loader2 } from 'lucide-react';
 import { MyTeamsSwitcher } from './my-teams-switcher';
+import { generateInviteLink } from '@/lib/db/invites';
 import type { Team } from '@/lib/db/schema';
 
 interface TeamDashboardProps {
@@ -24,8 +30,43 @@ export function TeamDashboard({
   isAdmin,
 }: TeamDashboardProps) {
   const t = useTranslations('teamDashboard');
+  const tInvites = useTranslations('invites');
   const params = useParams();
   const locale = params.locale as string;
+  const { data: session } = useSession();
+
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerateInvite = async () => {
+    if (!session?.user?.id) return;
+
+    setIsGenerating(true);
+    try {
+      const { link } = await generateInviteLink(team.id, session.user.id, { maxUses: 50 });
+      setInviteLink(link);
+    } catch (error) {
+      console.error('Failed to generate invite:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const openInviteDialog = () => {
+    setInviteDialogOpen(true);
+    if (!inviteLink) {
+      handleGenerateInvite();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -71,7 +112,7 @@ export function TeamDashboard({
 
         {isAdmin && (
           <div className="flex gap-2">
-            <Link href={`/teams/${team.id}/settings`}>
+            <Link href={`/${locale}/teams/${team.id}/settings`}>
               <Button variant="outline" className="h-12">
                 <Settings className="mr-2 h-4 w-4" />
                 {t('settings')}
@@ -140,7 +181,7 @@ export function TeamDashboard({
             <CardDescription>{t('actions.players.description')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href={`/teams/${team.id}/players`}>
+            <Link href={`/${locale}/teams/${team.id}/players`}>
               <Button className="w-full h-12">
                 {t('actions.players.button')}
               </Button>
@@ -158,11 +199,13 @@ export function TeamDashboard({
               <CardDescription>{t('actions.invite.description')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href={`/teams/${team.id}/settings`}>
-                <Button variant="outline" className="w-full h-12">
-                  {t('actions.invite.button')}
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                className="w-full h-12"
+                onClick={openInviteDialog}
+              >
+                {t('actions.invite.button')}
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -183,6 +226,74 @@ export function TeamDashboard({
           </p>
         </CardContent>
       </Card>
+
+      {/* Invite Dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Link2 className="h-5 w-5" />
+              {tInvites('generator.title')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('actions.invite.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {isGenerating ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : inviteLink ? (
+              <>
+                <div className="space-y-2">
+                  <Label>{tInvites('generator.linkLabel')}</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={inviteLink}
+                      readOnly
+                      className="flex-1"
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={handleCopy}
+                    >
+                      {copied ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                {copied && (
+                  <p className="text-sm text-green-600 text-center">
+                    {t('inviteLinkCopied')}
+                  </p>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGenerateInvite}
+                >
+                  {tInvites('generator.createNew')}
+                </Button>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-muted-foreground mb-4">
+                  {t('clickToGenerate')}
+                </p>
+                <Button onClick={handleGenerateInvite}>
+                  {tInvites('generator.button')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

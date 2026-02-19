@@ -2,11 +2,17 @@ import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { CreateMatchPageClient } from "./create-match-page-client";
 
+interface CreateMatchPageProps {
+  params: Promise<{
+    locale: string;
+    teamId: string;
+  }>;
+}
+
 export async function generateMetadata({
-  params: { locale },
-}: {
-  params: { locale: string };
-}): Promise<Metadata> {
+  params,
+}: CreateMatchPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "matches" });
   return {
     title: t("create"),
@@ -14,10 +20,9 @@ export async function generateMetadata({
   };
 }
 
-export default function CreateMatchPage({
-  params: { locale, teamId },
-}: {
-  params: { locale: string; teamId: string };
-}) {
+export default async function CreateMatchPage({
+  params,
+}: CreateMatchPageProps) {
+  const { locale, teamId } = await params;
   return <CreateMatchPageClient locale={locale} teamId={teamId} />;
 }

@@ -2,11 +2,18 @@ import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { MatchDetailPageClient } from "./match-detail-page-client";
 
+interface MatchDetailPageProps {
+  params: Promise<{
+    locale: string;
+    teamId: string;
+    matchId: string;
+  }>;
+}
+
 export async function generateMetadata({
-  params: { locale },
-}: {
-  params: { locale: string };
-}): Promise<Metadata> {
+  params,
+}: MatchDetailPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "matches" });
   return {
     title: t("detail.title"),
@@ -14,11 +21,10 @@ export async function generateMetadata({
   };
 }
 
-export default function MatchDetailPage({
-  params: { locale, teamId, matchId },
-}: {
-  params: { locale: string; teamId: string; matchId: string };
-}) {
+export default async function MatchDetailPage({
+  params,
+}: MatchDetailPageProps) {
+  const { locale, teamId, matchId } = await params;
   return (
     <MatchDetailPageClient
       locale={locale}

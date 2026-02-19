@@ -7,13 +7,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { 
-  getUserTeams, 
-  getTeam, 
-  createTeam as createTeamDB, 
-  updateTeam as updateTeamDB,
-  deleteTeam as deleteTeamDB 
-} from '@/lib/db/teams';
 import type { Team } from '@/lib/db/schema';
 import type { CreateTeamInput, UpdateTeamInput } from '@/lib/validations/team';
 
@@ -44,8 +37,10 @@ export function useTeams(): UseTeamsReturn {
     setError(null);
 
     try {
-      const userTeams = await getUserTeams(session.user.id);
-      setTeams(userTeams);
+      const response = await fetch('/api/teams');
+      if (!response.ok) throw new Error('Failed to fetch teams');
+      const data = await response.json();
+      setTeams(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch teams'));
     } finally {
@@ -92,8 +87,10 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     setError(null);
 
     try {
-      const teamData = await getTeam(teamId);
-      setTeam(teamData);
+      const response = await fetch(`/api/teams/${teamId}`);
+      if (!response.ok) throw new Error('Failed to fetch team');
+      const data = await response.json();
+      setTeam(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch team'));
     } finally {
@@ -137,8 +134,14 @@ export function useCreateTeam(): UseCreateTeamReturn {
     setError(null);
 
     try {
-      const teamId = await createTeamDB(data, session.user.id);
-      return teamId;
+      const response = await fetch('/api/teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to create team');
+      const result = await response.json();
+      return result.id;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create team');
       setError(error);
@@ -174,7 +177,12 @@ export function useUpdateTeam(): UseUpdateTeamReturn {
     setError(null);
 
     try {
-      await updateTeamDB(teamId, data);
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update team');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update team');
       setError(error);
@@ -210,7 +218,10 @@ export function useDeleteTeam(): UseDeleteTeamReturn {
     setError(null);
 
     try {
-      await deleteTeamDB(teamId);
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete team');
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to delete team');
       setError(error);
