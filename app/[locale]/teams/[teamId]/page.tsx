@@ -65,7 +65,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
     name: team.name,
     description: team.description || undefined,
     image_url: team.imageUrl || undefined,
-    team_mode: team.teamMode as '5-a-side' | '8-a-side' | '11-a-side',
     created_by: team.createdBy,
     created_at: team.createdAt.toISOString(),
     updated_at: team.updatedAt.toISOString(),

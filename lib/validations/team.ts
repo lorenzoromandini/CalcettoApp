@@ -6,9 +6,6 @@ import { z } from "zod";
  * Italian error messages for user-facing validation
  */
 
-// Team mode enum values
-export const teamModeEnum = z.enum(["5-a-side", "8-a-side", "11-a-side"]);
-
 // Create team schema
 export const createTeamSchema = z.object({
   name: z
@@ -24,7 +21,6 @@ export const createTeamSchema = z.object({
     .string()
     .url("URL immagine non valido")
     .optional(),
-  team_mode: teamModeEnum,
 });
 
 // Update team schema - all fields optional
@@ -42,10 +38,8 @@ export const updateTeamSchema = z.object({
     .string()
     .url("URL immagine non valido")
     .optional(),
-  team_mode: teamModeEnum.optional(),
 });
 
 // Type inference for forms
 export type CreateTeamInput = z.infer<typeof createTeamSchema>;
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
-export type TeamMode = z.infer<typeof teamModeEnum>;

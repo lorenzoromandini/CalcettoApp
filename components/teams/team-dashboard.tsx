@@ -60,9 +60,6 @@ export function TeamDashboard({
               <p className="text-muted-foreground mt-1">{team.description}</p>
             )}
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant={team.team_mode === '5-a-side' ? 'default' : 'secondary'}>
-                {team.team_mode === '5-a-side' ? '5 vs 5' : '8 vs 8'}
-              </Badge>
               {team.sync_status === 'pending' && (
                 <Badge variant="outline" className="text-yellow-600">
                   {t('syncing')}

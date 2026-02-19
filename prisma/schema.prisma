@@ -91,7 +91,6 @@ model Team {
   name        String
   description String?
   imageUrl    String?   @map("image_url")
-  teamMode    String    @default("5-a-side") @map("team_mode")
   createdBy   String    @map("created_by")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
