@@ -12,7 +12,8 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/teams'
-import type { MatchPlayer, RSVPStatus } from '@/lib/db/schema'
+import type { MatchPlayer } from '@/types/database'
+import type { RSVPStatus } from './rsvps'
 
 // ============================================================================
 // Types
@@ -134,8 +135,7 @@ export async function updatePlayerParticipation(
     player_id: updatedMatchPlayer.playerId,
     rsvp_status: updatedMatchPlayer.rsvpStatus as RSVPStatus,
     rsvp_at: updatedMatchPlayer.rsvpAt?.toISOString() || new Date().toISOString(),
-    position_on_pitch: updatedMatchPlayer.positionOnPitch ?? undefined,
-    sync_status: 'synced',
+    position_on_pitch: updatedMatchPlayer.positionOnPitch ?? null,
   }
 }
 

@@ -8,15 +8,9 @@
  */
 
 import { prisma } from './index';
-import type { MatchPlayer, RSVPStatus, SyncStatus } from './schema';
 
-// ============================================================================
-// Types
-// ============================================================================
+export type RSVPStatus = 'in' | 'out' | 'maybe';
 
-/**
- * RSVP counts aggregated by status
- */
 export interface RSVPCounts {
   in: number;
   out: number;
@@ -24,9 +18,6 @@ export interface RSVPCounts {
   total: number;
 }
 
-/**
- * Match RSVP with player details
- */
 export interface MatchRSVP {
   id: string;
   match_id: string;
@@ -37,10 +28,6 @@ export interface MatchRSVP {
   rsvp_at: string;
 }
 
-// ============================================================================
-// Type Helpers
-// ============================================================================
-
 function toMatchRSVP(dbMatchPlayer: any): MatchRSVP {
   return {
     id: dbMatchPlayer.id,
@@ -50,18 +37,6 @@ function toMatchRSVP(dbMatchPlayer: any): MatchRSVP {
     player_avatar: dbMatchPlayer.player?.avatarUrl ?? undefined,
     rsvp_status: dbMatchPlayer.rsvpStatus as RSVPStatus,
     rsvp_at: dbMatchPlayer.rsvpAt?.toISOString() || new Date().toISOString(),
-  };
-}
-
-function toMatchPlayerType(dbMatchPlayer: any): MatchPlayer {
-  return {
-    id: dbMatchPlayer.id,
-    match_id: dbMatchPlayer.matchId,
-    player_id: dbMatchPlayer.playerId,
-    rsvp_status: dbMatchPlayer.rsvpStatus as RSVPStatus,
-    rsvp_at: dbMatchPlayer.rsvpAt?.toISOString() || new Date().toISOString(),
-    position_on_pitch: dbMatchPlayer.positionOnPitch ?? undefined,
-    sync_status: 'synced',
   };
 }
 
@@ -215,27 +190,4 @@ export function subscribeToRSVPs(
   };
 }
 
-// ============================================================================
-// Sync Status Helpers (Placeholder for future offline implementation)
-// ============================================================================
 
-/**
- * Mark a match player as synced (called after successful background sync)
- * 
- * @param matchPlayerId - Match player ID to mark as synced
- */
-export async function markMatchPlayerSynced(matchPlayerId: string): Promise<void> {
-  // Placeholder - offline sync will be re-implemented
-  console.log('[RSVPDB] Marked match player as synced:', matchPlayerId);
-}
-
-/**
- * Get match players by sync status (for sync UI)
- * 
- * @param status - Sync status to filter by
- * @returns Array of match players with the given sync status
- */
-export async function getMatchPlayersBySyncStatus(_status: SyncStatus): Promise<MatchPlayer[]> {
-  // Placeholder - offline sync will be re-implemented
-  return [];
-}

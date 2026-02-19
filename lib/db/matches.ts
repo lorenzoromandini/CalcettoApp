@@ -5,19 +5,12 @@
  * 
  * Provides CRUD operations for matches using Prisma and PostgreSQL.
  * Replaces the Supabase-based implementation.
- * 
- * Note: Offline-first support with IndexedDB will be re-implemented
- * in a future optimization phase.
  */
 
 import { prisma } from './index';
 import { MatchStatus } from '@prisma/client';
-import type { Match, SyncStatus } from './schema';
+import type { Match } from '@/types/database';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
-
-// ============================================================================
-// Type Helpers
-// ============================================================================
 
 function toMatchType(dbMatch: any): Match {
   return {
@@ -33,7 +26,6 @@ function toMatchType(dbMatch: any): Match {
     created_by: dbMatch.createdBy || '',
     created_at: dbMatch.createdAt.toISOString(),
     updated_at: dbMatch.updatedAt.toISOString(),
-    sync_status: 'synced',
   };
 }
 
@@ -290,27 +282,4 @@ export async function isMatchAdmin(matchId: string, userId: string): Promise<boo
   return !!membership;
 }
 
-// ============================================================================
-// Sync Status Helpers (Placeholder for future offline implementation)
-// ============================================================================
 
-/**
- * Mark a match as synced (called after successful background sync)
- * 
- * @param matchId - Match ID to mark as synced
- */
-export async function markMatchSynced(matchId: string): Promise<void> {
-  // Placeholder - offline sync will be re-implemented
-  console.log('[MatchDB] Marked match as synced:', matchId);
-}
-
-/**
- * Get matches by sync status (for sync UI)
- * 
- * @param status - Sync status to filter by
- * @returns Array of matches with the given sync status
- */
-export async function getMatchesBySyncStatus(_status: SyncStatus): Promise<Match[]> {
-  // Placeholder - offline sync will be re-implemented
-  return [];
-}

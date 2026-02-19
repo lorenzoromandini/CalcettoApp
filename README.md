@@ -1,6 +1,6 @@
 # Calcetto Manager
 
-A mobile-first PWA for organizing football matches with friends. Track games, players, and statistics with offline support for use on the pitch.
+A mobile-first web app for organizing football matches with friends. Track games, players, and statistics.
 
 ## Features
 
@@ -10,24 +10,22 @@ A mobile-first PWA for organizing football matches with friends. Track games, pl
 - **Player Statistics** - Track goals, assists, and performance metrics
 - **Player Ratings** - Rate teammates after each match
 - **Leaderboards** - Rank players across multiple statistics
-- **Offline Support** - Works without internet connection
 - **Dark/Light Theme** - Automatic system detection + manual toggle
 - **Multi-language** - Italian (default) and English support
 
 ## Tech Stack
 
-- **Frontend**: React 19 + Next.js 15 (App Router)
+- **Frontend**: React 19 + Next.js 16 (App Router)
 - **Styling**: Tailwind CSS 4.x + shadcn/ui components
-- **PWA**: Manifest, Service Worker, offline fallback
 - **i18n**: next-intl v4
 
 ## Implementation
 
 ### Database & ORM
-- **PostgreSQL** - Primary relational database hosted in Docker
+- **PostgreSQL** - Primary relational database
 - **Prisma** - Type-safe ORM for database operations
   - Schema defined in `prisma/schema.prisma`
-  - Models: User, Account, Session, VerificationToken
+  - Models: User, Account, Session, Team, Player, Match, Goal, Rating
   - Run `npx prisma studio` to explore data
 
 ### Authentication
@@ -37,18 +35,11 @@ A mobile-first PWA for organizing football matches with friends. Track games, pl
   - bcryptjs for password hashing
   - Custom sign-in/sign-up API routes
 
-### Offline Support
-- **IndexedDB** - Browser-based NoSQL database via `idb` library
-- **Service Worker** - Workbox for caching and offline functionality
-  - Precache for app shell
-  - Runtime caching for static assets
-  - Background sync for offline mutations
-
 ### Internationalization
 - **next-intl** - Routing and translations
   - Italian (it) as default locale
   - English (en) as fallback
-  - Middleware for locale detection and routing
+  - Proxy for locale detection and routing
 
 ### Theming
 - **next-themes** - Dark/light mode with system preference detection
@@ -59,73 +50,62 @@ A mobile-first PWA for organizing football matches with friends. Track games, pl
 ### Prerequisites
 
 - Node.js 20+ (recommended)
-- Docker (for PostgreSQL)
+- PostgreSQL database
 
 ### Setup
 
 1. Clone the repository
-2. Start PostgreSQL with Docker:
 
-```bash
-docker run -d \
-  --name calcetto-db \
-  -e POSTGRES_PASSWORD=your-password \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_DB=postgres \
-  -p 5432:5432 \
-  supabase/postgres:15.8.1.085
-```
-
-3. Copy `.env.example` to `.env.local`:
+2. Copy `.env.example` to `.env.local`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-4. Update `.env.local` with your database URL:
+3. Update `.env.local` with your database URL:
 
 ```env
 DATABASE_URL="postgresql://postgres:your-password@localhost:5432/postgres?schema=public"
 AUTH_SECRET="generate-a-secret-key"
 ```
 
-5. Generate AUTH_SECRET:
+4. Generate AUTH_SECRET:
 ```bash
 openssl rand -base64 32
 ```
 
-6. Install dependencies:
+5. Install dependencies:
 
 ```bash
 npm install
 ```
 
-7. Push database schema:
+6. Push database schema:
 
 ```bash
 npx prisma db push
 ```
 
-8. Run development server:
+7. Run development server:
 
 ```bash
 npm run dev
 ```
 
-9. Open http://localhost:3000
+8. Open http://localhost:3000
 
 ## Project Structure
 
 ```
 app/                    # Next.js App Router pages
-components/            # React components (UI, auth)
-lib/                   # Utilities, auth, database
-  auth.ts              # NextAuth configuration
-  prisma.ts            # Prisma client singleton
-hooks/                 # Custom React hooks
-messages/              # i18n translation files (it.json, en.json)
-prisma/                # Database schema
-public/                # Static assets, icons, service worker
+components/             # React components (UI, auth)
+lib/                    # Utilities, auth, database
+  auth.ts               # NextAuth configuration
+  db/                   # Database operations
+hooks/                  # Custom React hooks
+messages/               # i18n translation files (it.json, en.json)
+prisma/                 # Database schema
+public/                 # Static assets, icons
 ```
 
 ## Development
@@ -134,7 +114,7 @@ public/                # Static assets, icons, service worker
 npm run dev        # Start dev server
 npm run build      # Production build
 npm run lint       # Run ESLint
-npx prisma studio # Database GUI
+npx prisma studio  # Database GUI
 ```
 
 ## License
@@ -143,4 +123,4 @@ MIT
 
 ---
 
-Built with **Opencode**, **GET SHIT DONE**, and **model Kimi K2.5 Free**
+Built with **Opencode**, **GET SHIT DONE**, and **models Kimi K2.5 free and GLM-5 free**

@@ -4,10 +4,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/lib/i18n/routing';
-import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { OfflineBanner } from "@/components/offline-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +20,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Calcetto Manager",
   description: "Organizza e gestisci le tue partite di calcetto",
-  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icons/favicon.ico",
     apple: "/icons/apple-touch-icon.png",
@@ -65,11 +62,9 @@ export default async function LocaleLayout({
           <AuthProvider>
             <NextIntlClientProvider messages={messages} locale={locale}>
               {children}
-              <OfflineBanner />
             </NextIntlClientProvider>
           </AuthProvider>
         </ThemeProvider>
-        <ServiceWorkerRegister />
       </body>
     </html>
   );

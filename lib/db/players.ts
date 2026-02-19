@@ -5,21 +5,21 @@
  */
 
 import { prisma } from './index';
-import type { Player, PlayerTeam } from '@/lib/db/schema';
+import type { Player, PlayerTeam } from '@/types/database';
 import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
 
 function toPlayerType(dbPlayer: any): Player {
   return {
     id: dbPlayer.id,
     name: dbPlayer.name,
-    surname: dbPlayer.surname ?? undefined,
-    nickname: dbPlayer.nickname ?? undefined,
-    avatar_url: dbPlayer.avatarUrl ?? undefined,
-    user_id: dbPlayer.userId ?? undefined,
+    surname: dbPlayer.surname ?? null,
+    nickname: dbPlayer.nickname ?? null,
+    avatar_url: dbPlayer.avatarUrl ?? null,
+    user_id: dbPlayer.userId ?? null,
     roles: dbPlayer.roles as Player['roles'],
     created_at: dbPlayer.createdAt.toISOString(),
     updated_at: dbPlayer.updatedAt.toISOString(),
-    sync_status: 'synced',
+    sync_status: null,
   };
 }
 
