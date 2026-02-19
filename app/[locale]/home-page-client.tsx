@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/lib/i18n/navigation';
 import { OnboardingTutorial } from '@/components/onboarding/tutorial';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import Image from 'next/image';
 
 export default function HomePageClient() {
   const t = useTranslations();
@@ -30,7 +31,16 @@ export default function HomePageClient() {
       )}
 
       <header className="flex items-center justify-between border-b px-4 py-3">
-        <h1 className="text-xl font-bold text-primary">Calcetto Manager</h1>
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/icons/logo.png"
+            alt="Calcetto Manager"
+            width={32}
+            height={32}
+            className="h-8 w-auto"
+          />
+          <span className="text-xl font-bold text-primary">Calcetto Manager</span>
+        </Link>
         <div className="flex items-center gap-2">
           <LocaleSwitcher />
           <ThemeToggle />
