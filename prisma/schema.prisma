@@ -313,23 +313,4 @@ model PlayerRating {
   @@map("player_ratings")
 }
 
-// ============================================================================
-// OFFLINE SYNC MODELS
-// ============================================================================
 
-model OfflineAction {
-  id           String   @id @default(cuid())
-  actionType   String   @map("action_type")
-  tableName    String   @map("table_name")
-  recordId     String   @map("record_id")
-  data         Json?
-  timestamp    DateTime @default(now())
-  retryCount   Int      @default(0) @map("retry_count")
-  errorMessage String?  @map("error_message")
-  syncedAt     DateTime? @map("synced_at")
-
-  @@index([timestamp])
-  @@index([tableName])
-  @@index([syncedAt])
-  @@map("offline_actions")
-}

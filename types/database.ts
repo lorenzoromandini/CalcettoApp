@@ -284,7 +284,6 @@ export interface Database {
           created_by: string | null;
           created_at: string;
           updated_at: string;
-          sync_status: string | null;
         };
         Insert: {
           id?: string;
@@ -299,7 +298,6 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
-          sync_status?: string | null;
         };
         Update: {
           id?: string;
@@ -314,7 +312,6 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
-          sync_status?: string | null;
         };
         Relationships: [
           {
@@ -341,7 +338,6 @@ export interface Database {
           rsvp_status: 'in' | 'out' | 'maybe';
           rsvp_at: string | null;
           position_on_pitch: string | null;
-          sync_status: string | null;
         };
         Insert: {
           id?: string;
@@ -350,7 +346,6 @@ export interface Database {
           rsvp_status?: 'in' | 'out' | 'maybe';
           rsvp_at?: string | null;
           position_on_pitch?: string | null;
-          sync_status?: string | null;
         };
         Update: {
           id?: string;
@@ -359,7 +354,6 @@ export interface Database {
           rsvp_status?: 'in' | 'out' | 'maybe';
           rsvp_at?: string | null;
           position_on_pitch?: string | null;
-          sync_status?: string | null;
         };
         Relationships: [
           {

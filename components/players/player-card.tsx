@@ -96,15 +96,15 @@ export function PlayerCard({ player, teamId, onClick }: PlayerCardProps) {
           {player.roles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {player.roles.slice(0, 2).map((role) => {
-                const Icon = ROLE_ICONS[role];
+                const Icon = ROLE_ICONS[role as PlayerRole];
                 return (
                   <span
                     key={role}
                     className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-white border border-white/20"
-                    title={getRoleLabel(role)}
+                    title={getRoleLabel(role as PlayerRole)}
                   >
                     <Icon className="h-3 w-3" />
-                    <span className="hidden sm:inline">{getRoleLabel(role)}</span>
+                    <span className="hidden sm:inline">{getRoleLabel(role as PlayerRole)}</span>
                   </span>
                 );
               })}

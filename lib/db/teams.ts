@@ -8,24 +8,21 @@
  */
 
 import { prisma } from './index';
-import type { Team, TeamMember } from '@/lib/db/schema';
+import type { Team, TeamMember } from '@/types/database';
 import type { CreateTeamInput, UpdateTeamInput } from '@/lib/validations/team';
-
-// ============================================================================
-// Type Helpers
-// ============================================================================
 
 function toTeamType(dbTeam: any): Team {
   return {
     id: dbTeam.id,
     name: dbTeam.name,
-    description: dbTeam.description ?? undefined,
-    image_url: dbTeam.imageUrl ?? undefined,
+    description: dbTeam.description ?? null,
+    image_url: dbTeam.imageUrl ?? null,
+    team_mode: null,
     created_by: dbTeam.createdBy,
     created_at: dbTeam.createdAt.toISOString(),
     updated_at: dbTeam.updatedAt.toISOString(),
-    deleted_at: dbTeam.deletedAt?.toISOString() ?? undefined,
-    sync_status: 'synced',
+    deleted_at: dbTeam.deletedAt?.toISOString() ?? null,
+    sync_status: null,
   };
 }
 
@@ -33,11 +30,10 @@ function toTeamMemberType(dbMember: any): TeamMember {
   return {
     id: dbMember.id,
     team_id: dbMember.teamId,
-    user_id: dbMember.userId ?? undefined,
-    player_id: dbMember.playerId ?? undefined,
+    user_id: dbMember.userId ?? null,
+    player_id: dbMember.playerId ?? null,
     role: dbMember.role as TeamMember['role'],
     joined_at: dbMember.joinedAt.toISOString(),
-    sync_status: 'synced',
   };
 }
 

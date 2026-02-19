@@ -123,7 +123,7 @@ export function PlayerProfileClient({
                 {player.roles.length > 0 && (
                   <span className="inline-flex items-center gap-1 text-sm px-3 py-1 rounded-full bg-muted">
                     <UserCircle className="h-4 w-4" />
-                    {getRoleLabel(player.roles[0])}
+                    {getRoleLabel(player.roles[0] as PlayerRole)}
                   </span>
                 )}
               </div>
@@ -134,7 +134,7 @@ export function PlayerProfileClient({
                   <span>{t('other_roles')}: </span>
                   {player.roles.slice(1).map((role, i) => (
                     <span key={role}>
-                      {getRoleLabel(role)}
+                      {getRoleLabel(role as PlayerRole)}
                       {i < player.roles.length - 2 ? ', ' : ''}
                     </span>
                   ))}

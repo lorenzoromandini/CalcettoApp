@@ -63,13 +63,14 @@ export default async function TeamPage({ params }: TeamPageProps) {
   const mappedTeam = {
     id: team.id,
     name: team.name,
-    description: team.description || undefined,
-    image_url: team.imageUrl || undefined,
+    description: team.description ?? null,
+    image_url: team.imageUrl ?? null,
+    team_mode: null,
     created_by: team.createdBy,
     created_at: team.createdAt.toISOString(),
     updated_at: team.updatedAt.toISOString(),
-    deleted_at: team.deletedAt?.toISOString() || undefined,
-    sync_status: 'synced' as const,
+    deleted_at: team.deletedAt?.toISOString() ?? null,
+    sync_status: null,
   };
 
   return (
