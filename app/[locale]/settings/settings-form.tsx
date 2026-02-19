@@ -17,9 +17,13 @@ import {
 } from '@/components/ui/select';
 import { changePasswordSchema, type ChangePasswordInput } from '@/lib/validations/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lock } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 
-export function SettingsForm() {
+interface SettingsFormProps {
+  email: string;
+}
+
+export function SettingsForm({ email }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -72,6 +76,28 @@ export function SettingsForm() {
 
   return (
     <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            <CardTitle className="text-lg">Email</CardTitle>
+          </div>
+          <CardDescription>
+            L&apos;indirizzo email associato al tuo account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Input
+            type="email"
+            value={email}
+            disabled
+          />
+          <p className="text-xs text-muted-foreground mt-2">
+            L&apos;email non può essere modificata
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="space-y-2">
         <Label>Tema</Label>
         <Select value={theme} onValueChange={handleThemeChange}>
