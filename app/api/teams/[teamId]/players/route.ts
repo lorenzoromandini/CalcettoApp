@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getPlayersByTeam, createPlayer } from '@/lib/db/players';
 import { createPlayerSchema } from '@/lib/validations/player';
+import { ZodError } from 'zod';
 
 export async function GET(
   request: NextRequest,
@@ -47,6 +48,15 @@ export async function POST(
     return NextResponse.json({ id: playerId }, { status: 201 });
   } catch (error) {
     console.error('Error creating player:', error);
+    
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      return NextResponse.json(
+        { error: firstError?.message || 'Validation error' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to create player' },
       { status: 500 }

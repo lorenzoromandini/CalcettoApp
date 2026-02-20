@@ -313,6 +313,7 @@
     }
   },
   "teamNav": {
+    "backToDashboard": "Torna alla Dashboard",
     "overview": "Panoramica",
     "matches": "Partite",
     "players": "Giocatori",
@@ -322,9 +323,11 @@
     "settings": "Impostazioni"
   },
 "teamDashboard": {
+    "backToDashboard": "Torna alla dashboard",
     "syncing": "Sincronizzazione...",
     "settings": "Impostazioni",
     "inviteLinkCopied": "Link copiato negli appunti",
+    "shareOnWhatsApp": "Condividi su WhatsApp",
     "clickToGenerate": "Clicca per generare un link di invito",
     "stats": {
       "players": "Giocatori",
@@ -368,7 +371,7 @@
         "description": "Crea la tua prima partita per iniziare"
       },
       "past": {
-        "title": "Nessuna partita passata",
+        "title": "Questa squadra non ha ancora disputato partite",
         "description": "Le partite completate appariranno qui"
       }
     },

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -11,9 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp, Link2, Copy, Check, Loader2 } from 'lucide-react';
+import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp, Link2, Copy, Check, Loader2, MessageCircle } from 'lucide-react';
 import { MyTeamsSwitcher } from './my-teams-switcher';
-import { generateInviteLink } from '@/lib/db/invites';
+import { generateInviteLink } from '@/lib/actions/invites';
 import type { Team } from '@/lib/db/schema';
 
 interface TeamDashboardProps {
@@ -40,12 +40,18 @@ export function TeamDashboard({
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    if (inviteDialogOpen && !inviteLink && !isGenerating && session?.user?.id) {
+      handleGenerateInvite();
+    }
+  }, [inviteDialogOpen, inviteLink, isGenerating, session?.user?.id]);
+
   const handleGenerateInvite = async () => {
     if (!session?.user?.id) return;
 
     setIsGenerating(true);
     try {
-      const { link } = await generateInviteLink(team.id, session.user.id, { maxUses: 50 });
+      const { link } = await generateInviteLink(team.id, { maxUses: 50 });
       setInviteLink(link);
     } catch (error) {
       console.error('Failed to generate invite:', error);
@@ -59,6 +65,12 @@ export function TeamDashboard({
     await navigator.clipboard.writeText(inviteLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!inviteLink) return;
+    const text = `Unisciti alla mia squadra su Calcetto Manager! ${inviteLink}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const openInviteDialog = () => {
@@ -109,17 +121,6 @@ export function TeamDashboard({
             </div>
           </div>
         </div>
-
-        {isAdmin && (
-          <div className="flex gap-2">
-            <Link href={`/${locale}/teams/${team.id}/settings`}>
-              <Button variant="outline" className="h-12">
-                <Settings className="mr-2 h-4 w-4" />
-                {t('settings')}
-              </Button>
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* Stats Cards */}
@@ -274,11 +275,11 @@ export function TeamDashboard({
                   </p>
                 )}
                 <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleGenerateInvite}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white"
+                  onClick={handleShareWhatsApp}
                 >
-                  {tInvites('generator.createNew')}
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  {t('shareOnWhatsApp')}
                 </Button>
               </>
             ) : (

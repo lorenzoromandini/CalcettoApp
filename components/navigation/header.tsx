@@ -30,7 +30,7 @@ export function Header() {
               href="/dashboard"
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-              <LayoutDashboard className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
               {t('dashboard')}
             </Link>
           ) : !isDashboard && session?.user ? (

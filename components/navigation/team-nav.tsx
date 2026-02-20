@@ -17,10 +17,9 @@ export function TeamNav({ teamId, isAdmin }: TeamNavProps) {
 
   const navItems = [
     {
-      href: `/teams/${teamId}`,
-      label: t('overview'),
+      href: `/dashboard`,
+      label: t('backToDashboard'),
       icon: Trophy,
-      exact: true,
     },
     {
       href: `/teams/${teamId}/matches`,
@@ -60,9 +59,7 @@ export function TeamNav({ teamId, isAdmin }: TeamNavProps) {
       {navItems.map((item) => {
         if (item.adminOnly && !isAdmin) return null;
 
-        const isActive = item.exact
-          ? pathname === item.href
-          : pathname.startsWith(item.href);
+        const isActive = pathname === item.href || pathname.startsWith(item.href);
 
         return (
           <Link

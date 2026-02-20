@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { generateInviteLink } from '@/lib/db/invites';
+import { generateInviteLink } from '@/lib/actions/invites';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,9 @@ import { Link2, Copy, Check, Share2, MessageCircle } from 'lucide-react';
 
 interface InviteGeneratorProps {
   teamId: string;
-  userId: string;
 }
 
-export function InviteGenerator({ teamId, userId }: InviteGeneratorProps) {
+export function InviteGenerator({ teamId }: InviteGeneratorProps) {
   const t = useTranslations('invites');
   const [isGenerating, setIsGenerating] = useState(false);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -25,7 +24,7 @@ export function InviteGenerator({ teamId, userId }: InviteGeneratorProps) {
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const { link } = await generateInviteLink(teamId, userId, { maxUses });
+      const { link } = await generateInviteLink(teamId, { maxUses });
       setInviteLink(link);
     } catch (error) {
       console.error('Failed to generate invite:', error);

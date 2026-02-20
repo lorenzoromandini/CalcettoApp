@@ -156,7 +156,7 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
 
       const jerseyChanges = teams.filter((team, index) => 
         team.jerseyNumber !== originalTeams[index]?.jerseyNumber
-      ).map(t => ({ teamId: t.id, jerseyNumber: t.jerseyNumber }));
+      ).map(t => ({ teamId: t.id, jerseyNumber: t.jerseyNumber, playerId: t.playerId }));
       
       if (jerseyChanges.length > 0) {
         formData.append('jerseyChanges', JSON.stringify(jerseyChanges));

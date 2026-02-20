@@ -77,27 +77,6 @@ export function MatchesPageClient({ locale, teamId }: MatchesPageClientProps) {
     );
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={handleBack} className="-ml-2">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {teamsT("back")}
-          </Button>
-        </div>
-        <Card className="border-destructive">
-          <CardContent className="p-6 text-center">
-            <p className="text-destructive">{t("errorLoading")}</p>
-            <Button onClick={refetch} variant="outline" className="mt-4">
-              {t("retry")}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Header */}

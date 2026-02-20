@@ -75,7 +75,10 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to create player');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create player');
+      }
       const result = await response.json();
       return result.id;
     } catch (err) {

@@ -75,13 +75,17 @@ export async function PATCH(request: NextRequest) {
         const jerseyChanges = JSON.parse(jerseyChangesStr) as Array<{
           teamId: string;
           jerseyNumber: number | null;
+          playerId: string | null;
         }>;
 
         for (const change of jerseyChanges) {
+          const playerIdToUpdate = change.playerId || updatedUser.playerProfile?.id;
+          if (!playerIdToUpdate) continue;
+          
           if (change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
             await prisma.playerTeam.updateMany({
               where: {
-                playerId: updatedUser.playerProfile?.id,
+                playerId: playerIdToUpdate,
                 teamId: change.teamId,
               },
               data: {

@@ -116,8 +116,8 @@ function toPlayerRatingWithPlayer(dbRating: any): PlayerRatingWithPlayer {
  * - Rating must be one of 38 valid values
  * 
  * @param data - Rating input data
- * @returns Created/updated PlayerRating
- */
+  * @returns Created/updated PlayerRating
+   */
 export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRating> {
   const session = await auth()
   
@@ -699,7 +699,7 @@ export async function getPlayerDashboardData(
     }
   }
 
-  const frameColor = calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
+  const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
 
   return {
     player: {
@@ -718,10 +718,10 @@ export async function getPlayerDashboardData(
   }
 }
 
-export function calculateFrameColor(
+export async function calculateFrameColor(
   avgRating: number | null,
   hasMvp: boolean
-): FrameBorderColor {
+): Promise<FrameBorderColor> {
   if (hasMvp) return 'fire-red'
   if (avgRating === null) return 'gray'
   if (avgRating < 6) return 'bronze'
@@ -785,7 +785,7 @@ export async function getTeamPlayersDashboardData(teamId: string): Promise<Dashb
       }
     }
 
-    const frameColor = calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
+    const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
 
     results.push({
       player: {

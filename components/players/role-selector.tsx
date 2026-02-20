@@ -78,7 +78,7 @@ export function RoleSelector({
               pressed={otherRoles.includes(id)}
               onPressedChange={() => toggleOtherRole(id)}
               disabled={disabled || primaryRole === id}
-              className="flex items-center gap-2 px-4 py-2 h-12 data-[state=on]:bg-secondary data-[state=on]:text-secondary-foreground disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 h-12 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground disabled:opacity-50"
               aria-label={t(translationKey)}
             >
               <Icon className="h-4 w-4" />
