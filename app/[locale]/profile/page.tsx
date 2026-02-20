@@ -34,23 +34,23 @@ export default async function ProfilePage() {
     },
   });
 
-  const teams = userWithTeams?.memberships.map((m) => ({
-    id: m.team.id,
-    name: m.team.name,
-    jerseyNumber: m.player?.id 
-      ? (prisma.playerTeam.findFirst({
+  const teamsWithJersey = await Promise.all(
+    userWithTeams?.memberships.map(async (m) => {
+      let jerseyNumber: number | null = null;
+      if (m.player?.id) {
+        const pt = await prisma.playerTeam.findFirst({
           where: { playerId: m.player.id, teamId: m.team.id },
           select: { jerseyNumber: true },
-        }).then((pt) => pt?.jerseyNumber ?? null))
-      : null,
-    playerId: m.player?.id ?? null,
-  })) || [];
-
-  const teamsWithJersey = await Promise.all(
-    teams.map(async (t) => ({
-      ...t,
-      jerseyNumber: await t.jerseyNumber,
-    }))
+        });
+        jerseyNumber = pt?.jerseyNumber ?? null;
+      }
+      return {
+        id: m.team.id,
+        name: m.team.name,
+        jerseyNumber,
+        playerId: m.player?.id ?? null,
+      };
+    }) ?? []
   );
 
   return (

@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
 import { PlayerForm } from '@/components/players/player-form';
 import { useCreatePlayer } from '@/hooks/use-players';
 import type { CreatePlayerInput } from '@/lib/validations/player';
@@ -23,9 +25,15 @@ export function CreatePlayerPageClient({ locale, teamId }: CreatePlayerPageClien
     router.push(`/${locale}/teams/${teamId}/players`);
   };
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (data: CreatePlayerInput) => {
-    await createPlayer(data);
-    router.push(`/${locale}/teams/${teamId}/players`);
+    try {
+      await createPlayer(data);
+      router.push(`/${locale}/teams/${teamId}/players`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create player');
+    }
   };
 
   const handleCancel = () => {
@@ -47,6 +55,12 @@ export function CreatePlayerPageClient({ locale, teamId }: CreatePlayerPageClien
         <CardHeader>
           <CardTitle className="text-2xl">{t('create')}</CardTitle>
         </CardHeader>
+        {error && (
+          <div className="mx-6 mt-4 flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            {error}
+          </div>
+        )}
         <CardContent>
           <PlayerForm
             teamId={teamId}

@@ -107,11 +107,7 @@ const handleBack = () => {
               <Users className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-lg font-semibold mb-2">{t('empty.title')}</h3>
-            <p className="text-muted-foreground mb-4">{t('empty.description')}</p>
-            <Button onClick={handleCreatePlayer}>
-              <Plus className="mr-2 h-4 w-4" />
-              {t('create')}
-            </Button>
+            <p className="text-muted-foreground">{t('empty.description')}</p>
           </CardContent>
         </Card>
       ) : (

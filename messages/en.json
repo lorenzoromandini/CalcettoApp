@@ -304,6 +304,7 @@
     }
   },
   "teamNav": {
+    "backToDashboard": "Back to Dashboard",
     "overview": "Overview",
     "matches": "Matches",
     "players": "Players",
@@ -312,9 +313,13 @@
     "stats": "Statistics",
     "settings": "Settings"
   },
-  "teamDashboard": {
+"teamDashboard": {
+    "backToDashboard": "Back to dashboard",
     "syncing": "Syncing...",
     "settings": "Settings",
+    "inviteLinkCopied": "Link copied to clipboard",
+    "shareOnWhatsApp": "Share on WhatsApp",
+    "clickToGenerate": "Click to generate an invite link",
     "stats": {
       "players": "Players",
       "registeredPlayers": "Registered players",
@@ -357,7 +362,7 @@
         "description": "Create your first match to get started"
       },
       "past": {
-        "title": "No past matches",
+        "title": "This team hasn't played any matches yet",
         "description": "Completed matches will appear here"
       }
     },

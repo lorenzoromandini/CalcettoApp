@@ -54,7 +54,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     name: m.team?.name || '',
     description: m.team?.description || '',
     role: m.role,
-  });
+  }));
 
   const playerDashboardData = await getPlayerDashboardData(session.user.id);
   
@@ -63,7 +63,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     ? await getTeamPlayersDashboardData(firstTeamId)
     : [];
 
-  const displayName = playerDashboardData?.player.nickname
+  const displayName = session.user.nickname
+    || playerDashboardData?.player.nickname
     || `${playerDashboardData?.player.name || ''} ${playerDashboardData?.player.surname || ''}`.trim()
     || session.user.email;
 

@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { MatchHistoryCard, MatchHistoryCardSkeleton, type MatchHistoryData } from '@/components/matches/match-history-card'
-import { TeamNav } from '@/components/navigation/team-nav'
 import { getTeamMatches } from '@/lib/db/matches'
 import { getMatchGoals, type GoalWithPlayers } from '@/lib/db/goals'
 import { getMatchRatings, type PlayerRatingWithPlayer } from '@/lib/db/player-ratings'
@@ -145,11 +144,6 @@ export function MatchHistoryPageClient({ locale, teamId }: MatchHistoryPageClien
         <ArrowLeft className="mr-2 h-4 w-4" />
         {t('back')}
       </Button>
-
-      {/* Team Navigation */}
-      <div className="mb-6">
-        <TeamNav teamId={teamId} isAdmin={isAdmin} />
-      </div>
 
       {/* Page Header */}
       <div className="flex items-center justify-between mb-6">
