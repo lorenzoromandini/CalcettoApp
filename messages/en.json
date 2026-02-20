@@ -251,6 +251,18 @@
       "title": "Already a member",
       "description": "You are already a member of {teamName}",
       "viewTeam": "View team"
+    },
+    "setup": {
+      "title": "Complete your profile in {teamName}",
+      "description": "Set up your jersey number and roles for this team",
+      "jerseyNumber": "Jersey number",
+      "takenNumbers": "Numbers already taken",
+      "selectPrimaryRole": "Select a primary role",
+      "jerseyTaken": "This jersey number is already taken",
+      "primaryRoleWarning": "Primary role cannot be changed later. Choose carefully!",
+      "submit": "Complete setup",
+      "submitting": "Saving...",
+      "skip": "Skip for now"
     }
   },
   "settings": {

@@ -251,6 +251,18 @@
       "title": "Già membro",
       "description": "Sei già un membro di {teamName}",
       "viewTeam": "Vedi squadra"
+    },
+    "setup": {
+      "title": "Completa il tuo profilo in {teamName}",
+      "description": "Configura il tuo numero di maglia e i tuoi ruoli per questa squadra",
+      "jerseyNumber": "Numero di maglia",
+      "takenNumbers": "Numeri già presi",
+      "selectPrimaryRole": "Seleziona un ruolo principale",
+      "jerseyTaken": "Questo numero di maglia è già preso",
+      "primaryRoleWarning": "Il ruolo principale non può essere cambiato in seguito. Scegli con cura!",
+      "submit": "Completa configurazione",
+      "submitting": "Salvataggio...",
+      "skip": "Salta per ora"
     }
   },
 "settings": {
