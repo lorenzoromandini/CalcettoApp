@@ -27,6 +27,7 @@ export function LoginForm() {
   const [error, setError] = React.useState<string | null>(null);
 
   const isVerified = searchParams.get("verified") === "true";
+  const redirect = searchParams.get("redirect") || "/dashboard";
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -57,7 +58,7 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push(redirect);
       router.refresh();
     } catch {
       setError("Si è verificato un errore imprevisto. Riprova più tardi.");

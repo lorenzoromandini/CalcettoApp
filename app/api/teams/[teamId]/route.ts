@@ -70,14 +70,15 @@ export async function DELETE(
     }
 
     const { teamId } = await params;
-    await deleteTeam(teamId);
+    await deleteTeam(teamId, session.user.id);
     
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting team:', error);
+    const message = error instanceof Error ? error.message : 'Failed to delete team';
     return NextResponse.json(
-      { error: 'Failed to delete team' },
-      { status: 500 }
+      { error: message },
+      { status: 403 }
     );
   }
 }

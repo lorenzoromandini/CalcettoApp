@@ -268,13 +268,13 @@ export async function isMatchAdmin(matchId: string, userId: string): Promise<boo
 
   if (!match) return false;
 
-  // Check team membership
+  // Check team membership (admin or manager can manage matches)
   const membership = await prisma.teamMember.findFirst({
     where: {
       teamId: match.teamId,
       userId: userId,
       role: {
-        in: ['admin', 'co-admin'],
+        in: ['admin', 'manager'],
       },
     },
   });

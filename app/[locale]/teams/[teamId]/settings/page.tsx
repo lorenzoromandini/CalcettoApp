@@ -9,11 +9,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Settings, Trash2, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Settings, Trash2, Save, Loader2, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { TeamImageUploader } from '@/components/teams/team-image-uploader';
 import { useTeam } from '@/hooks/use-teams';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function TeamSettingsPage() {
   const t = useTranslations('settings');
@@ -24,8 +34,11 @@ export default function TeamSettingsPage() {
   const locale = params.locale as string;
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { data: session } = useSession();
   const { team, refetch } = useTeam(teamId);
 
@@ -44,8 +57,10 @@ export default function TeamSettingsPage() {
       const res = await fetch(`/api/teams/${teamId}/admin`);
       const data = await res.json();
       setIsAdmin(data.isAdmin);
+      setIsOwner(data.isOwner || false);
     } catch {
       setIsAdmin(false);
+      setIsOwner(false);
     }
     
     setIsLoading(false);
@@ -85,6 +100,28 @@ export default function TeamSettingsPage() {
       console.error('Failed to save team settings:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/teams/${teamId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to delete team');
+      }
+
+      router.push('/teams');
+    } catch (error) {
+      console.error('Failed to delete team:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete team');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -182,23 +219,57 @@ export default function TeamSettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-destructive">
-          <CardHeader>
-            <CardTitle className="text-destructive flex items-center gap-2">
-              <Trash2 className="h-5 w-5" />
-              {t('dangerZone.title')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('dangerZone.description')}
-            </p>
-            <Button variant="destructive" className="h-12">
-              {t('dangerZone.deleteTeam')}
-            </Button>
-          </CardContent>
-        </Card>
+        {isOwner && (
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle className="text-destructive flex items-center gap-2">
+                <Crown className="h-5 w-5" />
+                {t('dangerZone.title')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                {t('dangerZone.description')}
+              </p>
+              <Button 
+                variant="destructive" 
+                className="h-12"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                {t('dangerZone.deleteTeam')}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
+
+    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('dangerZone.deleteConfirmTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t('dangerZone.deleteConfirmDescription')}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('dangerZone.deleteCancel')}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t('dangerZone.deleting')}
+              </>
+            ) : (
+              t('dangerZone.deleteConfirm')
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

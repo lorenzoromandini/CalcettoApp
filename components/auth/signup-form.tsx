@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "@/lib/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -20,9 +21,12 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [isSuccess, setIsSuccess] = React.useState(false);
+
+  const redirect = searchParams.get("redirect") || "/dashboard";
 
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -69,6 +73,7 @@ export function SignupForm() {
   }
 
   if (isSuccess) {
+    const loginUrl = redirect ? `/auth/login?redirect=${encodeURIComponent(redirect)}` : "/auth/login";
     return (
       <div className="space-y-4 text-center">
         <div className="flex justify-center">
@@ -82,7 +87,7 @@ export function SignupForm() {
         </p>
         <Button
           className="w-full"
-          onClick={() => router.push("/auth/login")}
+          onClick={() => router.push(loginUrl)}
         >
           Vai al login
         </Button>

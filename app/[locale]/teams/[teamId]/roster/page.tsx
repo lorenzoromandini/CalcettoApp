@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getTeamMembers } from '@/lib/db/teams';
+import { getTeamMembers, getTeam } from '@/lib/db/teams';
 import { getTeamPlayers } from '@/lib/db/players';
 import { TeamRosterManager } from '@/components/teams/team-roster-manager';
 import { PlayerCard } from '@/components/players/player-card';
@@ -25,25 +25,31 @@ export default function TeamRosterPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [teamCreatorId, setTeamCreatorId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'players' | 'members'>('players');
   const { data: session } = useSession();
 
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [membersData, playersData] = await Promise.all([
+      const [membersData, playersData, teamData] = await Promise.all([
         getTeamMembers(teamId),
         getTeamPlayers(teamId),
+        getTeam(teamId),
       ]);
 
       setMembers(membersData);
       setPlayers(playersData);
+      setTeamCreatorId(teamData?.created_by || null);
 
       // Check current user role
       if (session?.user?.id) {
         setCurrentUserId(session.user.id);
         const userMembership = membersData.find((m: TeamMember) => m.user_id === session.user.id);
-        setIsAdmin(userMembership?.role === 'admin' || userMembership?.role === 'co-admin');
+        const isUserAdmin = userMembership?.role === 'admin' || userMembership?.role === 'manager';
+        setIsAdmin(isUserAdmin);
+        setIsOwner(teamData?.created_by === session.user.id);
       }
     } catch (error) {
       console.error('Failed to load roster:', error);
@@ -131,6 +137,7 @@ return (
           members={members}
           currentUserId={currentUserId || ''}
           isAdmin={isAdmin}
+          isOwner={isOwner}
           onMembersChange={loadData}
         />
       )}

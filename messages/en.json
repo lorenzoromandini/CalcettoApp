@@ -178,7 +178,7 @@
       "midfielder": "Midfielder",
       "attacker": "Attacker"
     },
-"form": {
+    "form": {
       "name": "Name",
       "namePlaceholder": "Enter name",
       "surname": "Surname",
@@ -236,11 +236,17 @@
     "join": {
       "title": "Join {teamName}",
       "description": "You've been invited to join this team",
+      "authRequired": "Create an account or log in to join this team",
+      "registerButton": "Create account",
+      "loginButton": "Log in",
+      "or": "or",
       "button": "Join team",
       "joining": "Joining...",
       "cancel": "Cancel",
-      "loginRequired": "You need to log in to join the team",
-      "loginButton": "Log in and join",
+      "declineConfirmTitle": "Are you sure?",
+      "declineConfirmDescription": "You can rejoin later using a new invite link.",
+      "declineConfirm": "Leave",
+      "declineCancel": "Stay",
       "error": "Error joining team. Please try again."
     },
     "success": {
@@ -269,10 +275,24 @@
     "title": "Team settings",
     "backToTeam": "Back to team",
     "notAdmin": "Only admins can access settings",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saveSuccess": "Changes saved successfully",
+    "saveError": "Error saving changes",
+    "teamInfo": {
+      "title": "Team information",
+      "name": "Team name",
+      "description": "Description"
+    },
     "dangerZone": {
       "title": "Danger zone",
       "description": "Irreversible actions for the team",
-      "deleteTeam": "Delete team"
+      "deleteTeam": "Delete team",
+      "deleteConfirmTitle": "Delete this team?",
+      "deleteConfirmDescription": "This action cannot be undone. All team data including matches, players, and ratings will be permanently deleted.",
+      "deleteConfirm": "Delete team",
+      "deleteCancel": "Cancel",
+      "deleting": "Deleting..."
     }
   },
   "roster": {

@@ -113,7 +113,23 @@ export async function updateTeam(
   });
 }
 
-export async function deleteTeam(teamId: string): Promise<void> {
+export async function deleteTeam(teamId: string, userId: string): Promise<void> {
+  const team = await prisma.team.findFirst({
+    where: {
+      id: teamId,
+      deletedAt: null,
+    },
+    select: { createdBy: true },
+  });
+
+  if (!team) {
+    throw new Error('Team not found');
+  }
+
+  if (team.createdBy !== userId) {
+    throw new Error('Only the team owner can delete the team');
+  }
+
   await prisma.team.update({
     where: { id: teamId },
     data: {
@@ -128,12 +144,24 @@ export async function isTeamAdmin(teamId: string, userId: string): Promise<boole
       teamId,
       userId,
       role: {
-        in: ['admin', 'co-admin'],
+        in: ['admin', 'manager'],
       },
     },
   });
 
   return !!membership;
+}
+
+export async function isTeamOwner(teamId: string, userId: string): Promise<boolean> {
+  const team = await prisma.team.findFirst({
+    where: {
+      id: teamId,
+      createdBy: userId,
+      deletedAt: null,
+    },
+  });
+
+  return !!team;
 }
 
 export async function isTeamMember(teamId: string, userId: string): Promise<boolean> {
@@ -181,8 +209,40 @@ export async function getTeamMemberCount(teamId: string): Promise<number> {
 export async function updateMemberRole(
   teamId: string,
   memberId: string,
-  newRole: 'admin' | 'co-admin' | 'member'
+  newRole: 'admin' | 'manager' | 'member',
+  changedByUserId: string
 ): Promise<void> {
+  const team = await prisma.team.findFirst({
+    where: { id: teamId, deletedAt: null },
+    select: { createdBy: true },
+  });
+
+  if (!team) {
+    throw new Error('Team not found');
+  }
+
+  const isOwner = team.createdBy === changedByUserId;
+
+  if (!isOwner) {
+    throw new Error('Only the team owner can change roles');
+  }
+
+  const member = await prisma.teamMember.findFirst({
+    where: { id: memberId, teamId },
+  });
+
+  if (!member) {
+    throw new Error('Member not found');
+  }
+
+  if (member.role === 'admin') {
+    throw new Error('Cannot change the owner role');
+  }
+
+  if (newRole === 'admin') {
+    throw new Error('There can only be one admin (the team owner)');
+  }
+
   await prisma.teamMember.update({
     where: {
       id: memberId,

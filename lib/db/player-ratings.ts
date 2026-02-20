@@ -615,6 +615,21 @@ export async function getPlayerDashboardData(
   userId: string,
   teamId?: string
 ): Promise<DashboardPlayerData | null> {
+  // First check if user is a team member
+  const teamMembership = await prisma.teamMember.findFirst({
+    where: {
+      userId,
+      team: { deletedAt: null },
+    },
+    include: {
+      team: true,
+    },
+    orderBy: {
+      joinedAt: 'desc',
+    },
+    ...(teamId ? { where: { teamId } } : {}),
+  })
+
   const player = await prisma.player.findFirst({
     where: { userId },
     include: {
@@ -626,6 +641,30 @@ export async function getPlayerDashboardData(
       },
     },
   })
+
+  // If no player yet but user is a team member, show placeholder card
+  if (!player && teamMembership) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true, nickname: true, image: true },
+    })
+
+    return {
+      player: {
+        id: '',
+        name: user?.firstName || '',
+        surname: user?.lastName || null,
+        nickname: user?.nickname || null,
+        avatar_url: user?.image || null,
+      },
+      teamId: teamMembership.teamId,
+      teamName: teamMembership.team.name,
+      jerseyNumber: null,
+      lastThreeGamesAvgRating: null,
+      hasMvpInLastThree: false,
+      frameColor: 'bronze',
+    }
+  }
 
   if (!player) return null
 
@@ -647,7 +686,7 @@ export async function getPlayerDashboardData(
       jerseyNumber: null,
       lastThreeGamesAvgRating: null,
       hasMvpInLastThree: false,
-      frameColor: 'gray',
+      frameColor: 'bronze',
     }
   }
 
@@ -723,8 +762,7 @@ export async function calculateFrameColor(
   hasMvp: boolean
 ): Promise<FrameBorderColor> {
   if (hasMvp) return 'fire-red'
-  if (avgRating === null) return 'gray'
-  if (avgRating < 6) return 'bronze'
+  if (avgRating === null || avgRating < 6) return 'bronze'
   if (avgRating < 7) return 'silver'
   if (avgRating < 8) return 'gold'
   return 'platinum'

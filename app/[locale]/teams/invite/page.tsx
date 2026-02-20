@@ -9,7 +9,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, Users, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SetupPlayerForm } from '@/components/teams/setup-player-form';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 type InviteState = 'loading' | 'valid' | 'invalid' | 'expired' | 'maxed';
 
@@ -41,6 +52,7 @@ export default function InvitePage() {
   }>({ status: null });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [showSetupForm, setShowSetupForm] = useState(false);
+  const [showDeclineConfirm, setShowDeclineConfirm] = useState(false);
   const { data: session } = useSession();
 
   const checkAuthAndInvite = useCallback(async () => {
@@ -135,6 +147,7 @@ export default function InvitePage() {
   };
 
   const teamName = inviteData?.team?.name || t('unknownTeam');
+  const teamImage = inviteData?.team?.imageUrl;
 
   if (inviteState === 'loading') {
     return (
@@ -167,17 +180,47 @@ export default function InvitePage() {
     return (
       <div className="container mx-auto px-4 py-12 max-w-md">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
+          <CardHeader className="text-center">
+            {teamImage && (
+              <div className="relative w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden">
+                <Image
+                  src={teamImage}
+                  alt={teamName}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            {!teamImage && (
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="h-12 w-12 text-primary" />
+              </div>
+            )}
+            <CardTitle className="flex items-center gap-2 justify-center">
               {t('join.title', { teamName })}
             </CardTitle>
-            <CardDescription>{t('join.description')}</CardDescription>
+            <CardDescription className="text-center">
+              {t('join.authRequired')}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">{t('join.loginRequired')}</p>
+            <Link href={`/auth/register?redirect=/teams/invite?token=${token}`}>
+              <Button className="w-full h-12">{t('join.registerButton')}</Button>
+            </Link>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  {t('join.or')}
+                </span>
+              </div>
+            </div>
             <Link href={`/auth/login?redirect=/teams/invite?token=${token}`}>
-              <Button className="w-full h-12">{t('join.loginButton')}</Button>
+              <Button variant="outline" className="w-full h-12">
+                {t('join.loginButton')}
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -232,12 +275,28 @@ export default function InvitePage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-md">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
+        <CardHeader className="text-center">
+          {teamImage && (
+            <div className="relative w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden">
+              <Image
+                src={teamImage}
+                alt={teamName}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+          {!teamImage && (
+            <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <Users className="h-12 w-12 text-primary" />
+            </div>
+          )}
+          <CardTitle className="flex items-center gap-2 justify-center">
             {t('join.title', { teamName })}
           </CardTitle>
-          <CardDescription>{t('join.description')}</CardDescription>
+          <CardDescription className="text-center">
+            {t('join.description')}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {joinResult.status === 'error' && (
@@ -257,13 +316,32 @@ export default function InvitePage() {
               t('join.button')
             )}
           </Button>
-          <Link href="/teams">
-            <Button variant="ghost" className="w-full">
-              {t('join.cancel')}
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => setShowDeclineConfirm(true)}
+          >
+            {t('join.cancel')}
+          </Button>
         </CardContent>
       </Card>
+
+      <AlertDialog open={showDeclineConfirm} onOpenChange={setShowDeclineConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('join.declineConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('join.declineConfirmDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('join.declineCancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => router.push('/teams')}>
+              {t('join.declineConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -178,7 +178,7 @@
       "midfielder": "Centrocampista",
       "attacker": "Attaccante"
     },
-"form": {
+    "form": {
       "name": "Nome",
       "namePlaceholder": "Inserisci il nome",
       "surname": "Cognome",
@@ -236,11 +236,17 @@
     "join": {
       "title": "Unisciti a {teamName}",
       "description": "Sei stato invitato a unirti a questa squadra",
+      "authRequired": "Crea un account o accedi per unirti a questa squadra",
+      "registerButton": "Crea account",
+      "loginButton": "Accedi",
+      "or": "oppure",
       "button": "Unisciti alla squadra",
       "joining": "Unione in corso...",
       "cancel": "Annulla",
-      "loginRequired": "Devi accedere per unirti alla squadra",
-      "loginButton": "Accedi e unisciti",
+      "declineConfirmTitle": "Sei sicuro?",
+      "declineConfirmDescription": "Potrai unirti successivamente usando un nuovo link di invito.",
+      "declineConfirm": "Esci",
+      "declineCancel": "Resta",
       "error": "Errore nell'unione alla squadra. Riprova."
     },
     "success": {
@@ -265,7 +271,7 @@
       "skip": "Salta per ora"
     }
   },
-"settings": {
+  "settings": {
     "title": "Impostazioni squadra",
     "backToTeam": "Torna alla squadra",
     "notAdmin": "Solo gli admin possono accedere alle impostazioni",
@@ -281,7 +287,12 @@
     "dangerZone": {
       "title": "Zona pericolosa",
       "description": "Azioni irreversibili per la squadra",
-      "deleteTeam": "Elimina squadra"
+      "deleteTeam": "Elimina squadra",
+      "deleteConfirmTitle": "Eliminare questa squadra?",
+      "deleteConfirmDescription": "Questa azione non può essere annullata. Tutti i dati della squadra inclusi partite, giocatori e valutazioni saranno eliminati permanentemente.",
+      "deleteConfirm": "Elimina squadra",
+      "deleteCancel": "Annulla",
+      "deleting": "Eliminazione..."
     }
   },
   "roster": {

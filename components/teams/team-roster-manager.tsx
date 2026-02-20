@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { updateMemberRole, removeTeamMember } from '@/lib/db/teams';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, User, UserCog, Trash2, AlertTriangle } from 'lucide-react';
+import { Shield, User, UserCog, Trash2, AlertTriangle, Crown } from 'lucide-react';
 import type { TeamMember } from '@/lib/db/schema';
 
 interface TeamRosterManagerProps {
@@ -13,6 +13,7 @@ interface TeamRosterManagerProps {
   members: TeamMember[];
   currentUserId: string;
   isAdmin: boolean;
+  isOwner?: boolean;
   onMembersChange: () => void;
 }
 
@@ -21,6 +22,7 @@ export function TeamRosterManager({
   members,
   currentUserId,
   isAdmin,
+  isOwner,
   onMembersChange,
 }: TeamRosterManagerProps) {
   const t = useTranslations('roster');
@@ -28,11 +30,11 @@ export function TeamRosterManager({
   const [isRemoving, setIsRemoving] = useState(false);
   const [editingMember, setEditingMember] = useState<string | null>(null);
 
-  const handleRoleChange = async (memberId: string, newRole: 'admin' | 'co-admin' | 'member') => {
+  const handleRoleChange = async (memberId: string, newRole: 'admin' | 'manager' | 'member') => {
     if (!isAdmin) return;
 
     try {
-      await updateMemberRole(teamId, memberId, newRole);
+      await updateMemberRole(teamId, memberId, newRole, currentUserId);
       setEditingMember(null);
       onMembersChange();
     } catch (error) {
@@ -42,7 +44,7 @@ export function TeamRosterManager({
   };
 
   const handleRemove = async () => {
-    if (!memberToRemove) return;
+    if (!memberToRemove || !isOwner) return;
 
     setIsRemoving(true);
     try {
@@ -57,12 +59,15 @@ export function TeamRosterManager({
     }
   };
 
+  const canManageRoles = isOwner;
+  const canRemovePlayers = isOwner;
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin':
+        return <Crown className="h-4 w-4 text-yellow-500" />;
+      case 'manager':
         return <Shield className="h-4 w-4 text-primary" />;
-      case 'co-admin':
-        return <UserCog className="h-4 w-4 text-muted-foreground" />;
       default:
         return <User className="h-4 w-4 text-muted-foreground" />;
     }
@@ -72,8 +77,8 @@ export function TeamRosterManager({
     switch (role) {
       case 'admin':
         return t('roles.admin');
-      case 'co-admin':
-        return t('roles.coAdmin');
+      case 'manager':
+        return t('roles.manager');
       default:
         return t('roles.member');
     }
@@ -115,11 +120,12 @@ export function TeamRosterManager({
                         {t('roles.member')}
                       </Button>
                       <Button
-                        variant={member.role === 'co-admin' ? 'default' : 'outline'}
+                        variant={member.role === 'manager' ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => handleRoleChange(member.id, 'co-admin')}
+                        onClick={() => handleRoleChange(member.id, 'manager')}
+                        disabled={!canManageRoles}
                       >
-                        {t('roles.coAdmin')}
+                        {t('roles.manager')}
                       </Button>
                       <Button
                         variant="ghost"
@@ -131,21 +137,25 @@ export function TeamRosterManager({
                     </div>
                   ) : (
                     <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingMember(member.id)}
-                      >
-                        {t('changeRole')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 text-destructive"
-                        onClick={() => setMemberToRemove(member)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {canManageRoles && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingMember(member.id)}
+                        >
+                          {t('changeRole')}
+                        </Button>
+                      )}
+                      {canRemovePlayers && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-destructive"
+                          onClick={() => setMemberToRemove(member)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>

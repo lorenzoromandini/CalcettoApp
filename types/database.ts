@@ -71,7 +71,7 @@ export interface Database {
           team_id: string;
           user_id: string | null;
           player_id: string | null;
-          role: 'admin' | 'co-admin' | 'member';
+          role: 'admin' | 'manager' | 'member';
           joined_at: string;
         };
         Insert: {
