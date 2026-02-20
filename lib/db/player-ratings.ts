@@ -588,3 +588,221 @@ export async function getPlayerRatingHistory(
     comment: r.comment ?? undefined,
   }))
 }
+
+// ============================================================================
+// Dashboard Player Data
+// ============================================================================
+
+export type FrameBorderColor = 'gray' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'fire-red'
+
+export interface DashboardPlayerData {
+  player: {
+    id: string
+    name: string
+    surname: string | null
+    nickname: string | null
+    avatar_url: string | null
+  }
+  teamId: string | null
+  teamName: string | null
+  jerseyNumber: number | null
+  lastThreeGamesAvgRating: number | null
+  hasMvpInLastThree: boolean
+  frameColor: FrameBorderColor
+}
+
+export async function getPlayerDashboardData(
+  userId: string,
+  teamId?: string
+): Promise<DashboardPlayerData | null> {
+  const player = await prisma.player.findFirst({
+    where: { userId },
+    include: {
+      playerTeams: {
+        include: {
+          team: true,
+        },
+        ...(teamId ? { where: { teamId } } : {}),
+      },
+    },
+  })
+
+  if (!player) return null
+
+  const playerTeam = teamId
+    ? player.playerTeams.find(pt => pt.teamId === teamId)
+    : player.playerTeams[0]
+
+  if (!playerTeam) {
+    return {
+      player: {
+        id: player.id,
+        name: player.name,
+        surname: player.surname,
+        nickname: player.nickname,
+        avatar_url: player.avatarUrl,
+      },
+      teamId: null,
+      teamName: null,
+      jerseyNumber: null,
+      lastThreeGamesAvgRating: null,
+      hasMvpInLastThree: false,
+      frameColor: 'gray',
+    }
+  }
+
+  const lastThreeRatings = await prisma.playerRating.findMany({
+    where: {
+      playerId: player.id,
+      match: {
+        teamId: playerTeam.teamId,
+        status: MatchStatus.COMPLETED,
+      },
+    },
+    include: {
+      match: {
+        select: {
+          id: true,
+          scheduledAt: true,
+        },
+      },
+    },
+    orderBy: {
+      match: {
+        scheduledAt: 'desc',
+      },
+    },
+    take: 3,
+  })
+
+  let lastThreeGamesAvgRating: number | null = null
+  let hasMvpInLastThree = false
+
+  if (lastThreeRatings.length > 0) {
+    const sum = lastThreeRatings.reduce((acc, r) => acc + r.rating.toNumber(), 0)
+    lastThreeGamesAvgRating = Math.round((sum / lastThreeRatings.length) * 100) / 100
+
+    for (const rating of lastThreeRatings) {
+      const allMatchRatings = await prisma.playerRating.findMany({
+        where: { matchId: rating.matchId },
+        select: { playerId: true, rating: true },
+      })
+
+      if (allMatchRatings.length > 0) {
+        const maxRating = Math.max(...allMatchRatings.map(r => r.rating.toNumber()))
+        const topPlayers = allMatchRatings.filter(r => r.rating.toNumber() === maxRating)
+        if (topPlayers.some(p => p.playerId === player.id)) {
+          hasMvpInLastThree = true
+          break
+        }
+      }
+    }
+  }
+
+  const frameColor = calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
+
+  return {
+    player: {
+      id: player.id,
+      name: player.name,
+      surname: player.surname,
+      nickname: player.nickname,
+      avatar_url: player.avatarUrl,
+    },
+    teamId: playerTeam.teamId,
+    teamName: playerTeam.team.name,
+    jerseyNumber: playerTeam.jerseyNumber,
+    lastThreeGamesAvgRating,
+    hasMvpInLastThree,
+    frameColor,
+  }
+}
+
+export function calculateFrameColor(
+  avgRating: number | null,
+  hasMvp: boolean
+): FrameBorderColor {
+  if (hasMvp) return 'fire-red'
+  if (avgRating === null) return 'gray'
+  if (avgRating < 6) return 'bronze'
+  if (avgRating < 7) return 'silver'
+  if (avgRating < 8) return 'gold'
+  return 'platinum'
+}
+
+export async function getTeamPlayersDashboardData(teamId: string): Promise<DashboardPlayerData[]> {
+  const playerTeams = await prisma.playerTeam.findMany({
+    where: { teamId },
+    include: {
+      player: true,
+      team: true,
+    },
+    orderBy: {
+      jerseyNumber: 'asc',
+    },
+  })
+
+  const results: DashboardPlayerData[] = []
+
+  for (const pt of playerTeams) {
+    const lastThreeRatings = await prisma.playerRating.findMany({
+      where: {
+        playerId: pt.playerId,
+        match: {
+          teamId,
+          status: MatchStatus.COMPLETED,
+        },
+      },
+      orderBy: {
+        match: {
+          scheduledAt: 'desc',
+        },
+      },
+      take: 3,
+    })
+
+    let lastThreeGamesAvgRating: number | null = null
+    let hasMvpInLastThree = false
+
+    if (lastThreeRatings.length > 0) {
+      const sum = lastThreeRatings.reduce((acc, r) => acc + r.rating.toNumber(), 0)
+      lastThreeGamesAvgRating = Math.round((sum / lastThreeRatings.length) * 100) / 100
+
+      for (const rating of lastThreeRatings) {
+        const allMatchRatings = await prisma.playerRating.findMany({
+          where: { matchId: rating.matchId },
+          select: { playerId: true, rating: true },
+        })
+
+        if (allMatchRatings.length > 0) {
+          const maxRating = Math.max(...allMatchRatings.map(r => r.rating.toNumber()))
+          const topPlayers = allMatchRatings.filter(r => r.rating.toNumber() === maxRating)
+          if (topPlayers.some(p => p.playerId === pt.playerId)) {
+            hasMvpInLastThree = true
+            break
+          }
+        }
+      }
+    }
+
+    const frameColor = calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
+
+    results.push({
+      player: {
+        id: pt.player.id,
+        name: pt.player.name,
+        surname: pt.player.surname,
+        nickname: pt.player.nickname,
+        avatar_url: pt.player.avatarUrl,
+      },
+      teamId,
+      teamName: pt.team.name,
+      jerseyNumber: pt.jerseyNumber,
+      lastThreeGamesAvgRating,
+      hasMvpInLastThree,
+      frameColor,
+    })
+  }
+
+  return results
+}

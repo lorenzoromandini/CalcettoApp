@@ -4,11 +4,13 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getUserTeams } from '@/lib/db/teams';
+import { getPlayerDashboardData, getTeamPlayersDashboardData } from '@/lib/db/player-ratings';
 import { Header } from '@/components/navigation/header';
+import { DashboardPlayerCard, DashboardPlayerCardSkeleton } from '@/components/dashboard/dashboard-player-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Calendar, Trophy, TrendingUp, Plus, MapPin } from 'lucide-react';
+import { Users, Calendar, Trophy, TrendingUp, Plus, MapPin, User } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { MatchStatus } from '@prisma/client';
 
@@ -20,7 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations();
   const session = await auth();
   
@@ -51,7 +54,18 @@ export default async function DashboardPage() {
     name: m.team?.name || '',
     description: m.team?.description || '',
     role: m.role,
-  }));
+  });
+
+  const playerDashboardData = await getPlayerDashboardData(session.user.id);
+  
+  const firstTeamId = teams[0]?.id;
+  const teamPlayersData = firstTeamId 
+    ? await getTeamPlayersDashboardData(firstTeamId)
+    : [];
+
+  const displayName = playerDashboardData?.player.nickname
+    || `${playerDashboardData?.player.name || ''} ${playerDashboardData?.player.surname || ''}`.trim()
+    || session.user.email;
 
   // Get upcoming matches for all teams
   const now = new Date();
@@ -108,13 +122,22 @@ export default async function DashboardPage() {
       
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">
-            {t('common.welcome')}, {session.user.firstName || session.user.email}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {t('dashboard.subtitle')}
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
+              {t('common.welcome')}, {displayName}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {t('dashboard.subtitle')}
+            </p>
+          </div>
+
+          {playerDashboardData && (
+            <DashboardPlayerCard 
+              data={playerDashboardData} 
+              locale={locale}
+            />
+          )}
         </div>
 
         {/* Stats Grid */}
@@ -332,6 +355,38 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Team Players Section */}
+        {teamPlayersData.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">{t('navigation.players')}</h2>
+              <Link href={`/teams/${firstTeamId}/roster`}>
+                <Button variant="outline" size="sm">
+                  {t('common.viewAll')}
+                </Button>
+              </Link>
+            </div>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-wrap gap-6 justify-center">
+                  {teamPlayersData.slice(0, 8).map((playerData) => (
+                    <DashboardPlayerCard
+                      key={playerData.player.id}
+                      data={playerData}
+                      locale={locale}
+                    />
+                  ))}
+                </div>
+                {teamPlayersData.length > 8 && (
+                  <p className="text-center text-sm text-muted-foreground mt-4">
+                    +{teamPlayersData.length - 8} more players
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
     </div>
   );
