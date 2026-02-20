@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, Users, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { SetupPlayerForm } from '@/components/teams/setup-player-form';
 
 type InviteState = 'loading' | 'valid' | 'invalid' | 'expired' | 'maxed';
 
@@ -33,8 +34,13 @@ export default function InvitePage() {
   const [inviteState, setInviteState] = useState<InviteState>('loading');
   const [inviteData, setInviteData] = useState<InviteData | null>(null);
   const [isJoining, setIsJoining] = useState(false);
-  const [joinResult, setJoinResult] = useState<'success' | 'already_member' | 'error' | null>(null);
+  const [joinResult, setJoinResult] = useState<{ 
+    status: 'success' | 'already_member' | 'error' | null; 
+    needsSetup?: boolean;
+    teamId?: string;
+  }>({ status: null });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [showSetupForm, setShowSetupForm] = useState(false);
   const { data: session } = useSession();
 
   const checkAuthAndInvite = useCallback(async () => {
@@ -69,7 +75,6 @@ export default function InvitePage() {
   }, [token, session?.user]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuthAndInvite();
   }, [checkAuthAndInvite]);
 
@@ -77,7 +82,7 @@ export default function InvitePage() {
     if (!token) return;
 
     if (!session?.user?.id) {
-      setJoinResult('error');
+      setJoinResult({ status: 'error' });
       return;
     }
 
@@ -91,20 +96,42 @@ export default function InvitePage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setJoinResult('success');
-        setTimeout(() => {
-          router.push(`/teams/${data.teamId}`);
-        }, 2000);
+        setJoinResult({ 
+          status: 'success', 
+          needsSetup: data.needsSetup,
+          teamId: data.teamId 
+        });
+        
+        if (data.needsSetup) {
+          setShowSetupForm(true);
+        } else {
+          setTimeout(() => {
+            router.push(`/teams/${data.teamId}`);
+          }, 2000);
+        }
       } else if (data.error === 'Already a member') {
-        setJoinResult('already_member');
+        setJoinResult({ 
+          status: 'already_member',
+          needsSetup: data.needsSetup,
+          teamId: data.teamId
+        });
+        
+        if (data.needsSetup) {
+          setShowSetupForm(true);
+        }
       } else {
-        setJoinResult('error');
+        setJoinResult({ status: 'error' });
       }
     } catch {
-      setJoinResult('error');
+      setJoinResult({ status: 'error' });
     }
     
     setIsJoining(false);
+  };
+
+  const handleSetupComplete = () => {
+    setShowSetupForm(false);
+    router.push(`/teams/${joinResult.teamId}`);
   };
 
   const teamName = inviteData?.team?.name || t('unknownTeam');
@@ -158,7 +185,20 @@ export default function InvitePage() {
     );
   }
 
-  if (joinResult === 'success') {
+  if (showSetupForm && joinResult.teamId) {
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-lg">
+        <SetupPlayerForm
+          teamId={joinResult.teamId}
+          teamName={teamName}
+          onSuccess={handleSetupComplete}
+          onCancel={() => router.push(`/teams/${joinResult.teamId}`)}
+        />
+      </div>
+    );
+  }
+
+  if (joinResult.status === 'success' && !joinResult.needsSetup) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-md">
         <Card>
@@ -172,7 +212,7 @@ export default function InvitePage() {
     );
   }
 
-  if (joinResult === 'already_member') {
+  if (joinResult.status === 'already_member' && !joinResult.needsSetup) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-md">
         <Card>
@@ -180,7 +220,7 @@ export default function InvitePage() {
             <AlertCircle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
             <CardTitle className="mb-2">{t('alreadyMember.title')}</CardTitle>
             <CardDescription>{t('alreadyMember.description', { teamName })}</CardDescription>
-            <Link href={`/teams`} className="mt-6 block">
+            <Link href={`/teams/${joinResult.teamId || ''}`} className="mt-6 block">
               <Button className="w-full h-12">{t('alreadyMember.viewTeam')}</Button>
             </Link>
           </CardContent>
@@ -200,7 +240,7 @@ export default function InvitePage() {
           <CardDescription>{t('join.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {joinResult === 'error' && (
+          {joinResult.status === 'error' && (
             <p className="text-sm text-destructive">{t('join.error')}</p>
           )}
           <Button

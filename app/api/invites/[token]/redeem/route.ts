@@ -30,7 +30,6 @@ export async function POST(
     return NextResponse.json({ error: 'Invite max uses reached' }, { status: 400 });
   }
 
-  // Check if user is already a member
   const existingMember = await prisma.teamMember.findFirst({
     where: {
       teamId: invite.teamId,
@@ -38,11 +37,26 @@ export async function POST(
     },
   });
 
+  let needsSetup = true;
+
   if (existingMember) {
-    return NextResponse.json({ error: 'Already a member' }, { status: 400 });
+    const player = await prisma.player.findUnique({
+      where: { userId: session.user.id },
+      include: {
+        playerTeams: {
+          where: { teamId: invite.teamId },
+        },
+      },
+    });
+    needsSetup = !player || player.playerTeams.length === 0;
+    return NextResponse.json({ 
+      success: true, 
+      teamId: invite.teamId, 
+      needsSetup,
+      alreadyMember: true 
+    });
   }
 
-  // Add user to team
   await prisma.teamMember.create({
     data: {
       teamId: invite.teamId,
@@ -51,7 +65,6 @@ export async function POST(
     },
   });
 
-  // Update invite
   await prisma.teamInvite.update({
     where: { id: invite.id },
     data: {
@@ -61,5 +74,9 @@ export async function POST(
     },
   });
 
-  return NextResponse.json({ success: true, teamId: invite.teamId });
+  return NextResponse.json({ 
+    success: true, 
+    teamId: invite.teamId, 
+    needsSetup: true 
+  });
 }

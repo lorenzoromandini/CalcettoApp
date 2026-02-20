@@ -167,6 +167,8 @@ export interface Database {
           player_id: string;
           team_id: string;
           jersey_number: number;
+          primary_role: string;
+          secondary_roles: string[];
           joined_at: string;
           created_at: string;
           sync_status: string | null;
@@ -176,6 +178,8 @@ export interface Database {
           player_id: string;
           team_id: string;
           jersey_number: number;
+          primary_role: string;
+          secondary_roles?: string[];
           joined_at?: string;
           created_at?: string;
           sync_status?: string | null;
@@ -185,6 +189,8 @@ export interface Database {
           player_id?: string;
           team_id?: string;
           jersey_number?: number;
+          primary_role?: string;
+          secondary_roles?: string[];
           joined_at?: string;
           created_at?: string;
           sync_status?: string | null;

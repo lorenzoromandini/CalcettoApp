@@ -29,6 +29,8 @@ function toPlayerTeamType(dbPlayerTeam: any): PlayerTeam {
     player_id: dbPlayerTeam.playerId,
     team_id: dbPlayerTeam.teamId,
     jersey_number: dbPlayerTeam.jerseyNumber,
+    primary_role: dbPlayerTeam.primaryRole,
+    secondary_roles: dbPlayerTeam.secondaryRoles || [],
     joined_at: dbPlayerTeam.joinedAt.toISOString(),
     created_at: dbPlayerTeam.createdAt.toISOString(),
     sync_status: 'synced',
@@ -39,6 +41,9 @@ export async function createPlayer(
   data: CreatePlayerInput,
   teamId: string
 ): Promise<string> {
+  const primaryRole = data.roles[0];
+  const secondaryRoles = data.roles.slice(1);
+
   const player = await prisma.player.create({
     data: {
       name: data.name,
@@ -48,12 +53,13 @@ export async function createPlayer(
     },
   });
 
-  // Link player to team
   await prisma.playerTeam.create({
     data: {
       playerId: player.id,
       teamId: teamId,
       jerseyNumber: data.jersey_number ?? 1,
+      primaryRole,
+      secondaryRoles,
     },
   });
 
@@ -123,8 +129,9 @@ export async function updatePlayer(
     },
   });
 
-  // Update jersey number if provided
   if (teamId && data.jersey_number !== undefined) {
+    const secondaryRoles = data.roles ? data.roles.slice(1) : undefined;
+    
     await prisma.playerTeam.updateMany({
       where: {
         playerId,
@@ -132,6 +139,7 @@ export async function updatePlayer(
       },
       data: {
         jerseyNumber: data.jersey_number,
+        ...(secondaryRoles !== undefined && { secondaryRoles }),
       },
     });
   }
@@ -190,13 +198,17 @@ export async function uploadPlayerAvatar(
 export async function addPlayerToTeam(
   playerId: string,
   teamId: string,
-  jerseyNumber: number
+  jerseyNumber: number,
+  primaryRole: string,
+  secondaryRoles: string[] = []
 ): Promise<void> {
   await prisma.playerTeam.create({
     data: {
       playerId,
       teamId,
       jerseyNumber,
+      primaryRole,
+      secondaryRoles,
     },
   });
 }
