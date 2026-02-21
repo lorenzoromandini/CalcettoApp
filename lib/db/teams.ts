@@ -165,7 +165,49 @@ export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
     },
   });
 
-  return members.map(toTeamMemberType);
+  return members.map((m) => ({
+    id: m.id,
+    team_id: m.teamId,
+    user_id: m.userId ?? null,
+    player_id: m.playerId ?? null,
+    role: m.role as TeamMember['role'],
+    joined_at: m.joinedAt.toISOString(),
+    user: m.user ? {
+      id: m.user.id,
+      firstName: m.user.firstName,
+      lastName: m.user.lastName,
+      nickname: m.user.nickname,
+      email: m.user.email,
+      image: m.user.image,
+    } : null,
+  }));
+}
+
+export async function getTeamMembersWithUsers(teamId: string): Promise<any[]> {
+  const members = await prisma.teamMember.findMany({
+    where: { teamId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return members.filter(m => m.userId !== null).map(m => ({
+    id: m.id,
+    teamId: m.teamId,
+    userId: m.userId,
+    playerId: m.playerId,
+    role: m.role,
+    joinedAt: m.joinedAt,
+    user: m.user,
+  }));
 }
 
 export async function getTeamMemberCount(teamId: string): Promise<number> {

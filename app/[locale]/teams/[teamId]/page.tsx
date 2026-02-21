@@ -2,10 +2,12 @@ import { redirect, notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { TeamDashboard } from '@/components/teams/team-dashboard';
-import { TeamNav } from '@/components/navigation/team-nav';
+import { ArrowLeft, Settings } from 'lucide-react';
+import { Link } from '@/lib/i18n/navigation';
 
 interface TeamPageProps {
   params: Promise<{
+    locale: string;
     teamId: string;
   }>;
 }
@@ -53,10 +55,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
     where: { teamId },
   });
 
-  const memberCount = await prisma.teamMember.count({
-    where: { teamId },
-  });
-
   const isAdmin = membership.role === 'admin' || membership.role === 'co-admin';
 
   // Map team data to match Team type (convert null to undefined)
@@ -74,14 +72,29 @@ export default async function TeamPage({ params }: TeamPageProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <TeamNav teamId={teamId} isAdmin={isAdmin} />
-      
-      <div className="mt-6">
+    <div className="min-h-screen flex flex-col">
+      {/* Header with back button and settings */}
+      <div className="flex items-center justify-between px-4 py-3 border-b">
+        <Link href="/teams" className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
+          <ArrowLeft className="h-5 w-5" />
+          <span>Indietro</span>
+        </Link>
+        
+        <div className="flex-1" />
+
+        {isAdmin && (
+          <Link href={`/teams/${teamId}/settings`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+            <span>Impostazioni</span>
+            <Settings className="h-4 w-4" />
+          </Link>
+        )}
+        {!isAdmin && <div className="w-16" />}
+      </div>
+
+      <div className="container mx-auto px-4 py-6">
         <TeamDashboard
           team={mappedTeam}
           playerCount={playerCount}
-          memberCount={memberCount}
           isAdmin={isAdmin}
         />
       </div>

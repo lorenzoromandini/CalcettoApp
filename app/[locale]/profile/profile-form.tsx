@@ -342,12 +342,14 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         </Card>
       )}
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? 'Salvataggio...' : 'Salva modifiche'}
-        {hasChanges() && !isLoading && (
-          <span className="ml-2 text-xs opacity-70">(modifiche in sospeso)</span>
-        )}
-      </Button>
+      <div className="flex justify-center">
+        <Button type="submit" disabled={isLoading} className="w-full max-w-xs">
+          {isLoading ? 'Salvataggio...' : 'Salva modifiche'}
+          {hasChanges() && !isLoading && (
+            <span className="ml-2 text-xs opacity-70">(modifiche in sospeso)</span>
+          )}
+        </Button>
+      </div>
 
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-md">

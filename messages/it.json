@@ -4,71 +4,28 @@
     "login": "Accedi",
     "signup": "Registrati",
     "dashboard": "Dashboard",
-    "teams": "Squadre",
+    "clubs": "Club",
     "matches": "Partite",
     "players": "Giocatori",
     "statistics": "Statistiche",
     "settings": "Impostazioni",
     "logout": "Esci",
-    "signIn": "Accedi"
+    "signIn": "Login",
+    "profile": "Profilo"
   },
   "auth": {
-    "email": "Email",
-    "password": "Password",
-    "signIn": "Accedi",
+    "signIn": "Login",
     "signUp": "Registrati",
-    "forgotPassword": "Password dimenticata?",
-    "resetPassword": "Reimposta password",
-    "createAccount": "Crea account",
-    "alreadyHaveAccount": "Hai già un account?",
-    "noAccount": "Non hai un account?",
-    "signInWith": "Accedi con {provider}",
-    "orContinueWith": "Oppure continua con",
-    "logout": "Esci",
-    "profile": "Profilo",
-    "welcomeBack": "Bentornato",
-    "loginDescription": "Inserisci le tue credenziali per accedere",
-    "createAccountDescription": "Inserisci i tuoi dati per creare un account",
-    "termsPrefix": "Cliccando su \"Registrati\", accetti i nostri",
-    "termsOfService": "Termini di servizio",
-    "and": "e la",
-    "privacyPolicy": "Privacy Policy",
-    "forgotPasswordDescription": "Contatta l'amministratore per reimpostare la password",
-    "forgotPasswordInstructions": "Per reimpostare la password, contatta l'amministratore del sistema.",
-    "backTo": "Torna al"
+    "welcomeBack": "Benvenuto",
+    "forgotPassword": "Password Dimenticata?",
+    "orContinueWith": "Oppure",
+    "createAccount": "Benvenuto",
+    "createAccountDescription": "Crea il tuo account",
+    "alreadyHaveAccount": "Se possiedi già un account vai a"
   },
   "common": {
-    "loading": "Caricamento...",
-    "error": "Errore",
-    "save": "Salva",
-    "cancel": "Annulla",
-    "delete": "Elimina",
-    "edit": "Modifica",
-    "create": "Crea",
-    "close": "Chiudi",
-    "back": "Indietro",
-    "next": "Avanti",
-    "skip": "Salta",
-    "done": "Fatto",
-    "getStarted": "Inizia",
     "welcome": "Benvenuto",
-    "confirm": "Conferma",
-    "yes": "Sì",
-    "no": "No"
-  },
-  "onboarding": {
-    "step1": {
-      "title": "Benvenuto in Calcetto Manager",
-      "description": "L'app perfetta per gestire le tue partite di calcio con gli amici"
-    },
-    "step2": {
-      "title": "Crea la tua squadra",
-      "description": "Organizza i tuoi amici in squadre e invitali a giocare"
-    },
-    "step3": {
-      "title": "Programma le partite",
-      "description": "Pianifica partite, registra i risultati e tieni traccia delle statistiche"
-    }
+    "loading": "Caricamento..."
   },
   "theme": {
     "light": "Chiaro",
@@ -88,6 +45,7 @@
     }
   },
   "dashboard": {
+    "yourCard": "La mia carta",
     "subtitle": "Ecco la panoramica della tua attività",
     "upcomingMatches": "Prossime partite",
     "noUpcomingMatches": "Nessuna partita programmata",
@@ -114,10 +72,10 @@
     "upcomingMatches": "Prossime partite",
     "noUpcomingMatches": "Nessuna partita programmata"
   },
-  "teams": {
-    "title": "Le mie squadre",
-    "description": "Gestisci le tue squadre e i giocatori",
-    "create": "Crea squadra",
+"teams": {
+    "title": "Club",
+    "description": "",
+    "create": "Crea club",
     "createDescription": "Crea una nuova squadra",
     "back": "Indietro",
     "teamMode": {
@@ -149,16 +107,20 @@
         "8a-side": "8 vs 8",
         "11a-side": "11 vs 11"
       },
-      "submit": "Crea squadra",
+      "submit": "Crea club",
       "creating": "Creazione in corso...",
       "error": "Si è verificato un errore. Riprova."
     },
-    "myTeams": "Le mie squadre",
+"myTeams": "Le mie squadre",
     "team": "squadra",
     "teams": "squadre",
+    "members": "Membri",
     "selectTeam": "Seleziona squadra",
     "createFirst": "Crea la tua prima squadra",
-    "createNew": "Crea nuova squadra"
+    "createNew": "Crea nuova squadra",
+    "setAsDefault": "Imposta come predefinito",
+    "defaultTeam": "Predefinito",
+    "managerRole": "Manager"
   },
   "players": {
     "title": "Giocatori",

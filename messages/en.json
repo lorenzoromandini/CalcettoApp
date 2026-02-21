@@ -4,71 +4,27 @@
     "login": "Login",
     "signup": "Sign Up",
     "dashboard": "Dashboard",
-    "teams": "Teams",
+    "clubs": "Clubs",
     "matches": "Matches",
     "players": "Players",
     "statistics": "Statistics",
     "settings": "Settings",
     "logout": "Logout",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "profile": "Profile"
   },
   "auth": {
-    "email": "Email",
-    "password": "Password",
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "forgotPassword": "Forgot password?",
-    "resetPassword": "Reset Password",
-    "createAccount": "Create Account",
-    "alreadyHaveAccount": "Already have an account?",
-    "noAccount": "Don't have an account?",
-    "signInWith": "Sign in with {provider}",
-    "orContinueWith": "Or continue with",
-    "logout": "Logout",
-    "profile": "Profile",
-    "welcomeBack": "Welcome back",
-    "loginDescription": "Enter your credentials to sign in",
-    "createAccountDescription": "Enter your details to create an account",
-    "termsPrefix": "By clicking \"Sign Up\", you agree to our",
-    "termsOfService": "Terms of Service",
-    "and": "and",
-    "privacyPolicy": "Privacy Policy",
-    "forgotPasswordDescription": "Contact the administrator to reset your password",
-    "forgotPasswordInstructions": "To reset your password, please contact the system administrator.",
-    "backTo": "Back to"
+    "welcomeBack": "Welcome",
+    "forgotPassword": "Forgot Password?",
+    "orContinueWith": "Or",
+    "createAccount": "Welcome",
+    "createAccountDescription": "Create your account",
+    "alreadyHaveAccount": "If you already have an account go to"
   },
   "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "create": "Create",
-    "close": "Close",
-    "back": "Back",
-    "next": "Next",
-    "skip": "Skip",
-    "done": "Done",
-    "getStarted": "Get Started",
-    "welcome": "Welcome",
-    "confirm": "Confirm",
-    "yes": "Yes",
-    "no": "No"
-  },
-  "onboarding": {
-    "step1": {
-      "title": "Welcome to Calcetto Manager",
-      "description": "The perfect app to manage your football matches with friends"
-    },
-    "step2": {
-      "title": "Create your team",
-      "description": "Organize your friends into teams and invite them to play"
-    },
-    "step3": {
-      "title": "Schedule matches",
-      "description": "Plan matches, record results and track statistics"
-    }
+    "welcome": "Welcome"
   },
   "theme": {
     "light": "Light",
@@ -88,6 +44,7 @@
     }
   },
   "dashboard": {
+    "yourCard": "My Card",
     "subtitle": "Here's an overview of your activity",
     "upcomingMatches": "Upcoming matches",
     "noUpcomingMatches": "No matches scheduled",

@@ -25,10 +25,8 @@ export default async function LoginPage({
   return (
     <AuthCard
       title={t('auth.welcomeBack')}
-      description={t('auth.loginDescription')}
       footer={
         <AuthFooterLink
-          text={t('auth.noAccount')}
           linkText={t('auth.signUp')}
           href="/auth/signup"
         />

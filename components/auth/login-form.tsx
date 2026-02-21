@@ -47,6 +47,8 @@ export function LoginForm() {
         redirect: false,
       });
 
+      console.log("SignIn result:", result);
+
       if (result?.error === "EMAIL_NOT_VERIFIED") {
         setError("Devi verificare la tua email prima di accedere. Controlla la tua casella di posta.");
         return;
@@ -59,7 +61,8 @@ export function LoginForm() {
 
       router.push("/dashboard");
       router.refresh();
-    } catch {
+    } catch (err) {
+      console.error("Login error:", err);
       setError("Si è verificato un errore imprevisto. Riprova più tardi.");
     } finally {
       setIsLoading(false);

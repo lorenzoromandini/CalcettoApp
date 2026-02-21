@@ -33,18 +33,6 @@ export default async function SignupPage({
       }
     >
       <SignupForm />
-      
-      <p className="text-xs text-center text-muted-foreground">
-        {t('auth.termsPrefix')}{" "}
-        <a href="#" className="underline hover:text-primary">
-          {t('auth.termsOfService')}
-        </a>{" "}
-        {t('auth.and')}{" "}
-        <a href="#" className="underline hover:text-primary">
-          {t('auth.privacyPolicy')}
-        </a>
-        .
-      </p>
     </AuthCard>
   );
 }

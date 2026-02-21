@@ -11,22 +11,19 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, UserPlus, Settings, Share2, Calendar, TrendingUp, Link2, Copy, Check, Loader2, MessageCircle } from 'lucide-react';
-import { MyTeamsSwitcher } from './my-teams-switcher';
+import { Users, Settings, Share2, Calendar, Link2, Copy, Check, Loader2, MessageCircle, Plus } from 'lucide-react';
 import { generateInviteLink } from '@/lib/actions/invites';
 import type { Team } from '@/lib/db/schema';
 
 interface TeamDashboardProps {
   team: Team;
   playerCount: number;
-  memberCount: number;
   isAdmin: boolean;
 }
 
 export function TeamDashboard({
   team,
   playerCount,
-  memberCount,
   isAdmin,
 }: TeamDashboardProps) {
   const t = useTranslations('teamDashboard');
@@ -82,11 +79,6 @@ export function TeamDashboard({
 
   return (
     <div className="space-y-6">
-      {/* My Teams Switcher */}
-      <div className="flex justify-start">
-        <MyTeamsSwitcher currentTeamId={team.id} locale={locale} />
-      </div>
-
       {/* Team Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-start gap-4">
@@ -123,110 +115,58 @@ export function TeamDashboard({
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('stats.players')}
+      {/* Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/${locale}/teams/${team.id}/roster`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Rosa
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardDescription>Gestisci i giocatori e i membri della squadra</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{playerCount}</div>
-            <p className="text-xs text-muted-foreground">
-              {t('stats.registeredPlayers')}
-            </p>
+            <p className="text-xs text-muted-foreground">Giocatori</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('stats.members')}
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/${locale}/teams/${team.id}/matches`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Partite
             </CardTitle>
-            <Share2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{memberCount}</div>
-            <p className="text-xs text-muted-foreground">
-              {t('stats.teamMembers')}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('stats.matches')}
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardDescription>Visualizza e gestisci le partite</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">
-              {t('stats.upcomingMatches')}
-            </p>
+            <p className="text-xs text-muted-foreground">Prossime partite</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Invite Members - Only for admin */}
+      {isAdmin && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5" />
-              {t('actions.players.title')}
+              <Share2 className="h-5 w-5" />
+              {t('actions.invite.title')}
             </CardTitle>
-            <CardDescription>{t('actions.players.description')}</CardDescription>
+            <CardDescription>{t('actions.invite.description')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href={`/${locale}/teams/${team.id}/players`}>
-              <Button className="w-full h-12">
-                {t('actions.players.button')}
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              className="w-full h-12"
+              onClick={openInviteDialog}
+            >
+              {t('actions.invite.button')}
+            </Button>
           </CardContent>
         </Card>
-
-        {isAdmin && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Share2 className="h-5 w-5" />
-                {t('actions.invite.title')}
-              </CardTitle>
-              <CardDescription>{t('actions.invite.description')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                variant="outline"
-                className="w-full h-12"
-                onClick={openInviteDialog}
-              >
-                {t('actions.invite.button')}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Placeholder for upcoming matches */}
-      <Card className="border-dashed">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            {t('matches.title')}
-          </CardTitle>
-          <CardDescription>{t('matches.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-8">
-            {t('matches.placeholder')}
-          </p>
-        </CardContent>
-      </Card>
+      )}
 
       {/* Invite Dialog */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>

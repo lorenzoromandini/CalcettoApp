@@ -3,13 +3,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getTeamMembers } from '@/lib/db/teams';
+import { getTeamMembers, getTeamMembersWithUsers } from '@/lib/db/teams';
 import { getTeamPlayers } from '@/lib/db/players';
 import { TeamRosterManager } from '@/components/teams/team-roster-manager';
 import { PlayerCard } from '@/components/players/player-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Users, UserCircle } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import type { TeamMember, Player } from '@/lib/db/schema';
@@ -20,12 +20,11 @@ export default function TeamRosterPage() {
   const teamId = params.teamId as string;
   const locale = params.locale as string;
 
-  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [players, setPlayers] = useState<(Player & { jersey_number?: number })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState<'players' | 'members'>('players');
   const { data: session } = useSession();
 
   const loadData = useCallback(async () => {
@@ -42,7 +41,7 @@ export default function TeamRosterPage() {
       // Check current user role
       if (session?.user?.id) {
         setCurrentUserId(session.user.id);
-        const userMembership = membersData.find((m: TeamMember) => m.user_id === session.user.id);
+        const userMembership = membersData.find((m: any) => m.user_id === session.user.id);
         setIsAdmin(userMembership?.role === 'admin' || userMembership?.role === 'co-admin');
       }
     } catch (error) {
@@ -67,72 +66,87 @@ export default function TeamRosterPage() {
     );
   }
 
-return (
+  return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
-        <Link href={`/${locale}/teams/${teamId}`}>
-          <Button variant="ghost" className="pl-0">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('backToTeam')}
-          </Button>
+      {/* Back button */}
+      <div className="flex items-center justify-between mb-6">
+        <Link href={`/${locale}/teams/${teamId}`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-5 w-5" />
+          <span>Indietro</span>
         </Link>
+        
+        <h1 className="text-2xl font-bold">Rosa</h1>
+        
+        {isAdmin && (
+          <Link href={`/${locale}/teams/${teamId}/players/create`}>
+            <Button>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Aggiungi
+            </Button>
+          </Link>
+        )}
+        {!isAdmin && <div className="w-20" />}
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">{t('pageTitle')}</h1>
-
-      {/* Simple Tab Navigation */}
-      <div className="flex gap-2 mb-6">
-        <Button
-          variant={activeTab === 'players' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('players')}
-          className="flex items-center gap-2"
-        >
-          <UserCircle className="h-4 w-4" />
-          {t('tabs.players')}
-        </Button>
-        <Button
-          variant={activeTab === 'members' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('members')}
-          className="flex items-center gap-2"
-        >
-          <Users className="h-4 w-4" />
-          {t('tabs.members')}
-        </Button>
-      </div>
-
-      {/* Players Tab */}
-      {activeTab === 'players' && (
-        <div className="space-y-4">
-          {players.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="p-8 text-center">
-                <p className="text-muted-foreground">{t('noPlayers')}</p>
-                <Link href={`/${locale}/teams/${teamId}/players/create`} className="mt-4 inline-block">
-                  <Button>{t('addPlayer')}</Button>
-                </Link>
-              </CardContent>
-            </Card>
+      {/* Players Section - Shows all members with user accounts */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Giocatori
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Show members who have user accounts (including admin/creator) */}
+          {members.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">Nessun membro trovato</p>
           ) : (
-            players.map((player) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                teamId={teamId}
-              />
-            ))
+            <div className="space-y-3">
+              {members.map((member: any) => (
+                <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-sm font-medium">
+                        {member.user?.firstName?.charAt(0) || member.user?.email?.charAt(0) || '?'}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {member.user?.nickname || member.user?.firstName || member.user?.email || 'Utente'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {member.role === 'admin' && 'Admin'}
+                        {member.role === 'co-admin' && 'Co-Admin'}
+                        {member.role === 'member' && 'Membro'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-        </div>
-      )}
+        </CardContent>
+      </Card>
 
-      {/* Members Tab */}
-      {activeTab === 'members' && (
-        <TeamRosterManager
-          teamId={teamId}
-          members={members}
-          currentUserId={currentUserId || ''}
-          isAdmin={isAdmin}
-          onMembersChange={loadData}
-        />
+      {/* Members Management - Admin only */}
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Gestione Membri
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TeamRosterManager
+              teamId={teamId}
+              members={members}
+              currentUserId={currentUserId || ''}
+              isAdmin={isAdmin}
+              onMembersChange={loadData}
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );
