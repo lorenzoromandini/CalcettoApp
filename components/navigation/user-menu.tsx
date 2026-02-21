@@ -50,7 +50,7 @@ export function UserMenu({ user }: UserMenuProps) {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 z-50 mt-2 w-56 rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
+          <div className="absolute right-0 z-50 mt-2 w-56 rounded-md border bg-background p-1 text-popover-foreground shadow-md">
             <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
               {user.email}
             </div>
@@ -61,7 +61,7 @@ export function UserMenu({ user }: UserMenuProps) {
               onClick={() => setIsOpen(false)}
             >
               <User className="mr-2 h-4 w-4" />
-              {t('auth.profile')}
+              {t('navigation.profile')}
             </Link>
             <Link
               href="/settings"

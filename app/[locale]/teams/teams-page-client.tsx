@@ -1,37 +1,96 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, ArrowLeft, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TeamCard } from "@/components/teams/team-card";
 import { useTeams } from "@/hooks/use-teams";
 import { Card, CardContent } from "@/components/ui/card";
-import { Header } from "@/components/navigation/header";
+import { useSession } from "next-auth/react";
 
 interface TeamsPageClientProps {
   locale: string;
 }
 
+interface TeamMemberRole {
+  teamId: string;
+  role: "admin" | "co-admin" | "member";
+}
+
+const DEFAULT_TEAM_KEY = "defaultTeamId";
+
 export function TeamsPageClient({ locale }: TeamsPageClientProps) {
   const t = useTranslations("teams");
   const router = useRouter();
+  const { data: session } = useSession();
   const { teams, isLoading, error, refetch } = useTeams();
+  const [userRoles, setUserRoles] = useState<TeamMemberRole[]>([]);
+  const [defaultTeamId, setDefaultTeamId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(DEFAULT_TEAM_KEY);
+      setDefaultTeamId(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchUserRoles = async () => {
+      if (!session?.user?.id) return;
+      try {
+        const response = await fetch("/api/teams/me/roles");
+        if (response.ok) {
+          const data = await response.json();
+          setUserRoles(data.roles || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user roles:", err);
+      }
+    };
+    fetchUserRoles();
+  }, [session?.user?.id]);
+
+  const getUserRole = (teamId: string): "admin" | "co-admin" | "member" | undefined => {
+    const member = userRoles.find((r) => r.teamId === teamId);
+    return member?.role;
+  };
 
   const handleTeamClick = (teamId: string) => {
     router.push(`/${locale}/teams/${teamId}`);
   };
 
+  const handleSetDefault = (teamId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof window !== "undefined") {
+      localStorage.setItem(DEFAULT_TEAM_KEY, teamId);
+      setDefaultTeamId(teamId);
+    }
+  };
+
+  const sortedTeams = [...teams].sort((a, b) => {
+    if (a.id === defaultTeamId) return -1;
+    if (b.id === defaultTeamId) return 1;
+    return 0;
+  });
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header />
+        <div className="flex items-center justify-between px-4 py-3 border-b md:hidden">
+          <Link href="/dashboard" className="p-2 -ml-2 flex items-center gap-1">
+            <ArrowLeft className="h-5 w-5" />
+            <span className="text-sm font-medium">Indietro</span>
+          </Link>
+          <h1 className="text-xl font-bold absolute left-1/2 -translate-x-1/2">{t("title")}</h1>
+          <div className="w-16" />
+        </div>
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="h-8 w-48 bg-muted rounded animate-pulse" />
-              <div className="h-4 w-64 mt-2 bg-muted rounded animate-pulse" />
+              <div className="h-8 w-32 bg-muted rounded animate-pulse" />
             </div>
             <div className="h-12 w-32 bg-muted rounded animate-pulse" />
           </div>
@@ -58,12 +117,18 @@ export function TeamsPageClient({ locale }: TeamsPageClientProps) {
   if (error) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header />
+        <div className="flex items-center justify-between px-4 py-3 border-b md:hidden">
+          <Link href="/dashboard" className="p-2 -ml-2 flex items-center gap-1">
+            <ArrowLeft className="h-5 w-5" />
+            <span className="text-sm font-medium">Indietro</span>
+          </Link>
+          <h1 className="text-xl font-bold absolute left-1/2 -translate-x-1/2">{t("title")}</h1>
+          <div className="w-16" />
+        </div>
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold">{t("title")}</h1>
-              <p className="text-muted-foreground">{t("description")}</p>
             </div>
           </div>
           <Card className="border-dashed">
@@ -73,12 +138,14 @@ export function TeamsPageClient({ locale }: TeamsPageClientProps) {
               </div>
               <h3 className="text-lg font-semibold mb-2">Non hai nessuna squadra disponibile</h3>
               <p className="text-muted-foreground mb-4">Creane una per accedere alla sezione</p>
-              <Link href="/teams/create">
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  {t("create")}
-                </Button>
-              </Link>
+              {true && (
+                <Link href="/teams/create">
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    {t("create")}
+                  </Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -88,19 +155,18 @@ export function TeamsPageClient({ locale }: TeamsPageClientProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">{t("title")}</h1>
-            <p className="text-muted-foreground">{t("description")}</p>
-          </div>
-          <Link href="/teams/create">
-            <Button className="h-12">
-              <Plus className="mr-2 h-4 w-4" />
-              {t("create")}
-            </Button>
-          </Link>
+      <div className="flex items-center justify-between px-4 py-3 border-b md:hidden">
+        <Link href="/dashboard" className="p-2 -ml-2 flex items-center gap-1">
+          <ArrowLeft className="h-5 w-5" />
+          <span className="text-sm font-medium">Indietro</span>
+        </Link>
+        <h1 className="text-xl font-bold absolute left-1/2 -translate-x-1/2">{t("title")}</h1>
+        <div className="w-16" />
+      </div>
+      <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
+        <div className="hidden md:block mb-6">
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          {t("description") && <p className="text-muted-foreground">{t("description")}</p>}
         </div>
 
         {teams.length === 0 ? (
@@ -111,27 +177,54 @@ export function TeamsPageClient({ locale }: TeamsPageClientProps) {
               </div>
               <h3 className="text-lg font-semibold mb-2">{t("empty.title")}</h3>
               <p className="text-muted-foreground mb-4">{t("empty.description")}</p>
-              <Link href="/teams/create">
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  {t("create")}
-                </Button>
-              </Link>
+              {true && (
+                <Link href="/teams/create">
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    {t("create")}
+                  </Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-4">
-            {teams.map((team) => (
-              <TeamCard
-                key={team.id}
-                team={team}
-                onClick={() => handleTeamClick(team.id)}
-                memberCount={1} // TODO: Get actual member count
-              />
+            {sortedTeams.map((team) => (
+              <div key={team.id} className="relative">
+                <button
+                  onClick={(e) => handleSetDefault(team.id, e)}
+                  className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-background/80 hover:bg-background shadow-sm transition-colors"
+                  title={team.id === defaultTeamId ? t("defaultTeam") : t("setAsDefault")}
+                >
+                  <Star
+                    className={`h-4 w-4 ${
+                      team.id === defaultTeamId ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground"
+                    }`}
+                  />
+                </button>
+                <TeamCard
+                  team={team}
+                  onClick={() => handleTeamClick(team.id)}
+                  memberCount={1}
+                  userRole={getUserRole(team.id)}
+                  isDefault={team.id === defaultTeamId}
+                />
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      {true && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-50">
+          <Link href="/teams/create">
+            <Button className="h-14 px-8 rounded-full shadow-lg">
+              <Plus className="mr-2 h-5 w-5" />
+              {t("create")}
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

@@ -80,25 +80,30 @@ export function MatchesPageClient({ locale, teamId }: MatchesPageClientProps) {
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={handleBack} className="-ml-2">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {teamsT("back")}
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{t("title")}</h1>
-            {team && (
-              <p className="text-sm text-muted-foreground">{team.name}</p>
-            )}
-          </div>
+      <div className="relative flex items-center justify-between mb-6">
+        <Button variant="ghost" onClick={handleBack} className="-ml-2">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {teamsT("back")}
+        </Button>
+        
+        {/* Centered title for mobile - absolutely centered horizontally at top */}
+        <div className="md:hidden absolute left-1/2 -translate-x-1/2 text-center">
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          {team && (
+            <p className="text-sm text-muted-foreground">{team.name}</p>
+          )}
         </div>
-        {isAdmin && (
-          <Button onClick={handleCreateMatch} className="h-12">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("create")}
-          </Button>
-        )}
+        
+        {/* Left-aligned title for desktop */}
+        <div className="hidden md:block">
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          {team && (
+            <p className="text-sm text-muted-foreground">{team.name}</p>
+          )}
+        </div>
+        
+        {/* Spacer to balance the back button on mobile */}
+        <div className="md:hidden w-10" />
       </div>
 
       {/* Tabs */}
@@ -117,12 +122,6 @@ export function MatchesPageClient({ locale, teamId }: MatchesPageClientProps) {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{t("empty.upcoming.title")}</h3>
                 <p className="text-muted-foreground mb-4">{t("empty.upcoming.description")}</p>
-                {isAdmin && (
-                  <Button onClick={handleCreateMatch}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t("create")}
-                  </Button>
-                )}
               </CardContent>
             </Card>
           ) : (
@@ -160,6 +159,16 @@ export function MatchesPageClient({ locale, teamId }: MatchesPageClientProps) {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Quick Action - Create Match */}
+      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleCreateMatch}>
+        <CardContent className="p-6 text-center">
+          <Button className="w-full h-12">
+            <Plus className="mr-2 h-5 w-5" />
+            Crea partita
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

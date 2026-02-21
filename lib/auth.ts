@@ -1,5 +1,4 @@
 import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
@@ -23,18 +22,7 @@ declare module "next-auth" {
   }
 }
 
-declare module "@auth/core/jwt" {
-  interface JWT {
-    id: string
-    firstName?: string | null
-    lastName?: string | null
-    nickname?: string | null
-    image?: string | null
-  }
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
     maxAge: 365 * 24 * 60 * 60,
@@ -55,31 +43,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        })
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+          })
 
-        if (!user || !user.password) {
+          if (!user || !user.password) {
+            return null
+          }
+
+          if (!user.emailVerified) {
+            throw new Error("EMAIL_NOT_VERIFIED")
+          }
+
+          const isValid = await bcrypt.compare(credentials.password as string, user.password)
+
+          if (!isValid) {
+            return null
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            nickname: user.nickname,
+            image: user.image,
+          }
+        } catch (error) {
+          if (error instanceof Error && error.message === "EMAIL_NOT_VERIFIED") {
+            throw error
+          }
+          console.error("Authorize error:", error)
           return null
-        }
-
-        if (!user.emailVerified) {
-          throw new Error("EMAIL_NOT_VERIFIED")
-        }
-
-        const isValid = await bcrypt.compare(credentials.password as string, user.password)
-
-        if (!isValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          nickname: user.nickname,
-          image: user.image,
         }
       },
     }),

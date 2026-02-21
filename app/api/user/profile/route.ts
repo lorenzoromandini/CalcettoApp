@@ -83,15 +83,31 @@ export async function PATCH(request: NextRequest) {
           if (!playerIdToUpdate) continue;
           
           if (change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
-            await prisma.playerTeam.updateMany({
+            const existing = await prisma.playerTeam.findUnique({
               where: {
-                playerId: playerIdToUpdate,
-                teamId: change.teamId,
-              },
-              data: {
-                jerseyNumber: change.jerseyNumber,
+                playerId_teamId: {
+                  playerId: playerIdToUpdate,
+                  teamId: change.teamId,
+                },
               },
             });
+
+            if (existing) {
+              await prisma.playerTeam.update({
+                where: { id: existing.id },
+                data: { jerseyNumber: change.jerseyNumber },
+              });
+            } else {
+              await prisma.playerTeam.create({
+                data: {
+                  playerId: playerIdToUpdate,
+                  teamId: change.teamId,
+                  jerseyNumber: change.jerseyNumber,
+                  primaryRole: 'member',
+                  secondaryRoles: [],
+                } as any,
+              });
+            }
           }
         }
       } catch (e) {

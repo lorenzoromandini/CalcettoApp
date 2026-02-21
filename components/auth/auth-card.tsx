@@ -49,7 +49,7 @@ export function AuthCard({ title, description, children, footer }: AuthCardProps
 }
 
 interface AuthFooterLinkProps {
-  text: string;
+  text?: string;
   linkText: string;
   href: string;
 }
@@ -57,7 +57,7 @@ interface AuthFooterLinkProps {
 export function AuthFooterLink({ text, linkText, href }: AuthFooterLinkProps) {
   return (
     <p className="text-center text-sm text-muted-foreground">
-      {text}{" "}
+      {text && <>{text} </>}
       <Link
         href={href}
         className="font-medium text-primary hover:text-primary/90 underline-offset-4 hover:underline"

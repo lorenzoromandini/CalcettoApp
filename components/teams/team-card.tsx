@@ -11,9 +11,10 @@ interface TeamCardProps {
   onClick?: () => void;
   memberCount?: number;
   userRole?: 'admin' | 'co-admin' | 'member';
+  isDefault?: boolean;
 }
 
-export function TeamCard({ team, onClick, memberCount, userRole }: TeamCardProps) {
+export function TeamCard({ team, onClick, memberCount, userRole, isDefault }: TeamCardProps) {
   const t = useTranslations("teams");
 
   return (

@@ -3,10 +3,11 @@ import { getTranslations } from "next-intl/server";
 import { CreateTeamPageClient } from "./create-team-page-client";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "teams" });
   return {
     title: t("create"),
@@ -14,10 +15,11 @@ export async function generateMetadata({
   };
 }
 
-export default function CreateTeamPage({
-  params: { locale },
+export default async function CreateTeamPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   return <CreateTeamPageClient locale={locale} />;
 }

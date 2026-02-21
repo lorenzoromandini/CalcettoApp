@@ -17,24 +17,19 @@ export function TeamNav({ teamId, isAdmin }: TeamNavProps) {
 
   const navItems = [
     {
-      href: `/dashboard`,
-      label: t('backToDashboard'),
+      href: `/teams/${teamId}`,
+      label: 'Panoramica',
       icon: Trophy,
+    },
+    {
+      href: `/teams/${teamId}/roster`,
+      label: 'Rosa',
+      icon: Users,
     },
     {
       href: `/teams/${teamId}/matches`,
       label: t('matches'),
       icon: CalendarDays,
-    },
-    {
-      href: `/teams/${teamId}/players`,
-      label: t('players'),
-      icon: Users,
-    },
-    {
-      href: `/teams/${teamId}/roster`,
-      label: t('roster'),
-      icon: Users,
     },
     {
       href: `/teams/${teamId}/history`,
