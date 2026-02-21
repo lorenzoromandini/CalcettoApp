@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { useSession } from '@/components/providers/session-provider';
 import { useTranslations } from 'next-intl';
 import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { Link } from '@/lib/i18n/navigation';
@@ -20,9 +20,10 @@ interface UserMenuProps {
 export function UserMenu({ user }: UserMenuProps) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
+  const { signOut } = useSession();
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    await signOut();
   };
 
   const displayName = user.nickname || user.firstName || user.email?.split('@')[0];

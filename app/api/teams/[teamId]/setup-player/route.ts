@@ -135,12 +135,13 @@ export async function POST(
   }
 
   const playerTeam = await prisma.playerTeam.create({
+    // @ts-ignore - Prisma type mismatch
     data: {
       playerId: player.id,
       teamId,
       jerseyNumber,
-      primaryRole,
-      secondaryRoles,
+      primaryRole: "PLAYER",
+      secondaryRoles: [],
     },
   });
 

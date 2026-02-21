@@ -25,11 +25,33 @@ declare module "next-auth" {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
-    maxAge: 365 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: "/auth/login",
     error: "/auth/auth-code-error",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.firstName = user.firstName
+        token.lastName = user.lastName
+        token.nickname = user.nickname
+        token.image = user.image
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.firstName = token.firstName as string | null | undefined
+        session.user.lastName = token.lastName as string | null | undefined
+        session.user.nickname = token.nickname as string | null | undefined
+        session.user.image = token.image as string | null | undefined
+      }
+      return session
+    },
   },
   providers: [
     CredentialsProvider({
@@ -80,26 +102,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.firstName = user.firstName
-        token.lastName = user.lastName
-        token.nickname = user.nickname
-        token.image = user.image
-      }
-      return token
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.firstName = token.firstName as string | null | undefined
-        session.user.lastName = token.lastName as string | null | undefined
-        session.user.nickname = token.nickname as string | null | undefined
-        session.user.image = token.image as string | null | undefined
-      }
-      return session
-    },
-  },
 })

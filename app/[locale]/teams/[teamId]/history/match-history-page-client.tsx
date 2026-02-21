@@ -31,7 +31,7 @@ import { getMatchGoals, type GoalWithPlayers } from '@/lib/db/goals'
 import { getMatchRatings, type PlayerRatingWithPlayer } from '@/lib/db/player-ratings'
 import { getFormation } from '@/lib/db/formations'
 import { isTeamAdmin } from '@/lib/db/teams'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/components/providers/session-provider'
 import type { Match } from '@/lib/db/schema'
 
 // ============================================================================
