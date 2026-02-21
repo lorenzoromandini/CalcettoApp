@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Settings, Trash2, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/components/providers/session-provider';
 import { TeamImageUploader } from '@/components/teams/team-image-uploader';
 import { useTeam } from '@/hooks/use-teams';
 

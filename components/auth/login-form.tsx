@@ -1,12 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "@/lib/i18n/navigation";
-import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,15 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 export function LoginForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
-  const isVerified = searchParams.get("verified") === "true";
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -41,47 +33,43 @@ export function LoginForm() {
     setError(null);
 
     try {
-      const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email.trim().toLowerCase(),
+          password: data.password
+        }),
       });
 
-      console.log("SignIn result:", result);
+      const result = await response.json();
 
-      if (result?.error === "EMAIL_NOT_VERIFIED") {
-        setError("Devi verificare la tua email prima di accedere. Controlla la tua casella di posta.");
+      if (!response.ok || !result.success) {
+        setError(result.error || "Email o password non corretti.");
+        setIsLoading(false);
         return;
       }
 
-      if (result?.error || !result?.ok) {
-        setError("Email o password non corretti. Riprova.");
-        return;
+      if (result.token) {
+        localStorage.setItem("auth-token", result.token);
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
+      
     } catch (err) {
-      console.error("Login error:", err);
-      setError("Si è verificato un errore imprevisto. Riprova più tardi.");
-    } finally {
+      setError("Si è verificato un errore. Riprova.");
       setIsLoading(false);
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {isVerified && (
-          <div className="flex items-center gap-2 rounded-md bg-green-500/15 p-3 text-sm text-green-600 dark:text-green-400">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <p>Email verificata! Ora puoi accedere.</p>
-          </div>
-        )}
-
+      <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(onSubmit)(e); }} className="space-y-4">
         {error && (
           <div className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle className="h-4 w-4" />
             <p>{error}</p>
           </div>
         )}

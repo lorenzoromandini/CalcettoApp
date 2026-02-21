@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from '@/components/providers/session-provider';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -14,7 +14,7 @@ import Image from 'next/image';
 export function Header() {
   const t = useTranslations('navigation');
   const tCommon = useTranslations('common');
-  const { data: session } = useSession();
+  const { data: session, signOut } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   
@@ -151,7 +151,7 @@ export function Header() {
                 <ThemeToggle />
               </div>
               <button
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={() => signOut()}
                 className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent text-destructive w-full text-left"
               >
                 <LogOut className="h-4 w-4" />

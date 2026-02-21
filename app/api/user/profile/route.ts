@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getSession();
     
-    if (!session?.user?.id) {
+    if (!session?.id) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
@@ -52,7 +52,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: session.id },
       data: updateData,
       include: { playerProfile: true },
     });

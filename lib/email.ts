@@ -1,6 +1,6 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@calcetto-manager.com"
 
@@ -13,6 +13,11 @@ export async function sendVerificationEmail(
 
   if (process.env.NODE_ENV === "development") {
     console.log("Verification URL:", verificationUrl)
+  }
+
+  if (!resend) {
+    console.log("[DEV] Email not sent - no Resend API key")
+    return
   }
 
   try {
@@ -49,7 +54,12 @@ export async function sendPasswordResetEmail(
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/reset-password?token=${token}`
 
   if (process.env.NODE_ENV === "development") {
-    console.log("Reset URL:", resetUrl)
+    console.log("Password Reset URL:", resetUrl)
+  }
+
+  if (!resend) {
+    console.log("[DEV] Password reset email not sent - no Resend API key")
+    return
   }
 
   try {

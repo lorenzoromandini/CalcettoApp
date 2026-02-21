@@ -16,7 +16,7 @@ export async function POST(
     const { teamId, playerId } = await params;
     const body = await request.json();
     
-    await addPlayerToTeam(playerId, teamId, body.jerseyNumber);
+    await addPlayerToTeam(playerId, teamId, body.jerseyNumber, body.primaryRole || 'PLAYER', body.secondaryRoles || []);
     
     return NextResponse.json({ success: true });
   } catch (error) {
