@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { addPlayerToTeam } from '@/lib/db/players';
 
 export async function POST(
@@ -7,9 +7,9 @@ export async function POST(
   { params }: { params: Promise<{ teamId: string; playerId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

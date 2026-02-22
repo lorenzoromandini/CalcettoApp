@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ teamId: string }> }
 ) {
-  const session = await auth();
+  const userId = getUserIdFromRequest(request);
   
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ isAdmin: false }, { status: 401 });
   }
 
@@ -17,7 +17,7 @@ export async function GET(
   const membership = await prisma.teamMember.findFirst({
     where: {
       teamId,
-      userId: session.user.id,
+      userId,
       role: {
         in: ['admin', 'co-admin'],
       },

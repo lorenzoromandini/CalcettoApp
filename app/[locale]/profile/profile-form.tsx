@@ -5,6 +5,7 @@ import { useRouter } from '@/lib/i18n/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSession } from '@/components/providers/session-provider';
+import { authFetch } from '@/lib/auth-fetch';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -162,7 +163,7 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         formData.append('jerseyChanges', JSON.stringify(jerseyChanges));
       }
 
-      const response = await fetch('/api/user/profile', {
+      const response = await authFetch('/api/user/profile', {
         method: 'PATCH',
         body: formData,
       });
@@ -176,11 +177,25 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         return;
       }
       
+      // Update session with new data including image
       await updateSession({
         firstName: result.firstName,
         lastName: result.lastName,
         nickname: result.nickname,
+        image: result.image,
       });
+
+      // Also update localStorage directly for image
+      if (result.image) {
+        const userDataStr = localStorage.getItem("user-data");
+        if (userDataStr) {
+          try {
+            const userData = JSON.parse(userDataStr);
+            userData.image = result.image;
+            localStorage.setItem("user-data", JSON.stringify(userData));
+          } catch {}
+        }
+      }
 
       setOriginalTeams(teams);
       setAvatarBlob(undefined);

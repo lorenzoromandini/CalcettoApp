@@ -43,18 +43,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sessionData = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      nickname: user.nickname,
-      image: user.image,
-    };
+    const sessionToken = Buffer.from(user.id).toString("base64url");
 
-    const sessionToken = Buffer.from(JSON.stringify(sessionData)).toString("base64url");
-
-    return Response.json({ success: true, token: sessionToken });
+    return Response.json({ 
+      success: true, 
+      token: sessionToken,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        nickname: user.nickname,
+        email: user.email,
+      }
+    });
   } catch (error) {
     console.error("Login error:", error);
     return Response.json(

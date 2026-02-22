@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { TeamCard } from "@/components/teams/team-card";
 import { useTeams } from "@/hooks/use-teams";
 import { Card, CardContent } from "@/components/ui/card";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/providers/session-provider";
+import { authFetch } from "@/lib/auth-fetch";
 
 interface TeamsPageClientProps {
   locale: string;
@@ -41,7 +42,7 @@ export function TeamsPageClient({ locale }: TeamsPageClientProps) {
     const fetchUserRoles = async () => {
       if (!session?.user?.id) return;
       try {
-        const response = await fetch("/api/teams/me/roles");
+        const response = await authFetch("/api/teams/me");
         if (response.ok) {
           const data = await response.json();
           setUserRoles(data.roles || []);

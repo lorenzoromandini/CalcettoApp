@@ -5,6 +5,7 @@ import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { authFetch } from '@/lib/auth-fetch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,7 @@ export function SettingsForm({ email }: SettingsFormProps) {
   const onPasswordSubmit = async (data: ChangePasswordInput) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/user/password', {
+      const response = await authFetch('/api/user/password', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

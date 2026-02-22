@@ -54,6 +54,9 @@ export function LoginForm() {
 
       if (result.token) {
         localStorage.setItem("auth-token", result.token);
+        if (result.user) {
+          localStorage.setItem("user-data", JSON.stringify(result.user));
+        }
       }
 
       window.location.href = "/dashboard";

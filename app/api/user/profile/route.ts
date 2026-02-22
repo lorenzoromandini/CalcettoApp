@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/session';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getSession();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
@@ -52,7 +52,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.id },
+      where: { id: userId },
       data: updateData,
       include: { playerProfile: true },
     });
@@ -78,15 +78,33 @@ export async function PATCH(request: NextRequest) {
           playerId: string | null;
         }>;
 
+        // Find or create player for this user
+        let player = await prisma.player.findUnique({
+          where: { userId: userId },
+        });
+
+        // If no player exists, create one
+        if (!player) {
+          player = await prisma.player.create({
+            data: {
+              userId: userId,
+              name: firstName,
+              surname: lastName,
+              nickname: nickname || null,
+            },
+          });
+        }
+
         for (const change of jerseyChanges) {
-          const playerIdToUpdate = change.playerId || updatedUser.playerProfile?.id;
-          if (!playerIdToUpdate) continue;
+          if (!change.playerId) {
+            change.playerId = player.id;
+          }
           
           if (change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
             const existing = await prisma.playerTeam.findUnique({
               where: {
                 playerId_teamId: {
-                  playerId: playerIdToUpdate,
+                  playerId: change.playerId,
                   teamId: change.teamId,
                 },
               },
@@ -100,12 +118,12 @@ export async function PATCH(request: NextRequest) {
             } else {
               await prisma.playerTeam.create({
                 data: {
-                  playerId: playerIdToUpdate,
+                  playerId: change.playerId,
                   teamId: change.teamId,
                   jerseyNumber: change.jerseyNumber,
                   primaryRole: 'member',
                   secondaryRoles: [],
-                } as any,
+                },
               });
             }
           }

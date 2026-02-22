@@ -2,7 +2,7 @@
 
 import { useSession } from '@/components/providers/session-provider';
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { UserMenu } from './user-menu';
@@ -17,6 +17,16 @@ export function Header() {
   const { data: session, signOut } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  
+  // Get locale from pathname - just extract it without leading slash
+  const getLocale = () => {
+    if (!pathname) return 'it';
+    const parts = pathname.split('/').filter(Boolean);
+    if (parts[0] === 'it' || parts[0] === 'en') return parts[0];
+    return 'it';
+  };
+  const locale = getLocale();
   
   const isDashboard = pathname?.includes('/dashboard');
   const isTeamCreate = pathname?.includes('/teams/create');

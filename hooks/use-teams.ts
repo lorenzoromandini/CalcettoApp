@@ -5,8 +5,9 @@
  * Uses NextAuth for authentication.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSession } from '@/components/providers/session-provider';
+import { authFetch } from '@/lib/auth-fetch';
 import type { Team } from '@/lib/db/schema';
 import type { CreateTeamInput, UpdateTeamInput } from '@/lib/validations/team';
 
@@ -22,13 +23,14 @@ interface UseTeamsReturn {
 }
 
 export function useTeams(): UseTeamsReturn {
-  const { data: session } = useSession();
+  const { data: session, isLoading: sessionLoading } = useSession();
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchTeams = useCallback(async () => {
-    if (!session?.user?.id) {
+    const userId = session?.user?.id;
+    if (!userId) {
       setIsLoading(false);
       return;
     }
@@ -37,7 +39,7 @@ export function useTeams(): UseTeamsReturn {
     setError(null);
 
     try {
-      const response = await fetch('/api/teams');
+      const response = await authFetch('/api/teams');
       if (!response.ok) throw new Error('Failed to fetch teams');
       const data = await response.json();
       setTeams(data);
@@ -49,8 +51,10 @@ export function useTeams(): UseTeamsReturn {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+    if (!sessionLoading) {
+      fetchTeams();
+    }
+  }, [sessionLoading, fetchTeams]);
 
   return {
     teams,
@@ -87,7 +91,7 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}`);
+      const response = await authFetch(`/api/teams/${teamId}`);
       if (!response.ok) throw new Error('Failed to fetch team');
       const data = await response.json();
       setTeam(data);
@@ -134,7 +138,7 @@ export function useCreateTeam(): UseCreateTeamReturn {
     setError(null);
 
     try {
-      const response = await fetch('/api/teams', {
+      const response = await authFetch('/api/teams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -177,7 +181,7 @@ export function useUpdateTeam(): UseUpdateTeamReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}`, {
+      const response = await authFetch(`/api/teams/${teamId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -218,7 +222,7 @@ export function useDeleteTeam(): UseDeleteTeamReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}`, {
+      const response = await authFetch(`/api/teams/${teamId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete team');
