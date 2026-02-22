@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Header } from "@/components/navigation/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
+import { authFetch } from "@/lib/auth-fetch";
 
 interface User {
   id: string;
@@ -23,7 +24,21 @@ interface Team {
 
 function parseToken(token: string): User | null {
   try {
-    return JSON.parse(atob(token));
+    const base64 = token.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(base64);
+    // Check if it's a JSON object or just a user ID
+    try {
+      return JSON.parse(decoded);
+    } catch {
+      // It's just the user ID
+      return {
+        id: decoded,
+        email: '',
+        firstName: null,
+        lastName: null,
+        nickname: null
+      };
+    }
   } catch {
     return null;
   }
@@ -36,22 +51,40 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("auth-token");
+    const userDataStr = localStorage.getItem("user-data");
+    
     if (!token) {
       window.location.href = "/auth/login";
       return;
     }
 
-    const userData = parseToken(token);
+    // Try to get user data from localStorage
+    let userData: User | null = null;
+    if (userDataStr) {
+      try {
+        userData = JSON.parse(userDataStr);
+      } catch {
+        userData = null;
+      }
+    }
+
+    // If no user data in localStorage, use token (just ID)
     if (!userData) {
-      localStorage.removeItem("auth-token");
-      window.location.href = "/auth/login";
-      return;
+      const base64 = token.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = atob(base64);
+      userData = {
+        id: decoded,
+        email: '',
+        firstName: null,
+        lastName: null,
+        nickname: null
+      };
     }
 
     setUser(userData);
 
     // Fetch teams
-    fetch("/api/user/teams")
+    authFetch("/api/user/teams")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data.teams)) {

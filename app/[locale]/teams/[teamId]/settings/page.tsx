@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Settings, Trash2, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from '@/components/providers/session-provider';
+import { authFetch } from '@/lib/auth-fetch';
 import { TeamImageUploader } from '@/components/teams/team-image-uploader';
 import { useTeam } from '@/hooks/use-teams';
 
@@ -41,7 +42,7 @@ export default function TeamSettingsPage() {
     }
 
     try {
-      const res = await fetch(`/api/teams/${teamId}/admin`);
+      const res = await authFetch(`/api/teams/${teamId}/admin`);
       const data = await res.json();
       setIsAdmin(data.isAdmin);
     } catch {
@@ -67,7 +68,7 @@ export default function TeamSettingsPage() {
     setIsSaving(true);
     setSaveSuccess(false);
     try {
-      const res = await fetch(`/api/teams/${teamId}`, {
+      const res = await authFetch(`/api/teams/${teamId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,6 +103,14 @@ export default function TeamSettingsPage() {
   if (!isAdmin) {
     return (
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Link href={`/${locale}/teams/${teamId}`}>
+            <Button variant="ghost" className="pl-0">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {t('backToTeam')}
+            </Button>
+          </Link>
+        </div>
         <p className="text-center text-muted-foreground">{t('notAdmin')}</p>
       </div>
     );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/components/providers/session-provider';
+import { authFetch } from '@/lib/auth-fetch';
 import type { Player, PlayerTeam } from '@/lib/db/schema';
 import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
 
@@ -26,7 +27,7 @@ export function usePlayers(teamId: string | null): UsePlayersReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/players`);
+      const response = await authFetch(`/api/teams/${teamId}/players`);
       if (!response.ok) throw new Error('Failed to fetch players');
       const data = await response.json();
       setPlayers(data);
@@ -70,7 +71,7 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/players`, {
+      const response = await authFetch(`/api/teams/${teamId}/players`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -115,7 +116,7 @@ export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/players/${playerId}`, {
+      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -152,7 +153,7 @@ export function useDeletePlayer(teamId: string): UseDeletePlayerReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/players/${playerId}`, {
+      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete player');
@@ -194,7 +195,7 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/players/${playerId}/add`, {
+      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jerseyNumber }),
@@ -235,7 +236,7 @@ export function useRemovePlayerFromTeam(teamId: string | null): UseRemovePlayerF
     setError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/players/${playerId}/remove`, {
+      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}/remove`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to remove player from team');

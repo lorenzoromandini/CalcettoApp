@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { getPlayersByTeam, createPlayer } from '@/lib/db/players';
 import { createPlayerSchema } from '@/lib/validations/player';
 import { ZodError } from 'zod';
@@ -9,9 +9,9 @@ export async function GET(
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -33,9 +33,9 @@ export async function POST(
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

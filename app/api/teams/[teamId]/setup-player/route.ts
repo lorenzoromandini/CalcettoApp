@@ -1,22 +1,22 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 import type { PlayerRole } from '@/lib/db/schema';
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ teamId: string }> }
 ) {
-  const session = await auth();
+  const userId = getUserIdFromRequest(request);
   
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { teamId } = await params;
 
   const teamMember = await prisma.teamMember.findFirst({
-    where: { teamId, userId: session.user.id },
+    where: { teamId, userId },
   });
 
   if (!teamMember) {
@@ -40,7 +40,7 @@ export async function GET(
   }
 
   const player = await prisma.player.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
   });
 
   return NextResponse.json({
@@ -54,12 +54,12 @@ export async function GET(
 }
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ teamId: string }> }
 ) {
-  const session = await auth();
+  const userId = getUserIdFromRequest(request);
   
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -80,7 +80,7 @@ export async function POST(
   }
 
   const teamMember = await prisma.teamMember.findFirst({
-    where: { teamId, userId: session.user.id },
+    where: { teamId, userId },
   });
 
   if (!teamMember) {
@@ -88,13 +88,13 @@ export async function POST(
   }
 
   let player = await prisma.player.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
   });
 
   if (!player) {
     player = await prisma.player.create({
       data: {
-        userId: session.user.id,
+        userId,
         name,
         surname: surname || null,
         nickname: nickname || null,
@@ -135,7 +135,6 @@ export async function POST(
   }
 
   const playerTeam = await prisma.playerTeam.create({
-    // @ts-ignore - Prisma type mismatch
     data: {
       playerId: player.id,
       teamId,

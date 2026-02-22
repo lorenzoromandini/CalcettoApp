@@ -1,5 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { getUserIdFromHeaders } from '@/lib/auth-headers';
 import { prisma } from '@/lib/db';
 import { Link } from '@/lib/i18n/navigation';
 import { FormationBuilder } from '@/components/formations/formation-builder';
@@ -20,13 +20,11 @@ export default async function FormationPage({ params }: FormationPageProps) {
   const { locale, teamId, matchId } = await params;
   const t = await getTranslations('formations');
 
-  // Check auth with NextAuth
-  const session = await auth();
-  if (!session?.user?.id) {
+  // Check auth
+  const userId = await getUserIdFromHeaders();
+  if (!userId) {
     redirect('/auth/login');
   }
-
-  const userId = session.user.id;
 
   // Get match
   const match = await prisma.match.findFirst({

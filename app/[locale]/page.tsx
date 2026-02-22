@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { getUserIdFromHeaders } from '@/lib/auth-headers';
 import HomePageClient from './home-page-client';
 
 export default async function HomePage() {
-  const session = await auth();
+  const userId = await getUserIdFromHeaders();
   
-  if (session) {
+  if (userId) {
     redirect('/dashboard');
   }
   

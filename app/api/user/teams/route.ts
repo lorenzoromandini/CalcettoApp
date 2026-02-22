@@ -1,18 +1,18 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
     const memberships = await prisma.teamMember.findMany({
       where: {
-        userId: session.user.id,
+        userId: userId,
         team: {
           deletedAt: null,
         },
@@ -28,7 +28,7 @@ export async function GET() {
     });
 
     const player = await prisma.player.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: userId },
     });
 
     const teams = await Promise.all(

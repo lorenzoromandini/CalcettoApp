@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
@@ -22,7 +22,7 @@ export async function PATCH(request: NextRequest) {
 
     const membership = await prisma.teamMember.findFirst({
       where: {
-        userId: session.user.id,
+        userId,
         teamId,
       },
     });
@@ -42,7 +42,7 @@ export async function PATCH(request: NextRequest) {
     });
 
     let player = await prisma.player.findUnique({
-      where: { userId: session.user.id },
+      where: { userId },
     });
 
     if (existingPlayerTeam && existingPlayerTeam.playerId !== player?.id) {
@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!player) {
       const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
+        where: { id: userId },
       });
 
       player = await prisma.player.create({
@@ -62,7 +62,7 @@ export async function PATCH(request: NextRequest) {
           name: user?.firstName || 'Player',
           surname: user?.lastName,
           nickname: user?.nickname,
-          userId: session.user.id,
+          userId,
           roles: [],
         },
       });

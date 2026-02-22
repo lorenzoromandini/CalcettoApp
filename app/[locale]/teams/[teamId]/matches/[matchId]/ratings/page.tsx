@@ -1,7 +1,7 @@
 import { getMatch } from '@/lib/db/matches'
 import { getMatchParticipants } from '@/lib/db/player-participation'
 import { getMatchRatings } from '@/lib/db/player-ratings'
-import { auth } from '@/lib/auth'
+import { getUserIdFromHeaders } from '@/lib/auth-headers'
 import { isTeamAdmin } from '@/lib/db/teams'
 import { notFound, redirect } from 'next/navigation'
 import { MatchRatingsClient } from './match-ratings-client'
@@ -25,14 +25,14 @@ export async function generateMetadata({ params }: MatchRatingsPageProps): Promi
 export default async function MatchRatingsPage({ params }: MatchRatingsPageProps) {
   const { locale, teamId, matchId } = await params
   
-  // Get session
-  const session = await auth()
-  if (!session?.user?.id) {
+  // Get user ID
+  const userId = await getUserIdFromHeaders()
+  if (!userId) {
     redirect(`/auth/login`)
   }
 
   // Check admin status
-  const isAdmin = await isTeamAdmin(teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(teamId, userId)
 
   // Fetch match data
   const match = await getMatch(matchId)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { getTeam, updateTeam, deleteTeam } from '@/lib/db/teams';
 import { updateTeamSchema } from '@/lib/validations/team';
 
@@ -8,9 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -36,9 +36,9 @@ export async function PUT(
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -63,9 +63,9 @@ export async function DELETE(
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

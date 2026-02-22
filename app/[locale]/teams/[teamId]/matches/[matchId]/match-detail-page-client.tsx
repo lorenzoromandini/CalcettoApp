@@ -38,7 +38,7 @@ import { CompletedMatchDetail, type CompletedMatchData } from "@/components/matc
 import { isTeamAdmin } from "@/lib/db/teams";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/providers/session-provider";
 import type { Match, RSVPStatus } from "@/lib/db/schema";
 import {
   AlertDialog,
@@ -106,11 +106,11 @@ export function MatchDetailPageClient({
       setCurrentUserId(session.user.id);
       
       // Check admin status
-      const admin = await isTeamAdmin(teamId, session.user.id);
+      const admin = await isTeamAdmin(teamId, session.user!.id);
       setIsAdmin(admin);
       
       // Find current player's ID from team players
-      const currentPlayer = teamPlayers.find(p => p.user_id === session.user.id);
+      const currentPlayer = teamPlayers.find(p => p.user_id === session.user!.id);
       if (currentPlayer) {
         setCurrentPlayerId(currentPlayer.id);
       }

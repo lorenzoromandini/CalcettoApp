@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { getUserTeams, createTeam } from '@/lib/db/teams';
 import { createTeamSchema } from '@/lib/validations/team';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const teams = await getUserTeams(session.user.id);
+    const teams = await getUserTeams(userId);
     return NextResponse.json(teams);
   } catch (error) {
     console.error('Error fetching teams:', error);
@@ -24,16 +24,16 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const validatedData = createTeamSchema.parse(body);
     
-    const teamId = await createTeam(validatedData, session.user.id);
+    const teamId = await createTeam(validatedData, userId);
     
     return NextResponse.json({ id: teamId }, { status: 201 });
   } catch (error) {

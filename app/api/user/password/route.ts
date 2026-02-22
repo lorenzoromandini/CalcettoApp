@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { changePasswordSchema } from '@/lib/validations/auth';
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest) {
     const { currentPassword, newPassword } = changePasswordSchema.parse(body);
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
     });
 
     if (!user || !user.password) {
@@ -31,7 +31,7 @@ export async function PATCH(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: { password: hashedPassword },
     });
 

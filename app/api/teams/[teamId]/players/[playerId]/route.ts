@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { updatePlayer, deletePlayer, addPlayerToTeam, removePlayerFromTeam } from '@/lib/db/players';
+import { getUserIdFromRequest } from '@/lib/auth-token';
+import { updatePlayer, deletePlayer } from '@/lib/db/players';
 import { updatePlayerSchema } from '@/lib/validations/player';
 
 export async function PUT(
@@ -8,9 +8,9 @@ export async function PUT(
   { params }: { params: Promise<{ teamId: string; playerId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -35,9 +35,9 @@ export async function DELETE(
   { params }: { params: Promise<{ teamId: string; playerId: string }> }
 ) {
   try {
-    const session = await auth();
+    const userId = getUserIdFromRequest(request);
     
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

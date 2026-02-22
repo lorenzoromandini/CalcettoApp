@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
-  const session = await auth();
+  const userId = getUserIdFromRequest(request);
   
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -33,7 +33,7 @@ export async function POST(
   const existingMember = await prisma.teamMember.findFirst({
     where: {
       teamId: invite.teamId,
-      userId: session.user.id,
+      userId,
     },
   });
 
@@ -41,7 +41,7 @@ export async function POST(
 
   if (existingMember) {
     const player = await prisma.player.findUnique({
-      where: { userId: session.user.id },
+      where: { userId },
       include: {
         playerTeams: {
           where: { teamId: invite.teamId },
@@ -60,7 +60,7 @@ export async function POST(
   await prisma.teamMember.create({
     data: {
       teamId: invite.teamId,
-      userId: session.user.id,
+      userId,
       role: 'member',
     },
   });
@@ -70,7 +70,7 @@ export async function POST(
     data: {
       useCount: { increment: 1 },
       usedAt: new Date(),
-      usedBy: session.user.id,
+      usedBy: userId,
     },
   });
 

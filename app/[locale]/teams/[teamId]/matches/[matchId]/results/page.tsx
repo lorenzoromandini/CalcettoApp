@@ -1,7 +1,7 @@
 import { getMatch } from '@/lib/db/matches'
 import { getMatchGoals } from '@/lib/db/goals'
 import { getTeamPlayers } from '@/lib/db/players'
-import { auth } from '@/lib/auth'
+import { getUserIdFromHeaders } from '@/lib/auth-headers'
 import { isTeamAdmin } from '@/lib/db/teams'
 import { notFound, redirect } from 'next/navigation'
 import { MatchResultsClient } from './match-results-client'
@@ -26,14 +26,14 @@ export async function generateMetadata({ params }: MatchResultsPageProps): Promi
 export default async function MatchResultsPage({ params }: MatchResultsPageProps) {
   const { locale, teamId, matchId } = await params
   
-  // Get session
-  const session = await auth()
-  if (!session?.user?.id) {
+  // Get user ID
+  const userId = await getUserIdFromHeaders()
+  if (!userId) {
     redirect(`/auth/login`)
   }
 
   // Check admin status
-  const isAdmin = await isTeamAdmin(teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(teamId, userId)
 
   // Fetch match data
   const match = await getMatch(matchId)

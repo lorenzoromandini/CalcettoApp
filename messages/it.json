@@ -16,6 +16,7 @@
   "auth": {
     "signIn": "Login",
     "signUp": "Registrati",
+    "profile": "Profilo",
     "welcomeBack": "Benvenuto",
     "forgotPassword": "Password Dimenticata?",
     "forgotPasswordDescription": "Inserisci la tua email per ricevere le istruzioni",
