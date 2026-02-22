@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Trophy, Calendar } from 'lucide-react';
-import { getTeamMatches } from '@/lib/db/matches';
+import { getClubMatches } from '@/lib/db/matches';
 import type { Match } from '@/lib/db/schema';
 
 // ============================================================================
@@ -22,7 +22,7 @@ import type { Match } from '@/lib/db/schema';
 
 interface CompletedMatch extends Match {
   teamName: string;
-  teamId: string;
+  clubId: string;
 }
 
 interface RecentResultsSectionProps {
@@ -45,8 +45,8 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
       try {
         const allMatches: CompletedMatch[] = [];
 
-        for (const team of teams) {
-          const matches = await getTeamMatches(team.id);
+        for (const club of clubs) {
+          const matches = await getClubMatches(club.id);
           
           // Filter to only completed matches
           const completedMatches = matches.filter(m => m.status === 'COMPLETED');
@@ -54,8 +54,8 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
           for (const match of completedMatches) {
             allMatches.push({
               ...match,
-              teamName: team.name,
-              teamId: team.id,
+              teamName: club.name,
+              clubId: club.id,
             });
           }
         }
@@ -177,7 +177,7 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
           return (
             <Link
               key={match.id}
-              href={`/${locale}/teams/${match.teamId}/matches/${match.id}`}
+              href={`/${locale}/teams/${match.clubId}/matches/${match.id}`}
             >
               <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
                 {/* Result Badge */}

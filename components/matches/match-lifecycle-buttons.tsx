@@ -38,7 +38,7 @@ import type { MatchStatus } from '@/lib/db/schema'
 
 interface MatchLifecycleButtonsProps {
   matchId: string
-  teamId: string
+  clubId: string
   status: MatchStatus
   isAdmin: boolean
   homeScore?: number
@@ -51,7 +51,7 @@ interface MatchLifecycleButtonsProps {
 
 export function MatchLifecycleButtons({
   matchId,
-  teamId,
+  clubId,
   status,
   isAdmin,
   homeScore,
@@ -60,7 +60,7 @@ export function MatchLifecycleButtons({
   const t = useTranslations('matches')
   const tCommon = useTranslations('common')
   const { isLoading, startMatch, endMatch, completeMatch, inputFinalResults } = 
-    useMatchLifecycle(matchId, teamId)
+    useMatchLifecycle(matchId, clubId)
   
   // State for Final Results dialog
   const [finalResultsOpen, setFinalResultsOpen] = useState(false)

@@ -11,7 +11,7 @@
 
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { isTeamAdmin } from '@/lib/db/teams'
+import { isTeamAdmin } from '@/lib/db/clubs'
 import type { MatchPlayer } from '@/types/database'
 import type { RSVPStatus } from './rsvps'
 
@@ -68,7 +68,7 @@ function toMatchPlayerWithPlayer(dbMatchPlayer: any): MatchPlayerWithPlayer {
     player_surname: dbMatchPlayer.player?.surname ?? undefined,
     player_nickname: dbMatchPlayer.player?.nickname ?? undefined,
     player_avatar: dbMatchPlayer.player?.avatarUrl ?? undefined,
-    jersey_number: dbMatchPlayer.playerTeam?.jerseyNumber || 0,
+    jersey_number: dbMatchPlayer.playerClub?.jerseyNumber || 0,
     rsvp_status: dbMatchPlayer.rsvpStatus as RSVPStatus,
     rsvp_at: dbMatchPlayer.rsvpAt?.toISOString() || new Date().toISOString(),
     played: dbMatchPlayer.played ?? false,
@@ -101,7 +101,7 @@ export async function updatePlayerParticipation(
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -109,7 +109,7 @@ export async function updatePlayerParticipation(
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -154,7 +154,7 @@ export async function getMatchParticipants(matchId: string): Promise<MatchPlayer
   // Get match to find team
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    select: { teamId: true },
+    select: { clubId: true },
   })
 
   if (!match) {
@@ -171,15 +171,15 @@ export async function getMatchParticipants(matchId: string): Promise<MatchPlayer
 
   // Get jersey numbers for all players in this team
   const playerIds = matchPlayers.map(mp => mp.playerId)
-  const playerTeams = await prisma.playerTeam.findMany({
+  const playerClubs = await prisma.playerClub.findMany({
     where: {
       playerId: { in: playerIds },
-      teamId: match.teamId,
+      clubId: match.clubId,
     },
   })
 
   // Create a map of playerId -> jerseyNumber
-  const jerseyMap = new Map(playerTeams.map(pt => [pt.playerId, pt.jerseyNumber]))
+  const jerseyMap = new Map(playerClubs.map(pt => [pt.playerId, pt.jerseyNumber]))
 
   // Combine data
   const results = matchPlayers.map(mp => {
@@ -222,7 +222,7 @@ export async function bulkUpdateParticipation(
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -230,7 +230,7 @@ export async function bulkUpdateParticipation(
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }

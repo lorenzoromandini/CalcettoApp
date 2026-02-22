@@ -37,7 +37,7 @@ import type { GoalWithPlayers } from '@/lib/db/goals'
 
 interface GoalListProps {
   goals: GoalWithPlayers[]
-  teamId: string
+  clubId: string
   canEdit: boolean  // isAdmin && match not completed
   onRemoveGoal: (goalId: string) => Promise<void>
   isLoading?: boolean
@@ -72,7 +72,7 @@ function getGoalLabel(index: number): string {
 
 export function GoalList({ 
   goals, 
-  teamId, 
+  clubId, 
   canEdit, 
   onRemoveGoal,
   isLoading = false 
@@ -91,8 +91,8 @@ export function GoalList({
   return (
     <div className="space-y-2">
       {goals.map((goal, index) => {
-        const isOurGoal = goal.teamId === teamId && !goal.isOwnGoal
-        const isOpponentGoal = goal.teamId !== teamId && !goal.isOwnGoal
+        const isOurGoal = goal.clubId === clubId && !goal.isOwnGoal
+        const isOpponentGoal = goal.clubId !== clubId && !goal.isOwnGoal
         const isOwnGoal = goal.isOwnGoal
 
         return (

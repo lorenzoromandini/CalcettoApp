@@ -10,15 +10,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
-    const memberships = await prisma.teamMember.findMany({
+    const memberships = await prisma.clubMember.findMany({
       where: {
         userId: userId,
-        team: {
+        club: {
           deletedAt: null,
         },
       },
       include: {
-        team: {
+        club: {
           select: {
             id: true,
             name: true,
@@ -37,19 +37,19 @@ export async function GET(request: NextRequest) {
         let playerId = null;
 
         if (player) {
-          const playerTeam = await prisma.playerTeam.findFirst({
+          const playerClub = await prisma.playerClub.findFirst({
             where: {
               playerId: player.id,
-              teamId: membership.teamId,
+              clubId: membership.clubId,
             },
           });
-          jerseyNumber = playerTeam?.jerseyNumber ?? null;
+          jerseyNumber = playerClub?.jerseyNumber ?? null;
           playerId = player?.id ?? null;
         }
 
         return {
-          id: membership.team.id,
-          name: membership.team.name,
+          id: membership.club.id,
+          name: membership.club.name,
           jerseyNumber,
           playerId,
         };

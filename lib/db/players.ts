@@ -5,7 +5,7 @@
  */
 
 import { prisma } from './index';
-import type { Player, PlayerTeam } from '@/types/database';
+import type { Player, PlayerClub } from '@/types/database';
 import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
 
 function toPlayerType(dbPlayer: any): Player {
@@ -23,23 +23,23 @@ function toPlayerType(dbPlayer: any): Player {
   };
 }
 
-function toPlayerTeamType(dbPlayerTeam: any): PlayerTeam {
+function toPlayerClubType(dbPlayerClub: any): PlayerClub {
   return {
-    id: dbPlayerTeam.id,
-    player_id: dbPlayerTeam.playerId,
-    team_id: dbPlayerTeam.teamId,
-    jersey_number: dbPlayerTeam.jerseyNumber,
-    primary_role: dbPlayerTeam.primaryRole,
-    secondary_roles: dbPlayerTeam.secondaryRoles || [],
-    joined_at: dbPlayerTeam.joinedAt.toISOString(),
-    created_at: dbPlayerTeam.createdAt.toISOString(),
+    id: dbPlayerClub.id,
+    player_id: dbPlayerClub.playerId,
+    team_id: dbPlayerClub.clubId,
+    jersey_number: dbPlayerClub.jerseyNumber,
+    primary_role: dbPlayerClub.primaryRole,
+    secondary_roles: dbPlayerClub.secondaryRoles || [],
+    joined_at: dbPlayerClub.joinedAt.toISOString(),
+    created_at: dbPlayerClub.createdAt.toISOString(),
     sync_status: 'synced',
   };
 }
 
 export async function createPlayer(
   data: CreatePlayerInput,
-  teamId: string
+  clubId: string
 ): Promise<string> {
   const primaryRole = data.roles[0];
   const secondaryRoles = data.roles.slice(1);
@@ -53,10 +53,10 @@ export async function createPlayer(
     },
   });
 
-  await prisma.playerTeam.create({
+  await prisma.playerClub.create({
     data: {
       playerId: player.id,
-      teamId: teamId,
+      clubId: clubId,
       jerseyNumber: data.jersey_number ?? 1,
       primaryRole,
       secondaryRoles,
@@ -67,11 +67,11 @@ export async function createPlayer(
 }
 
 // Alias for backward compatibility
-export const getPlayersByTeam = getTeamPlayers;
+export const getPlayersByTeam = getClubPlayers;
 
-export async function getTeamPlayers(teamId: string): Promise<(Player & { jersey_number?: number; player_team_id?: string })[]> {
-  const playerTeams = await prisma.playerTeam.findMany({
-    where: { teamId },
+export async function getClubPlayers(clubId: string): Promise<(Player & { jersey_number?: number; player_team_id?: string })[]> {
+  const playerClubs = await prisma.playerClub.findMany({
+    where: { clubId },
     include: {
       player: true,
     },
@@ -80,7 +80,7 @@ export async function getTeamPlayers(teamId: string): Promise<(Player & { jersey
     },
   });
 
-  return playerTeams.map(pt => ({
+  return playerClubs.map(pt => ({
     ...toPlayerType(pt.player),
     jersey_number: pt.jerseyNumber,
   }));
@@ -95,29 +95,29 @@ export async function getPlayer(playerId: string): Promise<Player | null> {
   return toPlayerType(player);
 }
 
-export async function getPlayerWithTeamInfo(playerId: string, teamId: string) {
-  const playerTeam = await prisma.playerTeam.findFirst({
+export async function getPlayerWithTeamInfo(playerId: string, clubId: string) {
+  const playerClub = await prisma.playerClub.findFirst({
     where: {
       playerId,
-      teamId,
+      clubId,
     },
     include: {
       player: true,
     },
   });
 
-  if (!playerTeam) return null;
+  if (!playerClub) return null;
 
   return {
-    ...toPlayerType(playerTeam.player),
-    jersey_number: playerTeam.jerseyNumber,
+    ...toPlayerType(playerClub.player),
+    jersey_number: playerClub.jerseyNumber,
   };
 }
 
 export async function updatePlayer(
   playerId: string,
   data: UpdatePlayerInput,
-  teamId?: string
+  clubId?: string
 ): Promise<void> {
   await prisma.player.update({
     where: { id: playerId },
@@ -129,13 +129,13 @@ export async function updatePlayer(
     },
   });
 
-  if (teamId && data.jersey_number !== undefined) {
+  if (clubId && data.jersey_number !== undefined) {
     const secondaryRoles = data.roles ? data.roles.slice(1) : undefined;
     
-    await prisma.playerTeam.updateMany({
+    await prisma.playerClub.updateMany({
       where: {
         playerId,
-        teamId,
+        clubId,
       },
       data: {
         jerseyNumber: data.jersey_number,
@@ -151,20 +151,20 @@ export async function deletePlayer(playerId: string): Promise<void> {
   });
 }
 
-export async function getPlayerCount(teamId: string): Promise<number> {
-  return await prisma.playerTeam.count({
-    where: { teamId },
+export async function getPlayerCount(clubId: string): Promise<number> {
+  return await prisma.playerClub.count({
+    where: { clubId },
   });
 }
 
 export async function isJerseyNumberTaken(
-  teamId: string,
+  clubId: string,
   jerseyNumber: number,
   excludePlayerId?: string
 ): Promise<boolean> {
-  const existing = await prisma.playerTeam.findFirst({
+  const existing = await prisma.playerClub.findFirst({
     where: {
-      teamId,
+      clubId,
       jerseyNumber,
       ...(excludePlayerId && {
         playerId: {
@@ -197,15 +197,15 @@ export async function uploadPlayerAvatar(
 // Additional functions for backward compatibility
 export async function addPlayerToTeam(
   playerId: string,
-  teamId: string,
+  clubId: string,
   jerseyNumber: number,
   primaryRole: string,
   secondaryRoles: string[] = []
 ): Promise<void> {
-  await prisma.playerTeam.create({
+  await prisma.playerClub.create({
     data: {
       playerId,
-      teamId,
+      clubId,
       jerseyNumber,
       primaryRole,
       secondaryRoles,
@@ -215,12 +215,12 @@ export async function addPlayerToTeam(
 
 export async function removePlayerFromTeam(
   playerId: string,
-  teamId: string
+  clubId: string
 ): Promise<void> {
-  await prisma.playerTeam.deleteMany({
+  await prisma.playerClub.deleteMany({
     where: {
       playerId,
-      teamId,
+      clubId,
     },
   });
 }

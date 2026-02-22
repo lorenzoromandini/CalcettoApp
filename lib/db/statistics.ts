@@ -47,12 +47,12 @@ export interface PlayerLeaderboardEntry {
  * Get comprehensive statistics for a player
  * 
  * @param playerId - Player ID
- * @param teamId - Optional team ID to filter statistics
+ * @param clubId - Optional team ID to filter statistics
  * @returns PlayerStats object or null if player not found
  */
 export async function getPlayerStats(
   playerId: string,
-  teamId?: string
+  clubId?: string
 ): Promise<PlayerStats | null> {
   // Get player info
   const player = await prisma.player.findUnique({
@@ -76,7 +76,7 @@ export async function getPlayerStats(
       formation: {
         match: {
           status: MatchStatus.COMPLETED,
-          ...(teamId ? { teamId } : {}),
+          ...(clubId ? { clubId } : {}),
         },
       },
       side: { not: null },  // Only count positions with a side (played)
@@ -128,7 +128,7 @@ export async function getPlayerStats(
       isOwnGoal: false,
       match: {
         status: MatchStatus.COMPLETED,
-        ...(teamId ? { teamId } : {}),
+        ...(clubId ? { clubId } : {}),
       },
     },
   })
@@ -139,7 +139,7 @@ export async function getPlayerStats(
       assisterId: playerId,
       match: {
         status: MatchStatus.COMPLETED,
-        ...(teamId ? { teamId } : {}),
+        ...(clubId ? { clubId } : {}),
       },
     },
   })
@@ -176,7 +176,7 @@ export async function getPlayerStats(
       playerId,
       match: {
         status: MatchStatus.COMPLETED,
-        ...(teamId ? { teamId } : {}),
+        ...(clubId ? { clubId } : {}),
       },
     },
     select: {
@@ -215,7 +215,7 @@ export async function getPlayerStats(
  * Get top scorers leaderboard
  */
 export async function getTopScorers(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
@@ -224,7 +224,7 @@ export async function getTopScorers(
       COUNT(*) as count
     FROM goals g
     JOIN matches m ON g.match_id = m.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND g.is_own_goal = false
     GROUP BY g.scorer_id
@@ -239,7 +239,7 @@ export async function getTopScorers(
  * Get top assisters leaderboard
  */
 export async function getTopAssisters(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
@@ -248,7 +248,7 @@ export async function getTopAssisters(
       COUNT(*) as count
     FROM goals g
     JOIN matches m ON g.match_id = m.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND g.assister_id IS NOT NULL
     GROUP BY g.assister_id
@@ -263,7 +263,7 @@ export async function getTopAssisters(
  * Get top appearances leaderboard
  */
 export async function getTopAppearances(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
@@ -273,7 +273,7 @@ export async function getTopAppearances(
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
@@ -289,7 +289,7 @@ export async function getTopAppearances(
  * Get top wins leaderboard
  */
 export async function getTopWins(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
@@ -299,7 +299,7 @@ export async function getTopWins(
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
@@ -319,7 +319,7 @@ export async function getTopWins(
  * Get top losses leaderboard
  */
 export async function getTopLosses(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
@@ -329,7 +329,7 @@ export async function getTopLosses(
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
@@ -350,7 +350,7 @@ export async function getTopLosses(
  * Requires minimum 3 ratings to appear
  */
 export async function getTopRatedPlayers(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ player_id: string; avg_rating: number }[]>`
@@ -359,7 +359,7 @@ export async function getTopRatedPlayers(
       AVG(pr.rating) as avg_rating
     FROM player_ratings pr
     JOIN matches m ON pr.match_id = m.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
     GROUP BY pr.player_id
     HAVING COUNT(*) >= 3
@@ -382,7 +382,7 @@ export async function getTopRatedPlayers(
  * Only players with 'goalkeeper' role who played in GK position
  */
 export async function getTopGoalsConceded(
-  teamId: string,
+  clubId: string,
   limit: number = 3
 ): Promise<PlayerLeaderboardEntry[]> {
   // Get goalkeepers with their goals conceded
@@ -400,7 +400,7 @@ export async function getTopGoalsConceded(
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
     JOIN players p ON fp.player_id = p.id
-    WHERE m.team_id = ${teamId}
+    WHERE m.team_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL

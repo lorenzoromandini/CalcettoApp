@@ -46,12 +46,12 @@ interface UsePlayerStatsReturn {
  * Hook to fetch player statistics including goals_conceded for goalkeepers
  *
  * @param playerId - Player ID
- * @param teamId - Optional team ID to filter statistics
+ * @param clubId - Optional team ID to filter statistics
  * @returns Player statistics with loading and error states
  */
 export function usePlayerStats(
   playerId: string | null,
-  teamId?: string
+  clubId?: string
 ): UsePlayerStatsReturn {
   const [stats, setStats] = useState<PlayerStats | null>(null)
   const [isLoading, setIsLoading] = useState(!!playerId)
@@ -68,7 +68,7 @@ export function usePlayerStats(
     setError(null)
 
     try {
-      const result = await getPlayerStats(playerId, teamId)
+      const result = await getPlayerStats(playerId, clubId)
       setStats(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
@@ -77,7 +77,7 @@ export function usePlayerStats(
     } finally {
       setIsLoading(false)
     }
-  }, [playerId, teamId])
+  }, [playerId, clubId])
 
   useEffect(() => {
     fetchStats()
@@ -92,7 +92,7 @@ export function usePlayerStats(
 }
 
 // ============================================================================
-// useTeamLeaderboards Hook
+// useClubLeaderboards Hook
 // ============================================================================
 
 interface TeamLeaderboards {
@@ -115,10 +115,10 @@ interface UseTeamLeaderboardsReturn {
 /**
  * Hook to fetch all 7 team leaderboards at once
  *
- * @param teamId - Team ID
+ * @param clubId - Team ID
  * @returns All leaderboards with loading and error states
  */
-export function useTeamLeaderboards(teamId: string | null): UseTeamLeaderboardsReturn {
+export function useClubLeaderboards(clubId: string | null): UseTeamLeaderboardsReturn {
   const [leaderboards, setLeaderboards] = useState<TeamLeaderboards>({
     scorers: [],
     assisters: [],
@@ -128,11 +128,11 @@ export function useTeamLeaderboards(teamId: string | null): UseTeamLeaderboardsR
     rated: [],
     goalsConceded: [],
   })
-  const [isLoading, setIsLoading] = useState(!!teamId)
+  const [isLoading, setIsLoading] = useState(!!clubId)
   const [error, setError] = useState<string | null>(null)
 
   const fetchLeaderboards = useCallback(async () => {
-    if (!teamId) {
+    if (!clubId) {
       setLeaderboards({
         scorers: [],
         assisters: [],
@@ -160,13 +160,13 @@ export function useTeamLeaderboards(teamId: string | null): UseTeamLeaderboardsR
         rated,
         goalsConceded,
       ] = await Promise.all([
-        getTopScorers(teamId, 3),
-        getTopAssisters(teamId, 3),
-        getTopAppearances(teamId, 3),
-        getTopWins(teamId, 3),
-        getTopLosses(teamId, 3),
-        getTopRatedPlayers(teamId, 3),
-        getTopGoalsConceded(teamId, 3),
+        getTopScorers(clubId, 3),
+        getTopAssisters(clubId, 3),
+        getTopAppearances(clubId, 3),
+        getTopWins(clubId, 3),
+        getTopLosses(clubId, 3),
+        getTopRatedPlayers(clubId, 3),
+        getTopGoalsConceded(clubId, 3),
       ])
 
       setLeaderboards({
@@ -181,11 +181,11 @@ export function useTeamLeaderboards(teamId: string | null): UseTeamLeaderboardsR
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
       setError(errorMsg)
-      console.error('[useTeamLeaderboards] Fetch error:', err)
+      console.error('[useClubLeaderboards] Fetch error:', err)
     } finally {
       setIsLoading(false)
     }
-  }, [teamId])
+  }, [clubId])
 
   useEffect(() => {
     fetchLeaderboards()
@@ -213,13 +213,13 @@ interface UseLeaderboardReturn {
 /**
  * Hook to fetch top scorers leaderboard
  */
-export function useTopScorers(teamId: string | null, limit: number = 3): UseLeaderboardReturn {
+export function useTopScorers(clubId: string | null, limit: number = 3): UseLeaderboardReturn {
   const [entries, setEntries] = useState<PlayerLeaderboardEntry[]>([])
-  const [isLoading, setIsLoading] = useState(!!teamId)
+  const [isLoading, setIsLoading] = useState(!!clubId)
   const [error, setError] = useState<string | null>(null)
 
   const fetchEntries = useCallback(async () => {
-    if (!teamId) {
+    if (!clubId) {
       setEntries([])
       setIsLoading(false)
       return
@@ -229,7 +229,7 @@ export function useTopScorers(teamId: string | null, limit: number = 3): UseLead
     setError(null)
 
     try {
-      const result = await getTopScorers(teamId, limit)
+      const result = await getTopScorers(clubId, limit)
       setEntries(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
@@ -237,7 +237,7 @@ export function useTopScorers(teamId: string | null, limit: number = 3): UseLead
     } finally {
       setIsLoading(false)
     }
-  }, [teamId, limit])
+  }, [clubId, limit])
 
   useEffect(() => {
     fetchEntries()
@@ -254,13 +254,13 @@ export function useTopScorers(teamId: string | null, limit: number = 3): UseLead
 /**
  * Hook to fetch top rated players leaderboard
  */
-export function useTopRatedPlayers(teamId: string | null, limit: number = 3): UseLeaderboardReturn {
+export function useTopRatedPlayers(clubId: string | null, limit: number = 3): UseLeaderboardReturn {
   const [entries, setEntries] = useState<PlayerLeaderboardEntry[]>([])
-  const [isLoading, setIsLoading] = useState(!!teamId)
+  const [isLoading, setIsLoading] = useState(!!clubId)
   const [error, setError] = useState<string | null>(null)
 
   const fetchEntries = useCallback(async () => {
-    if (!teamId) {
+    if (!clubId) {
       setEntries([])
       setIsLoading(false)
       return
@@ -270,7 +270,7 @@ export function useTopRatedPlayers(teamId: string | null, limit: number = 3): Us
     setError(null)
 
     try {
-      const result = await getTopRatedPlayers(teamId, limit)
+      const result = await getTopRatedPlayers(clubId, limit)
       setEntries(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
@@ -278,7 +278,7 @@ export function useTopRatedPlayers(teamId: string | null, limit: number = 3): Us
     } finally {
       setIsLoading(false)
     }
-  }, [teamId, limit])
+  }, [clubId, limit])
 
   useEffect(() => {
     fetchEntries()

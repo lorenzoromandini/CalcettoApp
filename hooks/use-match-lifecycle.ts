@@ -62,7 +62,7 @@ interface UseMatchLifecycleReturn {
 
 export function useMatchLifecycle(
   matchId: string,
-  teamId: string
+  clubId: string
 ): UseMatchLifecycleReturn {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()

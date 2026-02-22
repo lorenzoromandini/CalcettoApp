@@ -12,7 +12,7 @@
 
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { isTeamAdmin } from '@/lib/db/teams'
+import { isTeamAdmin } from '@/lib/db/clubs'
 import { ratingToDecimal, decimalToRating, isValidRating } from '@/lib/rating-utils'
 import { MatchStatus } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
@@ -138,7 +138,7 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: data.matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -146,7 +146,7 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -223,7 +223,7 @@ export async function getMatchRatings(matchId: string): Promise<PlayerRatingWith
   // Get match to find team
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    select: { teamId: true },
+    select: { clubId: true },
   })
 
   if (!match) {
@@ -240,15 +240,15 @@ export async function getMatchRatings(matchId: string): Promise<PlayerRatingWith
 
   // Get jersey numbers for all players
   const playerIds = ratings.map(r => r.playerId)
-  const playerTeams = await prisma.playerTeam.findMany({
+  const playerClubs = await prisma.playerClub.findMany({
     where: {
       playerId: { in: playerIds },
-      teamId: match.teamId,
+      clubId: match.clubId,
     },
   })
 
   // Create a map of playerId -> jerseyNumber
-  const jerseyMap = new Map(playerTeams.map(pt => [pt.playerId, pt.jerseyNumber]))
+  const jerseyMap = new Map(playerClubs.map(pt => [pt.playerId, pt.jerseyNumber]))
 
   // Convert to app types
   const results = ratings.map(r => {
@@ -351,7 +351,7 @@ export async function deletePlayerRating(
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -359,7 +359,7 @@ export async function deletePlayerRating(
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -458,7 +458,7 @@ export async function bulkUpsertRatings(
   const matchId = ratings[0].matchId
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -466,7 +466,7 @@ export async function bulkUpsertRatings(
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -550,19 +550,19 @@ export interface RatingHistoryEntry {
  * Used for rating trend visualization on player profile.
  * 
  * @param playerId - Player ID
- * @param teamId - Optional team ID to filter history
+ * @param clubId - Optional team ID to filter history
  * @returns Array of rating history entries ordered by match date
  */
 export async function getPlayerRatingHistory(
   playerId: string,
-  teamId?: string
+  clubId?: string
 ): Promise<RatingHistoryEntry[]> {
   const ratings = await prisma.playerRating.findMany({
     where: {
       playerId,
       match: {
         status: MatchStatus.COMPLETED,
-        ...(teamId ? { teamId } : {}),
+        ...(clubId ? { clubId } : {}),
       },
     },
     include: {
@@ -603,7 +603,7 @@ export interface DashboardPlayerData {
     nickname: string | null
     avatar_url: string | null
   }
-  teamId: string | null
+  clubId: string | null
   teamName: string | null
   jerseyNumber: number | null
   lastThreeGamesAvgRating: number | null
@@ -613,27 +613,27 @@ export interface DashboardPlayerData {
 
 export async function getPlayerDashboardData(
   userId: string,
-  teamId?: string
+  clubId?: string
 ): Promise<DashboardPlayerData | null> {
   const player = await prisma.player.findFirst({
     where: { userId },
     include: {
-      playerTeams: {
+      playerClubs: {
         include: {
-          team: true,
+          club: true,
         },
-        ...(teamId ? { where: { teamId } } : {}),
+        ...(clubId ? { where: { clubId } } : {}),
       },
     },
   })
 
   if (!player) return null
 
-  const playerTeam = teamId
-    ? player.playerTeams.find(pt => pt.teamId === teamId)
-    : player.playerTeams[0]
+  const playerClub = clubId
+    ? player.playerClubs.find(pt => pt.clubId === clubId)
+    : player.playerClubs[0]
 
-  if (!playerTeam) {
+  if (!playerClub) {
     return {
       player: {
         id: player.id,
@@ -642,7 +642,7 @@ export async function getPlayerDashboardData(
         nickname: player.nickname,
         avatar_url: player.avatarUrl,
       },
-      teamId: null,
+      clubId: null,
       teamName: null,
       jerseyNumber: null,
       lastThreeGamesAvgRating: null,
@@ -655,7 +655,7 @@ export async function getPlayerDashboardData(
     where: {
       playerId: player.id,
       match: {
-        teamId: playerTeam.teamId,
+        clubId: playerClub.clubId,
         status: MatchStatus.COMPLETED,
       },
     },
@@ -709,9 +709,9 @@ export async function getPlayerDashboardData(
       nickname: player.nickname,
       avatar_url: player.avatarUrl,
     },
-    teamId: playerTeam.teamId,
-    teamName: playerTeam.team.name,
-    jerseyNumber: playerTeam.jerseyNumber,
+    clubId: playerClub.clubId,
+    teamName: playerClub.club.name,
+    jerseyNumber: playerClub.jerseyNumber,
     lastThreeGamesAvgRating,
     hasMvpInLastThree,
     frameColor,
@@ -730,12 +730,12 @@ export async function calculateFrameColor(
   return 'platinum'
 }
 
-export async function getTeamPlayersDashboardData(teamId: string): Promise<DashboardPlayerData[]> {
-  const playerTeams = await prisma.playerTeam.findMany({
-    where: { teamId },
+export async function getClubPlayersDashboardData(clubId: string): Promise<DashboardPlayerData[]> {
+  const playerClubs = await prisma.playerClub.findMany({
+    where: { clubId },
     include: {
       player: true,
-      team: true,
+      club: true,
     },
     orderBy: {
       jerseyNumber: 'asc',
@@ -744,12 +744,12 @@ export async function getTeamPlayersDashboardData(teamId: string): Promise<Dashb
 
   const results: DashboardPlayerData[] = []
 
-  for (const pt of playerTeams) {
+  for (const pt of playerClubs) {
     const lastThreeRatings = await prisma.playerRating.findMany({
       where: {
         playerId: pt.playerId,
         match: {
-          teamId,
+          clubId,
           status: MatchStatus.COMPLETED,
         },
       },
@@ -795,8 +795,8 @@ export async function getTeamPlayersDashboardData(teamId: string): Promise<Dashb
         nickname: pt.player.nickname,
         avatar_url: pt.player.avatarUrl,
       },
-      teamId,
-      teamName: pt.team.name,
+      clubId,
+      teamName: pt.club.name,
       jerseyNumber: pt.jerseyNumber,
       lastThreeGamesAvgRating,
       hasMvpInLastThree,

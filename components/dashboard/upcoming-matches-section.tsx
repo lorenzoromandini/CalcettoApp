@@ -30,14 +30,14 @@ export function UpcomingMatchesSection({ teams }: UpcomingMatchesSectionProps) {
       try {
         const allMatches: UpcomingMatch[] = [];
 
-        for (const team of teams) {
-          const matches = await getUpcomingMatches(team.id);
+        for (const club of clubs) {
+          const matches = await getUpcomingMatches(club.id);
           
           for (const match of matches) {
             const counts = await getRSVPCounts(match.id);
             allMatches.push({
               ...match,
-              teamName: team.name,
+              teamName: club.name,
               rsvpIn: counts.in,
             });
           }

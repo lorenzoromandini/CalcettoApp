@@ -9,7 +9,7 @@
 
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { isTeamAdmin } from '@/lib/db/teams'
+import { isTeamAdmin } from '@/lib/db/clubs'
 import { initializeParticipation } from '@/lib/db/player-participation'
 import { MatchStatus } from '@prisma/client'
 import type { Match } from '@prisma/client'
@@ -85,7 +85,7 @@ export async function startMatch(matchId: string): Promise<Match> {
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -93,7 +93,7 @@ export async function startMatch(matchId: string): Promise<Match> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -128,7 +128,7 @@ export async function endMatch(matchId: string): Promise<Match> {
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -136,7 +136,7 @@ export async function endMatch(matchId: string): Promise<Match> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -175,7 +175,7 @@ export async function completeMatch(matchId: string): Promise<Match> {
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -183,7 +183,7 @@ export async function completeMatch(matchId: string): Promise<Match> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -226,7 +226,7 @@ export async function inputFinalResults(
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -234,7 +234,7 @@ export async function inputFinalResults(
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }

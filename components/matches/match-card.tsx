@@ -12,12 +12,12 @@ import type { Match } from "@/lib/db/schema";
 
 interface MatchCardProps {
   match: Match;
-  teamId: string;
+  clubId: string;
   onClick?: () => void;
   showRSVPCount?: boolean;
 }
 
-export function MatchCard({ match, teamId, onClick, showRSVPCount = false }: MatchCardProps) {
+export function MatchCard({ match, clubId, onClick, showRSVPCount = false }: MatchCardProps) {
   const t = useTranslations("matches");
   const common = useTranslations("common");
   const [rsvpCount, setRsvpCount] = useState(0);

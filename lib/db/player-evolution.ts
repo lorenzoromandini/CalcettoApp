@@ -37,13 +37,13 @@ export interface EvolutionDataPoint {
  * Aggregates goals, assists, and rating per match
  * 
  * @param playerId - Player ID
- * @param teamId - Team ID to filter matches
+ * @param clubId - Team ID to filter matches
  * @param limit - Maximum number of matches to include (default 10)
  * @returns Array of evolution data points ordered chronologically
  */
 export async function getPlayerEvolution(
   playerId: string,
-  teamId: string,
+  clubId: string,
   limit: number = 10
 ): Promise<EvolutionDataPoint[]> {
   // Get all matches where player participated (has a formation position with side)
@@ -52,7 +52,7 @@ export async function getPlayerEvolution(
       playerId,
       formation: {
         match: {
-          teamId,
+          clubId,
           status: MatchStatus.COMPLETED,
         },
       },

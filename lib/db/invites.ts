@@ -13,15 +13,15 @@ export interface AvailableJerseyNumbers {
 }
 
 export async function createInvite(
-  teamId: string,
+  clubId: string,
   createdBy: string,
   maxUses: number = 50
 ): Promise<string> {
   const token = crypto.randomUUID().replace(/-/g, '');
   
-  const invite = await prisma.teamInvite.create({
+  const invite = await prisma.clubInvite.create({
     data: {
-      teamId,
+      clubId,
       createdBy,
       token,
       maxUses,
@@ -33,20 +33,20 @@ export async function createInvite(
 }
 
 export async function generateInviteLink(
-  teamId: string,
+  clubId: string,
   userId: string,
   options?: { maxUses?: number }
 ): Promise<{ link: string; token: string }> {
-  const token = await createInvite(teamId, userId, options?.maxUses ?? 50);
+  const token = await createInvite(clubId, userId, options?.maxUses ?? 50);
   const link = `/teams/invite?token=${token}`;
   return { link, token };
 }
 
 export async function getInviteByToken(token: string) {
-  return await prisma.teamInvite.findUnique({
+  return await prisma.clubInvite.findUnique({
     where: { token },
     include: {
-      team: {
+      club: {
         select: {
           id: true,
           name: true,
@@ -57,13 +57,13 @@ export async function getInviteByToken(token: string) {
   });
 }
 
-export async function getAvailableJerseyNumbers(teamId: string): Promise<AvailableJerseyNumbers> {
-  const playerTeams = await prisma.playerTeam.findMany({
-    where: { teamId },
+export async function getAvailableJerseyNumbers(clubId: string): Promise<AvailableJerseyNumbers> {
+  const playerClubs = await prisma.playerClub.findMany({
+    where: { clubId },
     select: { jerseyNumber: true },
   });
 
-  const taken = playerTeams.map(pt => pt.jerseyNumber).sort((a, b) => a - b);
+  const taken = playerClubs.map(pt => pt.jerseyNumber).sort((a, b) => a - b);
   const min = 1;
   const max = 99;
   
@@ -77,42 +77,42 @@ export async function getAvailableJerseyNumbers(teamId: string): Promise<Availab
   return { min, max, taken, available };
 }
 
-export async function checkTeamMembership(userId: string, teamId: string): Promise<{
+export async function checkClubMembership(userId: string, clubId: string): Promise<{
   isMember: boolean;
   hasPlayerSetup: boolean;
-  playerTeamId?: string;
+  playerClubId?: string;
 }> {
-  const teamMember = await prisma.teamMember.findFirst({
-    where: { userId, teamId },
+  const clubMember = await prisma.clubMember.findFirst({
+    where: { userId, clubId },
   });
 
-  if (!teamMember) {
+  if (!clubMember) {
     return { isMember: false, hasPlayerSetup: false };
   }
 
   const player = await prisma.player.findUnique({
     where: { userId },
     include: {
-      playerTeams: {
-        where: { teamId },
+      playerClubs: {
+        where: { clubId },
       },
     },
   });
 
-  if (!player || player.playerTeams.length === 0) {
+  if (!player || player.playerClubs.length === 0) {
     return { isMember: true, hasPlayerSetup: false };
   }
 
   return {
     isMember: true,
     hasPlayerSetup: true,
-    playerTeamId: player.playerTeams[0].id,
+    playerClubId: player.playerClubs[0].id,
   };
 }
 
 export async function setupPlayerInTeam(
   userId: string,
-  teamId: string,
+  clubId: string,
   data: {
     name: string;
     surname?: string;
@@ -121,7 +121,7 @@ export async function setupPlayerInTeam(
     primaryRole: PlayerRole;
     secondaryRoles: PlayerRole[];
   }
-): Promise<{ success: boolean; playerTeamId?: string; error?: string }> {
+): Promise<{ success: boolean; playerClubId?: string; error?: string }> {
   let player = await prisma.player.findUnique({
     where: { userId },
   });
@@ -148,45 +148,45 @@ export async function setupPlayerInTeam(
     });
   }
 
-  const existingPlayerTeam = await prisma.playerTeam.findUnique({
+  const existingPlayerClub = await prisma.playerClub.findUnique({
     where: {
-      playerId_teamId: {
+      playerId_clubId: {
         playerId: player.id,
-        teamId,
+        clubId,
       },
     },
   });
 
-  if (existingPlayerTeam) {
+  if (existingPlayerClub) {
     return { success: false, error: 'Player already setup in this team' };
   }
 
-  const jerseyTaken = await prisma.playerTeam.findFirst({
-    where: { teamId, jerseyNumber: data.jerseyNumber },
+  const jerseyTaken = await prisma.playerClub.findFirst({
+    where: { clubId, jerseyNumber: data.jerseyNumber },
   });
 
   if (jerseyTaken) {
     return { success: false, error: 'Jersey number already taken' };
   }
 
-  const playerTeam = await prisma.playerTeam.create({
+  const playerClub = await prisma.playerClub.create({
     data: {
       playerId: player.id,
-      teamId,
+      clubId,
       jerseyNumber: data.jerseyNumber,
       primaryRole: data.primaryRole,
       secondaryRoles: data.secondaryRoles,
     },
   });
 
-  return { success: true, playerTeamId: playerTeam.id };
+  return { success: true, playerClubId: playerClub.id };
 }
 
 export async function redeemInvite(
   token: string,
   userId: string
-): Promise<{ success: boolean; teamId?: string; needsSetup?: boolean }> {
-  const invite = await prisma.teamInvite.findUnique({
+): Promise<{ success: boolean; clubId?: string; needsSetup?: boolean }> {
+  const invite = await prisma.clubInvite.findUnique({
     where: { token },
   });
 
@@ -194,31 +194,31 @@ export async function redeemInvite(
   if (invite.expiresAt < new Date()) return { success: false };
   if (invite.useCount >= invite.maxUses) return { success: false };
 
-  const existingMember = await prisma.teamMember.findFirst({
+  const existingMember = await prisma.clubMember.findFirst({
     where: {
-      teamId: invite.teamId,
+      clubId: invite.clubId,
       userId,
     },
   });
 
   if (existingMember) {
-    const membership = await checkTeamMembership(userId, invite.teamId);
+    const membership = await checkClubMembership(userId, invite.clubId);
     return {
       success: true,
-      teamId: invite.teamId,
+      clubId: invite.clubId,
       needsSetup: !membership.hasPlayerSetup,
     };
   }
 
-  await prisma.teamMember.create({
+  await prisma.clubMember.create({
     data: {
-      teamId: invite.teamId,
+      clubId: invite.clubId,
       userId,
       role: 'member',
     },
   });
 
-  await prisma.teamInvite.update({
+  await prisma.clubInvite.update({
     where: { id: invite.id },
     data: {
       useCount: { increment: 1 },
@@ -229,15 +229,15 @@ export async function redeemInvite(
 
   return {
     success: true,
-    teamId: invite.teamId,
+    clubId: invite.clubId,
     needsSetup: true,
   };
 }
 
-export async function getTeamInvites(teamId: string) {
-  return await prisma.teamInvite.findMany({
+export async function getClubInvites(clubId: string) {
+  return await prisma.clubInvite.findMany({
     where: {
-      teamId,
+      clubId,
       expiresAt: {
         gt: new Date(),
       },
@@ -249,7 +249,7 @@ export async function getTeamInvites(teamId: string) {
 }
 
 export async function deleteInvite(inviteId: string): Promise<void> {
-  await prisma.teamInvite.delete({
+  await prisma.clubInvite.delete({
     where: { id: inviteId },
   });
 }

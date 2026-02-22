@@ -65,7 +65,7 @@ export interface CompletedMatchData {
 
 interface CompletedMatchDetailProps {
   data: CompletedMatchData
-  teamId: string
+  clubId: string
   locale: string
 }
 
@@ -117,7 +117,7 @@ function getPlayerInitials(name: string, surname?: string | null): string {
 
 export function CompletedMatchDetail({ 
   data, 
-  teamId, 
+  clubId, 
   locale 
 }: CompletedMatchDetailProps) {
   const t = useTranslations('history')
@@ -135,8 +135,8 @@ export function CompletedMatchDetail({
   const averageRating = calculateAverageRating(decimals)
 
   // Filter goals by team
-  const ourGoals = goals.filter(g => g.teamId === teamId && !g.isOwnGoal)
-  const opponentGoals = goals.filter(g => g.teamId !== teamId && !g.isOwnGoal)
+  const ourGoals = goals.filter(g => g.clubId === clubId && !g.isOwnGoal)
+  const opponentGoals = goals.filter(g => g.clubId !== clubId && !g.isOwnGoal)
   const ownGoals = goals.filter(g => g.isOwnGoal)
 
   // Result styles
@@ -216,7 +216,7 @@ export function CompletedMatchDetail({
           ) : (
             <div className="space-y-3">
               {goals.map((goal, index) => {
-                const isOurGoal = goal.teamId === teamId && !goal.isOwnGoal
+                const isOurGoal = goal.clubId === clubId && !goal.isOwnGoal
                 
                 return (
                   <div 

@@ -601,7 +601,7 @@ export interface Database {
         };
         Returns: boolean;
       };
-      is_player_in_team: {
+      is_player_in_club: {
         Args: {
           player_uuid: string;
           team_uuid: string;
@@ -643,10 +643,11 @@ export type Updates<T extends keyof Database['public']['Tables']> = Database['pu
 
 // Specific table types
 export type Team = Tables<'teams'>;
-export type TeamMember = Tables<'team_members'>;
+export type Club = Team; // Alias for clarity
+export type ClubMember = Tables<'team_members'>;
 export type Player = Tables<'players'>;
-export type PlayerTeam = Tables<'player_teams'>;
-export type TeamInvite = Tables<'team_invites'>;
+export type PlayerClub = Tables<'player_teams'>;
+export type ClubInvite = Tables<'team_invites'>;
 export type Match = Tables<'matches'>;
 export type MatchPlayer = Tables<'match_players'>;
 export type Formation = Tables<'formations'>;

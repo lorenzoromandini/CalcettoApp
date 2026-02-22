@@ -14,7 +14,7 @@ export async function POST(
 
   const { token } = await params;
 
-  const invite = await prisma.teamInvite.findUnique({
+  const invite = await prisma.clubInvite.findUnique({
     where: { token },
   });
 
@@ -30,9 +30,9 @@ export async function POST(
     return NextResponse.json({ error: 'Invite max uses reached' }, { status: 400 });
   }
 
-  const existingMember = await prisma.teamMember.findFirst({
+  const existingMember = await prisma.clubMember.findFirst({
     where: {
-      teamId: invite.teamId,
+      clubId: invite.clubId,
       userId,
     },
   });
@@ -43,29 +43,29 @@ export async function POST(
     const player = await prisma.player.findUnique({
       where: { userId },
       include: {
-        playerTeams: {
-          where: { teamId: invite.teamId },
+        playerClubs: {
+          where: { clubId: invite.clubId },
         },
       },
     });
-    needsSetup = !player || player.playerTeams.length === 0;
+    needsSetup = !player || player.playerClubs.length === 0;
     return NextResponse.json({ 
       success: true, 
-      teamId: invite.teamId, 
+      clubId: invite.clubId, 
       needsSetup,
       alreadyMember: true 
     });
   }
 
-  await prisma.teamMember.create({
+  await prisma.clubMember.create({
     data: {
-      teamId: invite.teamId,
+      clubId: invite.clubId,
       userId,
       role: 'member',
     },
   });
 
-  await prisma.teamInvite.update({
+  await prisma.clubInvite.update({
     where: { id: invite.id },
     data: {
       useCount: { increment: 1 },
@@ -76,7 +76,7 @@ export async function POST(
 
   return NextResponse.json({ 
     success: true, 
-    teamId: invite.teamId, 
+    clubId: invite.clubId, 
     needsSetup: true 
   });
 }
