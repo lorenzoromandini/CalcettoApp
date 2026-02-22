@@ -54,6 +54,8 @@
     "stats": {
       "teams": "Teams",
       "teamsDescription": "Teams created",
+      "clubs": "Clubs",
+      "clubsDescription": "Clubs created",
       "matches": "Matches",
       "matchesDescription": "Matches played",
       "victories": "Victories",
@@ -119,6 +121,44 @@
     "selectTeam": "Select team",
     "createFirst": "Create your first team",
     "createNew": "Create new team"
+  },
+  "clubs": {
+    "title": "My Clubs",
+    "description": "Manage your clubs and players",
+    "create": "Create Club",
+    "createDescription": "Create a new club",
+    "back": "Back",
+    "empty": {
+      "title": "No clubs",
+      "description": "Create your first club to start organizing matches"
+    },
+    "errorLoading": "Error loading clubs",
+    "retry": "Retry",
+    "form": {
+      "name": "Club name",
+      "namePlaceholder": "Enter club name",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional - Add a description",
+      "image": "Club image (optional)",
+      "imagePlaceholder": "Click to upload an image",
+      "imageHint": "Max 5MB",
+      "imageUploading": "Uploading...",
+      "imageInvalidType": "File must be an image",
+      "imageTooLarge": "Image must be less than 5MB",
+      "imageUploadError": "Error uploading image",
+      "submit": "Create club",
+      "creating": "Creating...",
+      "error": "An error occurred. Please try again."
+    },
+    "myClubs": "My clubs",
+    "club": "club",
+    "clubs": "clubs",
+    "selectClub": "Select club",
+    "createFirst": "Create your first club",
+    "createNew": "Create new club",
+    "defaultClub": "Default club",
+    "setAsDefault": "Set as default",
+    "member": "member"
   },
   "players": {
     "title": "Players",

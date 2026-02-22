@@ -132,7 +132,7 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
     if (isNaN(number) || number < 1 || number > 99) {
       return;
     }
-    setTeams(clubs.map(t => 
+    setTeams(teams.map(t => 
       t.id === clubId ? { ...t, jerseyNumber: number } : t
     ));
   };
@@ -331,13 +331,13 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {clubs.map((team) => (
-              <div key={club.id} className="flex items-center gap-4">
+            {teams.map((team) => (
+              <div key={team.id} className="flex items-center gap-4">
                 <div className="flex-1">
-                  <Label className="text-sm font-medium">{club.name}</Label>
+                  <Label className="text-sm font-medium">{team.name}</Label>
                   <Select
-                    value={club.jerseyNumber?.toString() || ''}
-                    onValueChange={(value) => handleJerseyChange(club.id, value)}
+                    value={team.jerseyNumber?.toString() || ''}
+                    onValueChange={(value) => handleJerseyChange(team.id, value)}
                   >
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Seleziona numero" />

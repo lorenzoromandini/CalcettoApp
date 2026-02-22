@@ -6,40 +6,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-interface Team {
+interface Club {
   id: string;
   name: string;
 }
 
 interface DashboardCardsProps {
-  teams: Team[];
+  clubs: Club[];
 }
 
-export function DashboardCards({ teams }: DashboardCardsProps) {
+export function DashboardCards({ clubs }: DashboardCardsProps) {
   const t = useTranslations("dashboard");
   const tNav = useTranslations("navigation");
-  const [defaultClubId, setDefaultTeamId] = useState<string | null>(null);
+  const [defaultClubId, setDefaultClubId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("defaultClubId");
-      setDefaultTeamId(stored);
+      setDefaultClubId(stored);
     }
   }, []);
 
-  const getDefaultTeamId = () => {
-    if (defaultClubId && teams.some((t) => t.id === defaultClubId)) {
+  const getDefaultClubId = () => {
+    if (defaultClubId && clubs.some((c) => c.id === defaultClubId)) {
       return defaultClubId;
     }
     return clubs[0]?.id || null;
   };
 
-  const currentTeamId = getDefaultTeamId();
+  const currentClubId = getDefaultClubId();
 
   return (
     <>
       {/* Partite - Second rectangle */}
-      <Link href={currentTeamId ? `/teams/${currentTeamId}/matches` : "/teams"}>
+      <Link href={currentClubId ? `/clubs/${currentClubId}/matches` : "/clubs"}>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-lg font-medium">{tNav("matches") || "Partite"}</CardTitle>
