@@ -97,11 +97,11 @@ export default function ProfilePageClient() {
               <p className="text-muted-foreground">Non sei ancora membro di nessun club.</p>
             ) : (
               <div className="space-y-2">
-                {clubs.map(team => (
-                  <div key={club.id} className="flex items-center justify-between p-3 rounded-lg border">
-                    <span className="font-medium">{club.name}</span>
-                    {club.jerseyNumber && (
-                      <span className="text-sm text-muted-foreground">#{club.jerseyNumber}</span>
+                {teams.map(team => (
+                  <div key={team.id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <span className="font-medium">{team.name}</span>
+                    {team.jerseyNumber && (
+                      <span className="text-sm text-muted-foreground">#{team.jerseyNumber}</span>
                     )}
                   </div>
                 ))}

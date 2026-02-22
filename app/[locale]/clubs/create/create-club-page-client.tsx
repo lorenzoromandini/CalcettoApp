@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClubForm } from "@/components/clubs/club-form";
-import { useCreateTeam } from "@/hooks/use-clubs";
+import { useCreateClub } from "@/hooks/use-clubs";
 import { Header } from "@/components/navigation/header";
 import type { CreateClubInput } from "@/lib/validations/club";
 
@@ -14,13 +14,13 @@ interface CreateClubPageClientProps {
 }
 
 export function CreateClubPageClient({ locale }: CreateClubPageClientProps) {
-  const t = useTranslations("teams");
+  const t = useTranslations("clubs");
   const router = useRouter();
-  const { createTeam, isPending } = useCreateTeam();
+  const { createClub, isPending } = useCreateClub();
 
   const handleSubmit = async (data: CreateClubInput) => {
-    const clubId = await createTeam(data);
-    router.push(`/${locale}/teams/${clubId}`);
+    const clubId = await createClub(data);
+    router.push(`/${locale}/clubs/${clubId}`);
   };
 
   return (

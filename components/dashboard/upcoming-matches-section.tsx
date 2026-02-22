@@ -16,10 +16,10 @@ interface UpcomingMatch extends Match {
 }
 
 interface UpcomingMatchesSectionProps {
-  teams: { id: string; name: string }[];
+  clubs: { id: string; name: string }[];
 }
 
-export function UpcomingMatchesSection({ teams }: UpcomingMatchesSectionProps) {
+export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
   const t = useTranslations();
   const [upcomingMatches, setUpcomingMatches] = useState<UpcomingMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +43,6 @@ export function UpcomingMatchesSection({ teams }: UpcomingMatchesSectionProps) {
           }
         }
 
-        // Sort by date (soonest first) and take first 5
         allMatches.sort((a, b) => 
           new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
         );
@@ -56,12 +55,12 @@ export function UpcomingMatchesSection({ teams }: UpcomingMatchesSectionProps) {
       }
     }
 
-    if (teams.length > 0) {
+    if (clubs.length > 0) {
       loadUpcomingMatches();
     } else {
       setIsLoading(false);
     }
-  }, [teams]);
+  }, [clubs]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -142,7 +141,7 @@ export function UpcomingMatchesSection({ teams }: UpcomingMatchesSectionProps) {
           return (
             <Link
               key={match.id}
-              href={`/teams/${match.team_id}/matches/${match.id}`}
+              href={`/clubs/${match.team_id}/matches/${match.id}`}
             >
               <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
                 {/* Date Box */}

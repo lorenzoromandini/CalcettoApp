@@ -40,11 +40,11 @@ model User {
   sessions      Session[]
   
   // App relations
-  ownedTeams    Team[]         @relation("TeamOwner")
-  memberships   TeamMember[]
+  ownedClubs    Club[]         @relation("ClubOwner")
+  memberships   ClubMember[]
   playerProfile Player?
   createdMatches Match[]       @relation("MatchCreator")
-  createdInvites TeamInvite[]  @relation("InviteCreator")
+  createdInvites ClubInvite[]  @relation("InviteCreator")
 }
 
 model Account {
@@ -86,7 +86,7 @@ model VerificationToken {
 // APP MODELS
 // ============================================================================
 
-model Team {
+model Club {
   id          String    @id @default(cuid())
   name        String
   description String?
@@ -97,10 +97,10 @@ model Team {
   deletedAt   DateTime? @map("deleted_at")
   syncStatus  String    @default("synced") @map("sync_status")
 
-  creator     User          @relation("TeamOwner", fields: [createdBy], references: [id])
-  members     TeamMember[]
-  playerTeams PlayerTeam[]
-  invites     TeamInvite[]
+  creator     User          @relation("ClubOwner", fields: [createdBy], references: [id])
+  members     ClubMember[]
+  playerClubs PlayerClub[]
+  invites     ClubInvite[]
   matches     Match[]
   goals       Goal[]
 
@@ -109,20 +109,20 @@ model Team {
   @@map("teams")
 }
 
-model TeamMember {
+model ClubMember {
   id       String   @id @default(cuid())
-  teamId   String   @map("team_id")
+  clubId   String   @map("team_id")
   userId   String?  @map("user_id")
   playerId String?  @map("player_id")
   role     String   @default("member")
   joinedAt DateTime @default(now()) @map("joined_at")
 
-  team   Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  club   Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
 
-  @@unique([teamId, userId])
-  @@index([teamId])
+  @@unique([clubId, userId])
+  @@index([clubId])
   @@index([userId])
   @@map("team_members")
 }
@@ -140,8 +140,8 @@ model Player {
   syncStatus String   @default("synced") @map("sync_status")
 
   user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  memberships TeamMember[]
-  playerTeams PlayerTeam[]
+  memberships ClubMember[]
+  playerClubs PlayerClub[]
   matchPlayers MatchPlayer[]
   formationPositions FormationPosition[]
   scoredGoals  Goal[] @relation("GoalScorer")
@@ -152,10 +152,10 @@ model Player {
   @@map("players")
 }
 
-model PlayerTeam {
+model PlayerClub {
   id             String   @id @default(cuid())
   playerId       String   @map("player_id")
-  teamId         String   @map("team_id")
+  clubId         String   @map("team_id")
   jerseyNumber   Int      @map("jersey_number")
   primaryRole    String   @map("primary_role")
   secondaryRoles String[] @default([]) @map("secondary_roles")
@@ -164,18 +164,18 @@ model PlayerTeam {
   syncStatus     String   @default("synced") @map("sync_status")
 
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  club   Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
-  @@unique([playerId, teamId])
-  @@unique([teamId, jerseyNumber])
+  @@unique([playerId, clubId])
+  @@unique([clubId, jerseyNumber])
   @@index([playerId])
-  @@index([teamId])
+  @@index([clubId])
   @@map("player_teams")
 }
 
-model TeamInvite {
+model ClubInvite {
   id        String    @id @default(cuid())
-  teamId    String    @map("team_id")
+  clubId    String    @map("team_id")
   createdBy String    @map("created_by")
   token     String    @unique
   email     String?
@@ -186,10 +186,10 @@ model TeamInvite {
   useCount  Int       @default(0) @map("use_count")
   createdAt DateTime  @default(now()) @map("created_at")
 
-  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  club   Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
   creator User @relation("InviteCreator", fields: [createdBy], references: [id])
 
-  @@index([teamId])
+  @@index([clubId])
   @@index([token])
   @@index([expiresAt])
   @@map("team_invites")
@@ -197,7 +197,7 @@ model TeamInvite {
 
 model Match {
   id          String      @id @default(cuid())
-  teamId      String      @map("team_id")
+  clubId      String      @map("team_id")
   scheduledAt DateTime    @map("scheduled_at")
   location    String?
   mode        String
@@ -210,14 +210,14 @@ model Match {
   updatedAt   DateTime    @updatedAt @map("updated_at")
   syncStatus  String      @default("synced") @map("sync_status")
 
-  team     Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  creator  User?      @relation("MatchCreator", fields: [createdBy], references: [id])
-  players  MatchPlayer[]
+  club    Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  creator User?      @relation("MatchCreator", fields: [createdBy], references: [id])
+  players MatchPlayer[]
   formation Formation?
-  goals    Goal[]
-  ratings  PlayerRating[]
+  goals   Goal[]
+  ratings PlayerRating[]
 
-  @@index([teamId])
+  @@index([clubId])
   @@index([scheduledAt])
   @@index([status])
   @@map("matches")
@@ -279,7 +279,7 @@ model FormationPosition {
 model Goal {
   id         String   @id @default(cuid())
   matchId    String   @map("match_id")
-  teamId     String   @map("team_id")
+  clubId     String   @map("team_id")
   scorerId   String   @map("scorer_id")
   assisterId String?  @map("assister_id")
   isOwnGoal  Boolean  @default(false) @map("is_own_goal")
@@ -287,7 +287,7 @@ model Goal {
   createdAt  DateTime @default(now()) @map("created_at")
 
   match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  club     Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   scorer   Player  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
   assister Player? @relation("GoalAssister", fields: [assisterId], references: [id], onDelete: SetNull)
 
@@ -314,5 +314,3 @@ model PlayerRating {
   @@index([playerId])
   @@map("player_ratings")
 }
-
-

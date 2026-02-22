@@ -86,6 +86,7 @@ export async function PATCH(request: NextRequest) {
           playerId: player.id,
           clubId,
           jerseyNumber,
+          primaryRole: 'player',
         },
       });
     }

@@ -1,34 +1,34 @@
 /**
- * Teams React Hooks - NextAuth Version
+ * Clubs React Hooks - NextAuth Version
  * 
- * Provides data fetching and mutations for team management.
+ * Provides data fetching and mutations for club management.
  * Uses NextAuth for authentication.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSession } from '@/components/providers/session-provider';
 import { authFetch } from '@/lib/auth-fetch';
-import type { Team } from '@/lib/db/schema';
+import type { Club } from '@/lib/db/schema';
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club';
 
 // ============================================================================
-// useClubs Hook - Get all teams for current user
+// useClubs Hook - Get all clubs for current user
 // ============================================================================
 
-interface UseTeamsReturn {
-  teams: Team[];
+interface UseClubsReturn {
+  clubs: Club[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 }
 
-export function useClubs(): UseTeamsReturn {
+export function useClubs(): UseClubsReturn {
   const { data: session, isLoading: sessionLoading } = useSession();
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchTeams = useCallback(async () => {
+  const fetchClubs = useCallback(async () => {
     const userId = session?.user?.id;
     if (!userId) {
       setIsLoading(false);
@@ -39,12 +39,12 @@ export function useClubs(): UseTeamsReturn {
     setError(null);
 
     try {
-      const response = await authFetch('/api/teams');
-      if (!response.ok) throw new Error('Failed to fetch teams');
+      const response = await authFetch('/api/clubs');
+      if (!response.ok) throw new Error('Failed to fetch clubs');
       const data = await response.json();
-      setTeams(data);
+      setClubs(data);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch teams'));
+      setError(err instanceof Error ? err : new Error('Failed to fetch clubs'));
     } finally {
       setIsLoading(false);
     }
@@ -52,31 +52,31 @@ export function useClubs(): UseTeamsReturn {
 
   useEffect(() => {
     if (!sessionLoading) {
-      fetchTeams();
+      fetchClubs();
     }
-  }, [sessionLoading, fetchTeams]);
+  }, [sessionLoading, fetchClubs]);
 
   return {
-    teams,
+    clubs,
     isLoading,
     error,
-    refetch: fetchTeams,
+    refetch: fetchClubs,
   };
 }
 
 // ============================================================================
-// useClub Hook - Get single team details
+// useClub Hook - Get single club details
 // ============================================================================
 
-interface UseTeamReturn {
-  club: Team | null;
+interface UseClubReturn {
+  club: Club | null;
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 }
 
-export function useClub(clubId: string | null): UseTeamReturn {
-  const [club, setClub] = useState<Team | null>(null);
+export function useClub(clubId: string | null): UseClubReturn {
+  const [club, setClub] = useState<Club | null>(null);
   const [isLoading, setIsLoading] = useState(!!clubId);
   const [error, setError] = useState<Error | null>(null);
 
@@ -115,21 +115,21 @@ export function useClub(clubId: string | null): UseTeamReturn {
 }
 
 // ============================================================================
-// useCreateTeam Hook - Create team mutation
+// useCreateClub Hook - Create club mutation
 // ============================================================================
 
-interface UseCreateTeamReturn {
-  createTeam: (data: CreateClubInput) => Promise<string>;
+interface UseCreateClubReturn {
+  createClub: (data: CreateClubInput) => Promise<string>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useCreateTeam(): UseCreateTeamReturn {
+export function useCreateClub(): UseCreateClubReturn {
   const { data: session } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const createTeam = useCallback(async (data: CreateClubInput): Promise<string> => {
+  const createClub = useCallback(async (data: CreateClubInput): Promise<string> => {
     if (!session?.user?.id) {
       throw new Error('User not authenticated');
     }
@@ -138,16 +138,16 @@ export function useCreateTeam(): UseCreateTeamReturn {
     setError(null);
 
     try {
-      const response = await authFetch('/api/teams', {
+      const response = await authFetch('/api/clubs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to create team');
+      if (!response.ok) throw new Error('Failed to create club');
       const result = await response.json();
       return result.id;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to create team');
+      const error = err instanceof Error ? err : new Error('Failed to create club');
       setError(error);
       throw error;
     } finally {
@@ -156,27 +156,27 @@ export function useCreateTeam(): UseCreateTeamReturn {
   }, [session?.user?.id]);
 
   return {
-    createTeam,
+    createClub,
     isPending,
     error,
   };
 }
 
 // ============================================================================
-// useUpdateTeam Hook - Update team mutation
+// useUpdateClub Hook - Update club mutation
 // ============================================================================
 
-interface UseUpdateTeamReturn {
-  updateTeam: (clubId: string, data: UpdateClubInput) => Promise<void>;
+interface UseUpdateClubReturn {
+  updateClub: (clubId: string, data: UpdateClubInput) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useUpdateTeam(): UseUpdateTeamReturn {
+export function useUpdateClub(): UseUpdateClubReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const updateTeam = useCallback(async (clubId: string, data: UpdateClubInput): Promise<void> => {
+  const updateClub = useCallback(async (clubId: string, data: UpdateClubInput): Promise<void> => {
     setIsPending(true);
     setError(null);
 
@@ -186,9 +186,9 @@ export function useUpdateTeam(): UseUpdateTeamReturn {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to update team');
+      if (!response.ok) throw new Error('Failed to update club');
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to update team');
+      const error = err instanceof Error ? err : new Error('Failed to update club');
       setError(error);
       throw error;
     } finally {
@@ -197,27 +197,27 @@ export function useUpdateTeam(): UseUpdateTeamReturn {
   }, []);
 
   return {
-    updateTeam,
+    updateClub,
     isPending,
     error,
   };
 }
 
 // ============================================================================
-// useDeleteTeam Hook - Delete team mutation
+// useDeleteClub Hook - Delete club mutation
 // ============================================================================
 
-interface UseDeleteTeamReturn {
-  deleteTeam: (clubId: string) => Promise<void>;
+interface UseDeleteClubReturn {
+  deleteClub: (clubId: string) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useDeleteTeam(): UseDeleteTeamReturn {
+export function useDeleteClub(): UseDeleteClubReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const deleteTeam = useCallback(async (clubId: string): Promise<void> => {
+  const deleteClub = useCallback(async (clubId: string): Promise<void> => {
     setIsPending(true);
     setError(null);
 
@@ -225,9 +225,9 @@ export function useDeleteTeam(): UseDeleteTeamReturn {
       const response = await authFetch(`/api/clubs/${clubId}`, {
         method: 'DELETE',
       });
-      if (!response.ok) throw new Error('Failed to delete team');
+      if (!response.ok) throw new Error('Failed to delete club');
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to delete team');
+      const error = err instanceof Error ? err : new Error('Failed to delete club');
       setError(error);
       throw error;
     } finally {
@@ -236,8 +236,16 @@ export function useDeleteTeam(): UseDeleteTeamReturn {
   }, []);
 
   return {
-    deleteTeam,
+    deleteClub,
     isPending,
     error,
   };
 }
+
+// Backward compatibility aliases
+export const useTeams = useClubs;
+export const useTeam = useClub;
+export const useCreateTeam = useCreateClub;
+export const useUpdateTeam = useUpdateClub;
+export const useDeleteTeam = useDeleteClub;
+export type { UseClubsReturn as UseTeamsReturn, UseClubReturn as UseTeamReturn, UseCreateClubReturn as UseCreateTeamReturn, UseUpdateClubReturn as UseUpdateTeamReturn, UseDeleteClubReturn as UseDeleteTeamReturn };

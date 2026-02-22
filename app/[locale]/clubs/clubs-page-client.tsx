@@ -21,20 +21,20 @@ interface ClubMemberRole {
   role: "admin" | "co-admin" | "member";
 }
 
-const DEFAULT_TEAM_KEY = "defaultClubId";
+const DEFAULT_CLUB_KEY = "defaultClubId";
 
 export function ClubsPageClient({ locale }: ClubsPageClientProps) {
-  const t = useTranslations("teams");
+  const t = useTranslations("clubs");
   const router = useRouter();
   const { data: session } = useSession();
-  const { teams, isLoading, error, refetch } = useClubs();
+  const { clubs, isLoading, error, refetch } = useClubs();
   const [userRoles, setUserRoles] = useState<ClubMemberRole[]>([]);
-  const [defaultClubId, setDefaultTeamId] = useState<string | null>(null);
+  const [defaultClubId, setDefaultClubId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(DEFAULT_TEAM_KEY);
-      setDefaultTeamId(stored);
+      const stored = localStorage.getItem(DEFAULT_CLUB_KEY);
+      setDefaultClubId(stored);
     }
   }, []);
 
@@ -60,18 +60,18 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
   };
 
   const handleClubClick = (clubId: string) => {
-    router.push(`/${locale}/teams/${clubId}`);
+    router.push(`/${locale}/clubs/${clubId}`);
   };
 
   const handleSetDefault = (clubId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (typeof window !== "undefined") {
-      localStorage.setItem(DEFAULT_TEAM_KEY, clubId);
-      setDefaultTeamId(clubId);
+      localStorage.setItem(DEFAULT_CLUB_KEY, clubId);
+      setDefaultClubId(clubId);
     }
   };
 
-  const sortedClubs = [...teams].sort((a, b) => {
+  const sortedClubs = [...clubs].sort((a, b) => {
     if (a.id === defaultClubId) return -1;
     if (b.id === defaultClubId) return 1;
     return 0;
@@ -140,7 +140,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
               <h3 className="text-lg font-semibold mb-2">Non hai nessuna squadra disponibile</h3>
               <p className="text-muted-foreground mb-4">Creane una per accedere alla sezione</p>
               {true && (
-                <Link href="/teams/create">
+                <Link href="/clubs/create">
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
                     {t("create")}
@@ -170,7 +170,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
           {t("description") && <p className="text-muted-foreground">{t("description")}</p>}
         </div>
 
-        {teams.length === 0 ? (
+        {clubs.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="p-8 text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -179,7 +179,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
               <h3 className="text-lg font-semibold mb-2">{t("empty.title")}</h3>
               <p className="text-muted-foreground mb-4">{t("empty.description")}</p>
               {true && (
-                <Link href="/teams/create">
+                <Link href="/clubs/create">
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
                     {t("create")}
@@ -218,7 +218,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
 
       {true && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-50">
-          <Link href="/teams/create">
+          <Link href="/clubs/create">
             <Button className="h-14 px-8 rounded-full shadow-lg">
               <Plus className="mr-2 h-5 w-5" />
               {t("create")}

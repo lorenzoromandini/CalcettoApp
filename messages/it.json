@@ -56,6 +56,8 @@
     "stats": {
       "teams": "Squadre",
       "teamsDescription": "Squadre create",
+      "clubs": "Club",
+      "clubsDescription": "Club creati",
       "matches": "Partite",
       "matchesDescription": "Partite giocate",
       "victories": "Vittorie",
@@ -125,6 +127,44 @@
     "setAsDefault": "Imposta come predefinito",
     "defaultTeam": "Predefinito",
     "managerRole": "Manager"
+  },
+  "clubs": {
+    "title": "Club",
+    "description": "",
+    "create": "Crea club",
+    "createDescription": "Crea un nuovo club",
+    "back": "Indietro",
+    "empty": {
+      "title": "Nessun club",
+      "description": "Crea il tuo primo club per iniziare a organizzare le partite"
+    },
+    "errorLoading": "Errore nel caricamento dei club",
+    "retry": "Riprova",
+    "form": {
+      "name": "Nome club",
+      "namePlaceholder": "Inserisci il nome del club",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Opzionale - Aggiungi una descrizione",
+      "image": "Immagine club (opzionale)",
+      "imagePlaceholder": "Clicca per caricare un'immagine",
+      "imageHint": "Max 5MB",
+      "imageUploading": "Caricamento...",
+      "imageInvalidType": "Il file deve essere un'immagine",
+      "imageTooLarge": "L'immagine non può superare i 5MB",
+      "imageUploadError": "Errore nel caricamento dell'immagine",
+      "submit": "Crea club",
+      "creating": "Creazione in corso...",
+      "error": "Si è verificato un errore. Riprova."
+    },
+    "myClubs": "I miei club",
+    "club": "club",
+    "clubs": "club",
+    "selectClub": "Seleziona club",
+    "createFirst": "Crea il tuo primo club",
+    "createNew": "Crea nuovo club",
+    "setAsDefault": "Imposta come predefinito",
+    "defaultClub": "Predefinito",
+    "member": "membro"
   },
   "players": {
     "title": "Giocatori",

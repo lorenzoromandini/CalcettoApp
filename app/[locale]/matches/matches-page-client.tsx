@@ -15,10 +15,10 @@ interface MatchesPageClientProps {
 export function MatchesPageClient({ locale }: MatchesPageClientProps) {
   const t = useTranslations("matches");
   const router = useRouter();
-  const { teams, isLoading } = useClubs();
+  const { clubs, isLoading } = useClubs();
 
-  const handleCreateTeam = () => {
-    router.push(`/${locale}/teams/create`);
+  const handleCreateClub = () => {
+    router.push(`/${locale}/clubs/create`);
   };
 
   if (isLoading) {
@@ -37,7 +37,7 @@ export function MatchesPageClient({ locale }: MatchesPageClientProps) {
     );
   }
 
-  if (teams.length === 0) {
+  if (clubs.length === 0) {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -55,7 +55,7 @@ export function MatchesPageClient({ locale }: MatchesPageClientProps) {
               </div>
               <h3 className="text-lg font-semibold mb-2">Non hai nessuna squadra disponibile</h3>
               <p className="text-muted-foreground mb-4">Creane una per accedere alla sezione</p>
-              <Button onClick={handleCreateTeam}>
+              <Button onClick={handleCreateClub}>
                 <Plus className="mr-2 h-4 w-4" />
                 Crea squadra
               </Button>

@@ -26,7 +26,7 @@ interface CompletedMatch extends Match {
 }
 
 interface RecentResultsSectionProps {
-  teams: { id: string; name: string }[];
+  clubs: { id: string; name: string }[];
   locale: string;
 }
 
@@ -34,7 +34,7 @@ interface RecentResultsSectionProps {
 // Component
 // ============================================================================
 
-export function RecentResultsSection({ teams, locale }: RecentResultsSectionProps) {
+export function RecentResultsSection({ clubs, locale }: RecentResultsSectionProps) {
   const t = useTranslations('history');
   const [recentMatches, setRecentMatches] = useState<CompletedMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +48,6 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
         for (const club of clubs) {
           const matches = await getClubMatches(club.id);
           
-          // Filter to only completed matches
           const completedMatches = matches.filter(m => m.status === 'COMPLETED');
           
           for (const match of completedMatches) {
@@ -60,7 +59,6 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
           }
         }
 
-        // Sort by date (most recent first) and take first 3
         allMatches.sort((a, b) => 
           new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime()
         );
@@ -73,12 +71,12 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
       }
     }
 
-    if (teams.length > 0) {
+    if (clubs.length > 0) {
       loadRecentResults();
     } else {
       setIsLoading(false);
     }
-  }, [teams]);
+  }, [clubs]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -177,7 +175,7 @@ export function RecentResultsSection({ teams, locale }: RecentResultsSectionProp
           return (
             <Link
               key={match.id}
-              href={`/${locale}/teams/${match.clubId}/matches/${match.id}`}
+              href={`/${locale}/clubs/${match.clubId}/matches/${match.id}`}
             >
               <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
                 {/* Result Badge */}

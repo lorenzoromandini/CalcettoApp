@@ -44,14 +44,14 @@ export function DashboardClient({ clubs, userName }: DashboardClientProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {t('dashboard.stats.teams')}
+                {t('dashboard.stats.clubs')}
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{teams.length}</div>
+              <div className="text-2xl font-bold">{clubs.length}</div>
               <p className="text-xs text-muted-foreground">
-                {t('dashboard.stats.teamsDescription')}
+                {t('dashboard.stats.clubsDescription')}
               </p>
             </CardContent>
           </Card>
@@ -104,35 +104,35 @@ export function DashboardClient({ clubs, userName }: DashboardClientProps) {
 
         {/* Two Column Layout */}
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Left Column - Teams */}
+          {/* Left Column - Clubs */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">{t('navigation.teams')}</h2>
-              <Link href="/teams/create">
+              <h2 className="text-xl font-semibold">{t('navigation.clubs')}</h2>
+              <Link href="/clubs/create">
                 <Button size="sm">
                   <Plus className="mr-2 h-4 w-4" />
-                  {t('teams.create')}
+                  {t('clubs.create')}
                 </Button>
               </Link>
             </div>
 
-            {teamList.length === 0 ? (
+            {clubList.length === 0 ? (
               <Card className="text-center py-12">
                 <CardContent>
                   <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">{t('teams.empty.title')}</h3>
-                  <p className="text-muted-foreground mb-6">{t('teams.empty.description')}</p>
-                  <Link href="/teams/create">
+                  <h3 className="text-lg font-semibold mb-2">{t('clubs.empty.title')}</h3>
+                  <p className="text-muted-foreground mb-6">{t('clubs.empty.description')}</p>
+                  <Link href="/clubs/create">
                     <Button size="lg">
-                      {t('teams.create')}
+                      {t('clubs.create')}
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid gap-4">
-                {teamList.map((team) => (
-                  <Link key={club.id} href={`/teams/${club.id}`}>
+                {clubList.map((club) => (
+                  <Link key={club.id} href={`/clubs/${club.id}`}>
                     <Card className="hover:shadow-md transition-shadow cursor-pointer">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg">{club.name}</CardTitle>
@@ -157,7 +157,7 @@ export function DashboardClient({ clubs, userName }: DashboardClientProps) {
           </div>
 
           {/* Right Column - Upcoming Matches */}
-          <UpcomingMatchesSection teams={teamList.map(t => ({ id: t.id, name: t.name }))} />
+          <UpcomingMatchesSection clubs={clubList.map(c => ({ id: c.id, name: c.name }))} />
         </div>
       </main>
     </div>

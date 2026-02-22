@@ -78,7 +78,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const update = React.useCallback(async (userData?: { firstName?: string | null; lastName?: string | null; nickname?: string | null }) => {
+  const update = React.useCallback(async (userData?: { firstName?: string | null; lastName?: string | null; nickname?: string | null; image?: string | null }) => {
     const userDataStr = localStorage.getItem("user-data");
     let currentUser: SessionUser | null = null;
     

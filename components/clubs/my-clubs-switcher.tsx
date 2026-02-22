@@ -14,31 +14,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useClubs } from '@/hooks/use-clubs';
-import type { Team } from '@/lib/db/schema';
+import type { Club } from '@/lib/db/schema';
 
 interface MyClubsSwitcherProps {
-  currentTeamId?: string;
+  currentClubId?: string;
   locale: string;
 }
 
-export function MyClubsSwitcher({ currentTeamId, locale }: MyClubsSwitcherProps) {
-  const t = useTranslations('teams');
+export function MyClubsSwitcher({ currentClubId, locale }: MyClubsSwitcherProps) {
+  const t = useTranslations('clubs');
   const router = useRouter();
-  const { teams, isLoading } = useClubs();
+  const { clubs, isLoading } = useClubs();
   const [open, setOpen] = useState(false);
 
-  const currentTeam = teams.find((t: Team) => t.id === currentTeamId);
+  const currentClub = clubs.find((c: Club) => c.id === currentClubId);
 
-  const handleTeamSelect = (clubId: string) => {
+  const handleClubSelect = (clubId: string) => {
     setOpen(false);
-    if (clubId !== currentTeamId) {
-      router.push(`/${locale}/teams/${clubId}`);
+    if (clubId !== currentClubId) {
+      router.push(`/${locale}/clubs/${clubId}`);
     }
   };
 
-  const handleCreateTeam = () => {
+  const handleCreateClub = () => {
     setOpen(false);
-    router.push(`/${locale}/teams/create`);
+    router.push(`/${locale}/clubs/create`);
   };
 
   if (isLoading) {
@@ -50,11 +50,11 @@ export function MyClubsSwitcher({ currentTeamId, locale }: MyClubsSwitcherProps)
     );
   }
 
-  if (teams.length === 0) {
+  if (clubs.length === 0) {
     return (
       <Button
         variant="outline"
-        onClick={handleCreateTeam}
+        onClick={handleCreateClub}
         className="h-12"
       >
         <Plus className="mr-2 h-4 w-4" />
@@ -70,38 +70,38 @@ export function MyClubsSwitcher({ currentTeamId, locale }: MyClubsSwitcherProps)
           variant="ghost"
           className="h-12 px-3 justify-start gap-2 w-full max-w-[280px]"
         >
-          {currentTeam?.image_url ? (
+          {currentClub?.image_url ? (
             <img
-              src={currentTeam.image_url}
-              alt={currentTeam.name}
+              src={currentClub.image_url}
+              alt={currentClub.name}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <span className="text-sm font-bold text-primary">
-                {currentTeam?.name.charAt(0).toUpperCase() || '?'}
+                {currentClub?.name.charAt(0).toUpperCase() || '?'}
               </span>
             </div>
           )}
           <div className="flex-1 text-left overflow-hidden">
             <p className="text-sm font-medium truncate">
-              {currentTeam?.name || t('selectTeam')}
+              {currentClub?.name || t('selectClub')}
             </p>
             <p className="text-xs text-muted-foreground">
-              {teams.length} {teams.length === 1 ? t('team') : t('teams')}
+              {clubs.length} {clubs.length === 1 ? t('club') : t('clubs')}
             </p>
           </div>
           <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[280px]">
-        <DropdownMenuLabel>{t('myTeams')}</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('myClubs')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         
-        {clubs.map((club: Team) => (
+        {clubs.map((club: Club) => (
           <DropdownMenuItem
             key={club.id}
-            onClick={() => handleTeamSelect(club.id)}
+            onClick={() => handleClubSelect(club.id)}
             className="flex items-center gap-2 cursor-pointer"
           >
             {club.image_url ? (
@@ -118,14 +118,14 @@ export function MyClubsSwitcher({ currentTeamId, locale }: MyClubsSwitcherProps)
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className={`text-sm truncate ${club.id === currentTeamId ? 'font-medium' : ''}`}>
+              <p className={`text-sm truncate ${club.id === currentClubId ? 'font-medium' : ''}`}>
                 {club.name}
               </p>
               <p className="text-xs text-muted-foreground">
                 {t('member', { count: 1 })}
               </p>
             </div>
-            {club.id === currentTeamId && (
+            {club.id === currentClubId && (
               <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
             )}
           </DropdownMenuItem>
@@ -133,7 +133,7 @@ export function MyClubsSwitcher({ currentTeamId, locale }: MyClubsSwitcherProps)
         
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={handleCreateTeam}
+          onClick={handleCreateClub}
           className="flex items-center gap-2 cursor-pointer"
         >
           <div className="w-8 h-8 rounded-full border-2 border-dashed border-muted-foreground/50 flex items-center justify-center">
