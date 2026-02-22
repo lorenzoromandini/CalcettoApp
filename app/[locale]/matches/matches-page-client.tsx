@@ -6,7 +6,7 @@ import { Plus, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/navigation/header";
-import { useTeams } from "@/hooks/use-teams";
+import { useClubs } from "@/hooks/use-clubs";
 
 interface MatchesPageClientProps {
   locale: string;
@@ -15,7 +15,7 @@ interface MatchesPageClientProps {
 export function MatchesPageClient({ locale }: MatchesPageClientProps) {
   const t = useTranslations("matches");
   const router = useRouter();
-  const { teams, isLoading } = useTeams();
+  const { teams, isLoading } = useClubs();
 
   const handleCreateTeam = () => {
     router.push(`/${locale}/teams/create`);

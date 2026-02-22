@@ -43,7 +43,7 @@ export interface MatchHistoryData {
 
 interface MatchHistoryCardProps {
   data: MatchHistoryData
-  teamId: string
+  clubId: string
   locale: string
 }
 
@@ -72,11 +72,11 @@ function getResult(match: Match): 'win' | 'loss' | 'draw' {
 
 function getScorers(
   goals: GoalWithPlayers[], 
-  teamId: string,
+  clubId: string,
   maxDisplay: number = 3
 ): { scorers: Array<{ name: string; count: number }>; extra: number } {
   // Filter goals for our team (not opponent goals, not own goals)
-  const ourGoals = goals.filter(g => g.teamId === teamId && !g.isOwnGoal)
+  const ourGoals = goals.filter(g => g.clubId === clubId && !g.isOwnGoal)
 
   if (ourGoals.length === 0) return { scorers: [], extra: 0 }
 
@@ -125,7 +125,7 @@ function getBestRated(ratings: PlayerRatingWithPlayer[]): { name: string; rating
 // Component
 // ============================================================================
 
-export function MatchHistoryCard({ data, teamId, locale }: MatchHistoryCardProps) {
+export function MatchHistoryCard({ data, clubId, locale }: MatchHistoryCardProps) {
   const t = useTranslations('history')
   const tStats = useTranslations('statistics')
   const tMatches = useTranslations('matches')
@@ -135,7 +135,7 @@ export function MatchHistoryCard({ data, teamId, locale }: MatchHistoryCardProps
   const result = getResult(match)
   const homeScore = match.home_score ?? 0
   const awayScore = match.away_score ?? 0
-  const { scorers, extra } = getScorers(goals, teamId)
+  const { scorers, extra } = getScorers(goals, clubId)
   const bestRated = getBestRated(ratings)
 
   // Color coding based on result
@@ -163,7 +163,7 @@ export function MatchHistoryCard({ data, teamId, locale }: MatchHistoryCardProps
   const styles = resultStyles[result]
 
   return (
-    <Link href={`/${locale}/teams/${teamId}/matches/${match.id}`}>
+    <Link href={`/${locale}/teams/${clubId}/matches/${match.id}`}>
       <Card className={cn(
         'cursor-pointer transition-all hover:shadow-md active:scale-[0.98] border-l-4',
         styles.border,

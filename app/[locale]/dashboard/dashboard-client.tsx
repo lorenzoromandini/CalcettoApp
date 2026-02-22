@@ -7,20 +7,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, Trophy, TrendingUp, Plus } from 'lucide-react';
 import { UpcomingMatchesSection } from '@/components/dashboard/upcoming-matches-section';
-import type { Team } from '@/lib/db/schema';
+import type { Club } from '@/lib/db/schema';
 
 interface DashboardClientProps {
-  teams: Team[];
+  clubs: Club[];
   userName: string;
 }
 
-export function DashboardClient({ teams, userName }: DashboardClientProps) {
+export function DashboardClient({ clubs, userName }: DashboardClientProps) {
   const t = useTranslations();
 
-  const teamList = teams.map((team) => ({
-    id: team.id,
-    name: team.name,
-    description: team.description || '',
+  const clubList = clubs.map((club) => ({
+    id: club.id,
+    name: club.name,
+    description: club.description || '',
     role: 'member' as const, // Will be determined by actual membership
   }));
 
@@ -132,20 +132,20 @@ export function DashboardClient({ teams, userName }: DashboardClientProps) {
             ) : (
               <div className="grid gap-4">
                 {teamList.map((team) => (
-                  <Link key={team.id} href={`/teams/${team.id}`}>
+                  <Link key={club.id} href={`/teams/${club.id}`}>
                     <Card className="hover:shadow-md transition-shadow cursor-pointer">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">{team.name}</CardTitle>
+                        <CardTitle className="text-lg">{club.name}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        {team.description && (
+                        {club.description && (
                           <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                            {team.description}
+                            {club.description}
                           </p>
                         )}
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground capitalize">
-                            {team.role}
+                            {club.role}
                           </span>
                         </div>
                       </CardContent>

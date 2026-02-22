@@ -43,7 +43,7 @@ import type { Player } from '@/lib/db/schema'
 
 interface GoalFormProps {
   matchId: string
-  teamId: string
+  clubId: string
   players: Player[]
   onAddGoal: (data: AddGoalInput) => Promise<void>
   isOpen: boolean
@@ -74,7 +74,7 @@ function getPlayerDisplayName(name: string, surname?: string | null, nickname?: 
 
 export function GoalForm({
   matchId,
-  teamId,
+  clubId,
   players,
   onAddGoal,
   isOpen,
@@ -108,11 +108,11 @@ export function GoalForm({
 
     // For opponent goals without a specific scorer, use a placeholder
     // In this case, we'll create a virtual opponent goal
-    const teamIdForGoal = selectedTeam === 'our' ? teamId : `opponent-${matchId}`
+    const clubIdForGoal = selectedTeam === 'our' ? clubId : `opponent-${matchId}`
 
     const data: AddGoalInput = {
       matchId,
-      teamId: teamIdForGoal,
+      clubId: clubIdForGoal,
       scorerId,
       assisterId: assisterId || undefined,
       isOwnGoal,

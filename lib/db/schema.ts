@@ -1,4 +1,4 @@
-export type { Team, TeamMember, Player, PlayerTeam, Match, MatchPlayer } from '@/types/database';
+export type { Team, Club, ClubMember, Player, PlayerClub, Match, MatchPlayer } from '@/types/database';
 
 export type PlayerRole = 'goalkeeper' | 'defender' | 'midfielder' | 'attacker';
 

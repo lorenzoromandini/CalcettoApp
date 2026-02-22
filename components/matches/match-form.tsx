@@ -20,7 +20,7 @@ import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/matc
 import { AlertCircle, Calendar, MapPin, FileText, Loader2 } from "lucide-react";
 
 interface MatchFormProps {
-  teamId: string;
+  clubId: string;
   initialData?: Partial<CreateMatchInput>;
   onSuccess?: () => void;
   submitLabel?: string;
@@ -29,7 +29,7 @@ interface MatchFormProps {
 }
 
 export function MatchForm({ 
-  teamId, 
+  clubId, 
   initialData, 
   onSuccess, 
   submitLabel,

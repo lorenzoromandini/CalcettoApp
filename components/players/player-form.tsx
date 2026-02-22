@@ -16,12 +16,12 @@ import Image from 'next/image';
 import type { PlayerRole } from '@/lib/db/schema';
 
 interface PlayerFormProps {
-  teamId: string;
+  clubId: string;
   onSubmit: (data: CreatePlayerInput, avatarBlob?: Blob) => Promise<void>;
   onCancel: () => void;
 }
 
-export function PlayerForm({ teamId, onSubmit, onCancel }: PlayerFormProps) {
+export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
   const t = useTranslations('players');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);

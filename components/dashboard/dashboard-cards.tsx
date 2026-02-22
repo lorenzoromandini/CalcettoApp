@@ -18,20 +18,20 @@ interface DashboardCardsProps {
 export function DashboardCards({ teams }: DashboardCardsProps) {
   const t = useTranslations("dashboard");
   const tNav = useTranslations("navigation");
-  const [defaultTeamId, setDefaultTeamId] = useState<string | null>(null);
+  const [defaultClubId, setDefaultTeamId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("defaultTeamId");
+      const stored = localStorage.getItem("defaultClubId");
       setDefaultTeamId(stored);
     }
   }, []);
 
   const getDefaultTeamId = () => {
-    if (defaultTeamId && teams.some((t) => t.id === defaultTeamId)) {
-      return defaultTeamId;
+    if (defaultClubId && teams.some((t) => t.id === defaultClubId)) {
+      return defaultClubId;
     }
-    return teams[0]?.id || null;
+    return clubs[0]?.id || null;
   };
 
   const currentTeamId = getDefaultTeamId();

@@ -31,7 +31,7 @@ export function Header() {
   const isDashboard = pathname?.includes('/dashboard');
   const isTeamCreate = pathname?.includes('/teams/create');
   const isInTeam = pathname?.includes('/teams/') && pathname?.split('/').length > 3;
-  const teamId = isInTeam ? pathname?.split('/')[3] : null;
+  const clubId = isInTeam ? pathname?.split('/')[3] : null;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur">

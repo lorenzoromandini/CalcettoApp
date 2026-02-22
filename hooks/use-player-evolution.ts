@@ -39,21 +39,21 @@ const MESSAGES = {
  * Hook to fetch player's evolution data for chart visualization
  *
  * @param playerId - Player ID (null to skip fetching)
- * @param teamId - Team ID to filter matches (null to skip fetching)
+ * @param clubId - Team ID to filter matches (null to skip fetching)
  * @param limit - Maximum number of matches to include (default 10)
  * @returns Evolution data with loading and error states
  */
 export function usePlayerEvolution(
   playerId: string | null,
-  teamId: string | null,
+  clubId: string | null,
   limit: number = 10
 ): UsePlayerEvolutionReturn {
   const [evolution, setEvolution] = useState<EvolutionDataPoint[]>([])
-  const [isLoading, setIsLoading] = useState(!!playerId && !!teamId)
+  const [isLoading, setIsLoading] = useState(!!playerId && !!clubId)
   const [error, setError] = useState<string | null>(null)
 
   const fetchEvolution = useCallback(async () => {
-    if (!playerId || !teamId) {
+    if (!playerId || !clubId) {
       setEvolution([])
       setIsLoading(false)
       return
@@ -63,7 +63,7 @@ export function usePlayerEvolution(
     setError(null)
 
     try {
-      const result = await getPlayerEvolution(playerId, teamId, limit)
+      const result = await getPlayerEvolution(playerId, clubId, limit)
       setEvolution(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
@@ -72,7 +72,7 @@ export function usePlayerEvolution(
     } finally {
       setIsLoading(false)
     }
-  }, [playerId, teamId, limit])
+  }, [playerId, clubId, limit])
 
   useEffect(() => {
     fetchEvolution()

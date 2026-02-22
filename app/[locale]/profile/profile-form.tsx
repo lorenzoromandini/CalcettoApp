@@ -78,8 +78,8 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
   }, [initialTeams]);
 
   const hasChanges = useCallback(() => {
-    const jerseyChanged = teams.some((team, index) => 
-      team.jerseyNumber !== originalTeams[index]?.jerseyNumber
+    const jerseyChanged = teams.some((club, index) => 
+      club.jerseyNumber !== originalTeams[index]?.jerseyNumber
     );
     return avatarBlob !== undefined || jerseyChanged;
   }, [teams, originalTeams, avatarBlob]);
@@ -127,13 +127,13 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
     }
   };
 
-  const handleJerseyChange = (teamId: string, jerseyNumber: string) => {
+  const handleJerseyChange = (clubId: string, jerseyNumber: string) => {
     const number = parseInt(jerseyNumber, 10);
     if (isNaN(number) || number < 1 || number > 99) {
       return;
     }
-    setTeams(teams.map(t => 
-      t.id === teamId ? { ...t, jerseyNumber: number } : t
+    setTeams(clubs.map(t => 
+      t.id === clubId ? { ...t, jerseyNumber: number } : t
     ));
   };
 
@@ -155,9 +155,9 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         formData.append('removeImage', 'true');
       }
 
-      const jerseyChanges = teams.filter((team, index) => 
-        team.jerseyNumber !== originalTeams[index]?.jerseyNumber
-      ).map(t => ({ teamId: t.id, jerseyNumber: t.jerseyNumber, playerId: t.playerId }));
+      const jerseyChanges = teams.filter((club, index) => 
+        club.jerseyNumber !== originalTeams[index]?.jerseyNumber
+      ).map(t => ({ clubId: t.id, jerseyNumber: t.jerseyNumber, playerId: t.playerId }));
       
       if (jerseyChanges.length > 0) {
         formData.append('jerseyChanges', JSON.stringify(jerseyChanges));
@@ -331,13 +331,13 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {teams.map((team) => (
-              <div key={team.id} className="flex items-center gap-4">
+            {clubs.map((team) => (
+              <div key={club.id} className="flex items-center gap-4">
                 <div className="flex-1">
-                  <Label className="text-sm font-medium">{team.name}</Label>
+                  <Label className="text-sm font-medium">{club.name}</Label>
                   <Select
-                    value={team.jerseyNumber?.toString() || ''}
-                    onValueChange={(value) => handleJerseyChange(team.id, value)}
+                    value={club.jerseyNumber?.toString() || ''}
+                    onValueChange={(value) => handleJerseyChange(club.id, value)}
                   >
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Seleziona numero" />

@@ -11,19 +11,19 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { teamId, jerseyNumber } = body;
+    const { clubId, jerseyNumber } = body;
 
-    if (!teamId || typeof jerseyNumber !== 'number' || jerseyNumber < 1 || jerseyNumber > 99) {
+    if (!clubId || typeof jerseyNumber !== 'number' || jerseyNumber < 1 || jerseyNumber > 99) {
       return NextResponse.json(
         { error: 'Dati non validi. Il numero deve essere tra 1 e 99.' },
         { status: 400 }
       );
     }
 
-    const membership = await prisma.teamMember.findFirst({
+    const membership = await prisma.clubMember.findFirst({
       where: {
         userId,
-        teamId,
+        clubId,
       },
     });
 
@@ -34,9 +34,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const existingPlayerTeam = await prisma.playerTeam.findFirst({
+    const existingPlayerClub = await prisma.playerClub.findFirst({
       where: {
-        teamId,
+        clubId,
         jerseyNumber,
       },
     });
@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest) {
       where: { userId },
     });
 
-    if (existingPlayerTeam && existingPlayerTeam.playerId !== player?.id) {
+    if (existingPlayerClub && existingPlayerClub.playerId !== player?.id) {
       return NextResponse.json(
         { error: 'Questo numero è già stato preso da un altro giocatore in questa squadra' },
         { status: 400 }
@@ -68,23 +68,23 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
-    const existingEntry = await prisma.playerTeam.findFirst({
+    const existingEntry = await prisma.playerClub.findFirst({
       where: {
         playerId: player.id,
-        teamId,
+        clubId,
       },
     });
 
     if (existingEntry) {
-      await prisma.playerTeam.update({
+      await prisma.playerClub.update({
         where: { id: existingEntry.id },
         data: { jerseyNumber },
       });
     } else {
-      await prisma.playerTeam.create({
+      await prisma.playerClub.create({
         data: {
           playerId: player.id,
-          teamId,
+          clubId,
           jerseyNumber,
         },
       });

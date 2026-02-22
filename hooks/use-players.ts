@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@/components/providers/session-provider';
 import { authFetch } from '@/lib/auth-fetch';
-import type { Player, PlayerTeam } from '@/lib/db/schema';
+import type { Player, PlayerClub } from '@/lib/db/schema';
 import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
 
 interface UsePlayersReturn {
@@ -11,13 +11,13 @@ interface UsePlayersReturn {
   refetch: () => Promise<void>;
 }
 
-export function usePlayers(teamId: string | null): UsePlayersReturn {
+export function usePlayers(clubId: string | null): UsePlayersReturn {
   const [players, setPlayers] = useState<(Player & { jersey_number?: number })[]>([]);
-  const [isLoading, setIsLoading] = useState(!!teamId);
+  const [isLoading, setIsLoading] = useState(!!clubId);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchPlayers = useCallback(async () => {
-    if (!teamId) {
+    if (!clubId) {
       setPlayers([]);
       setIsLoading(false);
       return;
@@ -27,7 +27,7 @@ export function usePlayers(teamId: string | null): UsePlayersReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/teams/${teamId}/players`);
+      const response = await authFetch(`/api/clubs/${clubId}/players`);
       if (!response.ok) throw new Error('Failed to fetch players');
       const data = await response.json();
       setPlayers(data);
@@ -36,7 +36,7 @@ export function usePlayers(teamId: string | null): UsePlayersReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   useEffect(() => {
     fetchPlayers();
@@ -56,14 +56,14 @@ interface UseCreatePlayerReturn {
   error: Error | null;
 }
 
-export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
+export function useCreatePlayer(clubId: string | null): UseCreatePlayerReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const createPlayerMutation = useCallback(async (
     data: CreatePlayerInput
   ): Promise<string> => {
-    if (!teamId) {
+    if (!clubId) {
       throw new Error('Team ID is required');
     }
 
@@ -71,7 +71,7 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/teams/${teamId}/players`, {
+      const response = await authFetch(`/api/clubs/${clubId}/players`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -89,7 +89,7 @@ export function useCreatePlayer(teamId: string | null): UseCreatePlayerReturn {
     } finally {
       setIsPending(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   return {
     createPlayer: createPlayerMutation,
@@ -104,7 +104,7 @@ interface UseUpdatePlayerReturn {
   error: Error | null;
 }
 
-export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
+export function useUpdatePlayer(clubId?: string): UseUpdatePlayerReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -116,7 +116,7 @@ export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}`, {
+      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -129,7 +129,7 @@ export function useUpdatePlayer(teamId?: string): UseUpdatePlayerReturn {
     } finally {
       setIsPending(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   return {
     updatePlayer: updatePlayerMutation,
@@ -144,7 +144,7 @@ interface UseDeletePlayerReturn {
   error: Error | null;
 }
 
-export function useDeletePlayer(teamId: string): UseDeletePlayerReturn {
+export function useDeletePlayer(clubId: string): UseDeletePlayerReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -153,7 +153,7 @@ export function useDeletePlayer(teamId: string): UseDeletePlayerReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}`, {
+      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete player');
@@ -164,7 +164,7 @@ export function useDeletePlayer(teamId: string): UseDeletePlayerReturn {
     } finally {
       setIsPending(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   return {
     deletePlayer: deletePlayerMutation,
@@ -179,7 +179,7 @@ interface UseAddPlayerToTeamReturn {
   error: Error | null;
 }
 
-export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamReturn {
+export function useAddPlayerToTeam(clubId: string | null): UseAddPlayerToTeamReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -187,7 +187,7 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     playerId: string, 
     jerseyNumber: number
   ): Promise<void> => {
-    if (!teamId) {
+    if (!clubId) {
       throw new Error('Team ID is required');
     }
 
@@ -195,7 +195,7 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     setError(null);
 
     try {
-      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}/add`, {
+      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jerseyNumber }),
@@ -208,7 +208,7 @@ export function useAddPlayerToTeam(teamId: string | null): UseAddPlayerToTeamRet
     } finally {
       setIsPending(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   return {
     addPlayerToTeam: addPlayerMutation,
@@ -223,12 +223,12 @@ interface UseRemovePlayerFromTeamReturn {
   error: Error | null;
 }
 
-export function useRemovePlayerFromTeam(teamId: string | null): UseRemovePlayerFromTeamReturn {
+export function useRemovePlayerFromTeam(clubId: string | null): UseRemovePlayerFromTeamReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const removePlayerMutation = useCallback(async (playerId: string): Promise<void> => {
-    if (!teamId) {
+    if (!clubId) {
       throw new Error('Team ID is required');
     }
 
@@ -236,7 +236,7 @@ export function useRemovePlayerFromTeam(teamId: string | null): UseRemovePlayerF
     setError(null);
 
     try {
-      const response = await authFetch(`/api/teams/${teamId}/players/${playerId}/remove`, {
+      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}/remove`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to remove player from team');
@@ -247,7 +247,7 @@ export function useRemovePlayerFromTeam(teamId: string | null): UseRemovePlayerF
     } finally {
       setIsPending(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   return {
     removePlayerFromTeam: removePlayerMutation,

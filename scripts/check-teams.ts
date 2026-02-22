@@ -10,12 +10,12 @@ async function main() {
     include: {
       memberships: {
         where: {
-          team: {
+          club: {
             deletedAt: null
           }
         },
         include: {
-          team: true
+          club: true
         }
       }
     }
@@ -32,7 +32,7 @@ async function main() {
   console.log('Team associati:', user.memberships.length);
   
   for (const m of user.memberships) {
-    console.log(`  - ${m.team.name} (${m.role}) - ID: ${m.team.id}`);
+    console.log(`  - ${m.club.name} (${m.role}) - ID: ${m.club.id}`);
   }
 }
 

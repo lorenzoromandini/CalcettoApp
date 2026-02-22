@@ -6,43 +6,43 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Users, Settings, Trophy, CalendarDays, Clock, BarChart3 } from 'lucide-react';
 
-interface TeamNavProps {
-  teamId: string;
+interface ClubNavProps {
+  clubId: string;
   isAdmin: boolean;
 }
 
-export function TeamNav({ teamId, isAdmin }: TeamNavProps) {
+export function ClubNav({ clubId, isAdmin }: ClubNavProps) {
   const t = useTranslations('teamNav');
   const pathname = usePathname();
 
   const navItems = [
     {
-      href: `/teams/${teamId}`,
+      href: `/teams/${clubId}`,
       label: 'Panoramica',
       icon: Trophy,
     },
     {
-      href: `/teams/${teamId}/roster`,
+      href: `/teams/${clubId}/roster`,
       label: 'Rosa',
       icon: Users,
     },
     {
-      href: `/teams/${teamId}/matches`,
+      href: `/teams/${clubId}/matches`,
       label: t('matches'),
       icon: CalendarDays,
     },
     {
-      href: `/teams/${teamId}/history`,
+      href: `/teams/${clubId}/history`,
       label: t('history'),
       icon: Clock,
     },
     {
-      href: `/teams/${teamId}/stats`,
+      href: `/teams/${clubId}/stats`,
       label: t('stats'),
       icon: BarChart3,
     },
     {
-      href: `/teams/${teamId}/settings`,
+      href: `/teams/${clubId}/settings`,
       label: t('settings'),
       icon: Settings,
       adminOnly: true,

@@ -11,7 +11,7 @@
 
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { isTeamAdmin } from '@/lib/db/teams'
+import { isTeamAdmin } from '@/lib/db/clubs'
 import { MatchStatus } from '@prisma/client'
 import type { Goal } from '@prisma/client'
 
@@ -35,7 +35,7 @@ const ERRORS = {
 
 export interface AddGoalInput {
   matchId: string
-  teamId: string      // Which team scored (our team or opponent placeholder)
+  clubId: string      // Which team scored (our team or opponent placeholder)
   scorerId: string
   assisterId?: string
   isOwnGoal?: boolean
@@ -96,7 +96,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithPlayers> {
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: data.matchId },
-    include: { team: true },
+    include: { club: true },
   })
 
   if (!match) {
@@ -104,7 +104,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithPlayers> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -127,7 +127,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithPlayers> {
   const goal = await prisma.goal.create({
     data: {
       matchId: data.matchId,
-      teamId: data.teamId,
+      clubId: data.clubId,
       scorerId: data.scorerId,
       assisterId: data.assisterId,
       isOwnGoal: data.isOwnGoal ?? false,
@@ -168,7 +168,7 @@ export async function removeGoal(goalId: string): Promise<void> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(goal.match.teamId, session.user.id)
+  const isAdmin = await isTeamAdmin(goal.match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -230,7 +230,7 @@ export async function updateMatchScore(matchId: string): Promise<void> {
   // Get match with team info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    select: { teamId: true },
+    select: { clubId: true },
   })
 
   if (!match) return
@@ -238,18 +238,18 @@ export async function updateMatchScore(matchId: string): Promise<void> {
   // Get all goals for this match
   const goals = await prisma.goal.findMany({
     where: { matchId },
-    select: { teamId: true, isOwnGoal: true },
+    select: { clubId: true, isOwnGoal: true },
   })
 
   // Count goals for each team
-  // Goals where teamId matches the match's team are home goals (excluding own goals)
-  // Goals where teamId doesn't match are away goals
+  // Goals where clubId matches the match's team are home goals (excluding own goals)
+  // Goals where clubId doesn't match are away goals
   // Own goals count for the opposing team
   let homeScore = 0
   let awayScore = 0
 
   for (const goal of goals) {
-    if (goal.teamId === match.teamId) {
+    if (goal.clubId === match.clubId) {
       // Our team's goal record
       if (goal.isOwnGoal) {
         // Own goal counts for opponent
@@ -296,6 +296,6 @@ export async function getMatchGoalsWithTeamInfo(
   
   return goals.map(goal => ({
     ...goal,
-    isOurTeam: goal.teamId === ourTeamId && !goal.isOwnGoal,
+    isOurTeam: goal.clubId === ourTeamId && !goal.isOwnGoal,
   }))
 }

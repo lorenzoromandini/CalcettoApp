@@ -73,7 +73,7 @@ export async function PATCH(request: NextRequest) {
     if (jerseyChangesStr) {
       try {
         const jerseyChanges = JSON.parse(jerseyChangesStr) as Array<{
-          teamId: string;
+          clubId: string;
           jerseyNumber: number | null;
           playerId: string | null;
         }>;
@@ -101,25 +101,25 @@ export async function PATCH(request: NextRequest) {
           }
           
           if (change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
-            const existing = await prisma.playerTeam.findUnique({
+            const existing = await prisma.playerClub.findUnique({
               where: {
-                playerId_teamId: {
+                playerId_clubId: {
                   playerId: change.playerId,
-                  teamId: change.teamId,
+                  clubId: change.clubId,
                 },
               },
             });
 
             if (existing) {
-              await prisma.playerTeam.update({
+              await prisma.playerClub.update({
                 where: { id: existing.id },
                 data: { jerseyNumber: change.jerseyNumber },
               });
             } else {
-              await prisma.playerTeam.create({
+              await prisma.playerClub.create({
                 data: {
                   playerId: change.playerId,
-                  teamId: change.teamId,
+                  clubId: change.clubId,
                   jerseyNumber: change.jerseyNumber,
                   primaryRole: 'member',
                   secondaryRoles: [],

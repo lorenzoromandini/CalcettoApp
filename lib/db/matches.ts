@@ -15,7 +15,7 @@ import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match
 function toMatchType(dbMatch: any): Match {
   return {
     id: dbMatch.id,
-    team_id: dbMatch.teamId,
+    team_id: dbMatch.clubId,
     scheduled_at: dbMatch.scheduledAt.toISOString(),
     location: dbMatch.location ?? undefined,
     mode: dbMatch.mode as Match['mode'],
@@ -37,18 +37,18 @@ function toMatchType(dbMatch: any): Match {
  * Create a new match
  * 
  * @param data - Match creation data (scheduled_at, location, mode, notes)
- * @param teamId - ID of the team the match belongs to
+ * @param clubId - ID of the team the match belongs to
  * @param userId - ID of the user creating the match
  * @returns The created match ID
  */
 export async function createMatch(
   data: CreateMatchInput,
-  teamId: string,
+  clubId: string,
   userId: string
 ): Promise<string> {
   const match = await prisma.match.create({
     data: {
-      teamId,
+      clubId,
       scheduledAt: new Date(data.scheduled_at),
       location: data.location,
       mode: data.mode,
@@ -65,12 +65,12 @@ export async function createMatch(
 /**
  * Get all matches for a team
  * 
- * @param teamId - Team ID to get matches for
+ * @param clubId - Team ID to get matches for
  * @returns Array of matches
  */
-export async function getTeamMatches(teamId: string): Promise<Match[]> {
+export async function getClubMatches(clubId: string): Promise<Match[]> {
   const matches = await prisma.match.findMany({
-    where: { teamId },
+    where: { clubId },
     orderBy: {
       scheduledAt: 'desc',
     },
@@ -98,15 +98,15 @@ export async function getMatch(matchId: string): Promise<Match | null> {
  * Get upcoming matches for a team
  * Matches where scheduled_at >= NOW() AND status = 'scheduled'
  * 
- * @param teamId - Team ID to get matches for
+ * @param clubId - Team ID to get matches for
  * @returns Array of upcoming matches, ordered by scheduled_at ASC
  */
-export async function getUpcomingMatches(teamId: string): Promise<Match[]> {
+export async function getUpcomingMatches(clubId: string): Promise<Match[]> {
   const now = new Date();
   
   const matches = await prisma.match.findMany({
     where: {
-      teamId,
+      clubId,
       scheduledAt: {
         gte: now,
       },
@@ -124,15 +124,15 @@ export async function getUpcomingMatches(teamId: string): Promise<Match[]> {
  * Get past matches for a team
  * Matches where scheduled_at < NOW() OR status IN ('completed', 'cancelled')
  * 
- * @param teamId - Team ID to get matches for
+ * @param clubId - Team ID to get matches for
  * @returns Array of past matches, ordered by scheduled_at DESC
  */
-export async function getPastMatches(teamId: string): Promise<Match[]> {
+export async function getPastMatches(clubId: string): Promise<Match[]> {
   const now = new Date();
   
   const matches = await prisma.match.findMany({
     where: {
-      teamId,
+      clubId,
       OR: [
         {
           scheduledAt: {
@@ -263,15 +263,15 @@ export async function isMatchAdmin(matchId: string, userId: string): Promise<boo
   // Get the match
   const match = await prisma.match.findUnique({
     where: { id: matchId },
-    select: { teamId: true },
+    select: { clubId: true },
   });
 
   if (!match) return false;
 
   // Check team membership
-  const membership = await prisma.teamMember.findFirst({
+  const membership = await prisma.clubMember.findFirst({
     where: {
-      teamId: match.teamId,
+      clubId: match.clubId,
       userId: userId,
       role: {
         in: ['admin', 'co-admin'],

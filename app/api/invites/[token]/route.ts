@@ -7,10 +7,10 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  const invite = await prisma.teamInvite.findUnique({
+  const invite = await prisma.clubInvite.findUnique({
     where: { token },
     include: {
-      team: {
+      club: {
         select: {
           id: true,
           name: true,
@@ -34,7 +34,7 @@ export async function GET(
 
   return NextResponse.json({
     id: invite.id,
-    team: invite.team,
+    club: invite.club,
     expiresAt: invite.expiresAt,
     useCount: invite.useCount,
     maxUses: invite.maxUses,

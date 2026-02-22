@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@/components/providers/session-provider';
 import { 
-  getTeamMatches, 
+  getClubMatches, 
   getMatch, 
   createMatch as createMatchDB, 
   updateMatch as updateMatchDB,
@@ -30,7 +30,7 @@ interface UseMatchesReturn {
   refetch: () => Promise<void>;
 }
 
-export function useMatches(teamId: string): UseMatchesReturn {
+export function useMatches(clubId: string): UseMatchesReturn {
   const [matches, setMatches] = useState<Match[]>([]);
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
   const [pastMatches, setPastMatches] = useState<Match[]>([]);
@@ -42,9 +42,9 @@ export function useMatches(teamId: string): UseMatchesReturn {
     setError(null);
 
     try {
-      const allMatches = await getTeamMatches(teamId);
-      const upcoming = await getUpcomingMatchesDB(teamId);
-      const past = await getPastMatchesDB(teamId);
+      const allMatches = await getClubMatches(clubId);
+      const upcoming = await getUpcomingMatchesDB(clubId);
+      const past = await getPastMatchesDB(clubId);
 
       setMatches(allMatches);
       setUpcomingMatches(upcoming);
@@ -54,7 +54,7 @@ export function useMatches(teamId: string): UseMatchesReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [teamId]);
+  }, [clubId]);
 
   useEffect(() => {
     fetchMatches();
@@ -123,7 +123,7 @@ export function useMatch(matchId: string | null): UseMatchReturn {
 // ============================================================================
 
 interface UseCreateMatchReturn {
-  createMatch: (data: CreateMatchInput, teamId: string) => Promise<string>;
+  createMatch: (data: CreateMatchInput, clubId: string) => Promise<string>;
   isPending: boolean;
   error: Error | null;
 }
@@ -133,7 +133,7 @@ export function useCreateMatch(): UseCreateMatchReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const createMatch = useCallback(async (data: CreateMatchInput, teamId: string): Promise<string> => {
+  const createMatch = useCallback(async (data: CreateMatchInput, clubId: string): Promise<string> => {
     if (!session?.user?.id) {
       throw new Error('User not authenticated');
     }
@@ -142,7 +142,7 @@ export function useCreateMatch(): UseCreateMatchReturn {
     setError(null);
 
     try {
-      const matchId = await createMatchDB(data, teamId, session.user.id);
+      const matchId = await createMatchDB(data, clubId, session.user.id);
       return matchId;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create match');

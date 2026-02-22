@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 
 interface FormationBuilderProps {
   matchId: string;
-  teamId: string;
+  clubId: string;
   mode: FormationMode;
   players: Array<{
     id: string;
@@ -62,7 +62,7 @@ function createEmptyFormation(preset: FormationPreset): FormationData {
 
 export function FormationBuilder({
   matchId,
-  teamId,
+  clubId,
   mode,
   players,
   isAdmin,

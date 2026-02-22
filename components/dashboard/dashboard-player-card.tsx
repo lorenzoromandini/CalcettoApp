@@ -51,11 +51,11 @@ function getInitials(name: string, surname: string | null): string {
 }
 
 export function DashboardPlayerCard({ data, locale, className }: DashboardPlayerCardProps) {
-  const { player, teamId, teamName, jerseyNumber, frameColor } = data
+  const { player, clubId, teamName, jerseyNumber, frameColor } = data
   const colors = FRAME_COLORS[frameColor]
 
-  const profileUrl = teamId
-    ? `/${locale}/teams/${teamId}/players/${player.id}`
+  const profileUrl = clubId
+    ? `/${locale}/teams/${clubId}/players/${player.id}`
     : `/${locale}/players/${player.id}`
 
   return (

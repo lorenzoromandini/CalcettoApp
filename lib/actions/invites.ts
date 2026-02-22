@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export async function generateInviteLink(
-  teamId: string,
+  clubId: string,
   options?: { maxUses?: number }
 ): Promise<{ link: string; token: string }> {
   const session = await auth()
@@ -16,9 +16,9 @@ export async function generateInviteLink(
 
   const token = crypto.randomUUID().replace(/-/g, '')
   
-  const invite = await prisma.teamInvite.create({
+  const invite = await prisma.clubInvite.create({
     data: {
-      teamId,
+      clubId,
       createdBy: session.user.id,
       token,
       maxUses: options?.maxUses ?? 50,

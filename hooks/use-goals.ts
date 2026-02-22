@@ -142,21 +142,21 @@ interface GoalStats {
 
 export function useGoalStats(
   goals: GoalWithPlayers[], 
-  teamId: string
+  clubId: string
 ): GoalStats {
   const homeGoals = goals.filter(g => 
-    g.teamId === teamId && !g.isOwnGoal
+    g.clubId === clubId && !g.isOwnGoal
   )
   const awayGoals = goals.filter(g => 
-    g.teamId !== teamId && !g.isOwnGoal
+    g.clubId !== clubId && !g.isOwnGoal
   )
 
   // Own goals count for the other team
   const ownGoalsForAway = goals.filter(g => 
-    g.teamId === teamId && g.isOwnGoal
+    g.clubId === clubId && g.isOwnGoal
   )
   const ownGoalsForHome = goals.filter(g => 
-    g.teamId !== teamId && g.isOwnGoal
+    g.clubId !== clubId && g.isOwnGoal
   )
 
   return {

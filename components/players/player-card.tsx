@@ -9,7 +9,7 @@ import type { Player, PlayerRole } from '@/lib/db/schema';
 
 interface PlayerCardProps {
   player: Player & { jersey_number?: number };
-  teamId: string;
+  clubId: string;
   onClick?: () => void;
 }
 
@@ -20,7 +20,7 @@ const ROLE_ICONS: Record<PlayerRole, typeof Shield> = {
   attacker: Target,
 };
 
-export function PlayerCard({ player, teamId, onClick }: PlayerCardProps) {
+export function PlayerCard({ player, clubId, onClick }: PlayerCardProps) {
   const t = useTranslations('players');
 
   const getRoleLabel = (role: PlayerRole) => {
@@ -34,7 +34,7 @@ export function PlayerCard({ player, teamId, onClick }: PlayerCardProps) {
     return (first + last).toUpperCase() || player.name?.charAt(0).toUpperCase() || '?';
   };
 
-  const playerProfileUrl = `/teams/${teamId}/players/${player.id}`;
+  const playerProfileUrl = `/teams/${clubId}/players/${player.id}`;
 
   return (
     <Link href={playerProfileUrl}>
