@@ -155,7 +155,7 @@ export default function InvitePage() {
             <CardTitle className="mb-2">{t('invalid.title')}</CardTitle>
             <CardDescription>{t('invalid.description')}</CardDescription>
             <Link href="/clubs" className="mt-6 block">
-              <Button className="w-full h-12">{t('invalid.backToTeams')}</Button>
+              <Button className="w-full h-12">{t('invalid.backToClubs')}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -221,7 +221,7 @@ export default function InvitePage() {
             <CardTitle className="mb-2">{t('alreadyMember.title')}</CardTitle>
             <CardDescription>{t('alreadyMember.description', { clubName })}</CardDescription>
             <Link href={`/clubs/${joinResult.clubId || ''}`} className="mt-6 block">
-              <Button className="w-full h-12">{t('alreadyMember.viewTeam')}</Button>
+              <Button className="w-full h-12">{t('alreadyMember.viewClub')}</Button>
             </Link>
           </CardContent>
         </Card>

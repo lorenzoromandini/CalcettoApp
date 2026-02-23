@@ -90,7 +90,7 @@ export function StatsPageClient({ locale, clubId }: StatsPageClientProps) {
               <Trophy className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold mb-2">{t('no_stats_yet')}</h3>
-            <p className="text-muted-foreground">{t('no_team_stats_description')}</p>
+            <p className="text-muted-foreground">{t('no_club_stats_description')}</p>
           </CardContent>
         </Card>
       )}

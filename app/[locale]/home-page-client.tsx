@@ -83,7 +83,7 @@ export default function HomePageClient() {
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg border bg-card p-6 text-center">
             <div className="text-2xl font-bold text-primary">⚽</div>
-            <h3 className="mt-2 font-semibold">{t('home.features.teams')}</h3>
+            <h3 className="mt-2 font-semibold">{t('home.features.clubs')}</h3>
           </div>
           <div className="rounded-lg border bg-card p-6 text-center">
             <div className="text-2xl font-bold text-primary">🏆</div>

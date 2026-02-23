@@ -638,7 +638,7 @@
     "goals_conceded_as_gk": "Gol subiti come portiere",
     "no_stats_yet": "Nessuna statistica",
     "no_stats_description": "Le statistiche appariranno dopo la prima partita completata",
-    "no_team_stats_description": "Completa la prima partita per vedere le statistiche della club",
+    "no_club_stats_description": "Completa la prima partita per vedere le statistiche della club",
     "retry": "Riprova",
     "rating_history": "Cronologia voti",
     "rating_list": "Voti",
