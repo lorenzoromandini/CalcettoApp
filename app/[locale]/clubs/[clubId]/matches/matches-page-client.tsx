@@ -20,7 +20,7 @@ interface MatchesPageClientProps {
 
 export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   const t = useTranslations("matches");
-  const teamsT = useTranslations("teams");
+  const clubsT = useTranslations("clubs");
   const router = useRouter();
   const { data: session } = useSession();
   const { matches, upcomingMatches, pastMatches, isLoading, error, refetch } = useMatches(clubId);
@@ -60,7 +60,7 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={handleBack} className="-ml-2">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {teamsT("back")}
+            {clubsT("back")}
           </Button>
         </div>
         <div className="space-y-4">
@@ -88,7 +88,7 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
       <div className="relative flex items-center justify-between mb-6">
         <Button variant="ghost" onClick={handleBack} className="-ml-2">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          {teamsT("back")}
+          {clubsT("back")}
         </Button>
         
         {/* Centered title for mobile - absolutely centered horizontally at top */}
