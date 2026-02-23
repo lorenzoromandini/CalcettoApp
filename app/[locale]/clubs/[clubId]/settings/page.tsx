@@ -18,7 +18,7 @@ import { useClub } from '@/hooks/use-clubs';
 
 export default function TeamSettingsPage() {
   const t = useTranslations('settings');
-  const tTeams = useTranslations('teams');
+  const tClubs = useTranslations('clubs');
   const params = useParams();
   const router = useRouter();
   const clubId = params.clubId as string;
@@ -107,7 +107,7 @@ export default function TeamSettingsPage() {
           <Link href={`/${locale}/clubs/${clubId}`}>
             <Button variant="ghost" className="pl-0">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {t('backToTeam')}
+              {t('backToClub')}
             </Button>
           </Link>
         </div>
@@ -122,7 +122,7 @@ export default function TeamSettingsPage() {
         <Link href={`/${locale}/clubs/${clubId}`}>
           <Button variant="ghost" className="pl-0">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('backToTeam')}
+            {t('backToClub')}
           </Button>
         </Link>
       </div>
@@ -135,11 +135,11 @@ export default function TeamSettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('teamInfo.title')}</CardTitle>
+            <CardTitle>{t('clubInfo.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>{tTeams('form.image')}</Label>
+              <Label>{tClubs('form.image')}</Label>
               <ClubImageUploader
                 value={imageUrl}
                 onChange={setImageUrl}
@@ -147,22 +147,22 @@ export default function TeamSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">{t('teamInfo.name')}</Label>
+              <Label htmlFor="name">{t('clubInfo.name')}</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={tTeams('form.namePlaceholder')}
+                placeholder={tClubs('form.namePlaceholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">{t('teamInfo.description')}</Label>
+              <Label htmlFor="description">{t('clubInfo.description')}</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={tTeams('form.descriptionPlaceholder')}
+                placeholder={tClubs('form.descriptionPlaceholder')}
                 rows={3}
               />
             </div>
@@ -203,7 +203,7 @@ export default function TeamSettingsPage() {
               {t('dangerZone.description')}
             </p>
             <Button variant="destructive" className="h-12">
-              {t('dangerZone.deleteTeam')}
+              {t('dangerZone.deleteClub')}
             </Button>
           </CardContent>
         </Card>

@@ -40,7 +40,7 @@
     "subtitle": "Organize teams, track statistics and rate players",
     "getStarted": "Get Started",
     "features": {
-      "teams": "Team management",
+      "clubs": "Club management",
       "matches": "Live matches",
       "stats": "Statistics",
       "ratings": "Player ratings"
@@ -52,7 +52,7 @@
     "upcomingMatches": "Upcoming matches",
     "noUpcomingMatches": "No matches scheduled",
     "stats": {
-      "teams": "Teams",
+      "clubs": "Clubs",
       "teamsDescription": "Teams created",
       "clubs": "Clubs",
       "clubsDescription": "Clubs created",
@@ -76,49 +76,49 @@
     "upcomingMatches": "Upcoming matches",
     "noUpcomingMatches": "No matches scheduled"
   },
-  "teams": {
-    "title": "My Teams",
-    "description": "Manage your teams and players",
-    "create": "Create Team",
+  "clubs": {
+    "title": "My Clubs",
+    "description": "Manage your clubs and players",
+    "create": "Create Club",
     "createDescription": "Create a new team",
     "back": "Back",
-    "teamMode": {
+    "clubMode": {
       "5a-side": "5-a-side",
       "8a-side": "8-a-side",
       "11a-side": "11-a-side"
     },
     "empty": {
-      "title": "No teams",
+      "title": "No clubs",
       "description": "Create your first team to start organizing matches"
     },
     "errorLoading": "Error loading teams",
     "retry": "Retry",
     "form": {
-      "name": "Team name",
-      "namePlaceholder": "Enter team name",
+      "name": "Club name",
+      "namePlaceholder": "Enter club name",
       "description": "Description",
       "descriptionPlaceholder": "Optional - Add a description",
-      "image": "Team image (optional)",
+      "image": "Club image (optional)",
       "imagePlaceholder": "Click to upload an image",
       "imageHint": "Max 5MB",
       "imageUploading": "Uploading...",
       "imageInvalidType": "File must be an image",
       "imageTooLarge": "Image must be less than 5MB",
       "imageUploadError": "Error uploading image",
-      "teamMode": {
+      "clubMode": {
         "label": "Game mode",
         "5a-side": "5 vs 5",
         "8a-side": "8 vs 8",
         "11a-side": "11 vs 11"
       },
-      "submit": "Create team",
+      "submit": "Create club",
       "creating": "Creating...",
       "error": "An error occurred. Please try again."
     },
-    "myTeams": "My teams",
-    "team": "team",
-    "teams": "teams",
-    "selectTeam": "Select team",
+    "myClubs": "My clubs",
+    "club": "club",
+    "clubs": "clubs",
+    "selectClub": "Select team",
     "createFirst": "Create your first team",
     "createNew": "Create new team"
   },
@@ -165,13 +165,13 @@
     "title": "Players",
     "description": "Manage team players",
     "create": "Add player",
-    "createDescription": "Add a new player to the team",
+    "createDescription": "Add a new player to the club",
     "back": "Back",
     "errorLoading": "Error loading players",
     "retry": "Retry",
     "empty": {
       "title": "No players",
-      "description": "Add your first player to the team"
+      "description": "Add your first player to the club"
     },
     "roles": {
       "goalkeeper": "Goalkeeper",
@@ -211,7 +211,7 @@
     }
   },
   "invites": {
-    "unknownTeam": "Unknown team",
+    "unknownTeam": "Unknown club",
     "generator": {
       "title": "Invite members",
       "button": "Generate invite link",
@@ -223,39 +223,39 @@
       "email": "Email"
     },
     "whatsapp": {
-      "message": "Join my team on Calcetto Manager!"
+      "message": "Join my club on Calcetto Manager!"
     },
     "email": {
-      "subject": "Invitation to join team",
+      "subject": "Invitation to join club",
       "body": "Hi! I'm inviting you to join my team on Calcetto Manager. Click the link to accept:"
     },
     "invalid": {
       "title": "Invalid invite",
       "description": "This invite link has expired or doesn't exist.",
-      "backToTeams": "Back to teams"
+      "backToClubs": "Back to clubs"
     },
     "join": {
-      "title": "Join {teamName}",
-      "description": "You've been invited to join this team",
-      "button": "Join team",
+      "title": "Join {clubName}",
+      "description": "You've been invited to join this club",
+      "button": "Join club",
       "joining": "Joining...",
       "cancel": "Cancel",
-      "loginRequired": "You need to log in to join the team",
+      "loginRequired": "You need to log in to join the club",
       "loginButton": "Log in and join",
       "error": "Error joining team. Please try again."
     },
     "success": {
       "title": "Welcome!",
-      "description": "You have successfully joined {teamName}"
+      "description": "You have successfully joined {clubName}"
     },
     "alreadyMember": {
       "title": "Already a member",
-      "description": "You are already a member of {teamName}",
-      "viewTeam": "View team"
+      "description": "You are already a member of {clubName}",
+      "viewClub": "View club"
     },
     "setup": {
-      "title": "Complete your profile in {teamName}",
-      "description": "Set up your jersey number and roles for this team",
+      "title": "Complete your profile in {clubName}",
+      "description": "Set up your jersey number and roles for this club",
       "jerseyNumber": "Jersey number",
       "takenNumbers": "Numbers already taken",
       "selectPrimaryRole": "Select a primary role",
@@ -267,19 +267,31 @@
     }
   },
   "settings": {
-    "title": "Team settings",
-    "backToTeam": "Back to team",
+    "title": "Club settings",
+    "backToClub": "Back to club",
     "notAdmin": "Only admins can access settings",
+    "saving": "Saving...",
+    "save": "Save changes",
+    "clubInfo": {
+      "title": "Club Information",
+      "name": "Club name",
+      "description": "Description"
+    },
+    "clubInfo": {
+      "title": "Club Information",
+      "name": "Club name",
+      "description": "Description"
+    },
     "dangerZone": {
       "title": "Danger zone",
-      "description": "Irreversible actions for the team",
-      "deleteTeam": "Delete team"
+      "description": "Irreversible actions for the club",
+      "deleteClub": "Delete club"
     }
   },
   "roster": {
-    "pageTitle": "Team Roster",
-    "backToTeam": "Back to team",
-    "title": "Team Members",
+    "pageTitle": "Club Roster",
+    "backToClub": "Back to club",
+    "title": "Club Members",
     "you": "You",
     "tabs": {
       "players": "Players",
@@ -292,13 +304,13 @@
     },
     "changeRole": "Change Role",
     "cancel": "Cancel",
-    "noPlayers": "No players in the team",
+    "noPlayers": "No players in the club",
     "addPlayer": "Add Player",
     "roleUpdateError": "Error updating role",
     "removeError": "Error removing member",
     "remove": {
       "confirmTitle": "Remove Member",
-      "confirmDescription": "Are you sure you want to remove this member from the team?",
+      "confirmDescription": "Are you sure you want to remove this member from the club?",
       "cancel": "Cancel",
       "confirm": "Remove",
       "removing": "Removing..."
@@ -332,7 +344,7 @@
     "actions": {
       "players": {
         "title": "Manage players",
-        "description": "Add, edit or remove players from the team",
+        "description": "Add, edit or remove players from the club",
         "button": "Go to players"
       },
       "invite": {
@@ -566,7 +578,7 @@
     "addGoal": "Add Goal",
     "addGoalDescription": "Record who scored the goal",
     "adding": "Adding...",
-    "selectTeam": "Team",
+    "selectClub": "Club",
     "ourTeam": "Our Team",
     "opponent": "Opponent",
     "scorer": "Scorer",
@@ -586,7 +598,7 @@
   },
   "statistics": {
     "title": "Statistics",
-    "description": "View team statistics",
+    "description": "View club statistics",
     "top_scorers": "Top Scorers",
     "top_assists": "Top Assists",
     "top_appearances": "Top Appearances",

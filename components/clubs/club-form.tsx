@@ -26,7 +26,7 @@ interface ClubFormProps {
 }
 
 export function ClubForm({ onSubmit, isLoading = false, submitLabel }: ClubFormProps) {
-  const t = useTranslations("teams.form");
+  const t = useTranslations("clubs.form");
   const [error, setError] = React.useState<string | null>(null);
 
   const form = useForm<CreateClubInput>({

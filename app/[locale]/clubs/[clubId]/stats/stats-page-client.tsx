@@ -16,7 +16,7 @@ interface StatsPageClientProps {
 
 export function StatsPageClient({ locale, clubId }: StatsPageClientProps) {
   const t = useTranslations('statistics')
-  const teamsT = useTranslations('teams')
+  const clubsT = useTranslations('clubs')
   const router = useRouter()
   const { club } = useClub(clubId)
   const { leaderboards, isLoading, error } = useClubLeaderboards(clubId)
@@ -33,7 +33,7 @@ export function StatsPageClient({ locale, clubId }: StatsPageClientProps) {
       {/* Back Button */}
       <Button variant="ghost" onClick={handleBack} className="mb-4 -ml-2">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        {teamsT('back')}
+        {clubsT('back')}
       </Button>
 
       {/* Header */}

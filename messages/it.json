@@ -39,10 +39,10 @@
   },
   "home": {
     "title": "Gestisci le tue partite di calcio",
-    "subtitle": "Organizza squadre, traccia statistiche e vota i giocatori",
+    "subtitle": "Organizza club, traccia statistiche e vota i giocatori",
     "getStarted": "Inizia ora",
     "features": {
-      "teams": "Gestione squadre",
+      "teams": "Gestione club",
       "matches": "Partite live",
       "stats": "Statistiche",
       "ratings": "Valutazioni"
@@ -54,8 +54,8 @@
     "upcomingMatches": "Prossime partite",
     "noUpcomingMatches": "Nessuna partita programmata",
     "stats": {
-      "teams": "Squadre",
-      "teamsDescription": "Squadre create",
+      "teams": "Club",
+      "teamsDescription": "Club create",
       "clubs": "Club",
       "clubsDescription": "Club creati",
       "matches": "Partite",
@@ -82,32 +82,32 @@
     "title": "Club",
     "description": "",
     "create": "Crea club",
-    "createDescription": "Crea una nuova squadra",
+    "createDescription": "Crea una nuova club",
     "back": "Indietro",
-    "teamMode": {
+    "clubMode": {
       "5a-side": "Calcio a 5",
       "8a-side": "Calcio a 8",
       "11a-side": "Calcio a 11"
     },
     "empty": {
-      "title": "Nessuna squadra",
-      "description": "Crea la tua prima squadra per iniziare a organizzare le partite"
+      "title": "Nessuna club",
+      "description": "Crea la tua prima club per iniziare a organizzare le partite"
     },
-    "errorLoading": "Errore nel caricamento delle squadre",
+    "errorLoading": "Errore nel caricamento delle club",
     "retry": "Riprova",
     "form": {
-      "name": "Nome squadra",
-      "namePlaceholder": "Inserisci il nome della squadra",
+      "name": "Nome club",
+      "namePlaceholder": "Inserisci il nome della club",
       "description": "Descrizione",
       "descriptionPlaceholder": "Opzionale - Aggiungi una descrizione",
-      "image": "Immagine squadra (opzionale)",
+      "image": "Immagine club (opzionale)",
       "imagePlaceholder": "Clicca per caricare un'immagine",
       "imageHint": "Max 5MB",
       "imageUploading": "Caricamento...",
       "imageInvalidType": "Il file deve essere un'immagine",
       "imageTooLarge": "L'immagine non può superare i 5MB",
       "imageUploadError": "Errore nel caricamento dell'immagine",
-      "teamMode": {
+      "clubMode": {
         "label": "Modalità di gioco",
         "5a-side": "5 vs 5",
         "8a-side": "8 vs 8",
@@ -117,13 +117,13 @@
       "creating": "Creazione in corso...",
       "error": "Si è verificato un errore. Riprova."
     },
-"myTeams": "Le mie squadre",
-    "team": "squadra",
-    "teams": "squadre",
+"myClubs": "Le mie club",
+    "team": "club",
+    "teams": "club",
     "members": "Membri",
-    "selectTeam": "Seleziona squadra",
-    "createFirst": "Crea la tua prima squadra",
-    "createNew": "Crea nuova squadra",
+    "selectClub": "Seleziona club",
+    "createFirst": "Crea la tua prima club",
+    "createNew": "Crea nuova club",
     "setAsDefault": "Imposta come predefinito",
     "defaultTeam": "Predefinito",
     "managerRole": "Manager"
@@ -169,15 +169,15 @@
   },
   "players": {
     "title": "Giocatori",
-    "description": "Gestisci i giocatori della squadra",
+    "description": "Gestisci i giocatori della club",
     "create": "Aggiungi giocatore",
-    "createDescription": "Aggiungi un nuovo giocatore alla squadra",
+    "createDescription": "Aggiungi un nuovo giocatore alla club",
     "back": "Indietro",
     "errorLoading": "Errore nel caricamento dei giocatori",
     "retry": "Riprova",
     "empty": {
       "title": "Nessun giocatore",
-      "description": "Aggiungi il tuo primo giocatore alla squadra"
+      "description": "Aggiungi il tuo primo giocatore alla club"
     },
     "roles": {
       "goalkeeper": "Portiere",
@@ -217,7 +217,7 @@
     }
   },
   "invites": {
-    "unknownTeam": "Squadra sconosciuta",
+    "unknownTeam": "Club sconosciuto",
     "generator": {
       "title": "Invita membri",
       "button": "Genera link invito",
@@ -229,39 +229,39 @@
       "email": "Email"
     },
     "whatsapp": {
-      "message": "Unisciti alla mia squadra su Calcetto Manager!"
+      "message": "Unisciti alla mia club su Calcetto Manager!"
     },
     "email": {
-      "subject": "Invito a unirsi alla squadra",
-      "body": "Ciao! Ti invito a unirti alla mia squadra su Calcetto Manager. Clicca sul link per accettare:"
+      "subject": "Invito a unirsi alla club",
+      "body": "Ciao! Ti invito a unirti alla mia club su Calcetto Manager. Clicca sul link per accettare:"
     },
     "invalid": {
       "title": "Invito non valido",
       "description": "Questo link invito è scaduto o non esiste.",
-      "backToTeams": "Torna alle squadre"
+      "backToClubs": "Torna alle club"
     },
     "join": {
-      "title": "Unisciti a {teamName}",
-      "description": "Sei stato invitato a unirti a questa squadra",
-      "button": "Unisciti alla squadra",
+      "title": "Unisciti a {clubName}",
+      "description": "Sei stato invitato a unirti a questa club",
+      "button": "Unisciti alla club",
       "joining": "Unione in corso...",
       "cancel": "Annulla",
-      "loginRequired": "Devi accedere per unirti alla squadra",
+      "loginRequired": "Devi accedere per unirti alla club",
       "loginButton": "Accedi e unisciti",
-      "error": "Errore nell'unione alla squadra. Riprova."
+      "error": "Errore nell'unione alla club. Riprova."
     },
     "success": {
       "title": "Benvenuto!",
-      "description": "Ti sei unito con successo a {teamName}"
+      "description": "Ti sei unito con successo a {clubName}"
     },
     "alreadyMember": {
       "title": "Già membro",
-      "description": "Sei già un membro di {teamName}",
-      "viewTeam": "Vedi squadra"
+      "description": "Sei già un membro di {clubName}",
+      "viewClub": "Vedi club"
     },
     "setup": {
-      "title": "Completa il tuo profilo in {teamName}",
-      "description": "Configura il tuo numero di maglia e i tuoi ruoli per questa squadra",
+      "title": "Completa il tuo profilo in {clubName}",
+      "description": "Configura il tuo numero di maglia e i tuoi ruoli per questa club",
       "jerseyNumber": "Numero di maglia",
       "takenNumbers": "Numeri già presi",
       "selectPrimaryRole": "Seleziona un ruolo principale",
@@ -273,28 +273,33 @@
     }
   },
 "settings": {
-    "title": "Impostazioni squadra",
-    "backToTeam": "Torna alla squadra",
+    "title": "Impostazioni club",
+    "backToClub": "Torna al club",
     "notAdmin": "Solo gli admin possono accedere alle impostazioni",
     "save": "Salva modifiche",
     "saving": "Salvataggio...",
     "saveSuccess": "Modifiche salvate con successo",
     "saveError": "Errore nel salvataggio",
-    "teamInfo": {
-      "title": "Informazioni squadra",
-      "name": "Nome squadra",
+    "clubInfo": {
+      "title": "Informazioni club",
+      "name": "Nome club",
+      "description": "Descrizione"
+    },
+    "clubInfo": {
+      "title": "Informazioni club",
+      "name": "Nome club",
       "description": "Descrizione"
     },
     "dangerZone": {
       "title": "Zona pericolosa",
-      "description": "Azioni irreversibili per la squadra",
-      "deleteTeam": "Elimina squadra"
+      "description": "Azioni irreversibili per il club",
+      "deleteClub": "Elimina club"
     }
   },
   "roster": {
-    "pageTitle": "Rosa squadra",
-    "backToTeam": "Torna alla squadra",
-    "title": "Membri della squadra",
+    "pageTitle": "Rosa club",
+    "backToClub": "Torna alla club",
+    "title": "Membri della club",
     "you": "Tu",
     "tabs": {
       "players": "Giocatori",
@@ -307,13 +312,13 @@
     },
     "changeRole": "Cambia ruolo",
     "cancel": "Annulla",
-    "noPlayers": "Nessun giocatore nella squadra",
+    "noPlayers": "Nessun giocatore nella club",
     "addPlayer": "Aggiungi giocatore",
     "roleUpdateError": "Errore nell'aggiornamento del ruolo",
     "removeError": "Errore nella rimozione del membro",
     "remove": {
       "confirmTitle": "Rimuovi membro",
-      "confirmDescription": "Sei sicuro di voler rimuovere questo membro dalla squadra?",
+      "confirmDescription": "Sei sicuro di voler rimuovere questo membro dalla club?",
       "cancel": "Annulla",
       "confirm": "Rimuovi",
       "removing": "Rimozione..."
@@ -340,14 +345,14 @@
       "players": "Giocatori",
       "registeredPlayers": "Giocatori registrati",
       "members": "Membri",
-      "teamMembers": "Membri della squadra",
+      "teamMembers": "Membri della club",
       "matches": "Partite",
       "upcomingMatches": "Prossime partite"
     },
     "actions": {
       "players": {
         "title": "Gestisci giocatori",
-        "description": "Aggiungi, modifica o rimuovi giocatori dalla squadra",
+        "description": "Aggiungi, modifica o rimuovi giocatori dalla club",
         "button": "Vai ai giocatori"
       },
       "invite": {
@@ -364,7 +369,7 @@
   },
   "matches": {
     "title": "Partite",
-    "description": "Gestisci le partite della squadra",
+    "description": "Gestisci le partite della club",
     "create": "Crea partita",
     "createDescription": "Programma una nuova partita",
     "back": "Indietro",
@@ -378,7 +383,7 @@
         "description": "Crea la tua prima partita per iniziare"
       },
       "past": {
-        "title": "Questa squadra non ha ancora disputato partite",
+        "title": "Questa club non ha ancora disputato partite",
         "description": "Le partite completate appariranno qui"
       }
     },
@@ -449,8 +454,8 @@
       "in": "ci sono",
       "out": "non possono",
       "maybe": "forse",
-      "complete": "Squadra al completo!",
-      "halfway": "A metà squadra",
+      "complete": "Club al completo!",
+      "halfway": "A metà club",
       "needMore": "Servono più giocatori"
     },
     "rsvpList": {
@@ -489,7 +494,7 @@
       },
       "completeMatchConfirm": {
         "title": "Completa partita",
-        "description": "Sei sicuro di voler completare la partita? Questa azione bloccherà tutte le modifiche e la partita verrà aggiunta alla cronologia della squadra."
+        "description": "Sei sicuro di voler completare la partita? Questa azione bloccherà tutte le modifiche e la partita verrà aggiunta alla cronologia della club."
       },
       "finalResultsConfirm": {
         "title": "Inserisci risultati finali",
@@ -581,8 +586,8 @@
     "addGoal": "Aggiungi gol",
     "addGoalDescription": "Registra chi ha segnato il gol",
     "adding": "Aggiunta in corso...",
-    "selectTeam": "Squadra",
-    "ourTeam": "La nostra squadra",
+    "selectClub": "Club",
+    "ourTeam": "La nostra club",
     "opponent": "Avversari",
     "scorer": "Marcatore",
     "selectScorer": "Seleziona il marcatore",
@@ -601,7 +606,7 @@
   },
   "statistics": {
     "title": "Statistiche",
-    "description": "Visualizza le statistiche della squadra",
+    "description": "Visualizza le statistiche della club",
     "top_scorers": "Top Marcatori",
     "top_assists": "Top Assist",
     "top_appearances": "Top Presenze",
@@ -625,7 +630,7 @@
     "player_profile_description": "Statistiche e informazioni di {name}",
     "player_statistics": "Statistiche Giocatore",
     "back_to_roster": "Torna alla Rosa",
-    "back_to_team": "Torna alla Squadra",
+    "back_to_team": "Torna alla Club",
     "primary_role": "Ruolo principale",
     "other_roles": "Altri ruoli",
     "none": "Nessuno",
@@ -633,7 +638,7 @@
     "goals_conceded_as_gk": "Gol subiti come portiere",
     "no_stats_yet": "Nessuna statistica",
     "no_stats_description": "Le statistiche appariranno dopo la prima partita completata",
-    "no_team_stats_description": "Completa la prima partita per vedere le statistiche della squadra",
+    "no_team_stats_description": "Completa la prima partita per vedere le statistiche della club",
     "retry": "Riprova",
     "rating_history": "Cronologia voti",
     "rating_list": "Voti",
