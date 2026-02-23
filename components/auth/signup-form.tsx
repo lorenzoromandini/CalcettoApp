@@ -24,6 +24,13 @@ export function SignupForm() {
   const [error, setError] = React.useState<string | null>(null);
   const [isSuccess, setIsSuccess] = React.useState(false);
 
+  React.useEffect(() => {
+    const token = localStorage.getItem("auth-token");
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
+
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     defaultValues: {

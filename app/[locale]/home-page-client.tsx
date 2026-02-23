@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LocaleSwitcher } from '@/components/locale-switcher';
@@ -11,7 +13,15 @@ import Image from 'next/image';
 
 export default function HomePageClient() {
   const t = useTranslations();
+  const router = useRouter();
   const { showOnboarding, completeOnboarding, skipOnboarding, isLoading } = useOnboarding();
+
+  useEffect(() => {
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+      router.replace('/dashboard');
+    }
+  }, [router]);
 
   if (isLoading) {
     return (
