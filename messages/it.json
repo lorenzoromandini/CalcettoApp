@@ -134,6 +134,7 @@
     "create": "Crea club",
     "createDescription": "Crea un nuovo club",
     "back": "Indietro",
+    "members": "Membri",
     "empty": {
       "title": "Nessun club",
       "description": "Crea il tuo primo club per iniziare a organizzare le partite"
