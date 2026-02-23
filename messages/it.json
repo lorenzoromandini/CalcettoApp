@@ -42,7 +42,7 @@
     "subtitle": "Organizza club, traccia statistiche e vota i giocatori",
     "getStarted": "Inizia ora",
     "features": {
-      "teams": "Gestione club",
+      "clubs": "Gestione club",
       "matches": "Partite live",
       "stats": "Statistiche",
       "ratings": "Valutazioni"
@@ -204,10 +204,13 @@
       "saving": "Salvataggio..."
     },
     "avatar": {
+      "title": "Foto profilo",
+      "optional": "Opzionale - Puoi aggiungerla anche dopo",
       "upload": "Carica foto",
       "change": "Cambia foto",
       "hint": "Formato consigliato: quadrato, max 5MB",
       "cropTitle": "Ritaglia foto",
+      "cropDescription": "Ritaglia l'immagine per adattarla al tuo profilo",
       "zoom": "Zoom",
       "cancel": "Annulla",
       "save": "Salva",
@@ -293,8 +296,13 @@
     "dangerZone": {
       "title": "Zona pericolosa",
       "description": "Azioni irreversibili per il club",
-      "deleteClub": "Elimina club"
-    }
+      "deleteClub": "Elimina club",
+      "deleteConfirmTitle": "Sei sicuro?",
+      "deleteConfirmDescription": "Questa azione è irreversibile. Il club e tutti i dati associati verranno eliminati permanentemente.",
+      "confirmDelete": "Conferma eliminazione"
+    },
+    "cancel": "Annulla",
+    "deleting": "Eliminazione..."
   },
   "roster": {
     "pageTitle": "Rosa club",
@@ -311,6 +319,9 @@
       "member": "Membro"
     },
     "changeRole": "Cambia ruolo",
+    "makeManager": "Nomina Co-Admin",
+    "removeManager": "Revoca permessi",
+    "kickPlayer": "Espelli giocatore",
     "cancel": "Annulla",
     "noPlayers": "Nessun giocatore nella club",
     "addPlayer": "Aggiungi giocatore",

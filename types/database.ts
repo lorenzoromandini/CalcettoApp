@@ -1,10 +1,10 @@
 /**
- * Supabase Database Types
+ * Database Types - Prisma Version
  * 
  * Generated types for the Calcetto Manager database schema.
- * Includes tables for team management, players, matches, and invites.
+ * Includes tables for club management, players, matches, and invites.
  * 
- * @see supabase/migrations/20260215000001_teams_players_invites.sql
+ * Aligned with Prisma schema.
  */
 
 export type Json =
@@ -15,16 +15,20 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type MatchStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
+export type MatchMode = '5vs5' | '8vs8';
+export type RSVPStatus = 'in' | 'out' | 'maybe';
+export type FormationMode = '5vs5' | '8vs8';
+
 export interface Database {
   public: {
     Tables: {
-      teams: {
+      clubs: {
         Row: {
           id: string;
           name: string;
           description: string | null;
           image_url: string | null;
-          team_mode: '5-a-side' | '8-a-side' | '11-a-side' | null;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -36,7 +40,6 @@ export interface Database {
           name: string;
           description?: string | null;
           image_url?: string | null;
-          team_mode?: '5-a-side' | '8-a-side' | '11-a-side' | null;
           created_by: string;
           created_at?: string;
           updated_at?: string;
@@ -48,7 +51,6 @@ export interface Database {
           name?: string;
           description?: string | null;
           image_url?: string | null;
-          team_mode?: '5-a-side' | '8-a-side' | '11-a-side' | null;
           created_by?: string;
           created_at?: string;
           updated_at?: string;
@@ -57,7 +59,7 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "teams_created_by_fkey";
+            foreignKeyName: "clubs_created_by_fkey";
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "users";
@@ -65,10 +67,10 @@ export interface Database {
           }
         ];
       };
-      team_members: {
+      club_members: {
         Row: {
           id: string;
-          team_id: string;
+          club_id: string;
           user_id: string | null;
           player_id: string | null;
           role: 'admin' | 'co-admin' | 'member';
@@ -76,7 +78,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          team_id: string;
+          club_id: string;
           user_id?: string | null;
           player_id?: string | null;
           role?: 'admin' | 'co-admin' | 'member';
@@ -84,7 +86,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          team_id?: string;
+          club_id?: string;
           user_id?: string | null;
           player_id?: string | null;
           role?: 'admin' | 'co-admin' | 'member';
@@ -92,21 +94,21 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "team_members_team_id_fkey";
-            columns: ["team_id"];
+            foreignKeyName: "club_members_club_id_fkey";
+            columns: ["club_id"];
             isOneToOne: false;
-            referencedRelation: "teams";
+            referencedRelation: "clubs";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "team_members_user_id_fkey";
+            foreignKeyName: "club_members_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "team_members_player_id_fkey";
+            foreignKeyName: "club_members_player_id_fkey";
             columns: ["player_id"];
             isOneToOne: false;
             referencedRelation: "players";
@@ -161,11 +163,11 @@ export interface Database {
           }
         ];
       };
-      player_teams: {
+      player_clubs: {
         Row: {
           id: string;
           player_id: string;
-          team_id: string;
+          club_id: string;
           jersey_number: number;
           primary_role: string;
           secondary_roles: string[];
@@ -176,7 +178,7 @@ export interface Database {
         Insert: {
           id?: string;
           player_id: string;
-          team_id: string;
+          club_id: string;
           jersey_number: number;
           primary_role: string;
           secondary_roles?: string[];
@@ -187,7 +189,7 @@ export interface Database {
         Update: {
           id?: string;
           player_id?: string;
-          team_id?: string;
+          club_id?: string;
           jersey_number?: number;
           primary_role?: string;
           secondary_roles?: string[];
@@ -197,25 +199,25 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "player_teams_player_id_fkey";
+            foreignKeyName: "player_clubs_player_id_fkey";
             columns: ["player_id"];
             isOneToOne: false;
             referencedRelation: "players";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "player_teams_team_id_fkey";
-            columns: ["team_id"];
+            foreignKeyName: "player_clubs_club_id_fkey";
+            columns: ["club_id"];
             isOneToOne: false;
-            referencedRelation: "teams";
+            referencedRelation: "clubs";
             referencedColumns: ["id"];
           }
         ];
       };
-      team_invites: {
+      club_invites: {
         Row: {
           id: string;
-          team_id: string;
+          club_id: string;
           created_by: string;
           token: string;
           email: string | null;
@@ -228,7 +230,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          team_id: string;
+          club_id: string;
           created_by: string;
           token: string;
           email?: string | null;
@@ -241,7 +243,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          team_id?: string;
+          club_id?: string;
           created_by?: string;
           token?: string;
           email?: string | null;
@@ -254,21 +256,21 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "team_invites_team_id_fkey";
-            columns: ["team_id"];
+            foreignKeyName: "club_invites_club_id_fkey";
+            columns: ["club_id"];
             isOneToOne: false;
-            referencedRelation: "teams";
+            referencedRelation: "clubs";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "team_invites_created_by_fkey";
+            foreignKeyName: "club_invites_created_by_fkey";
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "team_invites_used_by_fkey";
+            foreignKeyName: "club_invites_used_by_fkey";
             columns: ["used_by"];
             isOneToOne: false;
             referencedRelation: "users";
@@ -279,52 +281,55 @@ export interface Database {
       matches: {
         Row: {
           id: string;
-          team_id: string;
+          club_id: string;
           scheduled_at: string;
           location: string | null;
-          mode: '5vs5' | '8vs8';
-          status: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
+          mode: MatchMode;
+          status: MatchStatus;
           home_score: number | null;
           away_score: number | null;
           notes: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
+          sync_status: string | null;
         };
         Insert: {
           id?: string;
-          team_id: string;
+          club_id: string;
           scheduled_at: string;
           location?: string | null;
-          mode: '5vs5' | '8vs8';
-          status?: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
+          mode: MatchMode;
+          status?: MatchStatus;
           home_score?: number | null;
           away_score?: number | null;
           notes?: string | null;
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
+          sync_status?: string | null;
         };
         Update: {
           id?: string;
-          team_id?: string;
+          club_id?: string;
           scheduled_at?: string;
           location?: string | null;
-          mode?: '5vs5' | '8vs8';
-          status?: 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
+          mode?: MatchMode;
+          status?: MatchStatus;
           home_score?: number | null;
           away_score?: number | null;
           notes?: string | null;
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
+          sync_status?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: "matches_team_id_fkey";
-            columns: ["team_id"];
+            foreignKeyName: "matches_club_id_fkey";
+            columns: ["club_id"];
             isOneToOne: false;
-            referencedRelation: "teams";
+            referencedRelation: "clubs";
             referencedColumns: ["id"];
           },
           {
@@ -341,25 +346,31 @@ export interface Database {
           id: string;
           match_id: string;
           player_id: string;
-          rsvp_status: 'in' | 'out' | 'maybe';
+          rsvp_status: RSVPStatus;
           rsvp_at: string | null;
           position_on_pitch: string | null;
+          played: boolean;
+          sync_status: string | null;
         };
         Insert: {
           id?: string;
           match_id: string;
           player_id: string;
-          rsvp_status?: 'in' | 'out' | 'maybe';
+          rsvp_status?: RSVPStatus;
           rsvp_at?: string | null;
           position_on_pitch?: string | null;
+          played?: boolean;
+          sync_status?: string | null;
         };
         Update: {
           id?: string;
           match_id?: string;
           player_id?: string;
-          rsvp_status?: 'in' | 'out' | 'maybe';
+          rsvp_status?: RSVPStatus;
           rsvp_at?: string | null;
           position_on_pitch?: string | null;
+          played?: boolean;
+          sync_status?: string | null;
         };
         Relationships: [
           {
@@ -419,6 +430,7 @@ export interface Database {
           position_y: number;
           position_label: string;
           is_substitute: boolean;
+          side: string | null;
         };
         Insert: {
           id?: string;
@@ -428,6 +440,7 @@ export interface Database {
           position_y: number;
           position_label: string;
           is_substitute?: boolean;
+          side?: string | null;
         };
         Update: {
           id?: string;
@@ -437,6 +450,7 @@ export interface Database {
           position_y?: number;
           position_label?: string;
           is_substitute?: boolean;
+          side?: string | null;
         };
         Relationships: [
           {
@@ -455,131 +469,109 @@ export interface Database {
           }
         ];
       };
-      match_timers: {
-        Row: {
-          match_id: string;
-          started_at: string | null;
-          paused_at: string | null;
-          total_elapsed_seconds: number;
-          is_running: boolean;
-          updated_by: string | null;
-          updated_at: string;
-        };
-        Insert: {
-          match_id: string;
-          started_at?: string | null;
-          paused_at?: string | null;
-          total_elapsed_seconds?: number;
-          is_running?: boolean;
-          updated_by?: string | null;
-          updated_at?: string;
-        };
-        Update: {
-          match_id?: string;
-          started_at?: string | null;
-          paused_at?: string | null;
-          total_elapsed_seconds?: number;
-          is_running?: boolean;
-          updated_by?: string | null;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "match_timers_match_id_fkey";
-            columns: ["match_id"];
-            isOneToOne: true;
-            referencedRelation: "matches";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "match_timers_updated_by_fkey";
-            columns: ["updated_by"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      match_events: {
+      goals: {
         Row: {
           id: string;
           match_id: string;
-          event_type: 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
-          player_id: string;
-          player_id_secondary: string | null;
-          team_id: string;
-          match_time_seconds: number;
-          match_time_display: string;
-          recorded_by: string | null;
-          timestamp: string;
-          client_timestamp: string;
-          metadata: Json | null;
-          sync_status: string | null;
+          club_id: string;
+          scorer_id: string;
+          assister_id: string | null;
+          is_own_goal: boolean;
+          order: number;
+          created_at: string;
         };
         Insert: {
-          id: string;
+          id?: string;
           match_id: string;
-          event_type: 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
-          player_id: string;
-          player_id_secondary?: string | null;
-          team_id: string;
-          match_time_seconds: number;
-          match_time_display: string;
-          recorded_by?: string | null;
-          timestamp?: string;
-          client_timestamp: string;
-          metadata?: Json | null;
-          sync_status?: string | null;
+          club_id: string;
+          scorer_id: string;
+          assister_id?: string | null;
+          is_own_goal?: boolean;
+          order: number;
+          created_at?: string;
         };
         Update: {
           id?: string;
           match_id?: string;
-          event_type?: 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'own_goal' | 'penalty';
-          player_id?: string;
-          player_id_secondary?: string | null;
-          team_id?: string;
-          match_time_seconds?: number;
-          match_time_display?: string;
-          recorded_by?: string | null;
-          timestamp?: string;
-          client_timestamp?: string;
-          metadata?: Json | null;
-          sync_status?: string | null;
+          club_id?: string;
+          scorer_id?: string;
+          assister_id?: string | null;
+          is_own_goal?: boolean;
+          order?: number;
+          created_at?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "match_events_match_id_fkey";
+            foreignKeyName: "goals_match_id_fkey";
             columns: ["match_id"];
             isOneToOne: false;
             referencedRelation: "matches";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "match_events_player_id_fkey";
+            foreignKeyName: "goals_club_id_fkey";
+            columns: ["club_id"];
+            isOneToOne: false;
+            referencedRelation: "clubs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "goals_scorer_id_fkey";
+            columns: ["scorer_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "goals_assister_id_fkey";
+            columns: ["assister_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      player_ratings: {
+        Row: {
+          id: string;
+          match_id: string;
+          player_id: string;
+          rating: number;
+          comment: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          player_id: string;
+          rating: number;
+          comment?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          player_id?: string;
+          rating?: number;
+          comment?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "player_ratings_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "player_ratings_player_id_fkey";
             columns: ["player_id"];
             isOneToOne: false;
             referencedRelation: "players";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "match_events_player_id_secondary_fkey";
-            columns: ["player_id_secondary"];
-            isOneToOne: false;
-            referencedRelation: "players";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "match_events_team_id_fkey";
-            columns: ["team_id"];
-            isOneToOne: false;
-            referencedRelation: "teams";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "match_events_recorded_by_fkey";
-            columns: ["recorded_by"];
-            isOneToOne: false;
-            referencedRelation: "users";
             referencedColumns: ["id"];
           }
         ];
@@ -589,22 +581,22 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      is_team_admin: {
+      is_club_admin: {
         Args: {
-          team_uuid: string;
+          club_uuid: string;
         };
         Returns: boolean;
       };
-      is_team_member: {
+      is_club_member: {
         Args: {
-          team_uuid: string;
+          club_uuid: string;
         };
         Returns: boolean;
       };
       is_player_in_club: {
         Args: {
           player_uuid: string;
-          team_uuid: string;
+          club_uuid: string;
         };
         Returns: boolean;
       };
@@ -642,13 +634,17 @@ export type Inserts<T extends keyof Database['public']['Tables']> = Database['pu
 export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];
 
 // Specific table types
-export type Team = Tables<'teams'>;
-export type Club = Team; // Alias for clarity
-export type ClubMember = Tables<'team_members'>;
+export type Club = Tables<'clubs'>;
+export type ClubMember = Tables<'club_members'>;
 export type Player = Tables<'players'>;
-export type PlayerClub = Tables<'player_teams'>;
-export type ClubInvite = Tables<'team_invites'>;
+export type PlayerClub = Tables<'player_clubs'>;
+export type ClubInvite = Tables<'club_invites'>;
 export type Match = Tables<'matches'>;
 export type MatchPlayer = Tables<'match_players'>;
 export type Formation = Tables<'formations'>;
 export type FormationPosition = Tables<'formation_positions'>;
+export type Goal = Tables<'goals'>;
+export type PlayerRating = Tables<'player_ratings'>;
+
+// Backward compatibility aliases (deprecated - use Club instead)
+export type Team = Club;

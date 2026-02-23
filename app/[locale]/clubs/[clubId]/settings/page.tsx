@@ -14,7 +14,15 @@ import Link from 'next/link';
 import { useSession } from '@/components/providers/session-provider';
 import { authFetch } from '@/lib/auth-fetch';
 import { ClubImageUploader } from '@/components/clubs/club-image-uploader';
-import { useClub } from '@/hooks/use-clubs';
+import { useClub, useDeleteClub } from '@/hooks/use-clubs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function TeamSettingsPage() {
   const t = useTranslations('settings');
@@ -34,6 +42,9 @@ export default function TeamSettingsPage() {
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState<string | undefined>();
   const [saveSuccess, setSaveSuccess] = useState(false);
+  
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { deleteClub, isPending: isDeleting } = useDeleteClub();
 
   const checkAdminStatus = useCallback(async () => {
     if (!session?.user?.id) {
@@ -86,6 +97,15 @@ export default function TeamSettingsPage() {
       console.error('Failed to save team settings:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteClub(clubId);
+      router.push(`/${locale}/clubs`);
+    } catch (error) {
+      console.error('Failed to delete club:', error);
     }
   };
 
@@ -202,12 +222,51 @@ export default function TeamSettingsPage() {
             <p className="text-sm text-muted-foreground mb-4">
               {t('dangerZone.description')}
             </p>
-            <Button variant="destructive" className="h-12">
+            <Button 
+              variant="destructive" 
+              className="h-12"
+              onClick={() => setShowDeleteDialog(true)}
+            >
               {t('dangerZone.deleteClub')}
             </Button>
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog di conferma eliminazione */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('dangerZone.deleteConfirmTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('dangerZone.deleteConfirmDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('deleting')}
+                </>
+              ) : (
+                t('dangerZone.confirmDelete')
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

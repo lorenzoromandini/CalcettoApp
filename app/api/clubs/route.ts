@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    console.log('Fetching clubs for user:', userId);
     const clubs = await getUserClubs(userId);
+    console.log('Clubs with member counts:', clubs.map(c => ({ id: c.id, name: c.name, memberCount: c.memberCount })));
     return NextResponse.json(clubs);
   } catch (error) {
     console.error('Error fetching clubs:', error);

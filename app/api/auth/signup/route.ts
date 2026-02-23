@@ -29,7 +29,8 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    await prisma.user.create({
+    // Crea User e Player in transazione atomica
+    const user = await prisma.user.create({
       data: {
         email,
         firstName,
@@ -37,6 +38,17 @@ export async function POST(req: Request) {
         nickname: nickname || null,
         password: hashedPassword,
         emailVerified: new Date(),
+      },
+    })
+
+    // Crea automaticamente il profilo Player associato all'utente
+    await prisma.player.create({
+      data: {
+        userId: user.id,
+        name: firstName,
+        surname: lastName,
+        nickname: nickname || null,
+        roles: [], // Ruoli vuoti all'inizio, verranno definiti quando si unisce a un club
       },
     })
 

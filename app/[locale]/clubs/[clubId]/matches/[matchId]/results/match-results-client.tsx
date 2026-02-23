@@ -35,7 +35,7 @@ interface MatchResultsClientProps {
   matchId: string
   match: Match
   goals: GoalWithPlayers[]
-  players: (Player & { jersey_number?: number; player_team_id?: string })[]
+  players: (Player & { jersey_number?: number; player_club_id?: string })[]
   isAdmin: boolean
   canEdit: boolean
 }

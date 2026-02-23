@@ -198,10 +198,13 @@
       "saving": "Saving..."
     },
     "avatar": {
+      "title": "Profile photo",
+      "optional": "Optional - You can add it later",
       "upload": "Upload photo",
       "change": "Change photo",
       "hint": "Recommended format: square, max 5MB",
       "cropTitle": "Crop photo",
+      "cropDescription": "Crop the image to fit your profile",
       "zoom": "Zoom",
       "cancel": "Cancel",
       "save": "Save",
@@ -303,6 +306,9 @@
       "member": "Member"
     },
     "changeRole": "Change Role",
+    "makeManager": "Make Manager",
+    "removeManager": "Remove Manager",
+    "kickPlayer": "Kick Player",
     "cancel": "Cancel",
     "noPlayers": "No players in the club",
     "addPlayer": "Add Player",

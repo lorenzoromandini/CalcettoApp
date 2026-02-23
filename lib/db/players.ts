@@ -27,7 +27,7 @@ function toPlayerClubType(dbPlayerClub: any): PlayerClub {
   return {
     id: dbPlayerClub.id,
     player_id: dbPlayerClub.playerId,
-    team_id: dbPlayerClub.clubId,
+    club_id: dbPlayerClub.clubId,
     jersey_number: dbPlayerClub.jerseyNumber,
     primary_role: dbPlayerClub.primaryRole,
     secondary_roles: dbPlayerClub.secondaryRoles || [],
@@ -69,7 +69,7 @@ export async function createPlayer(
 // Alias for backward compatibility
 export const getPlayersByTeam = getClubPlayers;
 
-export async function getClubPlayers(clubId: string): Promise<(Player & { jersey_number?: number; player_team_id?: string })[]> {
+export async function getClubPlayers(clubId: string): Promise<(Player & { jersey_number?: number; player_team_id?: string; primary_role?: string; user_id?: string | null })[]> {
   const playerClubs = await prisma.playerClub.findMany({
     where: { clubId },
     include: {
@@ -83,6 +83,8 @@ export async function getClubPlayers(clubId: string): Promise<(Player & { jersey
   return playerClubs.map(pt => ({
     ...toPlayerType(pt.player),
     jersey_number: pt.jerseyNumber,
+    primary_role: pt.primaryRole,
+    user_id: pt.player.userId,
   }));
 }
 

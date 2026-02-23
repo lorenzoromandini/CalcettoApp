@@ -15,7 +15,7 @@ import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match
 function toMatchType(dbMatch: any): Match {
   return {
     id: dbMatch.id,
-    team_id: dbMatch.clubId,
+    club_id: dbMatch.clubId,
     scheduled_at: dbMatch.scheduledAt.toISOString(),
     location: dbMatch.location ?? undefined,
     mode: dbMatch.mode as Match['mode'],
@@ -26,6 +26,7 @@ function toMatchType(dbMatch: any): Match {
     created_by: dbMatch.createdBy || '',
     created_at: dbMatch.createdAt.toISOString(),
     updated_at: dbMatch.updatedAt.toISOString(),
+    sync_status: dbMatch.syncStatus ?? null,
   };
 }
 

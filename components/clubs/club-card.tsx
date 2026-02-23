@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Club } from "@/lib/db/schema";
 
 interface ClubCardProps {
-  club: Club;
+  club: Club & { memberCount?: number };
   onClick?: () => void;
   memberCount?: number;
   userRole?: 'admin' | 'co-admin' | 'member';
