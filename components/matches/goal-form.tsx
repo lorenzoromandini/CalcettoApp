@@ -164,7 +164,7 @@ export function GoalForm({
         <div className="space-y-4 py-4">
           {/* Team Selector */}
           <div className="space-y-2">
-            <Label>{t('selectTeam')}</Label>
+            <Label>{t('selectClub')}</Label>
             <div className="flex gap-2">
               <Button
                 type="button"

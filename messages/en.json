@@ -630,7 +630,7 @@
     "goals_conceded_as_gk": "Goals conceded as goalkeeper",
     "no_stats_yet": "No statistics yet",
     "no_stats_description": "Statistics will appear after the first completed match",
-    "no_team_stats_description": "Complete the first match to see team statistics",
+    "no_club_stats_description": "Complete the first match to see team statistics",
     "retry": "Retry",
     "rating_history": "Rating history",
     "rating_list": "Ratings",
