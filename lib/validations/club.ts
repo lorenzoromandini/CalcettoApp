@@ -29,15 +29,18 @@ export const updateClubSchema = z.object({
     .string()
     .min(2, "Il nome deve essere di almeno 2 caratteri")
     .max(100, "Il nome non può superare i 100 caratteri")
-    .optional(),
+    .optional()
+    .nullable(),
   description: z
     .string()
     .max(500, "La descrizione non può superare i 500 caratteri")
-    .optional(),
+    .optional()
+    .nullable(),
   image_url: z
     .string()
     .url("URL immagine non valido")
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 // Type inference for forms
