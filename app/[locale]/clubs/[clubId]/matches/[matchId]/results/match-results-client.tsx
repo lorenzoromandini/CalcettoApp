@@ -99,7 +99,7 @@ export function MatchResultsClient({
   const awayScore = awayGoals.length + ownGoalsForAway.length
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}/matches/${matchId}`)
+    router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`)
   }
 
   const isCompleted = match.status === 'COMPLETED'

@@ -26,6 +26,6 @@ export async function generateInviteLink(
     },
   })
 
-  const link = `/teams/invite?token=${invite.token}`
+  const link = `/clubs/invite?token=${invite.token}`
   return { link, token: invite.token }
 }

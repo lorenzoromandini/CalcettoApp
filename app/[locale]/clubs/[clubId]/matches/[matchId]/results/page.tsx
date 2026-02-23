@@ -45,7 +45,7 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
   // IN_PROGRESS, FINISHED, COMPLETED can view results
   if (match.status === 'SCHEDULED' || match.status === 'CANCELLED') {
     // Redirect to match detail page
-    redirect(`/${locale}/teams/${clubId}/matches/${matchId}`)
+    redirect(`/${locale}/clubs/${clubId}/matches/${matchId}`)
   }
 
   // Fetch goals and players

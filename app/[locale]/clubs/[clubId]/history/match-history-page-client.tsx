@@ -134,7 +134,7 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
   }, [matches])
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}`)
+    router.push(`/${locale}/clubs/${clubId}`)
   }
 
   return (

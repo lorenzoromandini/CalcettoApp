@@ -29,21 +29,21 @@ export function Header() {
   const locale = getLocale();
   
   const isDashboard = pathname?.includes('/dashboard');
-  const isTeamCreate = pathname?.includes('/teams/create');
-  const isInTeam = pathname?.includes('/teams/') && pathname?.split('/').length > 3;
-  const clubId = isInTeam ? pathname?.split('/')[3] : null;
+  const isClubCreate = pathname?.includes('/clubs/create');
+  const isInClub = pathname?.includes('/clubs/') && pathname?.split('/').length > 3;
+  const clubId = isInClub ? pathname?.split('/')[3] : null;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur">
       <div className="flex h-14 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-4">
-          {(isInTeam || isTeamCreate) && session?.user ? (
+          {(isInClub || isClubCreate) && session?.user ? (
             <Link
-              href={isTeamCreate ? "/teams" : "/dashboard"}
+              href={isClubCreate ? "/clubs" : "/dashboard"}
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="h-4 w-4" />
-              {isTeamCreate ? 'Indietro' : t('dashboard')}
+              {isClubCreate ? 'Indietro' : t('dashboard')}
             </Link>
           ) : session?.user ? (
             <Link href="/dashboard" className="flex items-center gap-2">

@@ -55,7 +55,7 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
   const colors = FRAME_COLORS[frameColor]
 
   const profileUrl = clubId
-    ? `/${locale}/teams/${clubId}/players/${player.id}`
+    ? `/${locale}/clubs/${clubId}/players/${player.id}`
     : `/${locale}/players/${player.id}`
 
   return (

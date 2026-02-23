@@ -50,7 +50,7 @@ export default async function FormationPage({ params }: FormationPageProps) {
   });
 
   if (!membership) {
-    redirect(`/teams/${clubId}`);
+    redirect(`/clubs/${clubId}`);
   }
 
   const isAdmin = membership.role === 'admin' || membership.role === 'co-admin';
@@ -95,7 +95,7 @@ export default async function FormationPage({ params }: FormationPageProps) {
     <div className="container mx-auto px-4 py-6">
       {/* Back Button */}
       <div className="mb-6">
-        <Link href={`/teams/${clubId}/matches/${matchId}`}>
+        <Link href={`/clubs/${clubId}/matches/${matchId}`}>
           <Button variant="ghost" className="pl-0">
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t('backToMatch')}

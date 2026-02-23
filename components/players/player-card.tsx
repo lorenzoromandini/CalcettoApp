@@ -34,7 +34,7 @@ export function PlayerCard({ player, clubId, onClick }: PlayerCardProps) {
     return (first + last).toUpperCase() || player.name?.charAt(0).toUpperCase() || '?';
   };
 
-  const playerProfileUrl = `/teams/${clubId}/players/${player.id}`;
+  const playerProfileUrl = `/clubs/${clubId}/players/${player.id}`;
 
   return (
     <Link href={playerProfileUrl}>

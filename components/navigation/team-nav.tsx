@@ -17,32 +17,32 @@ export function ClubNav({ clubId, isAdmin }: ClubNavProps) {
 
   const navItems = [
     {
-      href: `/teams/${clubId}`,
+      href: `/clubs/${clubId}`,
       label: 'Panoramica',
       icon: Trophy,
     },
     {
-      href: `/teams/${clubId}/roster`,
+      href: `/clubs/${clubId}/roster`,
       label: 'Rosa',
       icon: Users,
     },
     {
-      href: `/teams/${clubId}/matches`,
+      href: `/clubs/${clubId}/matches`,
       label: t('matches'),
       icon: CalendarDays,
     },
     {
-      href: `/teams/${clubId}/history`,
+      href: `/clubs/${clubId}/history`,
       label: t('history'),
       icon: Clock,
     },
     {
-      href: `/teams/${clubId}/stats`,
+      href: `/clubs/${clubId}/stats`,
       label: t('stats'),
       icon: BarChart3,
     },
     {
-      href: `/teams/${clubId}/settings`,
+      href: `/clubs/${clubId}/settings`,
       label: t('settings'),
       icon: Settings,
       adminOnly: true,

@@ -110,7 +110,7 @@ export function MatchRatingsClient({
   const ratingsMap = new Map(allRatings.map(r => [r.player_id, r]))
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}/matches/${matchId}`)
+    router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`)
   }
 
   /**

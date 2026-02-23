@@ -22,7 +22,7 @@ export function CreatePlayerPageClient({ locale, clubId }: CreatePlayerPageClien
   const { createPlayer, isPending } = useCreatePlayer(clubId);
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}/players`);
+    router.push(`/${locale}/clubs/${clubId}/players`);
   };
 
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +30,14 @@ export function CreatePlayerPageClient({ locale, clubId }: CreatePlayerPageClien
   const handleSubmit = async (data: CreatePlayerInput) => {
     try {
       await createPlayer(data);
-      router.push(`/${locale}/teams/${clubId}/players`);
+      router.push(`/${locale}/clubs/${clubId}/players`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create player');
     }
   };
 
   const handleCancel = () => {
-    router.push(`/${locale}/teams/${clubId}/players`);
+    router.push(`/${locale}/clubs/${clubId}/players`);
   };
 
   return (

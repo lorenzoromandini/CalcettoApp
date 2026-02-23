@@ -21,15 +21,15 @@ export function PlayersPageClient({ locale, clubId }: PlayersPageClientProps) {
   const { club } = useClub(clubId);
 
 const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}`);
+    router.push(`/${locale}/clubs/${clubId}`);
   };
 
   const handleCreatePlayer = () => {
-    router.push(`/${locale}/teams/${clubId}/players/create`);
+    router.push(`/${locale}/clubs/${clubId}/players/create`);
   };
 
   const handlePlayerClick = (playerId: string) => {
-    router.push(`/${locale}/teams/${clubId}/players/${playerId}`);
+    router.push(`/${locale}/clubs/${clubId}/players/${playerId}`);
   };
 
   if (isLoading) {

@@ -72,12 +72,12 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
   // Redirect if not admin
   useEffect(() => {
     if (!isCheckingAdmin && !isAdmin) {
-      router.push(`/${locale}/teams/${clubId}/matches`);
+      router.push(`/${locale}/clubs/${clubId}/matches`);
     }
   }, [isCheckingAdmin, isAdmin, router, locale, clubId]);
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}/matches`);
+    router.push(`/${locale}/clubs/${clubId}/matches`);
   };
 
   const handleSubmit = async (data: CreateMatchInput) => {
@@ -89,7 +89,7 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
       setShowNotificationModal(true);
     } else {
       // Navigate directly if not showing modal
-      router.push(`/${locale}/teams/${clubId}/matches/${matchId}`);
+      router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`);
     }
   };
 
@@ -97,14 +97,14 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     await requestPermission();
     setShowNotificationModal(false);
     if (createdMatchId) {
-      router.push(`/${locale}/teams/${clubId}/matches/${createdMatchId}`);
+      router.push(`/${locale}/clubs/${clubId}/matches/${createdMatchId}`);
     }
   };
 
   const handleSkipNotifications = () => {
     setShowNotificationModal(false);
     if (createdMatchId) {
-      router.push(`/${locale}/teams/${clubId}/matches/${createdMatchId}`);
+      router.push(`/${locale}/clubs/${clubId}/matches/${createdMatchId}`);
     }
   };
 

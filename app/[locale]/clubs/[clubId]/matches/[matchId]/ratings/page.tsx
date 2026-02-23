@@ -42,7 +42,7 @@ export default async function MatchRatingsPage({ params }: MatchRatingsPageProps
 
   // Ratings only available for FINISHED or COMPLETED matches
   if (match.status === 'SCHEDULED' || match.status === 'IN_PROGRESS' || match.status === 'CANCELLED') {
-    redirect(`/${locale}/teams/${clubId}/matches/${matchId}`)
+    redirect(`/${locale}/clubs/${clubId}/matches/${matchId}`)
   }
 
   // Fetch participants (only played players) and existing ratings

@@ -106,7 +106,7 @@ export default function InvitePage() {
           setShowSetupForm(true);
         } else {
           setTimeout(() => {
-            router.push(`/teams/${data.clubId}`);
+            router.push(`/clubs/${data.clubId}`);
           }, 2000);
         }
       } else if (data.error === 'Already a member') {
@@ -131,7 +131,7 @@ export default function InvitePage() {
 
   const handleSetupComplete = () => {
     setShowSetupForm(false);
-    router.push(`/teams/${joinResult.clubId}`);
+    router.push(`/clubs/${joinResult.clubId}`);
   };
 
   const clubName = inviteData?.club?.name || t('unknownClub');
@@ -154,7 +154,7 @@ export default function InvitePage() {
             <XCircle className="mx-auto h-12 w-12 text-destructive mb-4" />
             <CardTitle className="mb-2">{t('invalid.title')}</CardTitle>
             <CardDescription>{t('invalid.description')}</CardDescription>
-            <Link href="/teams" className="mt-6 block">
+            <Link href="/clubs" className="mt-6 block">
               <Button className="w-full h-12">{t('invalid.backToTeams')}</Button>
             </Link>
           </CardContent>
@@ -176,7 +176,7 @@ export default function InvitePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">{t('join.loginRequired')}</p>
-            <Link href={`/auth/login?redirect=/teams/invite?token=${token}`}>
+            <Link href={`/auth/login?redirect=/clubs/invite?token=${token}`}>
               <Button className="w-full h-12">{t('join.loginButton')}</Button>
             </Link>
           </CardContent>
@@ -192,7 +192,7 @@ export default function InvitePage() {
           clubId={joinResult.clubId}
           clubName={clubName}
           onSuccess={handleSetupComplete}
-          onCancel={() => router.push(`/teams/${joinResult.clubId}`)}
+          onCancel={() => router.push(`/clubs/${joinResult.clubId}`)}
         />
       </div>
     );
@@ -220,7 +220,7 @@ export default function InvitePage() {
             <AlertCircle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
             <CardTitle className="mb-2">{t('alreadyMember.title')}</CardTitle>
             <CardDescription>{t('alreadyMember.description', { clubName })}</CardDescription>
-            <Link href={`/teams/${joinResult.clubId || ''}`} className="mt-6 block">
+            <Link href={`/clubs/${joinResult.clubId || ''}`} className="mt-6 block">
               <Button className="w-full h-12">{t('alreadyMember.viewTeam')}</Button>
             </Link>
           </CardContent>
@@ -257,7 +257,7 @@ export default function InvitePage() {
               t('join.button')
             )}
           </Button>
-          <Link href="/teams">
+          <Link href="/clubs">
             <Button variant="ghost" className="w-full">
               {t('join.cancel')}
             </Button>
