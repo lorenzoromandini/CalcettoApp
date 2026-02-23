@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchCard } from "@/components/matches/match-card";
 import { useMatches } from "@/hooks/use-matches";
 import { useClub } from "@/hooks/use-clubs";
-import { isTeamAdmin } from "@/lib/db/clubs";
+import { authFetch } from "@/lib/auth-fetch";
 import { useState, useEffect } from "react";
 
 interface MatchesPageClientProps {
@@ -30,8 +30,13 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   useEffect(() => {
     async function checkAdmin() {
       if (session?.user?.id) {
-        const admin = await isTeamAdmin(clubId, session.user.id);
-        setIsAdmin(admin);
+        try {
+          const response = await authFetch(`/api/clubs/${clubId}/admin`);
+          const data = await response.json();
+          setIsAdmin(data.isAdmin);
+        } catch (err) {
+          console.error("Failed to check admin status:", err);
+        }
       }
     }
     checkAdmin();

@@ -224,7 +224,7 @@ export async function getTopScorers(
       COUNT(*) as count
     FROM goals g
     JOIN matches m ON g.match_id = m.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND g.is_own_goal = false
     GROUP BY g.scorer_id
@@ -248,7 +248,7 @@ export async function getTopAssisters(
       COUNT(*) as count
     FROM goals g
     JOIN matches m ON g.match_id = m.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND g.assister_id IS NOT NULL
     GROUP BY g.assister_id
@@ -273,7 +273,7 @@ export async function getTopAppearances(
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
@@ -299,7 +299,7 @@ export async function getTopWins(
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
@@ -329,7 +329,7 @@ export async function getTopLosses(
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
@@ -359,7 +359,7 @@ export async function getTopRatedPlayers(
       AVG(pr.rating) as avg_rating
     FROM player_ratings pr
     JOIN matches m ON pr.match_id = m.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
     GROUP BY pr.player_id
     HAVING COUNT(*) >= 3
@@ -400,7 +400,7 @@ export async function getTopGoalsConceded(
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
     JOIN players p ON fp.player_id = p.id
-    WHERE m.team_id = ${clubId}
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.player_id IS NOT NULL
       AND fp.side IS NOT NULL
