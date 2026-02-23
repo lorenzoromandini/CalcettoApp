@@ -106,12 +106,12 @@ model Club {
 
   @@index([createdBy])
   @@index([deletedAt])
-  @@map("teams")
+  @@map("clubs")
 }
 
 model ClubMember {
   id       String   @id @default(cuid())
-  clubId   String   @map("team_id")
+  clubId   String   @map("club_id")
   userId   String?  @map("user_id")
   playerId String?  @map("player_id")
   role     String   @default("member")
@@ -124,7 +124,7 @@ model ClubMember {
   @@unique([clubId, userId])
   @@index([clubId])
   @@index([userId])
-  @@map("team_members")
+  @@map("club_members")
 }
 
 model Player {
@@ -155,7 +155,7 @@ model Player {
 model PlayerClub {
   id             String   @id @default(cuid())
   playerId       String   @map("player_id")
-  clubId         String   @map("team_id")
+  clubId         String   @map("club_id")
   jerseyNumber   Int      @map("jersey_number")
   primaryRole    String   @map("primary_role")
   secondaryRoles String[] @default([]) @map("secondary_roles")
@@ -170,12 +170,12 @@ model PlayerClub {
   @@unique([clubId, jerseyNumber])
   @@index([playerId])
   @@index([clubId])
-  @@map("player_teams")
+  @@map("player_clubs")
 }
 
 model ClubInvite {
   id        String    @id @default(cuid())
-  clubId    String    @map("team_id")
+  clubId    String    @map("club_id")
   createdBy String    @map("created_by")
   token     String    @unique
   email     String?
@@ -192,12 +192,12 @@ model ClubInvite {
   @@index([clubId])
   @@index([token])
   @@index([expiresAt])
-  @@map("team_invites")
+  @@map("club_invites")
 }
 
 model Match {
   id          String      @id @default(cuid())
-  clubId      String      @map("team_id")
+  clubId      String      @map("club_id")
   scheduledAt DateTime    @map("scheduled_at")
   location    String?
   mode        String
@@ -264,7 +264,7 @@ model FormationPosition {
   positionY     Int     @map("position_y")
   positionLabel String  @map("position_label")
   isSubstitute  Boolean @default(false) @map("is_substitute")
-  side          String? @map("side")  // 'home' | 'away' - set when match completes
+  side          String? @map("side")
 
   formation Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
   player    Player?   @relation(fields: [playerId], references: [id], onDelete: SetNull)
@@ -279,7 +279,7 @@ model FormationPosition {
 model Goal {
   id         String   @id @default(cuid())
   matchId    String   @map("match_id")
-  clubId     String   @map("team_id")
+  clubId     String   @map("club_id")
   scorerId   String   @map("scorer_id")
   assisterId String?  @map("assister_id")
   isOwnGoal  Boolean  @default(false) @map("is_own_goal")
