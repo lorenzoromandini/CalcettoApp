@@ -206,7 +206,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
                 <ClubCard
                   club={club}
                   onClick={() => handleClubClick(club.id)}
-                  memberCount={1}
+                  memberCount={club.memberCount || 1}
                   userRole={getClubRole(club.id)}
                   isDefault={club.id === defaultClubId}
                 />
@@ -216,7 +216,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
         )}
       </div>
 
-      {true && (
+      {clubs.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-50">
           <Link href="/clubs/create">
             <Button className="h-14 px-8 rounded-full shadow-lg">

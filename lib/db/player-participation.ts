@@ -136,6 +136,8 @@ export async function updatePlayerParticipation(
     rsvp_status: updatedMatchPlayer.rsvpStatus as RSVPStatus,
     rsvp_at: updatedMatchPlayer.rsvpAt?.toISOString() || new Date().toISOString(),
     position_on_pitch: updatedMatchPlayer.positionOnPitch ?? null,
+    played: updatedMatchPlayer.played ?? false,
+    sync_status: updatedMatchPlayer.syncStatus ?? 'synced',
   }
 }
 

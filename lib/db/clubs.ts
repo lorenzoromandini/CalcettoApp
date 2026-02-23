@@ -17,19 +17,18 @@ function toClubType(dbClub: any): Club {
     name: dbClub.name,
     description: dbClub.description ?? null,
     image_url: dbClub.imageUrl ?? null,
-    team_mode: null,
     created_by: dbClub.createdBy,
     created_at: dbClub.createdAt.toISOString(),
     updated_at: dbClub.updatedAt.toISOString(),
     deleted_at: dbClub.deletedAt?.toISOString() ?? null,
-    sync_status: null,
+    sync_status: dbClub.syncStatus ?? null,
   };
 }
 
 function toClubMemberType(dbMember: any): ClubMember {
   return {
     id: dbMember.id,
-    team_id: dbMember.clubId,
+    club_id: dbMember.clubId,
     user_id: dbMember.userId ?? null,
     player_id: dbMember.playerId ?? null,
     role: dbMember.role as ClubMember['role'],
@@ -69,7 +68,7 @@ export async function createClub(
 // Alias for backward compatibility
 export const createTeam = createClub;
 
-export async function getUserClubs(userId: string): Promise<Club[]> {
+export async function getUserClubs(userId: string): Promise<(Club & { memberCount: number })[]> {
   const memberships = await prisma.clubMember.findMany({
     where: {
       userId: userId,
@@ -87,7 +86,34 @@ export async function getUserClubs(userId: string): Promise<Club[]> {
     },
   });
 
-  return memberships.map(m => toClubType(m.club));
+  // Ottieni il conteggio reale dei membri per ogni club
+  const clubIds = memberships.map(m => m.clubId);
+  const memberCounts = await prisma.clubMember.groupBy({
+    by: ['clubId'],
+    where: {
+      clubId: {
+        in: clubIds,
+      },
+      userId: {
+        not: null,
+      },
+    },
+    _count: {
+      userId: true,
+    },
+  });
+
+  const countMap = new Map(memberCounts.map(m => [m.clubId, m._count.userId]));
+
+  // Log di debug
+  console.log('Club IDs:', clubIds);
+  console.log('Member counts from DB:', memberCounts);
+  console.log('Final count map:', Object.fromEntries(countMap));
+
+  return memberships.map(m => ({
+    ...toClubType(m.club),
+    memberCount: countMap.get(m.clubId) || 0,
+  }));
 }
 
 // Alias for backward compatibility
@@ -112,9 +138,9 @@ export async function updateClub(
   await prisma.club.update({
     where: { id: clubId },
     data: {
-      name: data.name,
-      description: data.description,
-      imageUrl: data.image_url,
+      ...(data.name !== undefined && data.name !== null && { name: data.name }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.image_url !== undefined && { imageUrl: data.image_url }),
     },
   });
 }
@@ -182,7 +208,7 @@ export async function getClubMembers(clubId: string): Promise<ClubMember[]> {
 
   return members.map((m) => ({
     id: m.id,
-    team_id: m.clubId,
+    club_id: m.clubId,
     user_id: m.userId ?? null,
     player_id: m.playerId ?? null,
     role: m.role as ClubMember['role'],

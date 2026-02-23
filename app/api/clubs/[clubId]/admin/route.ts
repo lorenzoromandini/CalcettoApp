@@ -9,7 +9,7 @@ export async function GET(
   const userId = getUserIdFromRequest(request);
   
   if (!userId) {
-    return NextResponse.json({ isAdmin: false }, { status: 401 });
+    return NextResponse.json({ isAdmin: false, isCoAdmin: false, role: null }, { status: 401 });
   }
 
   const { clubId } = await params;
@@ -18,11 +18,12 @@ export async function GET(
     where: {
       clubId,
       userId,
-      role: {
-        in: ['admin', 'co-admin'],
-      },
     },
   });
 
-  return NextResponse.json({ isAdmin: !!membership });
+  const role = membership?.role || null;
+  const isAdmin = role === 'admin';
+  const isCoAdmin = role === 'co-admin';
+
+  return NextResponse.json({ isAdmin, isCoAdmin, role });
 }

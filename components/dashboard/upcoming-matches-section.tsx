@@ -141,7 +141,7 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
           return (
             <Link
               key={match.id}
-              href={`/clubs/${match.team_id}/matches/${match.id}`}
+              href={`/clubs/${match.club_id}/matches/${match.id}`}
             >
               <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
                 {/* Date Box */}

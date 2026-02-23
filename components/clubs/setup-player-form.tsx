@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { RoleSelector } from '@/components/players/role-selector';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AvatarCropper } from '@/components/players/avatar-cropper';
+import { resizeImage } from '@/lib/image-utils';
+import { Loader2, AlertCircle, Upload, User } from 'lucide-react';
+import { authFetch } from '@/lib/auth-fetch';
 import type { PlayerRole } from '@/lib/db/schema';
 
 interface AvailableJerseyNumbers {
@@ -33,26 +36,26 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
   const [error, setError] = useState<string | null>(null);
 
   const [availableNumbers, setAvailableNumbers] = useState<AvailableJerseyNumbers | null>(null);
-  const [name, setName] = useState('');
-  const [surname, setSurname] = useState('');
-  const [nickname, setNickname] = useState('');
   const [jerseyNumber, setJerseyNumber] = useState<number>(1);
   const [primaryRole, setPrimaryRole] = useState<PlayerRole | null>(null);
   const [secondaryRoles, setSecondaryRoles] = useState<PlayerRole[]>([]);
+  
+  // Avatar states
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [croppedAvatar, setCroppedAvatar] = useState<Blob | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/clubs/${clubId}/setup-player`);
+        const res = await authFetch(`/api/clubs/${clubId}/setup-player`);
         if (!res.ok) throw new Error('Failed to fetch');
         
         const data = await res.json();
         setAvailableNumbers(data.availableJerseyNumbers);
         
-        if (data.player) {
-          setName(data.player.name || '');
-          setSurname(data.player.surname || '');
-          setNickname(data.player.nickname || '');
+        if (data.player?.avatarUrl) {
+          setAvatarPreview(data.player.avatarUrl);
         }
         
         if (data.availableJerseyNumbers.available.length > 0) {
@@ -67,6 +70,33 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
 
     fetchData();
   }, [clubId]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const resizedBlob = await resizeImage(file, 1024, 1024);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarPreview(reader.result as string);
+        setShowCropper(true);
+      };
+      reader.readAsDataURL(resizedBlob);
+    } catch {
+      setError('Errore nel caricamento dell immagine');
+    }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    setCroppedAvatar(croppedBlob);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarPreview(reader.result as string);
+      setShowCropper(false);
+    };
+    reader.readAsDataURL(croppedBlob);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,17 +115,18 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
     setError(null);
 
     try {
-      const res = await fetch(`/api/clubs/${clubId}/setup-player`, {
+      const formData = new FormData();
+      formData.append('jerseyNumber', jerseyNumber.toString());
+      formData.append('primaryRole', primaryRole);
+      formData.append('secondaryRoles', JSON.stringify(secondaryRoles));
+      
+      if (croppedAvatar) {
+        formData.append('avatar', croppedAvatar, 'avatar.jpg');
+      }
+
+      const res = await authFetch(`/api/clubs/${clubId}/setup-player`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          surname: surname || null,
-          nickname: nickname || null,
-          jerseyNumber,
-          primaryRole,
-          secondaryRoles,
-        }),
+        body: formData,
       });
 
       const data = await res.json();
@@ -123,6 +154,24 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
     );
   }
 
+  if (showCropper && avatarPreview) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{tPlayers('avatar.cropTitle')}</CardTitle>
+          <CardDescription>{tPlayers('avatar.cropDescription')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AvatarCropper
+            image={avatarPreview}
+            onCropComplete={handleCropComplete}
+            onCancel={() => setShowCropper(false)}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -138,78 +187,61 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
             </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="name">{tPlayers('form.name')} *</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={tPlayers('form.namePlaceholder')}
-                required
-              />
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center space-y-4">
+            <Label className="text-center">{tPlayers('avatar.title')}</Label>
+            <div className="relative">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Avatar preview"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-primary/20"
+                />
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-muted-foreground/30">
+                  <User className="w-12 h-12 text-muted-foreground" />
+                </div>
+              )}
+              <label
+                htmlFor="avatar-upload"
+                className="absolute -bottom-2 -right-2 cursor-pointer"
+              >
+                <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-lg hover:bg-primary/90 transition-colors">
+                  <Upload className="w-4 h-4" />
+                </div>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="surname">{tPlayers('form.surname')}</Label>
-              <Input
-                id="surname"
-                value={surname}
-                onChange={(e) => setSurname(e.target.value)}
-                placeholder={tPlayers('form.surnamePlaceholder')}
-              />
-            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              {tPlayers('avatar.optional')}
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="nickname">{tPlayers('form.nickname')}</Label>
-            <Input
-              id="nickname"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder={tPlayers('form.nicknamePlaceholder')}
-            />
-          </div>
-
+          {/* Numero maglia - Solo input manuale */}
           <div className="space-y-2">
             <Label htmlFor="jerseyNumber">{t('setup.jerseyNumber')} *</Label>
-            <div className="flex gap-2">
-              <Input
-                id="jerseyNumber"
-                type="number"
-                min={1}
-                max={99}
-                value={jerseyNumber}
-                onChange={(e) => setJerseyNumber(parseInt(e.target.value) || 1)}
-                className="w-24"
-              />
-              <div className="flex flex-wrap gap-1">
-                {availableNumbers?.available.slice(0, 15).map((num) => (
-                  <Button
-                    key={num}
-                    type="button"
-                    variant={jerseyNumber === num ? 'default' : 'outline'}
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => setJerseyNumber(num)}
-                  >
-                    {num}
-                  </Button>
-                ))}
-                {availableNumbers && availableNumbers.available.length > 15 && (
-                  <span className="text-xs text-muted-foreground self-center ml-2">
-                    +{availableNumbers.available.length - 15} more
-                  </span>
-                )}
-              </div>
-            </div>
-            {availableNumbers?.taken.length ? (
-              <p className="text-xs text-muted-foreground">
-                {t('setup.takenNumbers')}: {availableNumbers.taken.join(', ')}
-              </p>
-            ) : null}
+            <Input
+              id="jerseyNumber"
+              type="number"
+              min={1}
+              max={99}
+              value={jerseyNumber}
+              onChange={(e) => setJerseyNumber(parseInt(e.target.value) || 1)}
+              className="w-full h-16 text-3xl text-center font-bold"
+              placeholder="99"
+            />
+            <p className="text-xs text-muted-foreground text-center">
+              Inserisci un numero da 1 a 99
+            </p>
           </div>
 
+          {/* Selezione ruoli */}
           <div className="space-y-2">
             <RoleSelector
               primaryRole={primaryRole}
@@ -222,6 +254,7 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
             </p>
           </div>
 
+          {/* Bottoni */}
           <div className="flex gap-2">
             {onCancel && (
               <Button
@@ -236,7 +269,7 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
             )}
             <Button
               type="submit"
-              disabled={isSubmitting || !primaryRole || !name}
+              disabled={isSubmitting || !primaryRole}
               className="flex-1"
             >
               {isSubmitting ? (

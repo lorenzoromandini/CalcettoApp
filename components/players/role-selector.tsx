@@ -43,52 +43,74 @@ export function RoleSelector({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Primary Role - Single Select (Required) */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <label className="text-sm font-medium">
           {t('form.primaryRole')} <span className="text-destructive">*</span>
         </label>
-        <div className="flex flex-wrap gap-2">
-          {ROLES.map(({ id, icon: Icon, translationKey }) => (
-            <Toggle
-              key={`primary-${id}`}
-              pressed={primaryRole === id}
-              onPressedChange={() => !disabled && onPrimaryRoleChange(id)}
-              disabled={disabled}
-              className="flex items-center gap-2 px-4 py-2 h-12 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-              aria-label={t(translationKey)}
-            >
-              <Icon className="h-4 w-4" />
-              <span className="text-sm">{t(translationKey)}</span>
-            </Toggle>
-          ))}
+        <div className="grid grid-cols-2 gap-3">
+          {ROLES.map(({ id, icon: Icon, translationKey }) => {
+            const isSelected = primaryRole === id;
+            const isDisabled = disabled;
+            
+            return (
+              <button
+                key={`primary-${id}`}
+                type="button"
+                onClick={() => !isDisabled && onPrimaryRoleChange(id)}
+                disabled={isDisabled}
+                className={`
+                  flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                  ${isSelected 
+                    ? 'border-primary bg-primary/10 text-primary' 
+                    : 'border-border hover:border-primary/50 hover:bg-muted'
+                  }
+                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                `}
+              >
+                <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className="text-sm font-medium">{t(translationKey)}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* Separator */}
+      <div className="border-t border-border my-4"></div>
+
       {/* Other Roles - Multi Select (Optional) */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <label className="text-sm font-medium text-muted-foreground">
           {t('form.otherRoles')}
         </label>
-        <div className="flex flex-wrap gap-2">
-          {ROLES.map(({ id, icon: Icon, translationKey }) => (
-            <Toggle
-              key={`other-${id}`}
-              pressed={otherRoles.includes(id)}
-              onPressedChange={() => toggleOtherRole(id)}
-              disabled={disabled || primaryRole === id}
-              className="flex items-center gap-2 px-4 py-2 h-12 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground disabled:opacity-50"
-              aria-label={t(translationKey)}
-            >
-              <Icon className="h-4 w-4" />
-              <span className="text-sm">{t(translationKey)}</span>
-            </Toggle>
-          ))}
+        <div className="grid grid-cols-2 gap-3">
+          {ROLES.map(({ id, icon: Icon, translationKey }) => {
+            const isSelected = otherRoles.includes(id);
+            const isDisabled = disabled || primaryRole === id;
+            
+            return (
+              <button
+                key={`other-${id}`}
+                type="button"
+                onClick={() => !isDisabled && toggleOtherRole(id)}
+                disabled={isDisabled}
+                className={`
+                  flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                  ${isSelected 
+                    ? 'border-primary bg-primary/10 text-primary' 
+                    : 'border-border hover:border-primary/50 hover:bg-muted'
+                  }
+                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                `}
+              >
+                <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className="text-sm font-medium">{t(translationKey)}</span>
+              </button>
+            );
+          })}
         </div>
-        <p className="text-xs text-muted-foreground">
-          {t('form.otherRolesHint')}
-        </p>
       </div>
     </div>
   );

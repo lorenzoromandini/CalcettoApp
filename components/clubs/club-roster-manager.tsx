@@ -5,7 +5,14 @@ import { useTranslations } from 'next-intl';
 import { updateMemberRole, removeClubMember } from '@/lib/db/clubs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, User, UserCog, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Shield, User, UserCog, Trash2, AlertTriangle, Settings } from 'lucide-react';
 import type { ClubMember } from '@/lib/db/schema';
 
 interface ClubRosterManagerProps {
@@ -26,14 +33,12 @@ export function ClubRosterManager({
   const t = useTranslations('roster');
   const [memberToRemove, setMemberToRemove] = useState<ClubMember | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
-  const [editingMember, setEditingMember] = useState<string | null>(null);
 
   const handleRoleChange = async (memberId: string, newRole: 'admin' | 'co-admin' | 'member') => {
     if (!isAdmin) return;
 
     try {
       await updateMemberRole(clubId, memberId, newRole);
-      setEditingMember(null);
       onMembersChange();
     } catch (error) {
       console.error('Failed to update role:', error);
@@ -103,55 +108,31 @@ export function ClubRosterManager({
                 </div>
               </div>
 
-              {isAdmin && member.user_id !== currentUserId && (
+              {isAdmin && member.user_id !== currentUserId ? (
                 <div className="flex items-center gap-2">
-                  {editingMember === member.id ? (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant={member.role === 'member' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleRoleChange(member.id, 'member')}
-                      >
-                        {t('roles.member')}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Settings className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant={member.role === 'co-admin' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleRoleChange(member.id, 'co-admin')}
-                      >
-                        {t('roles.coAdmin')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingMember(null)}
-                      >
-                        {t('cancel')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingMember(member.id)}
-                      >
-                        {t('changeRole')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 text-destructive"
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleRoleChange(member.id, member.role === 'co-admin' ? 'member' : 'co-admin')}>
+                        <UserCog className="mr-2 h-4 w-4" />
+                        {member.role === 'co-admin' ? t('removeManager') : t('makeManager')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
                         onClick={() => setMemberToRemove(member)}
+                        className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t('kickPlayer')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              )}
-
-              {!isAdmin && (
+              ) : (
                 <span className="text-sm text-muted-foreground">
                   {getRoleLabel(member.role)}
                 </span>

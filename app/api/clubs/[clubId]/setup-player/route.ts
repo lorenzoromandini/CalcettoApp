@@ -49,6 +49,7 @@ export async function GET(
       name: player.name,
       surname: player.surname,
       nickname: player.nickname,
+      avatarUrl: player.avatarUrl,
     } : null,
   });
 }
@@ -64,18 +65,14 @@ export async function POST(
   }
 
   const { clubId } = await params;
-  const body = await request.json();
+  const formData = await request.formData();
+  
+  const jerseyNumber = parseInt(formData.get('jerseyNumber') as string);
+  const primaryRole = formData.get('primaryRole') as PlayerRole;
+  const secondaryRoles = JSON.parse(formData.get('secondaryRoles') as string || '[]') as PlayerRole[];
+  const avatarFile = formData.get('avatar') as Blob | null;
 
-  const { name, surname, nickname, jerseyNumber, primaryRole, secondaryRoles } = body as {
-    name: string;
-    surname?: string;
-    nickname?: string;
-    jerseyNumber: number;
-    primaryRole: PlayerRole;
-    secondaryRoles: PlayerRole[];
-  };
-
-  if (!name || !primaryRole || !jerseyNumber) {
+  if (!primaryRole || isNaN(jerseyNumber)) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
@@ -91,25 +88,51 @@ export async function POST(
     where: { userId },
   });
 
+  // Se il player non esiste, crealo (per retrocompatibilità con utenti registrati prima della modifica)
   if (!player) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true, nickname: true },
+    });
+    
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 400 });
+    }
+    
     player = await prisma.player.create({
       data: {
         userId,
-        name,
-        surname: surname || null,
-        nickname: nickname || null,
-        roles: [primaryRole, ...secondaryRoles],
+        name: user.firstName,
+        surname: user.lastName,
+        nickname: user.nickname,
+        roles: [],
       },
     });
-  } else {
-    await prisma.player.update({
-      where: { id: player.id },
-      data: {
-        name,
-        surname: surname || null,
-        nickname: nickname || null,
-        roles: [primaryRole, ...secondaryRoles],
-      },
+  }
+
+  // Aggiorna i ruoli del player con quelli scelti per questo club e l'avatar se fornito
+  const updateData: { roles: string[]; avatarUrl?: string } = {
+    roles: [primaryRole, ...secondaryRoles],
+  };
+  
+  let avatarUrl: string | undefined;
+  if (avatarFile && avatarFile.size > 0) {
+    const buffer = Buffer.from(await avatarFile.arrayBuffer());
+    const base64 = buffer.toString('base64');
+    avatarUrl = `data:image/jpeg;base64,${base64}`;
+    updateData.avatarUrl = avatarUrl;
+  }
+  
+  await prisma.player.update({
+    where: { id: player.id },
+    data: updateData,
+  });
+
+  // Aggiorna anche l'avatar nell'utente
+  if (avatarUrl && player.userId) {
+    await prisma.user.update({
+      where: { id: player.userId },
+      data: { image: avatarUrl },
     });
   }
 
@@ -139,8 +162,8 @@ export async function POST(
       playerId: player.id,
       clubId,
       jerseyNumber,
-      primaryRole: "PLAYER",
-      secondaryRoles: [],
+      primaryRole: primaryRole,
+      secondaryRoles: secondaryRoles,
     },
   });
 
