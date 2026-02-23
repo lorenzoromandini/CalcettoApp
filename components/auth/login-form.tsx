@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,16 @@ import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import { AlertCircle } from "lucide-react";
 
 export function LoginForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const token = localStorage.getItem("auth-token");
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
