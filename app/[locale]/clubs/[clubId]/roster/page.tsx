@@ -4,12 +4,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/components/providers/session-provider';
 import { ArrowLeft, Users, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getClubMembers, getClubMembersWithUsers } from '@/lib/db/clubs';
-import { getClubPlayers } from '@/lib/db/players';
+import { authFetch } from '@/lib/auth-fetch';
 import { ClubRosterManager } from '@/components/clubs/club-roster-manager';
 
 export default function ClubRosterPage() {
@@ -28,19 +27,30 @@ export default function ClubRosterPage() {
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [membersData, playersData] = await Promise.all([
-        getClubMembers(clubId),
-        getClubPlayers(clubId),
+      
+      const [membersRes, playersRes, adminRes] = await Promise.all([
+        authFetch(`/api/clubs/${clubId}/members`),
+        authFetch(`/api/clubs/${clubId}/players`),
+        authFetch(`/api/clubs/${clubId}/admin`),
       ]);
 
-      setMembers(membersData);
-      setPlayers(playersData);
+      if (membersRes.ok) {
+        const membersData = await membersRes.json();
+        setMembers(membersData);
+      }
 
-      // Check current user role
+      if (playersRes.ok) {
+        const playersData = await playersRes.json();
+        setPlayers(playersData);
+      }
+
+      if (adminRes.ok) {
+        const adminData = await adminRes.json();
+        setIsAdmin(adminData.isAdmin);
+      }
+
       if (session?.user?.id) {
         setCurrentUserId(session.user.id);
-        const userMembership = membersData.find((m: any) => m.user_id === session?.user?.id);
-        setIsAdmin(userMembership?.role === 'admin' || userMembership?.role === 'co-admin');
       }
     } catch (error) {
       console.error('Failed to load roster:', error);
@@ -95,7 +105,6 @@ export default function ClubRosterPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Show members who have user accounts (including admin/creator) */}
           {members.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">Nessun membro trovato</p>
           ) : (
