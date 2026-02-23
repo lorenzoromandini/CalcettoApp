@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
-import { getUserTeams, createTeam } from '@/lib/db/clubs';
+import { getUserClubs, createClub } from '@/lib/db/clubs';
 import { createClubSchema } from '@/lib/validations/club';
 
 export async function GET(request: NextRequest) {
@@ -11,12 +11,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const teams = await getUserTeams(userId);
-    return NextResponse.json(teams);
+    const clubs = await getUserClubs(userId);
+    return NextResponse.json(clubs);
   } catch (error) {
-    console.error('Error fetching teams:', error);
+    console.error('Error fetching clubs:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch teams' },
+      { error: 'Failed to fetch clubs' },
       { status: 500 }
     );
   }
@@ -33,13 +33,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createClubSchema.parse(body);
     
-    const clubId = await createTeam(validatedData, userId);
+    const clubId = await createClub(validatedData, userId);
     
     return NextResponse.json({ id: clubId }, { status: 201 });
   } catch (error) {
     console.error('Error creating club:', error);
     return NextResponse.json(
-      { error: 'Failed to create team' },
+      { error: 'Failed to create club' },
       { status: 500 }
     );
   }
