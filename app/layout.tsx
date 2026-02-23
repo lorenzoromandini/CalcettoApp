@@ -11,6 +11,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata = {
+  icons: {
+    icon: '/icons/favicon.ico',
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -18,6 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/icons/favicon.ico" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
