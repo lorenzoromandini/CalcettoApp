@@ -44,7 +44,7 @@ export function PlayerProfileClient({
   const { evolution, isLoading: evolutionLoading } = usePlayerEvolution(playerId, clubId)
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}/players`)
+    router.push(`/${locale}/clubs/${clubId}/players`)
   }
 
   // Get initials for avatar placeholder

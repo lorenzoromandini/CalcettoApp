@@ -22,7 +22,7 @@ export function StatsPageClient({ locale, clubId }: StatsPageClientProps) {
   const { leaderboards, isLoading, error } = useClubLeaderboards(clubId)
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}`)
+    router.push(`/${locale}/clubs/${clubId}`)
   }
 
   // Check if there's any data

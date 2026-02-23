@@ -117,7 +117,7 @@ export function ClubDashboard({
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/${locale}/teams/${club.id}/roster`}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/${locale}/clubs/${club.id}/roster`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -131,7 +131,7 @@ export function ClubDashboard({
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/${locale}/teams/${club.id}/matches`}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/${locale}/clubs/${club.id}/matches`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />

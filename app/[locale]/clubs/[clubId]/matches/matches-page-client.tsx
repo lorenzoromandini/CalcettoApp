@@ -38,15 +38,15 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   }, [clubId, session?.user?.id]);
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}`);
+    router.push(`/${locale}/clubs/${clubId}`);
   };
 
   const handleCreateMatch = () => {
-    router.push(`/${locale}/teams/${clubId}/matches/create`);
+    router.push(`/${locale}/clubs/${clubId}/matches/create`);
   };
 
   const handleMatchClick = (matchId: string) => {
-    router.push(`/${locale}/teams/${clubId}/matches/${matchId}`);
+    router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`);
   };
 
   if (isLoading) {

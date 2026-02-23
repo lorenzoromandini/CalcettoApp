@@ -68,7 +68,7 @@ export default function ClubRosterPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Back button */}
       <div className="flex items-center justify-between mb-6">
-        <Link href={`/${locale}/teams/${clubId}`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+        <Link href={`/${locale}/clubs/${clubId}`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
           <span>Indietro</span>
         </Link>
@@ -76,7 +76,7 @@ export default function ClubRosterPage() {
         <h1 className="text-2xl font-bold">Rosa</h1>
         
         {isAdmin && (
-          <Link href={`/${locale}/teams/${clubId}/players/create`}>
+          <Link href={`/${locale}/clubs/${clubId}/players/create`}>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
               Aggiungi

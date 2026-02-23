@@ -122,7 +122,7 @@ export function MatchDetailPageClient({
   }, [clubId, teamPlayers, session]);
 
   const handleBack = () => {
-    router.push(`/${locale}/teams/${clubId}/matches`);
+    router.push(`/${locale}/clubs/${clubId}/matches`);
   };
 
   const handleEdit = () => {
@@ -504,7 +504,7 @@ export function MatchDetailPageClient({
         <div className="grid gap-4 md:grid-cols-2 mb-6">
           {/* Goals/Results Link */}
           <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <Link href={`/${locale}/teams/${clubId}/matches/${matchId}/results`}>
+            <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/results`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -524,7 +524,7 @@ export function MatchDetailPageClient({
           {/* Player Participation Link (FINISHED only) */}
           {isFinished && (
             <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <Link href={`/${locale}/teams/${clubId}/matches/${matchId}/results`}>
+              <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/results`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -545,7 +545,7 @@ export function MatchDetailPageClient({
           {/* Ratings Link (FINISHED only) */}
           {isFinished && (
             <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <Link href={`/${locale}/teams/${clubId}/matches/${matchId}/ratings`}>
+              <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/ratings`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -661,7 +661,7 @@ export function MatchDetailPageClient({
                 </div>
                 
                 <Button asChild variant="outline" className="w-full">
-                  <Link href={`/${locale}/teams/${clubId}/matches/${matchId}/formation`}>
+                  <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/formation`}>
                     {isAdmin ? t("detail.editFormation") : t("detail.viewFormation")}
                   </Link>
                 </Button>
@@ -676,7 +676,7 @@ export function MatchDetailPageClient({
                 </p>
                 {isAdmin && (
                   <Button asChild>
-                    <Link href={`/${locale}/teams/${clubId}/matches/${matchId}/formation`}>
+                    <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/formation`}>
                       {t("detail.createFormation")}
                     </Link>
                   </Button>

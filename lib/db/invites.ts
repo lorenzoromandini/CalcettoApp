@@ -38,7 +38,7 @@ export async function generateInviteLink(
   options?: { maxUses?: number }
 ): Promise<{ link: string; token: string }> {
   const token = await createInvite(clubId, userId, options?.maxUses ?? 50);
-  const link = `/teams/invite?token=${token}`;
+  const link = `/clubs/invite?token=${token}`;
   return { link, token };
 }
 

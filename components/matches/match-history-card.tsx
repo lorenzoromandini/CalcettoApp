@@ -163,7 +163,7 @@ export function MatchHistoryCard({ data, clubId, locale }: MatchHistoryCardProps
   const styles = resultStyles[result]
 
   return (
-    <Link href={`/${locale}/teams/${clubId}/matches/${match.id}`}>
+    <Link href={`/${locale}/clubs/${clubId}/matches/${match.id}`}>
       <Card className={cn(
         'cursor-pointer transition-all hover:shadow-md active:scale-[0.98] border-l-4',
         styles.border,
