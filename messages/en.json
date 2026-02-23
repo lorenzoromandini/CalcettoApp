@@ -128,6 +128,7 @@
     "create": "Create Club",
     "createDescription": "Create a new club",
     "back": "Back",
+    "members": "Members",
     "empty": {
       "title": "No clubs",
       "description": "Create your first club to start organizing matches"
