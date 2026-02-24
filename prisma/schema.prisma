@@ -110,12 +110,12 @@ model Club {
 }
 
 model ClubMember {
-  id       String   @id @default(cuid())
-  clubId   String   @map("club_id")
-  userId   String?  @map("user_id")
-  playerId String?  @map("player_id")
-  role     String   @default("member")
-  joinedAt DateTime @default(now()) @map("joined_at")
+  id        String   @id @default(cuid())
+  clubId    String   @map("club_id")
+  userId    String?  @map("user_id")
+  playerId  String?  @map("player_id")
+  privilege String   @default("member") @map("privilege")
+  joinedAt  DateTime @default(now()) @map("joined_at")
 
   club   Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)

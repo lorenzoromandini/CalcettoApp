@@ -272,7 +272,7 @@
   "settings": {
     "title": "Club settings",
     "backToClub": "Back to club",
-    "notAdmin": "Only admins can access settings",
+    "notOwner": "Only owners can access settings",
     "saving": "Saving...",
     "save": "Save changes",
     "clubInfo": {
@@ -301,8 +301,8 @@
       "members": "Members"
     },
     "roles": {
-      "admin": "Admin",
-      "coAdmin": "Co-Admin",
+      "owner": "Owner",
+      "manager": "Manager",
       "member": "Member"
     },
     "changeRole": "Change Role",

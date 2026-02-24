@@ -2,7 +2,7 @@ import { getMatch } from '@/lib/db/matches'
 import { getMatchGoals } from '@/lib/db/goals'
 import { getClubPlayers } from '@/lib/db/players'
 import { getUserIdFromHeaders } from '@/lib/auth-headers'
-import { isTeamAdmin } from '@/lib/db/clubs'
+import { isClubAdmin } from '@/lib/db/clubs'
 import { notFound, redirect } from 'next/navigation'
 import { MatchResultsClient } from './match-results-client'
 import type { Metadata } from 'next'
@@ -33,7 +33,7 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
   }
 
   // Check admin status
-  const isAdmin = await isTeamAdmin(clubId, userId)
+  const isOwner = await isClubAdmin(clubId, userId)
 
   // Fetch match data
   const match = await getMatch(matchId)
@@ -55,7 +55,7 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
   ])
 
   // Determine if editing is allowed
-  const canEdit = isAdmin && match.status !== 'COMPLETED'
+  const canEdit = isOwner && match.status !== 'COMPLETED'
 
   return (
     <MatchResultsClient
@@ -65,7 +65,7 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
       match={match}
       goals={goals}
       players={players}
-      isAdmin={isAdmin}
+      isAdmin={isOwner}
       canEdit={canEdit}
     />
   )

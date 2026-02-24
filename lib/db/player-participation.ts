@@ -20,7 +20,7 @@ import type { RSVPStatus } from './rsvps'
 // ============================================================================
 
 /**
- * Match player with player details and team info
+ * Match player with player details and club info
  */
 export interface MatchPlayerWithPlayer {
   id: string

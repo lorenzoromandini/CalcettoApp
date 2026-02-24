@@ -64,7 +64,7 @@ export function useCreatePlayer(clubId: string | null): UseCreatePlayerReturn {
     data: CreatePlayerInput
   ): Promise<string> => {
     if (!clubId) {
-      throw new Error('Team ID is required');
+      throw new Error('Club ID is required');
     }
 
     setIsPending(true);
@@ -188,7 +188,7 @@ export function useAddPlayerToTeam(clubId: string | null): UseAddPlayerToTeamRet
     jerseyNumber: number
   ): Promise<void> => {
     if (!clubId) {
-      throw new Error('Team ID is required');
+      throw new Error('Club ID is required');
     }
 
     setIsPending(true);
@@ -200,9 +200,9 @@ export function useAddPlayerToTeam(clubId: string | null): UseAddPlayerToTeamRet
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jerseyNumber }),
       });
-      if (!response.ok) throw new Error('Failed to add player to team');
+      if (!response.ok) throw new Error('Failed to add player to club');
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to add player to team');
+      const error = err instanceof Error ? err : new Error('Failed to add player to club');
       setError(error);
       throw error;
     } finally {
@@ -229,7 +229,7 @@ export function useRemovePlayerFromTeam(clubId: string | null): UseRemovePlayerF
 
   const removePlayerMutation = useCallback(async (playerId: string): Promise<void> => {
     if (!clubId) {
-      throw new Error('Team ID is required');
+      throw new Error('Club ID is required');
     }
 
     setIsPending(true);
@@ -239,9 +239,9 @@ export function useRemovePlayerFromTeam(clubId: string | null): UseRemovePlayerF
       const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}/remove`, {
         method: 'POST',
       });
-      if (!response.ok) throw new Error('Failed to remove player from team');
+      if (!response.ok) throw new Error('Failed to remove player from club');
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to remove player from team');
+      const error = err instanceof Error ? err : new Error('Failed to remove player from club');
       setError(error);
       throw error;
     } finally {

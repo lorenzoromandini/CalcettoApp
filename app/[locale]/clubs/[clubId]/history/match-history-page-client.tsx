@@ -30,7 +30,7 @@ import { getClubMatches } from '@/lib/db/matches'
 import { getMatchGoals, type GoalWithPlayers } from '@/lib/db/goals'
 import { getMatchRatings, type PlayerRatingWithPlayer } from '@/lib/db/player-ratings'
 import { getFormation } from '@/lib/db/formations'
-import { isTeamAdmin } from '@/lib/db/clubs'
+import { isClubAdmin } from '@/lib/db/clubs'
 import { useSession } from '@/components/providers/session-provider'
 import type { Match } from '@/lib/db/schema'
 
@@ -58,7 +58,7 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
   const [isLoading, setIsLoading] = useState(true)
   const [matches, setMatches] = useState<Match[]>([])
   const [matchData, setMatchData] = useState<Map<string, MatchHistoryData>>(new Map())
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
   const [resultFilter, setResultFilter] = useState<ResultFilter>('all')
 
   // Load matches and check admin status
@@ -68,8 +68,8 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
       try {
         // Check admin status
         if (session?.user?.id) {
-          const admin = await isTeamAdmin(clubId, session.user.id)
-          setIsAdmin(admin)
+          const admin = await isClubAdmin(clubId, session.user.id)
+          setIsOwner(admin)
         }
 
         // Get all team matches

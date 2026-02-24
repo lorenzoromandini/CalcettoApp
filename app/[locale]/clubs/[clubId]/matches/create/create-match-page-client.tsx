@@ -26,7 +26,7 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
   const { data: session } = useSession();
   const { createMatch, isPending } = useCreateMatch();
   const { club } = useClub(clubId);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const [isFirstMatch, setIsFirstMatch] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
@@ -43,7 +43,7 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     async function checkAdmin() {
       if (session?.user?.id) {
         const admin = await isClubAdmin(clubId, session.user.id);
-        setIsAdmin(admin);
+        setIsOwner(admin);
       }
       setIsCheckingAdmin(false);
     }
@@ -71,10 +71,10 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
 
   // Redirect if not admin
   useEffect(() => {
-    if (!isCheckingAdmin && !isAdmin) {
+    if (!isCheckingAdmin && !isOwner) {
       router.push(`/${locale}/clubs/${clubId}/matches`);
     }
-  }, [isCheckingAdmin, isAdmin, router, locale, clubId]);
+  }, [isCheckingAdmin, isOwner, router, locale, clubId]);
 
   const handleBack = () => {
     router.push(`/${locale}/clubs/${clubId}/matches`);
@@ -118,7 +118,7 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     );
   }
 
-  if (!isAdmin) {
+  if (!isOwner) {
     return null; // Will redirect
   }
 

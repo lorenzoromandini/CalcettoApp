@@ -25,7 +25,7 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   const { data: session } = useSession();
   const { matches, upcomingMatches, pastMatches, isLoading, error, refetch } = useMatches(clubId);
   const { club } = useClub(clubId);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -33,7 +33,7 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
         try {
           const response = await authFetch(`/api/clubs/${clubId}/admin`);
           const data = await response.json();
-          setIsAdmin(data.isAdmin);
+          setIsOwner(data.isOwner);
         } catch (err) {
           console.error("Failed to check admin status:", err);
         }

@@ -8,7 +8,7 @@ import { ProfileForm } from "./profile-form";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-interface TeamWithJersey {
+interface ClubWithJersey {
   id: string;
   name: string;
   jerseyNumber: number | null;
@@ -21,7 +21,7 @@ export default function ProfilePageClient() {
   const params = useParams();
   const locale = (params.locale as string) || 'it';
   
-  const [teams, setTeams] = useState<TeamWithJersey[]>([]);
+  const [clubs, setClubs] = useState<ClubWithJersey[]>([]);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<{
     id: string;
@@ -41,7 +41,7 @@ export default function ProfilePageClient() {
       // Get fresh user data from API and update localStorage
       Promise.all([
         authFetch("/api/user").then(res => res.json()),
-        authFetch("/api/user/teams").then(res => res.json())
+        authFetch("/api/user/clubs").then(res => res.json())
       ])
         .then(([userData, teamsData]) => {
           if (!userData.error && userData.id) {
@@ -63,8 +63,8 @@ export default function ProfilePageClient() {
               image: userData.image,
             }));
           }
-          if (Array.isArray(teamsData?.teams)) {
-            setTeams(teamsData.teams);
+          if (Array.isArray(teamsData?.clubs)) {
+            setClubs(teamsData.clubs);
           }
         })
         .catch(console.error)
@@ -94,7 +94,7 @@ export default function ProfilePageClient() {
       </div>
       <ProfileForm
         user={userData}
-        teams={teams}
+        clubs={clubs}
       />
     </div>
   );

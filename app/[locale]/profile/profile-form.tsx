@@ -30,7 +30,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-interface TeamWithJersey {
+interface ClubWithJersey {
   id: string;
   name: string;
   jerseyNumber: number | null;
@@ -45,10 +45,10 @@ interface ProfileFormProps {
     nickname: string | null;
     image: string | null;
   };
-  teams: TeamWithJersey[];
+  clubs: ClubWithJersey[];
 }
 
-export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
+export function ProfileForm({ user, clubs: initialClubs }: ProfileFormProps) {
   const router = useRouter();
   const { update: updateSession } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -56,8 +56,8 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
   const [avatarBlob, setAvatarBlob] = useState<Blob | undefined>(undefined);
   const [showCropper, setShowCropper] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [teams, setTeams] = useState<TeamWithJersey[]>(initialTeams);
-  const [originalTeams, setOriginalTeams] = useState<TeamWithJersey[]>(initialTeams);
+  const [clubs, setClubs] = useState<ClubWithJersey[]>(initialClubs);
+  const [originalClubs, setOriginalClubs] = useState<ClubWithJersey[]>(initialClubs);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const {
@@ -74,15 +74,15 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
   });
 
   useEffect(() => {
-    setOriginalTeams(initialTeams);
-  }, [initialTeams]);
+    setOriginalClubs(initialClubs);
+  }, [initialClubs]);
 
   const hasChanges = useCallback(() => {
-    const jerseyChanged = teams.some((club, index) => 
-      club.jerseyNumber !== originalTeams[index]?.jerseyNumber
+    const jerseyChanged = clubs.some((club, index) => 
+      club.jerseyNumber !== originalClubs[index]?.jerseyNumber
     );
     return avatarBlob !== undefined || jerseyChanged;
-  }, [teams, originalTeams, avatarBlob]);
+  }, [clubs, originalClubs, avatarBlob]);
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -132,7 +132,7 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
     if (isNaN(number) || number < 1 || number > 99) {
       return;
     }
-    setTeams(teams.map(t => 
+    setClubs(clubs.map(t => 
       t.id === clubId ? { ...t, jerseyNumber: number } : t
     ));
   };
@@ -155,8 +155,8 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         formData.append('removeImage', 'true');
       }
 
-      const jerseyChanges = teams.filter((club, index) => 
-        club.jerseyNumber !== originalTeams[index]?.jerseyNumber
+      const jerseyChanges = clubs.filter((club, index) => 
+        club.jerseyNumber !== originalClubs[index]?.jerseyNumber
       ).map(t => ({ clubId: t.id, jerseyNumber: t.jerseyNumber, playerId: t.playerId }));
       
       if (jerseyChanges.length > 0) {
@@ -197,7 +197,7 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         }
       }
 
-      setOriginalTeams(teams);
+      setOriginalClubs(clubs);
       setAvatarBlob(undefined);
       setShowSuccessDialog(true);
       router.refresh();
@@ -319,7 +319,7 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
         )}
       </div>
 
-      {teams.length > 0 && (
+      {clubs.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -331,13 +331,13 @@ export function ProfileForm({ user, teams: initialTeams }: ProfileFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {teams.map((team) => (
-              <div key={team.id} className="flex items-center gap-4">
+            {clubs.map((club) => (
+              <div key={club.id} className="flex items-center gap-4">
                 <div className="flex-1">
-                  <Label className="text-sm font-medium">{team.name}</Label>
+                  <Label className="text-sm font-medium">{club.name}</Label>
                   <Select
-                    value={team.jerseyNumber?.toString() || ''}
-                    onValueChange={(value) => handleJerseyChange(team.id, value)}
+                    value={club.jerseyNumber?.toString() || ''}
+                    onValueChange={(value) => handleJerseyChange(club.id, value)}
                   >
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Seleziona numero" />

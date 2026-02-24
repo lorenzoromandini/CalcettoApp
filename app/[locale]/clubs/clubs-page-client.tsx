@@ -16,9 +16,9 @@ interface ClubsPageClientProps {
   locale: string;
 }
 
-interface ClubMemberRole {
+interface ClubMemberPrivilege {
   clubId: string;
-  role: "admin" | "co-admin" | "member";
+  privilege: "owner" | "manager" | "member";
 }
 
 const DEFAULT_CLUB_KEY = "defaultClubId";
@@ -28,7 +28,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const { clubs, isLoading, error, refetch } = useClubs();
-  const [userRoles, setUserRoles] = useState<ClubMemberRole[]>([]);
+  const [userPrivileges, setUserPrivileges] = useState<ClubMemberPrivilege[]>([]);
   const [defaultClubId, setDefaultClubId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,24 +39,24 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
   }, []);
 
   useEffect(() => {
-    const fetchUserRoles = async () => {
+    const fetchUserPrivileges = async () => {
       if (!session?.user?.id) return;
       try {
         const response = await authFetch("/api/clubs/me");
         if (response.ok) {
           const data = await response.json();
-          setUserRoles(data.roles || []);
+          setUserPrivileges(data.privileges || []);
         }
       } catch (err) {
-        console.error("Failed to fetch user roles:", err);
+        console.error("Failed to fetch user privileges:", err);
       }
     };
-    fetchUserRoles();
+    fetchUserPrivileges();
   }, [session?.user?.id]);
 
-  const getClubRole = (clubId: string): "admin" | "co-admin" | "member" | undefined => {
-    const member = userRoles.find((r) => r.clubId === clubId);
-    return member?.role;
+  const getClubPrivilege = (clubId: string): "owner" | "manager" | "member" | undefined => {
+    const member = userPrivileges.find((p) => p.clubId === clubId);
+    return member?.privilege;
   };
 
   const handleClubClick = (clubId: string) => {
@@ -207,7 +207,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
                   club={club}
                   onClick={() => handleClubClick(club.id)}
                   memberCount={club.memberCount || 1}
-                  userRole={getClubRole(club.id)}
+                  userPrivilege={getClubPrivilege(club.id)}
                   isDefault={club.id === defaultClubId}
                 />
               </div>

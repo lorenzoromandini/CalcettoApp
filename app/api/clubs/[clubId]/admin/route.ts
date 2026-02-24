@@ -9,7 +9,7 @@ export async function GET(
   const userId = getUserIdFromRequest(request);
   
   if (!userId) {
-    return NextResponse.json({ isAdmin: false, isCoAdmin: false, role: null }, { status: 401 });
+    return NextResponse.json({ isOwner: false, isManager: false, privilege: null }, { status: 401 });
   }
 
   const { clubId } = await params;
@@ -21,9 +21,9 @@ export async function GET(
     },
   });
 
-  const role = membership?.role || null;
-  const isAdmin = role === 'admin';
-  const isCoAdmin = role === 'co-admin';
+  const privilege = membership?.privilege || null;
+  const isOwner = privilege === 'owner';
+  const isManager = privilege === 'manager';
 
-  return NextResponse.json({ isAdmin, isCoAdmin, role });
+  return NextResponse.json({ isOwner, isManager, privilege });
 }

@@ -32,7 +32,7 @@ export default function TeamSettingsPage() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
 
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { data: session } = useSession();
@@ -55,9 +55,9 @@ export default function TeamSettingsPage() {
     try {
       const res = await authFetch(`/api/clubs/${clubId}/admin`);
       const data = await res.json();
-      setIsAdmin(data.isAdmin);
+      setIsOwner(data.isOwner);
     } catch {
-      setIsAdmin(false);
+      setIsOwner(false);
     }
     
     setIsLoading(false);
@@ -94,7 +94,7 @@ export default function TeamSettingsPage() {
       setSaveSuccess(true);
       refetch();
     } catch (error) {
-      console.error('Failed to save team settings:', error);
+      console.error('Failed to save club settings:', error);
     } finally {
       setIsSaving(false);
     }
@@ -120,7 +120,7 @@ export default function TeamSettingsPage() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isOwner) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">

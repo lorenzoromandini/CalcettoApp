@@ -2,7 +2,7 @@ import { getMatch } from '@/lib/db/matches'
 import { getMatchParticipants } from '@/lib/db/player-participation'
 import { getMatchRatings } from '@/lib/db/player-ratings'
 import { getUserIdFromHeaders } from '@/lib/auth-headers'
-import { isTeamAdmin } from '@/lib/db/clubs'
+import { isClubAdmin } from '@/lib/db/clubs'
 import { notFound, redirect } from 'next/navigation'
 import { MatchRatingsClient } from './match-ratings-client'
 import type { Metadata } from 'next'
@@ -32,7 +32,7 @@ export default async function MatchRatingsPage({ params }: MatchRatingsPageProps
   }
 
   // Check admin status
-  const isAdmin = await isTeamAdmin(clubId, userId)
+  const isOwner = await isClubAdmin(clubId, userId)
 
   // Fetch match data
   const match = await getMatch(matchId)
@@ -56,7 +56,7 @@ export default async function MatchRatingsPage({ params }: MatchRatingsPageProps
 
   // Determine if editing is allowed
   // Only FINISHED matches can be edited, not COMPLETED
-  const canEdit = isAdmin && match.status === 'FINISHED'
+  const canEdit = isOwner && match.status === 'FINISHED'
 
   return (
     <MatchRatingsClient
@@ -66,7 +66,7 @@ export default async function MatchRatingsPage({ params }: MatchRatingsPageProps
       match={match}
       playedPlayers={playedPlayers}
       initialRatings={ratings}
-      isAdmin={isAdmin}
+      isAdmin={isOwner}
       canEdit={canEdit}
     />
   )

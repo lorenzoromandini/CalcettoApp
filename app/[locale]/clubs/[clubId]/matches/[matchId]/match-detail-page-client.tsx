@@ -35,7 +35,7 @@ import { RSVPList } from "@/components/matches/rsvp-list";
 import { AvailabilityCounter } from "@/components/matches/availability-counter";
 import { MatchLifecycleButtons } from "@/components/matches/match-lifecycle-buttons";
 import { CompletedMatchDetail, type CompletedMatchData } from "@/components/matches/completed-match-detail";
-import { isTeamAdmin } from "@/lib/db/clubs";
+import { isClubAdmin } from "@/lib/db/clubs";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "@/components/providers/session-provider";
@@ -67,7 +67,7 @@ export function MatchDetailPageClient({
   const router = useRouter();
   const { match, isLoading: isMatchLoading, error, refetch } = useMatch(matchId);
   const { club } = useClub(clubId);
-  const { players: teamPlayers } = usePlayers(clubId);
+  const { players: clubPlayers } = usePlayers(clubId);
   const { cancelMatch, uncancelMatch, isPending: isActionPending } = useCancelMatch();
   
   // Get formation data
@@ -79,7 +79,7 @@ export function MatchDetailPageClient({
   // Get ratings data (for FINISHED and COMPLETED)
   const { ratings, isLoading: isRatingsLoading } = usePlayerRatings(matchId);
   
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -106,20 +106,20 @@ export function MatchDetailPageClient({
       setCurrentUserId(session.user.id);
       
       // Check admin status
-      const admin = await isTeamAdmin(clubId, session.user!.id);
-      setIsAdmin(admin);
+      const admin = await isClubAdmin(clubId, session.user!.id);
+      setIsOwner(admin);
       
-      // Find current player's ID from team players
-      const currentPlayer = teamPlayers.find(p => p.user_id === session.user!.id);
+      // Find current player's ID from club players
+      const currentPlayer = clubPlayers.find(p => p.user_id === session.user!.id);
       if (currentPlayer) {
         setCurrentPlayerId(currentPlayer.id);
       }
     }
     
-    if (teamPlayers.length > 0 && session?.user?.id) {
+    if (clubPlayers.length > 0 && session?.user?.id) {
       loadUserData();
     }
-  }, [clubId, teamPlayers, session]);
+  }, [clubId, clubPlayers, session]);
 
   const handleBack = () => {
     router.push(`/${locale}/clubs/${clubId}/matches`);
@@ -225,9 +225,9 @@ export function MatchDetailPageClient({
 
   const isLoading = isMatchLoading || isRSVPLoading;
   const canShowRSVP = match?.status === 'SCHEDULED' && currentPlayerId;
-  const canEdit = isAdmin && match?.status === 'SCHEDULED';
-  const canCancel = isAdmin && match?.status === 'SCHEDULED';
-  const canUncancel = isAdmin && match?.status === 'CANCELLED';
+  const canEdit = isOwner && match?.status === 'SCHEDULED';
+  const canCancel = isOwner && match?.status === 'SCHEDULED';
+  const canUncancel = isOwner && match?.status === 'CANCELLED';
   
   // Determine what to show based on status
   const isCompleted = match?.status === 'COMPLETED';
@@ -283,7 +283,7 @@ export function MatchDetailPageClient({
       goals,
       ratings,
       formation: formation || null,
-      players: teamPlayers.map(p => ({
+      players: clubPlayers.map(p => ({
         id: p.id,
         name: p.name,
         surname: p.surname ?? undefined,
@@ -383,7 +383,7 @@ export function MatchDetailPageClient({
             </div>
             
             {/* Admin Actions */}
-            {isAdmin && (
+            {isOwner && (
               <div className="flex items-center gap-2 flex-wrap">
                 {canEdit && (
                   <Button variant="outline" size="sm" onClick={handleEdit}>
@@ -492,7 +492,7 @@ export function MatchDetailPageClient({
             matchId={matchId}
             clubId={clubId}
             status={match.status}
-            isAdmin={isAdmin}
+            isAdmin={isOwner}
             homeScore={homeScore}
             awayScore={awayScore}
           />
@@ -662,7 +662,7 @@ export function MatchDetailPageClient({
                 
                 <Button asChild variant="outline" className="w-full">
                   <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/formation`}>
-                    {isAdmin ? t("detail.editFormation") : t("detail.viewFormation")}
+                    {isOwner ? t("detail.editFormation") : t("detail.viewFormation")}
                   </Link>
                 </Button>
               </div>
@@ -674,7 +674,7 @@ export function MatchDetailPageClient({
                 <p className="text-sm text-muted-foreground">
                   {t("detail.noFormation")}
                 </p>
-                {isAdmin && (
+                {isOwner && (
                   <Button asChild>
                     <Link href={`/${locale}/clubs/${clubId}/matches/${matchId}/formation`}>
                       {t("detail.createFormation")}

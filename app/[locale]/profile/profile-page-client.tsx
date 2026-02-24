@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-interface TeamWithJersey {
+interface ClubWithJersey {
   id: string;
   name: string;
   jerseyNumber: number | null;
@@ -21,7 +21,7 @@ export default function ProfilePageClient() {
   const params = useParams();
   const locale = (params.locale as string) || 'it';
   
-  const [teams, setTeams] = useState<TeamWithJersey[]>([]);
+  const [clubs, setClubs] = useState<ClubWithJersey[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function ProfilePageClient() {
     }
 
     if (session?.user?.id) {
-      authFetch("/api/user/teams")
+      authFetch("/api/user/clubs")
         .then(res => res.json())
         .then(data => {
-          if (Array.isArray(data.teams)) {
-            setTeams(data.teams);
+          if (Array.isArray(data.clubs)) {
+            setClubs(data.clubs);
           }
         })
         .catch(console.error)
@@ -93,15 +93,15 @@ export default function ProfilePageClient() {
             <CardTitle>I tuoi club</CardTitle>
           </CardHeader>
           <CardContent>
-            {teams.length === 0 ? (
+            {clubs.length === 0 ? (
               <p className="text-muted-foreground">Non sei ancora membro di nessun club.</p>
             ) : (
               <div className="space-y-2">
-                {teams.map(team => (
-                  <div key={team.id} className="flex items-center justify-between p-3 rounded-lg border">
-                    <span className="font-medium">{team.name}</span>
-                    {team.jerseyNumber && (
-                      <span className="text-sm text-muted-foreground">#{team.jerseyNumber}</span>
+                {clubs.map(club => (
+                  <div key={club.id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <span className="font-medium">{club.name}</span>
+                    {club.jerseyNumber && (
+                      <span className="text-sm text-muted-foreground">#{club.jerseyNumber}</span>
                     )}
                   </div>
                 ))}

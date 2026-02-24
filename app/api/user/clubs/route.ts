@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       where: { userId: userId },
     });
 
-    const teams = await Promise.all(
+    const clubs = await Promise.all(
       memberships.map(async (membership) => {
         let jerseyNumber = null;
         let playerId = null;
@@ -56,11 +56,11 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ teams });
+    return NextResponse.json({ clubs });
   } catch (error) {
-    console.error('Error fetching user teams:', error);
+    console.error('Error fetching user clubs:', error);
     return NextResponse.json(
-      { error: 'Errore durante il caricamento delle squadre' },
+      { error: 'Errore durante il caricamento dei club' },
       { status: 500 }
     );
   }

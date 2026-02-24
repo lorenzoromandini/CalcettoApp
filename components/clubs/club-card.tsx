@@ -10,11 +10,11 @@ interface ClubCardProps {
   club: Club & { memberCount?: number };
   onClick?: () => void;
   memberCount?: number;
-  userRole?: 'admin' | 'co-admin' | 'member';
+  userPrivilege?: 'owner' | 'manager' | 'member';
   isDefault?: boolean;
 }
 
-export function ClubCard({ club, onClick, memberCount, userRole, isDefault }: ClubCardProps) {
+export function ClubCard({ club, onClick, memberCount, userPrivilege, isDefault }: ClubCardProps) {
   const t = useTranslations("clubs");
 
   return (
@@ -53,7 +53,7 @@ export function ClubCard({ club, onClick, memberCount, userRole, isDefault }: Cl
                 )}
               </div>
               
-              {userRole && userRole !== 'member' && (
+              {userPrivilege && userPrivilege !== 'member' && (
                 <Shield className="h-4 w-4 text-primary shrink-0" />
               )}
             </div>

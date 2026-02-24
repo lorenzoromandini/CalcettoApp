@@ -38,14 +38,14 @@ export default async function FormationPage({ params }: FormationPageProps) {
     notFound();
   }
 
-  // Check team membership
+  // Check club membership
   const membership = await prisma.clubMember.findFirst({
     where: {
       clubId,
       userId,
     },
     select: {
-      role: true,
+      privilege: true,
     },
   });
 
@@ -53,7 +53,7 @@ export default async function FormationPage({ params }: FormationPageProps) {
     redirect(`/clubs/${clubId}`);
   }
 
-  const isAdmin = membership.role === 'admin' || membership.role === 'co-admin';
+  const isOwner = membership.privilege === 'owner' || membership.privilege === 'manager';
 
   // Get players in team with their details
   const playerClubs = await prisma.playerClub.findMany({
@@ -109,7 +109,7 @@ export default async function FormationPage({ params }: FormationPageProps) {
         clubId={clubId}
         mode={formationMode}
         players={players}
-        isAdmin={isAdmin}
+        isAdmin={isOwner}
       />
     </div>
   );

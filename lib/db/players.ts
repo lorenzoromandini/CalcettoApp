@@ -97,7 +97,7 @@ export async function getPlayer(playerId: string): Promise<Player | null> {
   return toPlayerType(player);
 }
 
-export async function getPlayerWithTeamInfo(playerId: string, clubId: string) {
+export async function getPlayerWithClubInfo(playerId: string, clubId: string) {
   const playerClub = await prisma.playerClub.findFirst({
     where: {
       playerId,
