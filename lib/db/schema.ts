@@ -1,25 +1,17 @@
-export type { Team, ClubMember, Player, PlayerClub, Match, MatchPlayer } from '@/types/database';
+/**
+ * Schema Type Exports
+ * 
+ * Re-exports database types from @/types/database for convenience.
+ * Updated for new schema - removed eliminated model types.
+ */
 
-// Extend Club type with runtime properties
-export interface Club {
-  id: string;
-  name: string;
-  description: string | null;
-  image_url: string | null;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-  sync_status: string | null;
-  memberCount?: number;
-}
+export type { Club, ClubMember, User, Match, Formation, FormationPosition, Goal, PlayerRating } from '@/types/database';
 
-export type PlayerRole = 'goalkeeper' | 'defender' | 'midfielder' | 'attacker';
+// Backward compatibility - Club is the new Team
+export type { Club as Team } from '@/types/database';
 
-export type MatchStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
-
-export type MatchMode = '5vs5' | '8vs8';
-
+// RSVP Status type (no longer a database enum)
 export type RSVPStatus = 'in' | 'out' | 'maybe';
 
+// Sync Status for offline support
 export type SyncStatus = 'synced' | 'pending' | 'error';

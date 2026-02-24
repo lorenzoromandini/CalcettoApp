@@ -5,10 +5,15 @@
  * 
  * Provides CRUD operations for matches using Prisma and PostgreSQL.
  * Replaces the Supabase-based implementation.
+ * 
+ * Updated for new schema:
+ * - Removed sync_status field
+ * - Mode is now enum (FIVE_V_FIVE/EIGHT_V_EIGHT/ELEVEN_V_ELEVEN)
+ * - Using MatchStatus and MatchMode enums from Prisma
  */
 
 import { prisma } from './index';
-import { MatchStatus } from '@prisma/client';
+import { MatchStatus, MatchMode } from '@prisma/client';
 import type { Match } from '@/types/database';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
 
@@ -18,15 +23,20 @@ function toMatchType(dbMatch: any): Match {
     club_id: dbMatch.clubId,
     scheduled_at: dbMatch.scheduledAt.toISOString(),
     location: dbMatch.location ?? undefined,
-    mode: dbMatch.mode as Match['mode'],
-    status: dbMatch.status as Match['status'],
+    mode: dbMatch.mode as MatchMode,
+    status: dbMatch.status as MatchStatus,
     home_score: dbMatch.homeScore ?? undefined,
     away_score: dbMatch.awayScore ?? undefined,
     notes: dbMatch.notes ?? undefined,
     created_by: dbMatch.createdBy || '',
     created_at: dbMatch.createdAt.toISOString(),
     updated_at: dbMatch.updatedAt.toISOString(),
-    sync_status: dbMatch.syncStatus ?? null,
+    score_finalized_by: dbMatch.scoreFinalizedBy ?? undefined,
+    ratings_completed_by: dbMatch.ratingsCompletedBy ?? undefined,
+    score_finalized_at: dbMatch.scoreFinalizedAt?.toISOString() ?? undefined,
+    ratings_completed_at: dbMatch.ratingsCompletedAt?.toISOString() ?? undefined,
+    shared_token: dbMatch.sharedToken ?? undefined,
+    shared_at: dbMatch.sharedAt?.toISOString() ?? undefined,
   };
 }
 
@@ -52,8 +62,8 @@ export async function createMatch(
       clubId,
       scheduledAt: new Date(data.scheduled_at),
       location: data.location,
-      mode: data.mode,
-      status: MatchStatus.SCHEDULED,
+      mode: data.mode as MatchMode,
+      status: 'SCHEDULED' as MatchStatus,
       notes: data.notes,
       createdBy: userId,
     },
@@ -111,7 +121,7 @@ export async function getUpcomingMatches(clubId: string): Promise<Match[]> {
       scheduledAt: {
         gte: now,
       },
-      status: MatchStatus.SCHEDULED,
+      status: 'SCHEDULED' as MatchStatus,
     },
     orderBy: {
       scheduledAt: 'asc',
@@ -142,7 +152,7 @@ export async function getPastMatches(clubId: string): Promise<Match[]> {
         },
         {
           status: {
-            in: [MatchStatus.COMPLETED, MatchStatus.CANCELLED],
+            in: ['COMPLETED', 'CANCELLED'] as MatchStatus[],
           },
         },
       ],
@@ -175,7 +185,7 @@ export async function updateMatch(
     throw new Error('Match not found');
   }
 
-  if (existing.status !== MatchStatus.SCHEDULED) {
+  if (existing.status !== 'SCHEDULED') {
     throw new Error('Cannot update match that has already started or been cancelled');
   }
 
@@ -184,6 +194,7 @@ export async function updateMatch(
     data: {
       ...data,
       scheduledAt: data.scheduled_at ? new Date(data.scheduled_at) : undefined,
+      mode: data.mode ? data.mode as MatchMode : undefined,
     },
   });
 
@@ -206,14 +217,14 @@ export async function cancelMatch(matchId: string): Promise<void> {
     throw new Error('Match not found');
   }
 
-  if (existing.status !== MatchStatus.SCHEDULED) {
+  if (existing.status !== 'SCHEDULED') {
     throw new Error('Cannot cancel match that has already started or been cancelled');
   }
 
   await prisma.match.update({
     where: { id: matchId },
     data: {
-      status: MatchStatus.CANCELLED,
+      status: 'CANCELLED' as MatchStatus,
     },
   });
 
@@ -235,14 +246,14 @@ export async function uncancelMatch(matchId: string): Promise<void> {
     throw new Error('Match not found');
   }
 
-  if (existing.status !== MatchStatus.CANCELLED) {
+  if (existing.status !== 'CANCELLED') {
     throw new Error('Cannot uncancel match that is not cancelled');
   }
 
   await prisma.match.update({
     where: { id: matchId },
     data: {
-      status: MatchStatus.SCHEDULED,
+      status: 'SCHEDULED' as MatchStatus,
     },
   });
 
@@ -274,8 +285,8 @@ export async function isMatchAdmin(matchId: string, userId: string): Promise<boo
     where: {
       clubId: match.clubId,
       userId: userId,
-      privilege: {
-        in: ['owner', 'manager'],
+      privileges: {
+        in: [ClubPrivilege.OWNER, ClubPrivilege.MANAGER],
       },
     },
   });
@@ -283,4 +294,5 @@ export async function isMatchAdmin(matchId: string, userId: string): Promise<boo
   return !!membership;
 }
 
-
+// Re-export enums for convenience
+export { ClubPrivilege };

@@ -1,10 +1,14 @@
 'use server'
 
 /**
- * Player Evolution Data Server Actions
+ * Member Evolution Data Server Actions
  * 
- * Provides data aggregation for player evolution charts.
+ * Provides data aggregation for member evolution charts.
  * Aggregates goals, assists, and ratings per match for trend visualization.
+ * 
+ * Updated for new schema:
+ * - Uses clubMemberId instead of playerId
+ * - FormationPosition tracks played status
  */
 
 import { prisma } from '@/lib/db'
@@ -29,34 +33,34 @@ export interface EvolutionDataPoint {
 }
 
 // ============================================================================
-// Get Player Evolution Data
+// Get Member Evolution Data
 // ============================================================================
 
 /**
- * Get player evolution data for chart visualization
+ * Get member evolution data for chart visualization
  * Aggregates goals, assists, and rating per match
  * 
- * @param playerId - Player ID
+ * @param clubMemberId - ClubMember ID
  * @param clubId - Club ID to filter matches
  * @param limit - Maximum number of matches to include (default 10)
  * @returns Array of evolution data points ordered chronologically
  */
-export async function getPlayerEvolution(
-  playerId: string,
+export async function getMemberEvolution(
+  clubMemberId: string,
   clubId: string,
   limit: number = 10
 ): Promise<EvolutionDataPoint[]> {
-  // Get all matches where player participated (has a formation position with side)
+  // Get all matches where member participated (has a formation position with played=true)
   const positions = await prisma.formationPosition.findMany({
     where: {
-      playerId,
+      clubMemberId,
       formation: {
         match: {
           clubId,
           status: MatchStatus.COMPLETED,
         },
       },
-      side: { not: null },
+      played: true,
     },
     include: {
       formation: {
@@ -83,35 +87,35 @@ export async function getPlayerEvolution(
   if (positions.length === 0) return []
 
   // Get match IDs for parallel queries
-  const matchIds = positions.map(p => p.formation.matchId)
+  const matchIds = positions.map((p: { formation: { matchId: string } }) => p.formation.matchId)
 
-  // Get goals for each match (scored by player, excluding own goals)
+  // Get goals for each match (scored by member, excluding own goals)
   const goalsByMatch = await prisma.goal.groupBy({
     by: ['matchId'],
     where: {
       matchId: { in: matchIds },
-      scorerId: playerId,
+      scorerId: clubMemberId,
       isOwnGoal: false,
     },
     _count: true,
   })
-  const goalsMap = new Map(goalsByMatch.map(g => [g.matchId, g._count]))
+  const goalsMap = new Map(goalsByMatch.map((g: { matchId: string; _count: number }) => [g.matchId, g._count]))
 
   // Get assists for each match
   const assistsByMatch = await prisma.goal.groupBy({
     by: ['matchId'],
     where: {
       matchId: { in: matchIds },
-      assisterId: playerId,
+      assisterId: clubMemberId,
     },
     _count: true,
   })
-  const assistsMap = new Map(assistsByMatch.map(a => [a.matchId, a._count]))
+  const assistsMap = new Map(assistsByMatch.map((a: { matchId: string; _count: number }) => [a.matchId, a._count]))
 
   // Get ratings for each match
   const ratings = await prisma.playerRating.findMany({
     where: {
-      playerId,
+      clubMemberId,
       matchId: { in: matchIds },
     },
     select: {
@@ -119,10 +123,10 @@ export async function getPlayerEvolution(
       rating: true,
     },
   })
-  const ratingsMap = new Map(ratings.map(r => [r.matchId, r.rating.toNumber()]))
+  const ratingsMap = new Map(ratings.map((r: { matchId: string; rating: { toNumber: () => number } }) => [r.matchId, r.rating.toNumber()]))
 
   // Build evolution data
-  return positions.map(p => {
+  return positions.map((p: { formation: { match: { id: string; scheduledAt: Date } } }) => {
     const match = p.formation.match
     const date = match.scheduledAt
     const rating = ratingsMap.get(match.id) ?? null
@@ -141,3 +145,6 @@ export async function getPlayerEvolution(
     }
   })
 }
+
+// Backward compatibility alias
+export const getPlayerEvolution = getMemberEvolution;
