@@ -5,12 +5,16 @@
  * 
  * Handles match state transitions: start, end, complete, and final results.
  * All actions require admin/co-admin role.
+ * 
+ * Updated for new schema:
+ * - Formation now has isHome boolean
+ * - FormationPosition tracks played status instead of MatchPlayer
+ * - Removed MatchPlayer model references
  */
 
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/clubs'
-import { initializeParticipation } from '@/lib/db/player-participation'
 import { MatchStatus } from '@prisma/client'
 import type { Match } from '@prisma/client'
 
@@ -31,36 +35,30 @@ const ERRORS = {
 }
 
 // ============================================================================
-// Helper: Set side for all positions in a match's formation
+// Helper: Mark all formation positions as played
 // ============================================================================
 
 /**
- * Set the side field for all FormationPosition records based on positionX
- * - positionX < 5 → 'home' (left side of pitch)
- * - positionX >= 5 → 'away' (right side of pitch)
+ * Mark all FormationPosition records as played=true
+ * Called when match transitions to FINISHED state
  */
-async function setPositionSides(matchId: string): Promise<void> {
-  // Get the formation for this match
-  const formation = await prisma.formation.findUnique({
+async function markFormationPositionsAsPlayed(matchId: string): Promise<void> {
+  // Get formations for this match
+  const formations = await prisma.formation.findMany({
     where: { matchId },
     include: { positions: true },
   })
 
-  if (!formation) {
-    console.log('[MatchLifecycle] No formation found for match:', matchId)
-    return
+  for (const formation of formations) {
+    for (const position of formation.positions) {
+      await prisma.formationPosition.update({
+        where: { id: position.id },
+        data: { played: true },
+      })
+    }
   }
 
-  // Update each position with its side
-  for (const position of formation.positions) {
-    const side = position.positionX < 5 ? 'home' : 'away'
-    await prisma.formationPosition.update({
-      where: { id: position.id },
-      data: { side },
-    })
-  }
-
-  console.log('[MatchLifecycle] Set sides for', formation.positions.length, 'positions in match:', matchId)
+  console.log('[MatchLifecycle] Marked formation positions as played for match:', matchId)
 }
 
 // ============================================================================
@@ -154,9 +152,8 @@ export async function endMatch(matchId: string): Promise<Match> {
     },
   })
 
-  // Initialize participation: mark all RSVP 'in' players as played
-  // This is done after the match ends so admin can adjust later
-  await initializeParticipation(matchId)
+  // Mark all formation positions as played
+  await markFormationPositionsAsPlayed(matchId)
 
   return toMatchType(updatedMatch)
 }
@@ -192,10 +189,6 @@ export async function completeMatch(matchId: string): Promise<Match> {
   if (match.status !== MatchStatus.FINISHED) {
     throw new Error(ERRORS.INVALID_STATUS.COMPLETE)
   }
-
-  // Set side for all positions before completing
-  // This records which team each player was on for statistics
-  await setPositionSides(matchId)
 
   // Update match status
   const updatedMatch = await prisma.match.update({
@@ -259,9 +252,8 @@ export async function inputFinalResults(
     },
   })
 
-  // Initialize participation: mark all RSVP 'in' players as played
-  // This is done after the match ends so admin can adjust later
-  await initializeParticipation(matchId)
+  // Mark all formation positions as played
+  await markFormationPositionsAsPlayed(matchId)
 
   return toMatchType(updatedMatch)
 }

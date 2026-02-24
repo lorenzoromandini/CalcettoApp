@@ -4,12 +4,33 @@
  * Club Database Operations - Prisma Version
  * 
  * Provides CRUD operations for clubs using Prisma and PostgreSQL.
- * Replaces the Supabase-based implementation.
+ * Aligned with the AGENTS.md reference schema.
+ * 
+ * Key changes:
+ * - ClubMember now contains player data (primaryRole, secondaryRoles, jerseyNumber)
+ * - ClubPrivilege is now an enum (MEMBER, MANAGER, OWNER)
+ * - Removed syncStatus from Club
  */
 
 import { prisma } from './index';
-import type { Club, ClubMember } from '@/types/database';
+import type { Club, ClubMember, User } from '@/types/database';
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club';
+// ClubPrivilege enum values
+const ClubPrivilege = {
+  MEMBER: 'MEMBER',
+  MANAGER: 'MANAGER',
+  OWNER: 'OWNER',
+} as const;
+type ClubPrivilege = typeof ClubPrivilege[keyof typeof ClubPrivilege];
+
+// PlayerRole enum values
+const PlayerRole = {
+  POR: 'POR',
+  DIF: 'DIF',
+  CEN: 'CEN',
+  ATT: 'ATT',
+} as const;
+type PlayerRole = typeof PlayerRole[keyof typeof PlayerRole];
 
 function toClubType(dbClub: any): Club {
   return {
@@ -21,24 +42,32 @@ function toClubType(dbClub: any): Club {
     created_at: dbClub.createdAt.toISOString(),
     updated_at: dbClub.updatedAt.toISOString(),
     deleted_at: dbClub.deletedAt?.toISOString() ?? null,
-    sync_status: dbClub.syncStatus ?? null,
   };
 }
 
-function toClubMemberType(dbMember: any): ClubMember {
+function toClubMemberType(dbMember: any): ClubMember & { user: User | null } {
   return {
     id: dbMember.id,
     club_id: dbMember.clubId,
-    user_id: dbMember.userId ?? null,
-    player_id: dbMember.playerId ?? null,
-    privilege: dbMember.privilege as ClubMember['privilege'],
+    user_id: dbMember.userId,
+    privileges: dbMember.privileges as ClubMember['privileges'],
     joined_at: dbMember.joinedAt.toISOString(),
+    primary_role: dbMember.primaryRole as PlayerRole,
+    secondary_roles: (dbMember.secondaryRoles as PlayerRole[]) || [],
+    jersey_number: dbMember.jerseyNumber,
+    user: dbMember.user ? {
+      id: dbMember.user.id,
+      email: dbMember.user.email,
+      first_name: dbMember.user.firstName,
+      last_name: dbMember.user.lastName,
+      nickname: dbMember.user.nickname ?? null,
+      image: dbMember.user.image ?? null,
+      password: dbMember.user.password ?? null,
+      created_at: dbMember.user.createdAt.toISOString(),
+      updated_at: dbMember.user.updatedAt.toISOString(),
+      last_login: dbMember.user.lastLogin?.toISOString() ?? null,
+    } : null,
   };
-}
-
-// Backward compatibility alias
-function toClubPrivilegeType(dbMember: any): ClubMember {
-  return toClubMemberType(dbMember);
 }
 
 // ============================================================================
@@ -63,7 +92,10 @@ export async function createClub(
     data: {
       clubId: club.id,
       userId: userId,
-      privilege: 'owner',
+      privileges: ClubPrivilege.OWNER,
+      primaryRole: PlayerRole.CEN,
+      secondaryRoles: [],
+      jerseyNumber: 1,
     },
   });
 
@@ -91,7 +123,6 @@ export async function getUserClubs(userId: string): Promise<(Club & { memberCoun
     },
   });
 
-  // Ottieni il conteggio reale dei membri per ogni club
   const clubIds = memberships.map(m => m.clubId);
   const memberCounts = await prisma.clubMember.groupBy({
     by: ['clubId'],
@@ -99,21 +130,13 @@ export async function getUserClubs(userId: string): Promise<(Club & { memberCoun
       clubId: {
         in: clubIds,
       },
-      userId: {
-        not: null,
-      },
     },
     _count: {
-      userId: true,
+      id: true,
     },
   });
 
-  const countMap = new Map(memberCounts.map(m => [m.clubId, m._count.userId]));
-
-  // Log di debug
-  console.log('Club IDs:', clubIds);
-  console.log('Member counts from DB:', memberCounts);
-  console.log('Final count map:', Object.fromEntries(countMap));
+  const countMap = new Map(memberCounts.map(m => [m.clubId, m._count.id]));
 
   return memberships.map(m => ({
     ...toClubType(m.club),
@@ -170,8 +193,8 @@ export async function isClubAdmin(clubId: string, userId: string): Promise<boole
     where: {
       clubId,
       userId,
-      privilege: {
-        in: ['owner', 'manager'],
+      privileges: {
+        in: [ClubPrivilege.OWNER, ClubPrivilege.MANAGER],
       },
     },
   });
@@ -193,67 +216,35 @@ export async function isClubMember(clubId: string, userId: string): Promise<bool
   return !!membership;
 }
 
-export async function getClubMembers(clubId: string): Promise<ClubMember[]> {
+export async function getClubMembers(clubId: string): Promise<(ClubMember & { user: User | null })[]> {
   const members = await prisma.clubMember.findMany({
     where: { clubId },
     include: {
       user: {
         select: {
           id: true,
+          email: true,
           firstName: true,
           lastName: true,
           nickname: true,
-          email: true,
           image: true,
+          password: true,
+          createdAt: true,
+          updatedAt: true,
+          lastLogin: true,
         },
       },
-      player: true,
+    },
+    orderBy: {
+      jerseyNumber: 'asc',
     },
   });
 
-  return members.map((m) => ({
-    id: m.id,
-    club_id: m.clubId,
-    user_id: m.userId ?? null,
-    player_id: m.playerId ?? null,
-    privilege: m.privilege as ClubMember['privilege'],
-    joined_at: m.joinedAt.toISOString(),
-    user: m.user ? {
-      id: m.user.id,
-      firstName: m.user.firstName,
-      lastName: m.user.lastName,
-      nickname: m.user.nickname,
-      email: m.user.email,
-      image: m.user.image,
-    } : null,
-  }));
+  return members.map(toClubMemberType);
 }
 
-export async function getClubMembersWithUsers(clubId: string): Promise<any[]> {
-  const members = await prisma.clubMember.findMany({
-    where: { clubId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          nickname: true,
-          email: true,
-        },
-      },
-    },
-  });
-
-  return members.filter(m => m.userId !== null).map(m => ({
-    id: m.id,
-    clubId: m.clubId,
-    userId: m.userId,
-    playerId: m.playerId,
-    privilege: m.privilege,
-    joinedAt: m.joinedAt,
-    user: m.user,
-  }));
+export async function getClubMembersWithUsers(clubId: string): Promise<(ClubMember & { user: User | null })[]> {
+  return getClubMembers(clubId);
 }
 
 export async function getClubMemberCount(clubId: string): Promise<number> {
@@ -269,7 +260,7 @@ export async function getClubMemberCount(clubId: string): Promise<number> {
 export async function updateMemberPrivilege(
   clubId: string,
   memberId: string,
-  newPrivilege: 'owner' | 'manager' | 'member'
+  newPrivilege: ClubPrivilege
 ): Promise<void> {
   await prisma.clubMember.update({
     where: {
@@ -277,7 +268,7 @@ export async function updateMemberPrivilege(
       clubId,
     },
     data: {
-      privilege: newPrivilege,
+      privileges: newPrivilege,
     },
   });
 }
@@ -302,12 +293,11 @@ export async function transferOwnership(
   currentAdminId: string,
   newAdminId: string
 ): Promise<void> {
-  // Get current admin membership
   const currentAdmin = await prisma.clubMember.findFirst({
     where: {
       clubId,
       userId: currentAdminId,
-      privilege: 'owner',
+      privileges: ClubPrivilege.OWNER,
     },
   });
 
@@ -325,14 +315,141 @@ export async function transferOwnership(
   // Demote current admin to member
   await prisma.clubMember.update({
     where: { id: currentAdmin.id },
-    data: { privilege: 'member' },
+    data: { privileges: ClubPrivilege.MEMBER },
   });
 
   // Promote new admin
   await prisma.clubMember.update({
     where: { id: newAdmin.id },
-    data: { privilege: 'owner' },
+    data: { privileges: ClubPrivilege.OWNER },
   });
+}
+
+// ============================================================================
+// Member (Player) Data Management
+// ============================================================================
+
+export async function createClubMember(
+  clubId: string,
+  userId: string,
+  data: {
+    jerseyNumber: number;
+    primaryRole: PlayerRole;
+    secondaryRoles?: PlayerRole[];
+  }
+): Promise<string> {
+  const member = await prisma.clubMember.create({
+    data: {
+      clubId,
+      userId,
+      privileges: ClubPrivilege.MEMBER,
+      primaryRole: data.primaryRole,
+      secondaryRoles: data.secondaryRoles || [],
+      jerseyNumber: data.jerseyNumber,
+    },
+  });
+
+  return member.id;
+}
+
+export async function updateClubMember(
+  clubId: string,
+  memberId: string,
+  data: {
+    jerseyNumber?: number;
+    primaryRole?: PlayerRole;
+    secondaryRoles?: PlayerRole[];
+  }
+): Promise<void> {
+  await prisma.clubMember.update({
+    where: {
+      id: memberId,
+      clubId,
+    },
+    data: {
+      ...(data.jerseyNumber !== undefined && { jerseyNumber: data.jerseyNumber }),
+      ...(data.primaryRole !== undefined && { primaryRole: data.primaryRole }),
+      ...(data.secondaryRoles !== undefined && { secondaryRoles: data.secondaryRoles }),
+    },
+  });
+}
+
+export async function getClubMember(clubId: string, memberId: string): Promise<(ClubMember & { user: User | null }) | null> {
+  const member = await prisma.clubMember.findFirst({
+    where: {
+      id: memberId,
+      clubId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          image: true,
+          password: true,
+          createdAt: true,
+          updatedAt: true,
+          lastLogin: true,
+        },
+      },
+    },
+  });
+
+  if (!member) return null;
+  return toClubMemberType(member);
+}
+
+export async function getClubMemberByUserId(clubId: string, userId: string): Promise<(ClubMember & { user: User | null }) | null> {
+  const member = await prisma.clubMember.findUnique({
+    where: {
+      clubId_userId: {
+        clubId,
+        userId,
+      },
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          image: true,
+          password: true,
+          createdAt: true,
+          updatedAt: true,
+          lastLogin: true,
+        },
+      },
+    },
+  });
+
+  if (!member) return null;
+  return toClubMemberType(member);
+}
+
+export async function isJerseyNumberTaken(
+  clubId: string,
+  jerseyNumber: number,
+  excludeMemberId?: string
+): Promise<boolean> {
+  const existing = await prisma.clubMember.findFirst({
+    where: {
+      clubId,
+      jerseyNumber,
+      ...(excludeMemberId && {
+        id: {
+          not: excludeMemberId,
+        },
+      }),
+    },
+  });
+
+  return !!existing;
 }
 
 // ============================================================================
@@ -342,7 +459,6 @@ export async function transferOwnership(
 export async function createInvite(
   clubId: string,
   createdBy: string,
-  maxUses: number = 50
 ): Promise<string> {
   const token = crypto.randomUUID().replace(/-/g, '');
   
@@ -351,7 +467,6 @@ export async function createInvite(
       clubId,
       createdBy,
       token,
-      maxUses,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     },
   });
@@ -383,48 +498,57 @@ export async function redeemInvite(
   });
 
   if (!invite) return false;
-  if (invite.expiresAt < new Date()) return false;
-  if (invite.useCount >= invite.maxUses) return false;
+  if (invite.expiresAt && invite.expiresAt < new Date()) return false;
 
   // Check if user is already a member
-  const existingMember = await prisma.clubMember.findFirst({
+  const existingMember = await prisma.clubMember.findUnique({
     where: {
-      clubId: invite.clubId,
-      userId,
+      clubId_userId: {
+        clubId: invite.clubId,
+        userId,
+      },
     },
   });
 
   if (existingMember) return false;
 
-  // Add user to team
+  // Add user to club
   await prisma.clubMember.create({
     data: {
       clubId: invite.clubId,
       userId,
-      privilege: 'member',
-    },
-  });
-
-  // Update invite
-  await prisma.clubInvite.update({
-    where: { id: invite.id },
-    data: {
-      useCount: { increment: 1 },
-      usedAt: new Date(),
-      usedBy: userId,
+      privileges: ClubPrivilege.MEMBER,
+      primaryRole: PlayerRole.CEN,
+      secondaryRoles: [],
+      jerseyNumber: await getNextJerseyNumber(invite.clubId),
     },
   });
 
   return true;
 }
 
+async function getNextJerseyNumber(clubId: string): Promise<number> {
+  const members = await prisma.clubMember.findMany({
+    where: { clubId },
+    select: { jerseyNumber: true },
+  });
+  
+  const usedNumbers = new Set(members.map(m => m.jerseyNumber));
+  let number = 1;
+  while (usedNumbers.has(number)) {
+    number++;
+  }
+  return number;
+}
+
 export async function getClubInvites(clubId: string) {
   return await prisma.clubInvite.findMany({
     where: {
       clubId,
-      expiresAt: {
-        gt: new Date(),
-      },
+      OR: [
+        { expiresAt: null },
+        { expiresAt: { gt: new Date() } },
+      ],
     },
     orderBy: {
       createdAt: 'desc',

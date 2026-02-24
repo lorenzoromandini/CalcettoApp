@@ -2,27 +2,77 @@
  * Database Types - Prisma Version
  * 
  * Generated types for the Calcetto Manager database schema.
- * Includes tables for club management, players, matches, and invites.
+ * Aligned with the reference Prisma schema from AGENTS.md.
  * 
- * Aligned with Prisma schema.
+ * Key changes in this schema:
+ * - ClubMember now contains player data (no separate Player entity)
+ * - MatchMode is an enum with specific values (FIVE_V_FIVE, EIGHT_V_EIGHT, ELEVEN_V_ELEVEN)
+ * - ClubPrivilege is an enum (MEMBER, MANAGER, OWNER)
+ * - PlayerRole is an enum (POR, DIF, CEN, ATT)
+ * - Formation has isHome boolean and formationName
+ * - FormationPosition links to ClubMember instead of Player
+ * - Goal links to ClubMember instead of Player
+ * - PlayerRating links to ClubMember instead of Player
  */
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+// ============================================================================
+// ENUMS
+// ============================================================================
 
 export type MatchStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
-export type MatchMode = '5vs5' | '8vs8';
-export type RSVPStatus = 'in' | 'out' | 'maybe';
-export type FormationMode = '5vs5' | '8vs8';
+
+export type MatchMode = 'FIVE_V_FIVE' | 'EIGHT_V_EIGHT' | 'ELEVEN_V_ELEVEN';
+
+export type ClubPrivilege = 'MEMBER' | 'MANAGER' | 'OWNER';
+
+export type PlayerRole = 'POR' | 'DIF' | 'CEN' | 'ATT';
+
+// ============================================================================
+// DATABASE TABLES
+// ============================================================================
 
 export interface Database {
   public: {
     Tables: {
+      users: {
+        Row: {
+          id: string;
+          email: string;
+          first_name: string;
+          last_name: string;
+          nickname: string | null;
+          image: string | null;
+          password: string | null;
+          created_at: string;
+          updated_at: string;
+          last_login: string | null;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          first_name: string;
+          last_name: string;
+          nickname?: string | null;
+          image?: string | null;
+          password?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          last_login?: string | null;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          first_name?: string;
+          last_name?: string;
+          nickname?: string | null;
+          image?: string | null;
+          password?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          last_login?: string | null;
+        };
+        Relationships: [];
+      };
       clubs: {
         Row: {
           id: string;
@@ -33,7 +83,6 @@ export interface Database {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
-          sync_status: string | null;
         };
         Insert: {
           id?: string;
@@ -44,7 +93,6 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
-          sync_status?: string | null;
         };
         Update: {
           id?: string;
@@ -55,7 +103,6 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
-          sync_status?: string | null;
         };
         Relationships: [
           {
@@ -71,26 +118,32 @@ export interface Database {
         Row: {
           id: string;
           club_id: string;
-          user_id: string | null;
-          player_id: string | null;
-          privilege: 'owner' | 'manager' | 'member';
+          user_id: string;
+          privileges: ClubPrivilege;
           joined_at: string;
+          primary_role: PlayerRole;
+          secondary_roles: PlayerRole[];
+          jersey_number: number;
         };
         Insert: {
           id?: string;
           club_id: string;
-          user_id?: string | null;
-          player_id?: string | null;
-          privilege?: 'owner' | 'manager' | 'member';
+          user_id: string;
+          privileges?: ClubPrivilege;
           joined_at?: string;
+          primary_role: PlayerRole;
+          secondary_roles?: PlayerRole[];
+          jersey_number: number;
         };
         Update: {
           id?: string;
           club_id?: string;
-          user_id?: string | null;
-          player_id?: string | null;
-          privilege?: 'owner' | 'manager' | 'member';
+          user_id?: string;
+          privileges?: ClubPrivilege;
           joined_at?: string;
+          primary_role?: PlayerRole;
+          secondary_roles?: PlayerRole[];
+          jersey_number?: number;
         };
         Relationships: [
           {
@@ -106,111 +159,6 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "club_members_player_id_fkey";
-            columns: ["player_id"];
-            isOneToOne: false;
-            referencedRelation: "players";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      players: {
-        Row: {
-          id: string;
-          name: string;
-          surname: string | null;
-          nickname: string | null;
-          avatar_url: string | null;
-          user_id: string | null;
-          roles: string[];
-          created_at: string;
-          updated_at: string;
-          sync_status: string | null;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          surname?: string | null;
-          nickname?: string | null;
-          avatar_url?: string | null;
-          user_id?: string | null;
-          roles?: string[];
-          created_at?: string;
-          updated_at?: string;
-          sync_status?: string | null;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          surname?: string | null;
-          nickname?: string | null;
-          avatar_url?: string | null;
-          user_id?: string | null;
-          roles?: string[];
-          created_at?: string;
-          updated_at?: string;
-          sync_status?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "players_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      player_clubs: {
-        Row: {
-          id: string;
-          player_id: string;
-          club_id: string;
-          jersey_number: number;
-          primary_role: string;
-          secondary_roles: string[];
-          joined_at: string;
-          created_at: string;
-          sync_status: string | null;
-        };
-        Insert: {
-          id?: string;
-          player_id: string;
-          club_id: string;
-          jersey_number: number;
-          primary_role: string;
-          secondary_roles?: string[];
-          joined_at?: string;
-          created_at?: string;
-          sync_status?: string | null;
-        };
-        Update: {
-          id?: string;
-          player_id?: string;
-          club_id?: string;
-          jersey_number?: number;
-          primary_role?: string;
-          secondary_roles?: string[];
-          joined_at?: string;
-          created_at?: string;
-          sync_status?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "player_clubs_player_id_fkey";
-            columns: ["player_id"];
-            isOneToOne: false;
-            referencedRelation: "players";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "player_clubs_club_id_fkey";
-            columns: ["club_id"];
-            isOneToOne: false;
-            referencedRelation: "clubs";
-            referencedColumns: ["id"];
           }
         ];
       };
@@ -220,12 +168,7 @@ export interface Database {
           club_id: string;
           created_by: string;
           token: string;
-          email: string | null;
-          expires_at: string;
-          used_at: string | null;
-          used_by: string | null;
-          max_uses: number;
-          use_count: number;
+          expires_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -233,12 +176,7 @@ export interface Database {
           club_id: string;
           created_by: string;
           token: string;
-          email?: string | null;
-          expires_at: string;
-          used_at?: string | null;
-          used_by?: string | null;
-          max_uses?: number;
-          use_count?: number;
+          expires_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -246,12 +184,7 @@ export interface Database {
           club_id?: string;
           created_by?: string;
           token?: string;
-          email?: string | null;
-          expires_at?: string;
-          used_at?: string | null;
-          used_by?: string | null;
-          max_uses?: number;
-          use_count?: number;
+          expires_at?: string | null;
           created_at?: string;
         };
         Relationships: [
@@ -265,13 +198,6 @@ export interface Database {
           {
             foreignKeyName: "club_invites_created_by_fkey";
             columns: ["created_by"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "club_invites_used_by_fkey";
-            columns: ["used_by"];
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
@@ -289,10 +215,15 @@ export interface Database {
           home_score: number | null;
           away_score: number | null;
           notes: string | null;
-          created_by: string | null;
           created_at: string;
           updated_at: string;
-          sync_status: string | null;
+          created_by: string;
+          score_finalized_by: string | null;
+          ratings_completed_by: string | null;
+          score_finalized_at: string | null;
+          ratings_completed_at: string | null;
+          shared_token: string | null;
+          shared_at: string | null;
         };
         Insert: {
           id?: string;
@@ -304,10 +235,15 @@ export interface Database {
           home_score?: number | null;
           away_score?: number | null;
           notes?: string | null;
-          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
-          sync_status?: string | null;
+          created_by: string;
+          score_finalized_by?: string | null;
+          ratings_completed_by?: string | null;
+          score_finalized_at?: string | null;
+          ratings_completed_at?: string | null;
+          shared_token?: string | null;
+          shared_at?: string | null;
         };
         Update: {
           id?: string;
@@ -319,10 +255,15 @@ export interface Database {
           home_score?: number | null;
           away_score?: number | null;
           notes?: string | null;
-          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
-          sync_status?: string | null;
+          created_by?: string;
+          score_finalized_by?: string | null;
+          ratings_completed_by?: string | null;
+          score_finalized_at?: string | null;
+          ratings_completed_at?: string | null;
+          shared_token?: string | null;
+          shared_at?: string | null;
         };
         Relationships: [
           {
@@ -338,53 +279,19 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
-          }
-        ];
-      };
-      match_players: {
-        Row: {
-          id: string;
-          match_id: string;
-          player_id: string;
-          rsvp_status: RSVPStatus;
-          rsvp_at: string | null;
-          position_on_pitch: string | null;
-          played: boolean;
-          sync_status: string | null;
-        };
-        Insert: {
-          id?: string;
-          match_id: string;
-          player_id: string;
-          rsvp_status?: RSVPStatus;
-          rsvp_at?: string | null;
-          position_on_pitch?: string | null;
-          played?: boolean;
-          sync_status?: string | null;
-        };
-        Update: {
-          id?: string;
-          match_id?: string;
-          player_id?: string;
-          rsvp_status?: RSVPStatus;
-          rsvp_at?: string | null;
-          position_on_pitch?: string | null;
-          played?: boolean;
-          sync_status?: string | null;
-        };
-        Relationships: [
+          },
           {
-            foreignKeyName: "match_players_match_id_fkey";
-            columns: ["match_id"];
+            foreignKeyName: "matches_score_finalized_by_fkey";
+            columns: ["score_finalized_by"];
             isOneToOne: false;
-            referencedRelation: "matches";
+            referencedRelation: "users";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "match_players_player_id_fkey";
-            columns: ["player_id"];
+            foreignKeyName: "matches_ratings_completed_by_fkey";
+            columns: ["ratings_completed_by"];
             isOneToOne: false;
-            referencedRelation: "players";
+            referencedRelation: "users";
             referencedColumns: ["id"];
           }
         ];
@@ -393,21 +300,24 @@ export interface Database {
         Row: {
           id: string;
           match_id: string;
-          team_formation: Json | null;
+          is_home: boolean;
+          formation_name: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           match_id: string;
-          team_formation?: Json | null;
+          is_home: boolean;
+          formation_name?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           match_id?: string;
-          team_formation?: Json | null;
+          is_home?: boolean;
+          formation_name?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -415,7 +325,7 @@ export interface Database {
           {
             foreignKeyName: "formations_match_id_fkey";
             columns: ["match_id"];
-            isOneToOne: true;
+            isOneToOne: false;
             referencedRelation: "matches";
             referencedColumns: ["id"];
           }
@@ -425,32 +335,32 @@ export interface Database {
         Row: {
           id: string;
           formation_id: string;
-          player_id: string | null;
+          club_member_id: string;
           position_x: number;
           position_y: number;
           position_label: string;
           is_substitute: boolean;
-          side: string | null;
+          played: boolean;
         };
         Insert: {
           id?: string;
           formation_id: string;
-          player_id?: string | null;
+          club_member_id: string;
           position_x: number;
           position_y: number;
           position_label: string;
           is_substitute?: boolean;
-          side?: string | null;
+          played?: boolean;
         };
         Update: {
           id?: string;
           formation_id?: string;
-          player_id?: string | null;
+          club_member_id?: string;
           position_x?: number;
           position_y?: number;
           position_label?: string;
           is_substitute?: boolean;
-          side?: string | null;
+          played?: boolean;
         };
         Relationships: [
           {
@@ -461,10 +371,10 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "formation_positions_player_id_fkey";
-            columns: ["player_id"];
+            foreignKeyName: "formation_positions_club_member_id_fkey";
+            columns: ["club_member_id"];
             isOneToOne: false;
-            referencedRelation: "players";
+            referencedRelation: "club_members";
             referencedColumns: ["id"];
           }
         ];
@@ -473,7 +383,6 @@ export interface Database {
         Row: {
           id: string;
           match_id: string;
-          club_id: string;
           scorer_id: string;
           assister_id: string | null;
           is_own_goal: boolean;
@@ -483,7 +392,6 @@ export interface Database {
         Insert: {
           id?: string;
           match_id: string;
-          club_id: string;
           scorer_id: string;
           assister_id?: string | null;
           is_own_goal?: boolean;
@@ -493,7 +401,6 @@ export interface Database {
         Update: {
           id?: string;
           match_id?: string;
-          club_id?: string;
           scorer_id?: string;
           assister_id?: string | null;
           is_own_goal?: boolean;
@@ -509,24 +416,17 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "goals_club_id_fkey";
-            columns: ["club_id"];
-            isOneToOne: false;
-            referencedRelation: "clubs";
-            referencedColumns: ["id"];
-          },
-          {
             foreignKeyName: "goals_scorer_id_fkey";
             columns: ["scorer_id"];
             isOneToOne: false;
-            referencedRelation: "players";
+            referencedRelation: "club_members";
             referencedColumns: ["id"];
           },
           {
             foreignKeyName: "goals_assister_id_fkey";
             columns: ["assister_id"];
             isOneToOne: false;
-            referencedRelation: "players";
+            referencedRelation: "club_members";
             referencedColumns: ["id"];
           }
         ];
@@ -535,7 +435,7 @@ export interface Database {
         Row: {
           id: string;
           match_id: string;
-          player_id: string;
+          club_member_id: string;
           rating: number;
           comment: string | null;
           created_at: string;
@@ -544,7 +444,7 @@ export interface Database {
         Insert: {
           id?: string;
           match_id: string;
-          player_id: string;
+          club_member_id: string;
           rating: number;
           comment?: string | null;
           created_at?: string;
@@ -553,7 +453,7 @@ export interface Database {
         Update: {
           id?: string;
           match_id?: string;
-          player_id?: string;
+          club_member_id?: string;
           rating?: number;
           comment?: string | null;
           created_at?: string;
@@ -568,10 +468,10 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "player_ratings_player_id_fkey";
-            columns: ["player_id"];
+            foreignKeyName: "player_ratings_club_member_id_fkey";
+            columns: ["club_member_id"];
             isOneToOne: false;
-            referencedRelation: "players";
+            referencedRelation: "club_members";
             referencedColumns: ["id"];
           }
         ];
@@ -581,43 +481,7 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      is_club_admin: {
-        Args: {
-          club_uuid: string;
-        };
-        Returns: boolean;
-      };
-      is_club_member: {
-        Args: {
-          club_uuid: string;
-        };
-        Returns: boolean;
-      };
-      is_player_in_club: {
-        Args: {
-          player_uuid: string;
-          club_uuid: string;
-        };
-        Returns: boolean;
-      };
-      is_match_admin: {
-        Args: {
-          match_uuid: string;
-        };
-        Returns: boolean;
-      };
-      is_match_participant: {
-        Args: {
-          match_uuid: string;
-        };
-        Returns: boolean;
-      };
-      can_record_match_events: {
-        Args: {
-          match_uuid: string;
-        };
-        Returns: boolean;
-      };
+      [_ in never]: never;
     };
     Enums: {
       [_ in never]: never;
@@ -628,23 +492,47 @@ export interface Database {
   };
 }
 
-// Helper types for common use cases
+// ============================================================================
+// HELPER TYPES
+// ============================================================================
+
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 export type Inserts<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
 export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];
 
 // Specific table types
+export type User = Tables<'users'>;
 export type Club = Tables<'clubs'>;
 export type ClubMember = Tables<'club_members'>;
-export type Player = Tables<'players'>;
-export type PlayerClub = Tables<'player_clubs'>;
 export type ClubInvite = Tables<'club_invites'>;
 export type Match = Tables<'matches'>;
-export type MatchPlayer = Tables<'match_players'>;
 export type Formation = Tables<'formations'>;
 export type FormationPosition = Tables<'formation_positions'>;
 export type Goal = Tables<'goals'>;
 export type PlayerRating = Tables<'player_ratings'>;
 
-// Backward compatibility aliases (deprecated - use Club instead)
+// Backward compatibility aliases
 export type Team = Club;
+
+// Extended types with relations
+export interface ClubMemberWithUser extends ClubMember {
+  user: User;
+}
+
+export interface ClubMemberWithClub extends ClubMember {
+  club: Club;
+}
+
+export interface ClubWithMembers extends Club {
+  members: ClubMemberWithUser[];
+  memberCount: number;
+}
+
+export interface MatchWithFormations extends Match {
+  homeFormation?: Formation & { positions: FormationPositionWithMember[] };
+  awayFormation?: Formation & { positions: FormationPositionWithMember[] };
+}
+
+export interface FormationPositionWithMember extends FormationPosition {
+  clubMember: ClubMemberWithUser;
+}

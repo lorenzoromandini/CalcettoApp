@@ -7,10 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================================================
-// ENUMS
-// ============================================================================
-
 enum MatchStatus {
   SCHEDULED
   IN_PROGRESS
@@ -19,90 +15,64 @@ enum MatchStatus {
   CANCELLED
 }
 
-// ============================================================================
-// NEXTAUTH MODELS
-// ============================================================================
+enum MatchMode {
+  FIVE_V_FIVE
+  EIGHT_V_EIGHT
+  ELEVEN_V_ELEVEN
+}
+
+enum ClubPrivilege {
+  MEMBER
+  MANAGER
+  OWNER
+}
+
+enum PlayerRole {
+  POR
+  DIF
+  CEN
+  ATT
+}
 
 model User {
-  id               String    @id @default(cuid())
-  email            String    @unique
-  emailVerified    DateTime?
-  firstName        String    @map("first_name")
-  lastName         String    @map("last_name")
-  nickname         String?   @map("nickname")
-  image            String?
-  password         String?
-  verificationToken String?  @map("verification_token")
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id        String    @id @default(cuid())
+  email     String    @unique
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  nickname  String?   @map("nickname")
+  image     String?
+  password  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  lastLogin DateTime?
 
-  accounts      Account[]
-  sessions      Session[]
-  
-  // App relations
-  ownedClubs    Club[]         @relation("ClubOwner")
-  memberships   ClubMember[]
-  playerProfile Player?
-  createdMatches Match[]       @relation("MatchCreator")
-  createdInvites ClubInvite[]  @relation("InviteCreator")
+  ownedClubs              Club[]       @relation("ClubOwner")
+  memberships             ClubMember[]
+  createdMatches          Match[]      @relation("MatchCreator")
+  createdInvites          ClubInvite[] @relation("InviteCreator")
+  scoreFinalizedMatches   Match[]      @relation("MatchScoreFinalizer")
+  ratingsCompletedMatches Match[]      @relation("MatchRatingsFinalizer")
+
+  @@index([email])
+  @@map("users")
 }
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-// ============================================================================
-// APP MODELS
-// ============================================================================
 
 model Club {
-  id          String    @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
-  imageUrl    String?   @map("image_url")
-  createdBy   String    @map("created_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-  syncStatus  String    @default("synced") @map("sync_status")
+  imageUrl    String? @map("image_url")
 
-  creator     User          @relation("ClubOwner", fields: [createdBy], references: [id])
-  members     ClubMember[]
-  playerClubs PlayerClub[]
-  invites     ClubInvite[]
-  matches     Match[]
-  goals       Goal[]
+  createdBy String    @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  creator User @relation("ClubOwner", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  members ClubMember[]
+  invites ClubInvite[]
+  matches Match[]
 
   @@index([createdBy])
   @@index([deletedAt])
@@ -110,67 +80,31 @@ model Club {
 }
 
 model ClubMember {
-  id        String   @id @default(cuid())
-  clubId    String   @map("club_id")
-  userId    String?  @map("user_id")
-  playerId  String?  @map("player_id")
-  privilege String   @default("member") @map("privilege")
-  joinedAt  DateTime @default(now()) @map("joined_at")
+  id String @id @default(cuid())
 
-  club   Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  clubId String @map("club_id")
+  userId String @map("user_id")
+
+  privileges ClubPrivilege @default(MEMBER)
+  joinedAt   DateTime      @default(now()) @map("joined_at")
+
+  primaryRole    PlayerRole
+  secondaryRoles PlayerRole[] @default([])
+  jerseyNumber   Int
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  positionsInMatches FormationPosition[]
+  scoredGoals        Goal[]              @relation("GoalScorer")
+  assistedGoals      Goal[]              @relation("GoalAssister")
+  receivedRatings    PlayerRating[]
 
   @@unique([clubId, userId])
+  @@unique([clubId, jerseyNumber])
   @@index([clubId])
   @@index([userId])
   @@map("club_members")
-}
-
-model Player {
-  id         String   @id @default(cuid())
-  name       String
-  surname    String?
-  nickname   String?
-  avatarUrl  String?  @map("avatar_url")
-  userId     String?  @unique @map("user_id")
-  roles      String[]
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  syncStatus String   @default("synced") @map("sync_status")
-
-  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  memberships ClubMember[]
-  playerClubs PlayerClub[]
-  matchPlayers MatchPlayer[]
-  formationPositions FormationPosition[]
-  scoredGoals  Goal[] @relation("GoalScorer")
-  assistedGoals Goal[] @relation("GoalAssister")
-  ratings     PlayerRating[]
-
-  @@index([userId])
-  @@map("players")
-}
-
-model PlayerClub {
-  id             String   @id @default(cuid())
-  playerId       String   @map("player_id")
-  clubId         String   @map("club_id")
-  jerseyNumber   Int      @map("jersey_number")
-  primaryRole    String   @map("primary_role")
-  secondaryRoles String[] @default([]) @map("secondary_roles")
-  joinedAt       DateTime @default(now()) @map("joined_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  syncStatus     String   @default("synced") @map("sync_status")
-
-  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  club   Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
-
-  @@unique([playerId, clubId])
-  @@unique([clubId, jerseyNumber])
-  @@index([playerId])
-  @@index([clubId])
-  @@map("player_clubs")
 }
 
 model ClubInvite {
@@ -178,16 +112,12 @@ model ClubInvite {
   clubId    String    @map("club_id")
   createdBy String    @map("created_by")
   token     String    @unique
-  email     String?
-  expiresAt DateTime  @map("expires_at")
-  usedAt    DateTime? @map("used_at")
-  usedBy    String?   @map("used_by")
-  maxUses   Int       @default(50) @map("max_uses")
-  useCount  Int       @default(0) @map("use_count")
-  createdAt DateTime  @default(now()) @map("created_at")
+  expiresAt DateTime? @map("expires_at")
 
-  club   Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  creator User @relation("InviteCreator", fields: [createdBy], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  club    Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  creator User @relation("InviteCreator", fields: [createdBy], references: [id], onDelete: SetNull)
 
   @@index([clubId])
   @@index([token])
@@ -200,58 +130,60 @@ model Match {
   clubId      String      @map("club_id")
   scheduledAt DateTime    @map("scheduled_at")
   location    String?
-  mode        String
+  mode        MatchMode
   status      MatchStatus @default(SCHEDULED)
-  homeScore   Int?        @map("home_score")
-  awayScore   Int?        @map("away_score")
-  notes       String?
-  createdBy   String?     @map("created_by")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  syncStatus  String      @default("synced") @map("sync_status")
 
-  club    Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  creator User?      @relation("MatchCreator", fields: [createdBy], references: [id])
-  players MatchPlayer[]
-  formation Formation?
+  homeScore Int? @default(0) @map("home_score")
+  awayScore Int? @default(0) @map("away_score")
+
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  createdBy          String  @map("created_by")
+  scoreFinalizedBy   String? @map("score_finalized_by")
+  ratingsCompletedBy String? @map("ratings_completed_by")
+
+  scoreFinalizedAt   DateTime? @map("score_finalized_at")
+  ratingsCompletedAt DateTime? @map("ratings_completed_at")
+
+  sharedToken String?   @unique @map("shared_token")
+  sharedAt    DateTime? @map("shared_at")
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  creator          User  @relation("MatchCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  scoreFinalizer   User? @relation("MatchScoreFinalizer", fields: [scoreFinalizedBy], references: [id], onDelete: SetNull)
+  ratingsFinalizer User? @relation("MatchRatingsFinalizer", fields: [ratingsCompletedBy], references: [id], onDelete: SetNull)
+
+  formations Formation[]
+
   goals   Goal[]
   ratings PlayerRating[]
 
   @@index([clubId])
   @@index([scheduledAt])
   @@index([status])
+  @@index([createdBy])
+  @@index([scoreFinalizedBy])
+  @@index([ratingsCompletedBy])
+  @@index([sharedToken])
   @@map("matches")
 }
 
-model MatchPlayer {
-  id             String   @id @default(cuid())
-  matchId        String   @map("match_id")
-  playerId       String   @map("player_id")
-  rsvpStatus     String   @default("maybe") @map("rsvp_status")
-  rsvpAt         DateTime? @map("rsvp_at")
-  positionOnPitch String? @map("position_on_pitch")
-  played         Boolean  @default(false)
-  syncStatus     String   @default("synced") @map("sync_status")
-
-  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
-
-  @@unique([matchId, playerId])
-  @@index([matchId])
-  @@index([playerId])
-  @@map("match_players")
-}
-
 model Formation {
-  id             String   @id @default(cuid())
-  matchId        String   @unique @map("match_id")
-  teamFormation  Json?    @map("team_formation")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id            String  @id @default(cuid())
+  matchId       String  @map("match_id")
+  isHome        Boolean @map("is_home")
+  formationName String? @map("formation_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   match     Match               @relation(fields: [matchId], references: [id], onDelete: Cascade)
   positions FormationPosition[]
 
+  @@unique([matchId, isHome])
   @@index([matchId])
   @@map("formations")
 }
@@ -259,37 +191,36 @@ model Formation {
 model FormationPosition {
   id            String  @id @default(cuid())
   formationId   String  @map("formation_id")
-  playerId      String? @map("player_id")
+  clubMemberId  String  @map("club_member_id")
   positionX     Int     @map("position_x")
   positionY     Int     @map("position_y")
   positionLabel String  @map("position_label")
   isSubstitute  Boolean @default(false) @map("is_substitute")
-  side          String? @map("side")
+  played        Boolean @default(false) @map("played")
 
-  formation Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
-  player    Player?   @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  formation  Formation  @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  clubMember ClubMember @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
 
+  @@unique([formationId, clubMemberId])
   @@unique([formationId, positionX, positionY])
   @@index([formationId])
-  @@index([playerId])
-  @@index([side])
+  @@index([clubMemberId])
   @@map("formation_positions")
 }
 
 model Goal {
-  id         String   @id @default(cuid())
-  matchId    String   @map("match_id")
-  clubId     String   @map("club_id")
-  scorerId   String   @map("scorer_id")
-  assisterId String?  @map("assister_id")
-  isOwnGoal  Boolean  @default(false) @map("is_own_goal")
+  id         String  @id @default(cuid())
+  matchId    String  @map("match_id")
+  scorerId   String  @map("scorer_id")
+  assisterId String? @map("assister_id")
+  isOwnGoal  Boolean @default(false) @map("is_own_goal")
   order      Int
-  createdAt  DateTime @default(now()) @map("created_at")
 
-  match    Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  club     Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  scorer   Player  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
-  assister Player? @relation("GoalAssister", fields: [assisterId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  match    Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  scorer   ClubMember  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
+  assister ClubMember? @relation("GoalAssister", fields: [assisterId], references: [id], onDelete: SetNull)
 
   @@unique([matchId, order])
   @@index([matchId])
@@ -298,19 +229,20 @@ model Goal {
 }
 
 model PlayerRating {
-  id        String    @id @default(cuid())
-  matchId   String    @map("match_id")
-  playerId  String    @map("player_id")
-  rating    Decimal   @db.Decimal(3, 2)
-  comment   String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  id           String  @id @default(cuid())
+  matchId      String  @map("match_id")
+  clubMemberId String  @map("club_member_id")
+  rating       Decimal @db.Decimal(3, 2)
+  comment      String?
 
-  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([matchId, playerId])
+  match      Match      @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  clubMember ClubMember @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, clubMemberId])
   @@index([matchId])
-  @@index([playerId])
+  @@index([clubMemberId])
   @@map("player_ratings")
 }

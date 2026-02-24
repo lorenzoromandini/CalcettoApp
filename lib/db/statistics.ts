@@ -3,23 +3,38 @@
 /**
  * Statistics Aggregation Module
  * 
- * Provides functions for player statistics aggregation and leaderboards.
+ * Provides functions for member statistics aggregation and leaderboards.
  * All statistics are calculated from COMPLETED matches only.
+ * 
+ * Updated for new schema:
+ * - Removed Player references - now using ClubMember
+ * - FormationPosition uses clubMemberId instead of playerId
+ * - Goal uses scorerId/assisterId linking to ClubMember
  */
 
+// Using literal enum values
+const MatchStatus = {
+  SCHEDULED: 'SCHEDULED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  FINISHED: 'FINISHED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+} as const;
+type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
+
 import { prisma } from '@/lib/db'
-import { MatchStatus } from '@prisma/client'
+// MatchStatus imported above
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
-export interface PlayerStats {
-  player_id: string
-  player_name: string
-  player_surname?: string
-  player_nickname?: string
-  player_avatar?: string
+export interface MemberStats {
+  club_member_id: string
+  first_name: string
+  last_name?: string
+  nickname?: string
+  image?: string
   goals: number
   assists: number
   appearances: number
@@ -31,55 +46,57 @@ export interface PlayerStats {
   total_ratings: number
 }
 
-export interface PlayerLeaderboardEntry {
-  player_id: string
-  player_name: string
-  player_nickname?: string
-  player_avatar?: string
+export interface MemberLeaderboardEntry {
+  club_member_id: string
+  first_name: string
+  nickname?: string
+  image?: string
   value: number
 }
 
 // ============================================================================
-// Get Player Statistics
+// Get Member Statistics
 // ============================================================================
 
 /**
- * Get comprehensive statistics for a player
+ * Get comprehensive statistics for a member
  * 
- * @param playerId - Player ID
+ * @param clubMemberId - ClubMember ID
  * @param clubId - Optional club ID to filter statistics
- * @returns PlayerStats object or null if player not found
+ * @returns MemberStats object or null if member not found
  */
-export async function getPlayerStats(
-  playerId: string,
+export async function getMemberStats(
+  clubMemberId: string,
   clubId?: string
-): Promise<PlayerStats | null> {
-  // Get player info
-  const player = await prisma.player.findUnique({
-    where: { id: playerId },
-    select: {
-      id: true,
-      name: true,
-      surname: true,
-      nickname: true,
-      avatarUrl: true,
-      roles: true,
+): Promise<MemberStats | null> {
+  // Get member info with user details
+  const member = await prisma.clubMember.findUnique({
+    where: { id: clubMemberId },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          image: true,
+        },
+      },
     },
   })
 
-  if (!player) return null
+  if (!member) return null
 
-  // Get all completed matches where this player has a formation position
+  // Get all completed matches where this member has a formation position
   const positions = await prisma.formationPosition.findMany({
     where: {
-      playerId,
+      clubMemberId,
       formation: {
         match: {
           status: MatchStatus.COMPLETED,
           ...(clubId ? { clubId } : {}),
         },
       },
-      side: { not: null },  // Only count positions with a side (played)
+      played: true,
     },
     include: {
       formation: {
@@ -89,6 +106,7 @@ export async function getPlayerStats(
               id: true,
               homeScore: true,
               awayScore: true,
+              isHome: true,  // This tells us which side the formation is on
             },
           },
         },
@@ -103,14 +121,14 @@ export async function getPlayerStats(
   let draws = 0
 
   for (const pos of positions) {
-    if (!pos.side || !pos.formation.match) continue
+    if (!pos.formation.match) continue
     
     appearances++
     const match = pos.formation.match
     const homeScore = match.homeScore ?? 0
     const awayScore = match.awayScore ?? 0
 
-    if (pos.side === 'home') {
+    if (pos.formation.isHome) {
       if (homeScore > awayScore) wins++
       else if (homeScore < awayScore) losses++
       else draws++
@@ -124,7 +142,7 @@ export async function getPlayerStats(
   // Get goals (exclude own goals)
   const goals = await prisma.goal.count({
     where: {
-      scorerId: playerId,
+      scorerId: clubMemberId,
       isOwnGoal: false,
       match: {
         status: MatchStatus.COMPLETED,
@@ -136,7 +154,7 @@ export async function getPlayerStats(
   // Get assists
   const assists = await prisma.goal.count({
     where: {
-      assisterId: playerId,
+      assisterId: clubMemberId,
       match: {
         status: MatchStatus.COMPLETED,
         ...(clubId ? { clubId } : {}),
@@ -146,12 +164,12 @@ export async function getPlayerStats(
 
   // Calculate goals conceded (only for goalkeepers in GK position)
   let goals_conceded: number | null = null
-  const isGoalkeeper = player.roles.includes('goalkeeper')
+  const isGoalkeeper = member.primaryRole === 'POR'
 
   if (isGoalkeeper) {
-    // Get positions where player was in GK position
+    // Get positions where member was in GK position
     const gkPositions = positions.filter(
-      pos => pos.positionLabel === 'GK' && pos.side
+      pos => pos.positionLabel === 'GK'
     )
 
     if (gkPositions.length > 0) {
@@ -161,7 +179,7 @@ export async function getPlayerStats(
         if (!match) continue
 
         // GK on home side concedes away goals, and vice versa
-        if (pos.side === 'home') {
+        if (pos.formation.isHome) {
           goals_conceded += match.awayScore ?? 0
         } else {
           goals_conceded += match.homeScore ?? 0
@@ -173,7 +191,7 @@ export async function getPlayerStats(
   // Get average rating
   const ratings = await prisma.playerRating.findMany({
     where: {
-      playerId,
+      clubMemberId,
       match: {
         status: MatchStatus.COMPLETED,
         ...(clubId ? { clubId } : {}),
@@ -190,11 +208,11 @@ export async function getPlayerStats(
     : null
 
   return {
-    player_id: player.id,
-    player_name: player.name,
-    player_surname: player.surname ?? undefined,
-    player_nickname: player.nickname ?? undefined,
-    player_avatar: player.avatarUrl ?? undefined,
+    club_member_id: member.id,
+    first_name: member.user.firstName,
+    last_name: member.user.lastName ?? undefined,
+    nickname: member.user.nickname ?? undefined,
+    image: member.user.image ?? undefined,
     goals,
     assists,
     appearances,
@@ -217,10 +235,10 @@ export async function getPlayerStats(
 export async function getTopScorers(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
+): Promise<MemberLeaderboardEntry[]> {
+  const result = await prisma.$queryRaw<{ club_member_id: string; count: bigint }[]>`
     SELECT 
-      g.scorer_id as player_id,
+      g.scorer_id as club_member_id,
       COUNT(*) as count
     FROM goals g
     JOIN matches m ON g.match_id = m.id
@@ -241,10 +259,10 @@ export async function getTopScorers(
 export async function getTopAssisters(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
+): Promise<MemberLeaderboardEntry[]> {
+  const result = await prisma.$queryRaw<{ club_member_id: string; count: bigint }[]>`
     SELECT 
-      g.assister_id as player_id,
+      g.assister_id as club_member_id,
       COUNT(*) as count
     FROM goals g
     JOIN matches m ON g.match_id = m.id
@@ -265,19 +283,18 @@ export async function getTopAssisters(
 export async function getTopAppearances(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
+): Promise<MemberLeaderboardEntry[]> {
+  const result = await prisma.$queryRaw<{ club_member_id: string; count: bigint }[]>`
     SELECT 
-      fp.player_id as player_id,
+      fp.club_member_id as club_member_id,
       COUNT(*) as count
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
     WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
-      AND fp.player_id IS NOT NULL
-      AND fp.side IS NOT NULL
-    GROUP BY fp.player_id
+      AND fp.played = true
+    GROUP BY fp.club_member_id
     ORDER BY count DESC
     LIMIT ${limit}
   `
@@ -291,23 +308,22 @@ export async function getTopAppearances(
 export async function getTopWins(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
+): Promise<MemberLeaderboardEntry[]> {
+  const result = await prisma.$queryRaw<{ club_member_id: string; count: bigint }[]>`
     SELECT 
-      fp.player_id as player_id,
+      fp.club_member_id as club_member_id,
       COUNT(*) as count
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
     WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
-      AND fp.player_id IS NOT NULL
-      AND fp.side IS NOT NULL
+      AND fp.played = true
       AND (
-        (fp.side = 'home' AND m.home_score > m.away_score)
-        OR (fp.side = 'away' AND m.away_score > m.home_score)
+        (f.is_home = true AND m.home_score > m.away_score)
+        OR (f.is_home = false AND m.away_score > m.home_score)
       )
-    GROUP BY fp.player_id
+    GROUP BY fp.club_member_id
     ORDER BY count DESC
     LIMIT ${limit}
   `
@@ -321,23 +337,22 @@ export async function getTopWins(
 export async function getTopLosses(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ player_id: string; count: bigint }[]>`
+): Promise<MemberLeaderboardEntry[]> {
+  const result = await prisma.$queryRaw<{ club_member_id: string; count: bigint }[]>`
     SELECT 
-      fp.player_id as player_id,
+      fp.club_member_id as club_member_id,
       COUNT(*) as count
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
     WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
-      AND fp.player_id IS NOT NULL
-      AND fp.side IS NOT NULL
+      AND fp.played = true
       AND (
-        (fp.side = 'home' AND m.home_score < m.away_score)
-        OR (fp.side = 'away' AND m.away_score < m.home_score)
+        (f.is_home = true AND m.home_score < m.away_score)
+        OR (f.is_home = false AND m.away_score < m.home_score)
       )
-    GROUP BY fp.player_id
+    GROUP BY fp.club_member_id
     ORDER BY count DESC
     LIMIT ${limit}
   `
@@ -346,29 +361,29 @@ export async function getTopLosses(
 }
 
 /**
- * Get top rated players leaderboard
+ * Get top rated members leaderboard
  * Requires minimum 3 ratings to appear
  */
-export async function getTopRatedPlayers(
+export async function getTopRatedMembers(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ player_id: string; avg_rating: number }[]>`
+): Promise<MemberLeaderboardEntry[]> {
+  const result = await prisma.$queryRaw<{ club_member_id: string; avg_rating: number }[]>`
     SELECT 
-      pr.player_id as player_id,
+      pr.club_member_id as club_member_id,
       AVG(pr.rating) as avg_rating
     FROM player_ratings pr
     JOIN matches m ON pr.match_id = m.id
     WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
-    GROUP BY pr.player_id
+    GROUP BY pr.club_member_id
     HAVING COUNT(*) >= 3
     ORDER BY avg_rating DESC
     LIMIT ${limit}
   `
 
   return await enrichLeaderboardEntries(
-    result.map(r => ({ player_id: r.player_id, count: BigInt(Math.round(r.avg_rating * 100)) }))
+    result.map(r => ({ club_member_id: r.club_member_id, count: BigInt(Math.round(r.avg_rating * 100)) }))
   ).then(entries => 
     entries.map((entry, i) => ({
       ...entry,
@@ -379,40 +394,39 @@ export async function getTopRatedPlayers(
 
 /**
  * Get top goalkeepers with fewest goals conceded
- * Only players with 'goalkeeper' role who played in GK position
+ * Only members with primaryRole = 'POR' who played in GK position
  */
 export async function getTopGoalsConceded(
   clubId: string,
   limit: number = 3
-): Promise<PlayerLeaderboardEntry[]> {
+): Promise<MemberLeaderboardEntry[]> {
   // Get goalkeepers with their goals conceded
-  const result = await prisma.$queryRaw<{ player_id: string; goals_conceded: bigint }[]>`
+  const result = await prisma.$queryRaw<{ club_member_id: string; goals_conceded: bigint }[]>`
     SELECT 
-      fp.player_id as player_id,
+      fp.club_member_id as club_member_id,
       SUM(
         CASE 
-          WHEN fp.side = 'home' THEN m.away_score
-          WHEN fp.side = 'away' THEN m.home_score
+          WHEN f.is_home = true THEN m.away_score
+          WHEN f.is_home = false THEN m.home_score
           ELSE 0
         END
       ) as goals_conceded
     FROM formation_positions fp
     JOIN formations f ON fp.formation_id = f.id
     JOIN matches m ON f.match_id = m.id
-    JOIN players p ON fp.player_id = p.id
+    JOIN club_members cm ON fp.club_member_id = cm.id
     WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
-      AND fp.player_id IS NOT NULL
-      AND fp.side IS NOT NULL
+      AND fp.played = true
       AND fp.position_label = 'GK'
-      AND 'goalkeeper' = ANY(p.roles)
-    GROUP BY fp.player_id
+      AND cm.primary_role = 'POR'
+    GROUP BY fp.club_member_id
     ORDER BY goals_conceded ASC
     LIMIT ${limit}
   `
 
   return await enrichLeaderboardEntries(
-    result.map(r => ({ player_id: r.player_id, count: r.goals_conceded }))
+    result.map(r => ({ club_member_id: r.club_member_id, count: r.goals_conceded }))
   ).then(entries => 
     entries.map((entry, i) => ({
       ...entry,
@@ -431,7 +445,7 @@ export async function getTopGoalsConceded(
  */
 export async function getMatchScorers(
   matchId: string
-): Promise<{ player_name: string; count: number }[]> {
+): Promise<{ first_name: string; count: number }[]> {
   const goals = await prisma.goal.findMany({
     where: {
       matchId,
@@ -439,34 +453,38 @@ export async function getMatchScorers(
     },
     include: {
       scorer: {
-        select: {
-          name: true,
-          surname: true,
-          nickname: true,
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              nickname: true,
+            },
+          },
         },
       },
     },
   })
 
-  // Count goals per player
+  // Count goals per member
   const scorerMap = new Map<string, { name: string; count: number }>()
 
   for (const goal of goals) {
-    const playerId = goal.scorerId
-    const displayName = goal.scorer.nickname || goal.scorer.name
+    const clubMemberId = goal.scorerId
+    const displayName = goal.scorer.user.nickname || goal.scorer.user.firstName
 
-    if (scorerMap.has(playerId)) {
-      const entry = scorerMap.get(playerId)!
+    if (scorerMap.has(clubMemberId)) {
+      const entry = scorerMap.get(clubMemberId)!
       entry.count++
     } else {
-      scorerMap.set(playerId, { name: displayName, count: 1 })
+      scorerMap.set(clubMemberId, { name: displayName, count: 1 })
     }
   }
 
   // Convert to array and sort by count
   return Array.from(scorerMap.values())
     .sort((a, b) => b.count - a.count)
-    .map(entry => ({ player_name: entry.name, count: entry.count }))
+    .map(entry => ({ first_name: entry.name, count: entry.count }))
 }
 
 // ============================================================================
@@ -474,34 +492,37 @@ export async function getMatchScorers(
 // ============================================================================
 
 /**
- * Enrich leaderboard entries with player info
+ * Enrich leaderboard entries with member info
  */
 async function enrichLeaderboardEntries(
-  results: { player_id: string; count: bigint }[]
-): Promise<PlayerLeaderboardEntry[]> {
+  results: { club_member_id: string; count: bigint }[]
+): Promise<MemberLeaderboardEntry[]> {
   if (results.length === 0) return []
 
-  const playerIds = results.map(r => r.player_id)
+  const clubMemberIds = results.map(r => r.club_member_id)
   
-  const players = await prisma.player.findMany({
-    where: { id: { in: playerIds } },
-    select: {
-      id: true,
-      name: true,
-      nickname: true,
-      avatarUrl: true,
+  const members = await prisma.clubMember.findMany({
+    where: { id: { in: clubMemberIds } },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          nickname: true,
+          image: true,
+        },
+      },
     },
   })
 
-  const playerMap = new Map(players.map(p => [p.id, p]))
+  const memberMap = new Map(members.map(m => [m.id, m]))
 
   return results.map(r => {
-    const player = playerMap.get(r.player_id)
+    const member = memberMap.get(r.club_member_id)
     return {
-      player_id: r.player_id,
-      player_name: player?.name ?? 'Unknown',
-      player_nickname: player?.nickname ?? undefined,
-      player_avatar: player?.avatarUrl ?? undefined,
+      club_member_id: r.club_member_id,
+      first_name: member?.user.firstName ?? 'Unknown',
+      nickname: member?.user.nickname ?? undefined,
+      image: member?.user.image ?? undefined,
       value: Number(r.count),
     }
   })

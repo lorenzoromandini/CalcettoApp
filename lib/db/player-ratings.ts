@@ -8,6 +8,10 @@
  * Manages player ratings with nuanced 38-value scale.
  * Only players who played (played=true) can be rated.
  * Ratings are only editable when match status is FINISHED.
+ * 
+ * Updated for new schema:
+ * - PlayerRating now links to ClubMember (clubMemberId) instead of Player
+ * - FormationPosition tracks played status instead of MatchPlayer
  */
 
 import { auth } from '@/lib/auth'
@@ -27,7 +31,7 @@ import { Decimal } from '@prisma/client/runtime/library'
 export interface PlayerRating {
   id: string
   match_id: string
-  player_id: string
+  club_member_id: string
   rating: string  // Formatted string (e.g., "6.5")
   rating_decimal: number  // Decimal value for calculations
   comment?: string
@@ -36,13 +40,13 @@ export interface PlayerRating {
 }
 
 /**
- * Player rating with player details
+ * Player rating with member details
  */
-export interface PlayerRatingWithPlayer extends PlayerRating {
-  player_name: string
-  player_surname?: string
-  player_nickname?: string
-  player_avatar?: string
+export interface PlayerRatingWithMember extends PlayerRating {
+  first_name: string
+  last_name: string
+  nickname?: string
+  image?: string
   jersey_number: number
 }
 
@@ -51,7 +55,7 @@ export interface PlayerRatingWithPlayer extends PlayerRating {
  */
 export interface RatingInput {
   matchId: string
-  playerId: string
+  clubMemberId: string  // Changed from playerId
   rating: string  // String format (e.g., "6", "6-", "6+", "6.5")
   comment?: string
 }
@@ -64,8 +68,8 @@ const ERRORS = {
   UNAUTHORIZED: 'Devi essere autenticato per eseguire questa azione',
   NOT_ADMIN: 'Solo gli amministratori possono assegnare voti',
   MATCH_NOT_FOUND: 'Partita non trovata',
-  PLAYER_NOT_IN_MATCH: 'Il giocatore non fa parte di questa partita',
-  PLAYER_NOT_PLAYED: 'Il giocatore non ha giocato in questa partita',
+  MEMBER_NOT_IN_MATCH: 'Il membro non fa parte di questa partita',
+  MEMBER_NOT_PLAYED: 'Il membro non ha giocato in questa partita',
   MATCH_NOT_FINISHED: 'I voti possono essere assegnati solo a partite terminate',
   MATCH_COMPLETED: 'I voti non possono essere modificati per partite completate',
   INVALID_RATING: 'Voto non valido. Usa uno dei 38 valori consentiti.',
@@ -81,7 +85,7 @@ function toPlayerRating(dbRating: any): PlayerRating {
   return {
     id: dbRating.id,
     match_id: dbRating.matchId,
-    player_id: dbRating.playerId,
+    club_member_id: dbRating.clubMemberId,
     rating: decimalToRating(ratingDecimal),
     rating_decimal: ratingDecimal,
     comment: dbRating.comment ?? undefined,
@@ -90,15 +94,15 @@ function toPlayerRating(dbRating: any): PlayerRating {
   }
 }
 
-function toPlayerRatingWithPlayer(dbRating: any): PlayerRatingWithPlayer {
+function toPlayerRatingWithMember(dbRating: any): PlayerRatingWithMember {
   const base = toPlayerRating(dbRating)
   return {
     ...base,
-    player_name: dbRating.player?.name || 'Unknown',
-    player_surname: dbRating.player?.surname ?? undefined,
-    player_nickname: dbRating.player?.nickname ?? undefined,
-    player_avatar: dbRating.player?.avatarUrl ?? undefined,
-    jersey_number: dbRating.jerseyNumber || 0,
+    first_name: dbRating.clubMember?.user?.firstName || 'Unknown',
+    last_name: dbRating.clubMember?.user?.lastName || '',
+    nickname: dbRating.clubMember?.user?.nickname ?? undefined,
+    image: dbRating.clubMember?.user?.image ?? undefined,
+    jersey_number: dbRating.clubMember?.jerseyNumber || 0,
   }
 }
 
@@ -112,12 +116,12 @@ function toPlayerRatingWithPlayer(dbRating: any): PlayerRatingWithPlayer {
  * Requirements:
  * - User must be club admin
  * - Match status must be FINISHED (not COMPLETED)
- * - Player must have played=true in this match
+ * - Player must have played=true in this match (via FormationPosition)
  * - Rating must be one of 38 valid values
  * 
  * @param data - Rating input data
-  * @returns Created/updated PlayerRating
-   */
+ * @returns Created/updated PlayerRating
+ */
 export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRating> {
   const session = await auth()
   
@@ -159,22 +163,19 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
     throw new Error(ERRORS.MATCH_NOT_FINISHED)
   }
 
-  // Check if player is in the match and has played
-  const matchPlayer = await prisma.matchPlayer.findUnique({
+  // Check if clubMember is in the match formation and has played
+  const formationPosition = await prisma.formationPosition.findFirst({
     where: {
-      matchId_playerId: {
+      clubMemberId: data.clubMemberId,
+      formation: {
         matchId: data.matchId,
-        playerId: data.playerId,
       },
+      played: true,
     },
   })
 
-  if (!matchPlayer) {
-    throw new Error(ERRORS.PLAYER_NOT_IN_MATCH)
-  }
-
-  if (!matchPlayer.played) {
-    throw new Error(ERRORS.PLAYER_NOT_PLAYED)
+  if (!formationPosition) {
+    throw new Error(ERRORS.MEMBER_NOT_PLAYED)
   }
 
   // Convert rating string to decimal
@@ -183,14 +184,14 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
   // Upsert the rating
   const upsertedRating = await prisma.playerRating.upsert({
     where: {
-      matchId_playerId: {
+      matchId_clubMemberId: {
         matchId: data.matchId,
-        playerId: data.playerId,
+        clubMemberId: data.clubMemberId,
       },
     },
     create: {
       matchId: data.matchId,
-      playerId: data.playerId,
+      clubMemberId: data.clubMemberId,
       rating: new Decimal(ratingDecimal),
       comment: data.comment,
     },
@@ -199,11 +200,22 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
       comment: data.comment,
     },
     include: {
-      player: true,
+      clubMember: {
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              nickname: true,
+              image: true,
+            },
+          },
+        },
+      },
     },
   })
 
-  console.log('[Ratings] Upserted rating:', data.matchId, data.playerId, data.rating, '→', ratingDecimal)
+  console.log('[Ratings] Upserted rating:', data.matchId, data.clubMemberId, data.rating, '→', ratingDecimal)
 
   return toPlayerRating(upsertedRating)
 }
@@ -213,74 +225,59 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
 // ============================================================================
 
 /**
- * Get all ratings for a match with player details
- * Includes jersey number from player_teams table
+ * Get all ratings for a match with member details
+ * Includes jersey number from club_members table
  * 
  * @param matchId - Match ID
- * @returns Array of ratings with player details
+ * @returns Array of ratings with member details
  */
-export async function getMatchRatings(matchId: string): Promise<PlayerRatingWithPlayer[]> {
-  // Get match to find team
-  const match = await prisma.match.findUnique({
-    where: { id: matchId },
-    select: { clubId: true },
-  })
-
-  if (!match) {
-    return []
-  }
-
-  // Get all ratings with player details
+export async function getMatchRatings(matchId: string): Promise<PlayerRatingWithMember[]> {
+  // Get all ratings with member details
   const ratings = await prisma.playerRating.findMany({
     where: { matchId },
     include: {
-      player: true,
+      clubMember: {
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              nickname: true,
+              image: true,
+            },
+          },
+        },
+      },
     },
   })
-
-  // Get jersey numbers for all players
-  const playerIds = ratings.map(r => r.playerId)
-  const playerClubs = await prisma.playerClub.findMany({
-    where: {
-      playerId: { in: playerIds },
-      clubId: match.clubId,
-    },
-  })
-
-  // Create a map of playerId -> jerseyNumber
-  const jerseyMap = new Map(playerClubs.map(pt => [pt.playerId, pt.jerseyNumber]))
 
   // Convert to app types
-  const results = ratings.map(r => {
-    const base = toPlayerRatingWithPlayer(r)
-    base.jersey_number = jerseyMap.get(r.playerId) || 0
-    return base
-  })
+  const results = ratings.map(toPlayerRatingWithMember)
 
   // Sort by rating descending (best first)
-  return results.sort((a, b) => b.rating_decimal - a.rating_decimal)
+  return results.sort((a: PlayerRatingWithMember, b: PlayerRatingWithMember) => b.rating_decimal - a.rating_decimal)
 }
 
 // ============================================================================
-// Get Single Player Match Rating
+// Get Single Member Match Rating
 // ============================================================================
 
 /**
- * Get rating for a specific player in a match
+ * Get rating for a specific member in a match
  * 
  * @param matchId - Match ID
- * @param playerId - Player ID
+ * @param clubMemberId - ClubMember ID
  * @returns PlayerRating or null if not rated
  */
 export async function getPlayerMatchRating(
   matchId: string,
-  playerId: string
+  clubMemberId: string
 ): Promise<PlayerRating | null> {
   const rating = await prisma.playerRating.findUnique({
     where: {
-      matchId_playerId: {
+      matchId_clubMemberId: {
         matchId,
-        playerId,
+        clubMemberId,
       },
     },
   })
@@ -293,20 +290,20 @@ export async function getPlayerMatchRating(
 }
 
 // ============================================================================
-// Get Player Average Rating
+// Get Member Average Rating
 // ============================================================================
 
 /**
- * Calculate player's average rating across all completed matches
+ * Calculate member's average rating across all completed matches
  * 
- * @param playerId - Player ID
+ * @param clubMemberId - ClubMember ID
  * @returns Average rating as decimal, or null if no ratings
  */
-export async function getPlayerAverageRating(playerId: string): Promise<number | null> {
-  // Get all ratings for this player in completed matches
+export async function getPlayerAverageRating(clubMemberId: string): Promise<number | null> {
+  // Get all ratings for this member in completed matches
   const ratings = await prisma.playerRating.findMany({
     where: {
-      playerId,
+      clubMemberId,
       match: {
         status: MatchStatus.COMPLETED,
       },
@@ -321,7 +318,7 @@ export async function getPlayerAverageRating(playerId: string): Promise<number |
   }
 
   // Calculate average
-  const sum = ratings.reduce((acc, r) => acc + r.rating.toNumber(), 0)
+  const sum = ratings.reduce((acc: number, r: { rating: { toNumber: () => number } }) => acc + r.rating.toNumber(), 0)
   const average = sum / ratings.length
 
   return Math.round(average * 100) / 100  // Round to 2 decimal places
@@ -332,15 +329,15 @@ export async function getPlayerAverageRating(playerId: string): Promise<number |
 // ============================================================================
 
 /**
- * Delete a player's rating for a match
+ * Delete a member's rating for a match
  * Only allowed when match status is FINISHED
  * 
  * @param matchId - Match ID
- * @param playerId - Player ID
+ * @param clubMemberId - ClubMember ID
  */
 export async function deletePlayerRating(
   matchId: string,
-  playerId: string
+  clubMemberId: string
 ): Promise<void> {
   const session = await auth()
   
@@ -375,14 +372,14 @@ export async function deletePlayerRating(
   // Delete the rating
   await prisma.playerRating.delete({
     where: {
-      matchId_playerId: {
+      matchId_clubMemberId: {
         matchId,
-        playerId,
+        clubMemberId,
       },
     },
   })
 
-  console.log('[Ratings] Deleted rating:', matchId, playerId)
+  console.log('[Ratings] Deleted rating:', matchId, clubMemberId)
 }
 
 // ============================================================================
@@ -390,7 +387,7 @@ export async function deletePlayerRating(
 // ============================================================================
 
 /**
- * Get count of ratings vs played players for a match
+ * Get count of ratings vs played members for a match
  * 
  * @param matchId - Match ID
  * @returns Object with rated count and played count
@@ -399,10 +396,12 @@ export async function getRatingsCount(matchId: string): Promise<{
   rated: number
   played: number
 }> {
-  // Count played players
-  const playedPlayers = await prisma.matchPlayer.count({
+  // Count played members (from FormationPosition)
+  const playedMembers = await prisma.formationPosition.count({
     where: {
-      matchId,
+      formation: {
+        matchId,
+      },
       played: true,
     },
   })
@@ -416,7 +415,7 @@ export async function getRatingsCount(matchId: string): Promise<{
 
   return {
     rated: ratings,
-    played: playedPlayers,
+    played: playedMembers,
   }
 }
 
@@ -425,7 +424,7 @@ export async function getRatingsCount(matchId: string): Promise<{
 // ============================================================================
 
 /**
- * Bulk create/update ratings for multiple players
+ * Bulk create/update ratings for multiple members
  * Useful for saving all ratings at once
  * 
  * @param ratings - Array of rating inputs
@@ -479,23 +478,23 @@ export async function bulkUpsertRatings(
     throw new Error(ERRORS.MATCH_NOT_FINISHED)
   }
 
-  // Verify all players have played
-  const playerIds = ratings.map(r => r.playerId)
-  const matchPlayers = await prisma.matchPlayer.findMany({
+  // Verify all members have played
+  const clubMemberIds = ratings.map(r => r.clubMemberId)
+  const formationPositions = await prisma.formationPosition.findMany({
     where: {
-      matchId,
-      playerId: { in: playerIds },
+      clubMemberId: { in: clubMemberIds },
+      formation: {
+        matchId,
+      },
+      played: true,
     },
   })
 
-  const playerMap = new Map(matchPlayers.map(mp => [mp.playerId, mp]))
+  const memberMap = new Map(formationPositions.map(fp => [fp.clubMemberId, fp]))
   for (const data of ratings) {
-    const mp = playerMap.get(data.playerId)
-    if (!mp) {
-      throw new Error(ERRORS.PLAYER_NOT_IN_MATCH)
-    }
-    if (!mp.played) {
-      throw new Error(ERRORS.PLAYER_NOT_PLAYED)
+    const fp = memberMap.get(data.clubMemberId)
+    if (!fp) {
+      throw new Error(ERRORS.MEMBER_NOT_PLAYED)
     }
   }
 
@@ -504,14 +503,14 @@ export async function bulkUpsertRatings(
     ratings.map(data =>
       prisma.playerRating.upsert({
         where: {
-          matchId_playerId: {
+          matchId_clubMemberId: {
             matchId: data.matchId,
-            playerId: data.playerId,
+            clubMemberId: data.clubMemberId,
           },
         },
         create: {
           matchId: data.matchId,
-          playerId: data.playerId,
+          clubMemberId: data.clubMemberId,
           rating: new Decimal(ratingToDecimal(data.rating)),
           comment: data.comment,
         },
@@ -544,22 +543,22 @@ export interface RatingHistoryEntry {
 }
 
 /**
- * Get player's rating history ordered chronologically by match date
+ * Get member's rating history ordered chronologically by match date
  * 
- * Fetches all ratings for a player from COMPLETED matches.
- * Used for rating trend visualization on player profile.
+ * Fetches all ratings for a member from COMPLETED matches.
+ * Used for rating trend visualization on member profile.
  * 
- * @param playerId - Player ID
+ * @param clubMemberId - ClubMember ID
  * @param clubId - Optional club ID to filter history
  * @returns Array of rating history entries ordered by match date
  */
 export async function getPlayerRatingHistory(
-  playerId: string,
+  clubMemberId: string,
   clubId?: string
 ): Promise<RatingHistoryEntry[]> {
   const ratings = await prisma.playerRating.findMany({
     where: {
-      playerId,
+      clubMemberId,
       match: {
         status: MatchStatus.COMPLETED,
         ...(clubId ? { clubId } : {}),
@@ -580,7 +579,7 @@ export async function getPlayerRatingHistory(
     },
   })
 
-  return ratings.map(r => ({
+  return ratings.map((r: { matchId: string; match: { scheduledAt: Date }; rating: { toNumber: () => number }; comment?: string | null }) => ({
     match_id: r.matchId,
     match_date: r.match.scheduledAt,
     rating: r.rating.toNumber(),
@@ -590,18 +589,18 @@ export async function getPlayerRatingHistory(
 }
 
 // ============================================================================
-// Dashboard Player Data
+// Dashboard Member Data
 // ============================================================================
 
 export type FrameBorderColor = 'gray' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'fire-red'
 
-export interface DashboardPlayerData {
-  player: {
+export interface DashboardMemberData {
+  member: {
     id: string
-    name: string
-    surname: string | null
+    first_name: string
+    last_name: string
     nickname: string | null
-    avatar_url: string | null
+    image: string | null
   }
   clubId: string | null
   teamName: string | null
@@ -611,51 +610,29 @@ export interface DashboardPlayerData {
   frameColor: FrameBorderColor
 }
 
-export async function getPlayerDashboardData(
+export async function getMemberDashboardData(
   userId: string,
   clubId?: string
-): Promise<DashboardPlayerData | null> {
-  const player = await prisma.player.findFirst({
-    where: { userId },
+): Promise<DashboardMemberData | null> {
+  // Find member by userId
+  const member = await prisma.clubMember.findFirst({
+    where: { 
+      userId,
+      ...(clubId ? { clubId } : {}),
+    },
     include: {
-      playerClubs: {
-        include: {
-          club: true,
-        },
-        ...(clubId ? { where: { clubId } } : {}),
-      },
+      user: true,
+      club: true,
     },
   })
 
-  if (!player) return null
-
-  const playerClub = clubId
-    ? player.playerClubs.find(pt => pt.clubId === clubId)
-    : player.playerClubs[0]
-
-  if (!playerClub) {
-    return {
-      player: {
-        id: player.id,
-        name: player.name,
-        surname: player.surname,
-        nickname: player.nickname,
-        avatar_url: player.avatarUrl,
-      },
-      clubId: null,
-      teamName: null,
-      jerseyNumber: null,
-      lastThreeGamesAvgRating: null,
-      hasMvpInLastThree: false,
-      frameColor: 'gray',
-    }
-  }
+  if (!member) return null
 
   const lastThreeRatings = await prisma.playerRating.findMany({
     where: {
-      playerId: player.id,
+      clubMemberId: member.id,
       match: {
-        clubId: playerClub.clubId,
+        clubId: member.clubId,
         status: MatchStatus.COMPLETED,
       },
     },
@@ -679,19 +656,19 @@ export async function getPlayerDashboardData(
   let hasMvpInLastThree = false
 
   if (lastThreeRatings.length > 0) {
-    const sum = lastThreeRatings.reduce((acc, r) => acc + r.rating.toNumber(), 0)
+    const sum = lastThreeRatings.reduce((acc: number, r: { rating: { toNumber: () => number } }) => acc + r.rating.toNumber(), 0)
     lastThreeGamesAvgRating = Math.round((sum / lastThreeRatings.length) * 100) / 100
 
     for (const rating of lastThreeRatings) {
       const allMatchRatings = await prisma.playerRating.findMany({
         where: { matchId: rating.matchId },
-        select: { playerId: true, rating: true },
+        select: { clubMemberId: true, rating: true },
       })
 
       if (allMatchRatings.length > 0) {
-        const maxRating = Math.max(...allMatchRatings.map(r => r.rating.toNumber()))
-        const topPlayers = allMatchRatings.filter(r => r.rating.toNumber() === maxRating)
-        if (topPlayers.some(p => p.playerId === player.id)) {
+        const maxRating = Math.max(...allMatchRatings.map((r: { rating: { toNumber: () => number } }) => r.rating.toNumber()))
+        const topMembers = allMatchRatings.filter((r: { rating: { toNumber: () => number } }) => r.rating.toNumber() === maxRating)
+        if (topMembers.some((m: { clubMemberId: string }) => m.clubMemberId === member.id)) {
           hasMvpInLastThree = true
           break
         }
@@ -702,16 +679,16 @@ export async function getPlayerDashboardData(
   const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
 
   return {
-    player: {
-      id: player.id,
-      name: player.name,
-      surname: player.surname,
-      nickname: player.nickname,
-      avatar_url: player.avatarUrl,
+    member: {
+      id: member.id,
+      first_name: member.user.firstName,
+      last_name: member.user.lastName,
+      nickname: member.user.nickname,
+      image: member.user.image,
     },
-    clubId: playerClub.clubId,
-    teamName: playerClub.club.name,
-    jerseyNumber: playerClub.jerseyNumber,
+    clubId: member.clubId,
+    teamName: member.club.name,
+    jerseyNumber: member.jerseyNumber,
     lastThreeGamesAvgRating,
     hasMvpInLastThree,
     frameColor,
@@ -730,11 +707,11 @@ export async function calculateFrameColor(
   return 'platinum'
 }
 
-export async function getClubPlayersDashboardData(clubId: string): Promise<DashboardPlayerData[]> {
-  const playerClubs = await prisma.playerClub.findMany({
+export async function getClubMembersDashboardData(clubId: string): Promise<DashboardMemberData[]> {
+  const members = await prisma.clubMember.findMany({
     where: { clubId },
     include: {
-      player: true,
+      user: true,
       club: true,
     },
     orderBy: {
@@ -742,12 +719,12 @@ export async function getClubPlayersDashboardData(clubId: string): Promise<Dashb
     },
   })
 
-  const results: DashboardPlayerData[] = []
+  const results: DashboardMemberData[] = []
 
-  for (const pt of playerClubs) {
+  for (const member of members) {
     const lastThreeRatings = await prisma.playerRating.findMany({
       where: {
-        playerId: pt.playerId,
+        clubMemberId: member.id,
         match: {
           clubId,
           status: MatchStatus.COMPLETED,
@@ -765,19 +742,19 @@ export async function getClubPlayersDashboardData(clubId: string): Promise<Dashb
     let hasMvpInLastThree = false
 
     if (lastThreeRatings.length > 0) {
-      const sum = lastThreeRatings.reduce((acc, r) => acc + r.rating.toNumber(), 0)
+      const sum = lastThreeRatings.reduce((acc: number, r: { rating: { toNumber: () => number } }) => acc + r.rating.toNumber(), 0)
       lastThreeGamesAvgRating = Math.round((sum / lastThreeRatings.length) * 100) / 100
 
       for (const rating of lastThreeRatings) {
         const allMatchRatings = await prisma.playerRating.findMany({
           where: { matchId: rating.matchId },
-          select: { playerId: true, rating: true },
+          select: { clubMemberId: true, rating: true },
         })
 
         if (allMatchRatings.length > 0) {
-          const maxRating = Math.max(...allMatchRatings.map(r => r.rating.toNumber()))
-          const topPlayers = allMatchRatings.filter(r => r.rating.toNumber() === maxRating)
-          if (topPlayers.some(p => p.playerId === pt.playerId)) {
+          const maxRating = Math.max(...allMatchRatings.map((r: { rating: { toNumber: () => number } }) => r.rating.toNumber()))
+          const topMembers = allMatchRatings.filter((r: { rating: { toNumber: () => number } }) => r.rating.toNumber() === maxRating)
+          if (topMembers.some((m: { clubMemberId: string }) => m.clubMemberId === member.id)) {
             hasMvpInLastThree = true
             break
           }
@@ -788,16 +765,16 @@ export async function getClubPlayersDashboardData(clubId: string): Promise<Dashb
     const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
 
     results.push({
-      player: {
-        id: pt.player.id,
-        name: pt.player.name,
-        surname: pt.player.surname,
-        nickname: pt.player.nickname,
-        avatar_url: pt.player.avatarUrl,
+      member: {
+        id: member.id,
+        first_name: member.user.firstName,
+        last_name: member.user.lastName,
+        nickname: member.user.nickname,
+        image: member.user.image,
       },
       clubId,
-      teamName: pt.club.name,
-      jerseyNumber: pt.jerseyNumber,
+      teamName: member.club.name,
+      jerseyNumber: member.jerseyNumber,
       lastThreeGamesAvgRating,
       hasMvpInLastThree,
       frameColor,
