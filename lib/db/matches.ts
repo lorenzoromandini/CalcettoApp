@@ -64,9 +64,9 @@ export async function createMatch(
 }
 
 /**
- * Get all matches for a team
+ * Get all matches for a club
  * 
- * @param clubId - Team ID to get matches for
+ * @param clubId - Club ID to get matches for
  * @returns Array of matches
  */
 export async function getClubMatches(clubId: string): Promise<Match[]> {
@@ -96,10 +96,10 @@ export async function getMatch(matchId: string): Promise<Match | null> {
 }
 
 /**
- * Get upcoming matches for a team
+ * Get upcoming matches for a club
  * Matches where scheduled_at >= NOW() AND status = 'scheduled'
  * 
- * @param clubId - Team ID to get matches for
+ * @param clubId - Club ID to get matches for
  * @returns Array of upcoming matches, ordered by scheduled_at ASC
  */
 export async function getUpcomingMatches(clubId: string): Promise<Match[]> {
@@ -122,10 +122,10 @@ export async function getUpcomingMatches(clubId: string): Promise<Match[]> {
 }
 
 /**
- * Get past matches for a team
+ * Get past matches for a club
  * Matches where scheduled_at < NOW() OR status IN ('completed', 'cancelled')
  * 
- * @param clubId - Team ID to get matches for
+ * @param clubId - Club ID to get matches for
  * @returns Array of past matches, ordered by scheduled_at DESC
  */
 export async function getPastMatches(clubId: string): Promise<Match[]> {
@@ -269,13 +269,13 @@ export async function isMatchAdmin(matchId: string, userId: string): Promise<boo
 
   if (!match) return false;
 
-  // Check team membership
+  // Check club membership
   const membership = await prisma.clubMember.findFirst({
     where: {
       clubId: match.clubId,
       userId: userId,
-      role: {
-        in: ['admin', 'co-admin'],
+      privilege: {
+        in: ['owner', 'manager'],
       },
     },
   });

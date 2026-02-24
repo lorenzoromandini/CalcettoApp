@@ -37,7 +37,7 @@ export interface EvolutionDataPoint {
  * Aggregates goals, assists, and rating per match
  * 
  * @param playerId - Player ID
- * @param clubId - Team ID to filter matches
+ * @param clubId - Club ID to filter matches
  * @param limit - Maximum number of matches to include (default 10)
  * @returns Array of evolution data points ordered chronologically
  */

@@ -93,7 +93,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithPlayers> {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
-  // Get match with team info
+  // Get match with club info
   const match = await prisma.match.findUnique({
     where: { id: data.matchId },
     include: { club: true },
@@ -103,7 +103,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithPlayers> {
     throw new Error(ERRORS.MATCH_NOT_FOUND)
   }
 
-  // Check if user is team admin
+  // Check if user is club admin
   const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)

@@ -21,7 +21,7 @@ export function DashboardClient({ clubs, userName }: DashboardClientProps) {
     id: club.id,
     name: club.name,
     description: club.description || '',
-    role: 'member' as const, // Will be determined by actual membership
+    privilege: 'member' as const, // Will be determined by actual membership
   }));
 
   return (
@@ -144,9 +144,9 @@ export function DashboardClient({ clubs, userName }: DashboardClientProps) {
                           </p>
                         )}
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground capitalize">
-                            {club.role}
-                          </span>
+                        <span className="text-muted-foreground capitalize">
+                          {club.privilege}
+                        </span>
                         </div>
                       </CardContent>
                     </Card>

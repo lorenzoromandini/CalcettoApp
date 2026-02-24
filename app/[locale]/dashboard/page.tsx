@@ -7,51 +7,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 
-interface User {
-  id: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-  nickname: string | null;
-}
-
-interface Team {
+interface Club {
   id: string;
   name: string;
-  description: string;
-  role: string;
-}
-
-function parseToken(token: string): User | null {
-  try {
-    const base64 = token.replace(/-/g, '+').replace(/_/g, '/');
-    const decoded = atob(base64);
-    // Check if it's a JSON object or just a user ID
-    try {
-      return JSON.parse(decoded);
-    } catch {
-      // It's just the user ID
-      return {
-        id: decoded,
-        email: '',
-        firstName: null,
-        lastName: null,
-        nickname: null
-      };
-    }
-  } catch {
-    return null;
-  }
+  description: string | null;
+  memberCount?: number;
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("auth-token");
     const userDataStr = localStorage.getItem("user-data");
+    
+    console.log("Dashboard: token exists:", !!token);
+    console.log("Dashboard: userData exists:", !!userDataStr);
     
     if (!token) {
       window.location.href = "/auth/login";
@@ -59,39 +33,32 @@ export default function DashboardPage() {
     }
 
     // Try to get user data from localStorage
-    let userData: User | null = null;
     if (userDataStr) {
       try {
-        userData = JSON.parse(userDataStr);
+        const userData = JSON.parse(userDataStr);
+        setUserName(userData.firstName || userData.nickname || userData.email || "");
       } catch {
-        userData = null;
+        setUserName("");
       }
     }
 
-    // If no user data in localStorage, use token (just ID)
-    if (!userData) {
-      const base64 = token.replace(/-/g, '+').replace(/_/g, '/');
-      const decoded = atob(base64);
-      userData = {
-        id: decoded,
-        email: '',
-        firstName: null,
-        lastName: null,
-        nickname: null
-      };
-    }
-
-    setUser(userData);
-
-    // Fetch teams
-    authFetch("/api/user/teams")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data.teams)) {
-          setTeams(data.teams);
+    // Fetch clubs from main clubs API
+    authFetch("/api/clubs")
+      .then(async res => {
+        console.log("Dashboard: API response status:", res.status);
+        const data = await res.json();
+        console.log("Dashboard: API response data:", data);
+        if (res.ok && Array.isArray(data)) {
+          setClubs(data);
+          setError(null);
+        } else if (data.error) {
+          setError(data.error);
         }
       })
-      .catch(console.error)
+      .catch(err => {
+        console.error("Dashboard: API error:", err);
+        setError("Failed to fetch clubs");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -118,8 +85,11 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Ciao, {user?.firstName || user?.nickname || user?.email}!
+                Ciao, {userName || "Utente"}!
               </p>
+              {error && (
+                <p className="text-sm text-red-500 mt-2">Errore: {error}</p>
+              )}
             </CardContent>
           </Card>
 
@@ -130,8 +100,17 @@ export default function DashboardPage() {
                 <Users className="h-5 w-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{teams.length}</p>
+                <p className="text-2xl font-bold">{clubs.length}</p>
                 <p className="text-sm text-muted-foreground">Club disponibili</p>
+                {clubs.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {clubs.map(club => (
+                      <p key={club.id} className="text-xs text-muted-foreground">
+                        - {club.name} ({club.memberCount || 0} membri)
+                      </p>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </Link>
@@ -148,7 +127,22 @@ export default function DashboardPage() {
 
         <div className="hidden md:block">
           <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-          <p className="text-muted-foreground">Ciao, {user?.firstName}!</p>
+          <p className="text-muted-foreground">Ciao, {userName || "Utente"}!</p>
+          {error && (
+            <p className="text-red-500 mt-2">Errore: {error}</p>
+          )}
+          {clubs.length > 0 && (
+            <div className="mt-4">
+              <h3 className="font-semibold">I tuoi club:</h3>
+              <ul className="mt-2 space-y-1">
+                {clubs.map(club => (
+                  <li key={club.id} className="text-sm text-muted-foreground">
+                    {club.name} ({club.memberCount || 0} membri)
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </main>
     </div>

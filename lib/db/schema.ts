@@ -1,4 +1,18 @@
-export type { Team, Club, ClubMember, Player, PlayerClub, Match, MatchPlayer } from '@/types/database';
+export type { Team, ClubMember, Player, PlayerClub, Match, MatchPlayer } from '@/types/database';
+
+// Extend Club type with runtime properties
+export interface Club {
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  sync_status: string | null;
+  memberCount?: number;
+}
 
 export type PlayerRole = 'goalkeeper' | 'defender' | 'midfielder' | 'attacker';
 

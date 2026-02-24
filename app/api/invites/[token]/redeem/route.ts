@@ -61,7 +61,7 @@ export async function POST(
     data: {
       clubId: invite.clubId,
       userId,
-      role: 'member',
+      privilege: 'member',
     },
   });
 

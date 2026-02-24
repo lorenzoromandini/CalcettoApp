@@ -23,7 +23,7 @@ export default function ClubPageClient() {
   
   const [club, setClub] = useState<ClubData | null>(null);
   const [playerCount, setPlayerCount] = useState<number>(0);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function ClubPageClient() {
         })
         .then(adminRes => adminRes?.json())
         .then(adminData => {
-          setIsAdmin(adminData?.isAdmin || false);
+          setIsOwner(adminData?.isOwner || false);
           setLoading(false);
         })
         .catch(() => {
@@ -87,13 +87,13 @@ export default function ClubPageClient() {
         
         <div className="flex-1" />
 
-        {isAdmin && (
+        {isOwner && (
           <Link href={`/clubs/${clubId}/settings`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
             <span>Impostazioni</span>
             <Settings className="h-4 w-4" />
           </Link>
         )}
-        {!isAdmin && <div className="w-16" />}
+        {!isOwner && <div className="w-16" />}
       </div>
 
       <div className="container mx-auto px-4 py-6">

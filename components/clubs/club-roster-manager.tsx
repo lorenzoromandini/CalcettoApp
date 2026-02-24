@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { updateMemberRole, removeClubMember } from '@/lib/db/clubs';
+import { updateMemberPrivilege, removeClubMember } from '@/lib/db/clubs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -34,15 +34,15 @@ export function ClubRosterManager({
   const [memberToRemove, setMemberToRemove] = useState<ClubMember | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
 
-  const handleRoleChange = async (memberId: string, newRole: 'admin' | 'co-admin' | 'member') => {
+  const handlePrivilegeChange = async (memberId: string, newPrivilege: 'owner' | 'manager' | 'member') => {
     if (!isAdmin) return;
 
     try {
-      await updateMemberRole(clubId, memberId, newRole);
+      await updateMemberPrivilege(clubId, memberId, newPrivilege);
       onMembersChange();
     } catch (error) {
-      console.error('Failed to update role:', error);
-      alert(t('roleUpdateError'));
+      console.error('Failed to update privilege:', error);
+      alert(t('privilegeUpdateError'));
     }
   };
 
@@ -62,25 +62,25 @@ export function ClubRosterManager({
     }
   };
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'admin':
+  const getPrivilegeIcon = (privilege: string) => {
+    switch (privilege) {
+      case 'owner':
         return <Shield className="h-4 w-4 text-primary" />;
-      case 'co-admin':
+      case 'manager':
         return <UserCog className="h-4 w-4 text-muted-foreground" />;
       default:
         return <User className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return t('roles.admin');
-      case 'co-admin':
-        return t('roles.coAdmin');
+  const getPrivilegeLabel = (privilege: string) => {
+    switch (privilege) {
+      case 'owner':
+        return t('privileges.owner');
+      case 'manager':
+        return t('privileges.manager');
       default:
-        return t('roles.member');
+        return t('privileges.member');
     }
   };
 
@@ -97,13 +97,13 @@ export function ClubRosterManager({
               className="flex items-center justify-between p-3 border rounded-lg"
             >
               <div className="flex items-center gap-3">
-                {getRoleIcon(member.role)}
+                {getPrivilegeIcon(member.privilege)}
                 <div>
                   <p className="font-medium">
                     {member.user_id === currentUserId ? t('you') : member.user_id?.slice(0, 8)}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {getRoleLabel(member.role)}
+                    {getPrivilegeLabel(member.privilege)}
                   </p>
                 </div>
               </div>
@@ -117,9 +117,9 @@ export function ClubRosterManager({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleRoleChange(member.id, member.role === 'co-admin' ? 'member' : 'co-admin')}>
+                      <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, member.privilege === 'manager' ? 'member' : 'manager')}>
                         <UserCog className="mr-2 h-4 w-4" />
-                        {member.role === 'co-admin' ? t('removeManager') : t('makeManager')}
+                        {member.privilege === 'manager' ? t('removeManager') : t('makeManager')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
@@ -134,7 +134,7 @@ export function ClubRosterManager({
                 </div>
               ) : (
                 <span className="text-sm text-muted-foreground">
-                  {getRoleLabel(member.role)}
+                  {getPrivilegeLabel(member.privilege)}
                 </span>
               )}
             </div>

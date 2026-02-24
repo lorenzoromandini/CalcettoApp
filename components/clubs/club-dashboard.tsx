@@ -18,13 +18,13 @@ import type { Team } from '@/lib/db/schema';
 interface ClubDashboardProps {
   club: Team;
   playerCount: number;
-  isAdmin: boolean;
+  isOwner: boolean;
 }
 
 export function ClubDashboard({
   club,
   playerCount,
-  isAdmin,
+  isOwner,
 }: ClubDashboardProps) {
   const t = useTranslations('teamDashboard');
   const tInvites = useTranslations('invites');
@@ -147,7 +147,7 @@ export function ClubDashboard({
       </div>
 
       {/* Invite Members - Only for admin */}
-      {isAdmin && (
+      {isOwner && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

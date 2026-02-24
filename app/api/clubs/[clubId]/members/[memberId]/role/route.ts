@@ -13,19 +13,19 @@ export async function PATCH(
   }
 
   const { clubId, memberId } = await params;
-  const { role } = await request.json();
+  const { privilege } = await request.json();
 
   try {
-    // Verifica che l'utente sia Admin
-    const adminMembership = await prisma.clubMember.findFirst({
+    // Verifica che l'utente sia Owner
+    const ownerMembership = await prisma.clubMember.findFirst({
       where: { clubId, userId },
     });
 
-    if (!adminMembership || adminMembership.role !== 'admin') {
+    if (!ownerMembership || ownerMembership.privilege !== 'owner') {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    // Non permettere di modificare l'admin stesso
+    // Non permettere di modificare l'owner stesso
     const targetMember = await prisma.clubMember.findUnique({
       where: { id: memberId },
     });
@@ -38,21 +38,21 @@ export async function PATCH(
       return NextResponse.json({ error: 'Member not in this club' }, { status: 403 });
     }
 
-    if (targetMember.role === 'admin') {
-      return NextResponse.json({ error: 'Cannot modify admin role' }, { status: 403 });
+    if (targetMember.privilege === 'owner') {
+      return NextResponse.json({ error: 'Cannot modify owner privilege' }, { status: 403 });
     }
 
-    // Aggiorna il ruolo
+    // Aggiorna il privilegio
     const updatedMember = await prisma.clubMember.update({
       where: { id: memberId },
-      data: { role },
+      data: { privilege },
     });
 
     return NextResponse.json({ success: true, member: updatedMember });
   } catch (error) {
-    console.error('Failed to update member role:', error);
+    console.error('Failed to update member privilege:', error);
     return NextResponse.json(
-      { error: 'Failed to update member role' },
+      { error: 'Failed to update member privilege' },
       { status: 500 }
     );
   }

@@ -19,20 +19,20 @@ export async function GET(request: NextRequest) {
       },
       select: {
         clubId: true,
-        role: true,
+        privilege: true,
       },
     });
 
-    const roles = memberships.map((m) => ({
+    const privileges = memberships.map((m) => ({
       clubId: m.clubId,
-      role: m.role as 'admin' | 'co-admin' | 'member',
+      privilege: m.privilege as 'owner' | 'manager' | 'member',
     }));
 
-    return NextResponse.json({ roles });
+    return NextResponse.json({ privileges });
   } catch (error) {
-    console.error('Error fetching user roles:', error);
+    console.error('Error fetching user privileges:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user roles' },
+      { error: 'Failed to fetch user privileges' },
       { status: 500 }
     );
   }

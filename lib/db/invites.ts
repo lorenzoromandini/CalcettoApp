@@ -214,7 +214,7 @@ export async function redeemInvite(
     data: {
       clubId: invite.clubId,
       userId,
-      role: 'member',
+      privilege: 'member',
     },
   });
 

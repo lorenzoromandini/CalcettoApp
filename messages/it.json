@@ -278,7 +278,7 @@
 "settings": {
     "title": "Impostazioni club",
     "backToClub": "Torna al club",
-    "notAdmin": "Solo gli admin possono accedere alle impostazioni",
+    "notOwner": "Solo i proprietari possono accedere alle impostazioni",
     "save": "Salva modifiche",
     "saving": "Salvataggio...",
     "saveSuccess": "Modifiche salvate con successo",
@@ -314,13 +314,13 @@
       "members": "Membri"
     },
     "roles": {
-      "admin": "Admin",
-      "coAdmin": "Co-Admin",
+      "owner": "Proprietario",
+      "manager": "Manager",
       "member": "Membro"
     },
     "changeRole": "Cambia ruolo",
-    "makeManager": "Nomina Co-Admin",
-    "removeManager": "Revoca permessi",
+    "makeManager": "Nomina Manager",
+    "removeManager": "Revoca Manager",
     "kickPlayer": "Espelli giocatore",
     "cancel": "Annulla",
     "noPlayers": "Nessun giocatore nella club",
@@ -587,7 +587,7 @@
     "progress": "Progresso votazioni",
     "helpText": "Assegna un voto a ogni giocatore che ha giocato. Il voto va da 1 a 10 con modificatori (-, +, .5). Puoi aggiungere un commento opzionale.",
     "completedReadonly": "Questa partita è stata completata e i voti sono bloccati.",
-    "adminOnly": "Solo gli amministratori possono assegnare i voti.",
+    "ownerOnly": "Solo i proprietari possono assegnare i voti.",
     "saveSuccess": "Voti salvati con successo",
     "saveError": "Errore durante il salvataggio dei voti"
   },

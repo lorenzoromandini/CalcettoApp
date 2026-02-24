@@ -47,7 +47,7 @@ export interface PlayerLeaderboardEntry {
  * Get comprehensive statistics for a player
  * 
  * @param playerId - Player ID
- * @param clubId - Optional team ID to filter statistics
+ * @param clubId - Optional club ID to filter statistics
  * @returns PlayerStats object or null if player not found
  */
 export async function getPlayerStats(

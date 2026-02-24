@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { authFetch } from '@/lib/auth-fetch';
-import { updateMemberRole, removeClubMember } from '@/lib/db/clubs';
+import { updateMemberPrivilege, removeClubMember } from '@/lib/db/clubs';
 import {
   Dialog,
   DialogContent,
@@ -35,8 +35,8 @@ export default function ClubRosterPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isCoAdmin, setIsCoAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isManager, setIsManager] = useState(false);
   const { data: session } = useSession();
   
   const [memberToRemove, setMemberToRemove] = useState<any | null>(null);
@@ -88,8 +88,8 @@ export default function ClubRosterPage() {
 
       if (adminRes.ok) {
         const adminData = await adminRes.json();
-        setIsAdmin(adminData.isAdmin);
-        setIsCoAdmin(adminData.isCoAdmin);
+        setIsOwner(adminData.isOwner);
+        setIsManager(adminData.isManager);
       }
 
       if (session?.user?.id) {
@@ -106,25 +106,25 @@ export default function ClubRosterPage() {
     loadData();
   }, [loadData]);
 
-  const handleRoleChange = async (memberId: string, newRole: 'admin' | 'co-admin' | 'member') => {
-    if (!isAdmin) return;
+  const handlePrivilegeChange = async (memberId: string, newPrivilege: 'owner' | 'manager' | 'member') => {
+    if (!isOwner) return;
 
     try {
       const res = await authFetch(`/api/clubs/${clubId}/members/${memberId}/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify({ privilege: newPrivilege }),
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to update role');
+        throw new Error(error.error || 'Failed to update privilege');
       }
 
       loadData();
     } catch (error) {
-      console.error('Failed to update role:', error);
-      alert(t('roleUpdateError'));
+      console.error('Failed to update privilege:', error);
+      alert(t('privilegeUpdateError'));
     }
   };
 
@@ -186,25 +186,25 @@ export default function ClubRosterPage() {
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'admin':
+  const getPrivilegeIcon = (privilege: string) => {
+    switch (privilege) {
+      case 'owner':
         return <Shield className="h-4 w-4 text-primary" />;
-      case 'co-admin':
+      case 'manager':
         return <UserCog className="h-4 w-4 text-muted-foreground" />;
       default:
         return <User className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return t('roles.admin');
-      case 'co-admin':
-        return t('roles.coAdmin');
+  const getPrivilegeLabel = (privilege: string) => {
+    switch (privilege) {
+      case 'owner':
+        return t('privileges.owner');
+      case 'manager':
+        return t('privileges.manager');
       default:
-        return t('roles.member');
+        return t('privileges.member');
     }
   };
 
@@ -288,8 +288,8 @@ export default function ClubRosterPage() {
                         }
                       </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        {getRoleIcon(member.role)}
-                        {getRoleLabel(member.role)}
+                        {getPrivilegeIcon(member.privilege)}
+                        {getPrivilegeLabel(member.privilege)}
                         {member.playerData?.primary_role && (
                           <span className="ml-1">• {translatePlayerRole(member.playerData.primary_role)}</span>
                         )}
@@ -297,8 +297,8 @@ export default function ClubRosterPage() {
                     </div>
                   </div>
                   
-                  {/* Management actions - Solo Admin può gestire ruoli ed espellere */}
-                  {isAdmin && member.user_id !== currentUserId && member.role !== 'admin' && (
+                  {/* Management actions - Solo Owner può gestire privilegi ed espellere */}
+                  {isOwner && member.user_id !== currentUserId && member.privilege !== 'owner' && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -306,16 +306,16 @@ export default function ClubRosterPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {/* Solo per membri normali: opzione per nominare Co-Admin */}
-                        {member.role === 'member' && (
-                          <DropdownMenuItem onClick={() => handleRoleChange(member.id, 'co-admin')}>
+                        {/* Solo per membri normali: opzione per nominare Manager */}
+                        {member.privilege === 'member' && (
+                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, 'manager')}>
                             <UserCog className="mr-2 h-4 w-4" />
                             {t('makeManager')}
                           </DropdownMenuItem>
                         )}
-                        {/* Solo per Co-Admin: opzione per rimuovere */}
-                        {member.role === 'co-admin' && (
-                          <DropdownMenuItem onClick={() => handleRoleChange(member.id, 'member')}>
+                        {/* Solo per Manager: opzione per rimuovere */}
+                        {member.privilege === 'manager' && (
+                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, 'member')}>
                             <UserCog className="mr-2 h-4 w-4" />
                             {t('removeManager')}
                           </DropdownMenuItem>
@@ -338,8 +338,8 @@ export default function ClubRosterPage() {
         </CardContent>
       </Card>
 
-      {/* Bottone Invita Giocatori - Admin e Co-Admin possono invitare */}
-      {(isAdmin || isCoAdmin) && (
+      {/* Bottone Invita Giocatori - Owner e Manager possono invitare */}
+      {(isOwner || isManager) && (
         <div className="mt-6 flex justify-center">
           <Button 
             onClick={() => setShowInviteDialog(true)}

@@ -73,7 +73,7 @@ export interface Database {
           club_id: string;
           user_id: string | null;
           player_id: string | null;
-          role: 'admin' | 'co-admin' | 'member';
+          privilege: 'owner' | 'manager' | 'member';
           joined_at: string;
         };
         Insert: {
@@ -81,7 +81,7 @@ export interface Database {
           club_id: string;
           user_id?: string | null;
           player_id?: string | null;
-          role?: 'admin' | 'co-admin' | 'member';
+          privilege?: 'owner' | 'manager' | 'member';
           joined_at?: string;
         };
         Update: {
@@ -89,7 +89,7 @@ export interface Database {
           club_id?: string;
           user_id?: string | null;
           player_id?: string | null;
-          role?: 'admin' | 'co-admin' | 'member';
+          privilege?: 'owner' | 'manager' | 'member';
           joined_at?: string;
         };
         Relationships: [

@@ -20,7 +20,7 @@ export async function DELETE(
       where: { clubId, userId },
     });
 
-    if (!adminMembership || adminMembership.role !== 'admin') {
+    if (!adminMembership || adminMembership.privilege !== 'owner') {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -37,13 +37,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Member not in this club' }, { status: 403 });
     }
 
-    // Non permettere di rimuovere se stesso o l'admin
+    // Non permettere di rimuovere se stesso o l'owner
     if (targetMember.userId === userId) {
       return NextResponse.json({ error: 'Cannot remove yourself' }, { status: 403 });
     }
 
-    if (targetMember.role === 'admin') {
-      return NextResponse.json({ error: 'Cannot remove admin' }, { status: 403 });
+    if (targetMember.privilege === 'owner') {
+      return NextResponse.json({ error: 'Cannot remove owner' }, { status: 403 });
     }
 
     // Rimuovi il membro

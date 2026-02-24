@@ -110,7 +110,7 @@ function toPlayerRatingWithPlayer(dbRating: any): PlayerRatingWithPlayer {
  * Create or update a player's rating for a match
  * 
  * Requirements:
- * - User must be team admin
+ * - User must be club admin
  * - Match status must be FINISHED (not COMPLETED)
  * - Player must have played=true in this match
  * - Rating must be one of 38 valid values
@@ -135,7 +135,7 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
     throw new Error(ERRORS.COMMENT_TOO_LONG)
   }
 
-  // Get match with team info
+  // Get match with club info
   const match = await prisma.match.findUnique({
     where: { id: data.matchId },
     include: { club: true },
@@ -145,7 +145,7 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
     throw new Error(ERRORS.MATCH_NOT_FOUND)
   }
 
-  // Check if user is team admin
+  // Check if user is club admin
   const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
@@ -348,7 +348,7 @@ export async function deletePlayerRating(
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
-  // Get match with team info
+  // Get match with club info
   const match = await prisma.match.findUnique({
     where: { id: matchId },
     include: { club: true },
@@ -358,7 +358,7 @@ export async function deletePlayerRating(
     throw new Error(ERRORS.MATCH_NOT_FOUND)
   }
 
-  // Check if user is team admin
+  // Check if user is club admin
   const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
@@ -465,7 +465,7 @@ export async function bulkUpsertRatings(
     throw new Error(ERRORS.MATCH_NOT_FOUND)
   }
 
-  // Check if user is team admin
+  // Check if user is club admin
   const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
@@ -550,7 +550,7 @@ export interface RatingHistoryEntry {
  * Used for rating trend visualization on player profile.
  * 
  * @param playerId - Player ID
- * @param clubId - Optional team ID to filter history
+ * @param clubId - Optional club ID to filter history
  * @returns Array of rating history entries ordered by match date
  */
 export async function getPlayerRatingHistory(

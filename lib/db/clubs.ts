@@ -31,9 +31,14 @@ function toClubMemberType(dbMember: any): ClubMember {
     club_id: dbMember.clubId,
     user_id: dbMember.userId ?? null,
     player_id: dbMember.playerId ?? null,
-    role: dbMember.role as ClubMember['role'],
+    privilege: dbMember.privilege as ClubMember['privilege'],
     joined_at: dbMember.joinedAt.toISOString(),
   };
+}
+
+// Backward compatibility alias
+function toClubPrivilegeType(dbMember: any): ClubMember {
+  return toClubMemberType(dbMember);
 }
 
 // ============================================================================
@@ -53,12 +58,12 @@ export async function createClub(
     },
   });
 
-  // Create club member (creator is admin)
+  // Create club member (creator is owner)
   await prisma.clubMember.create({
     data: {
       clubId: club.id,
       userId: userId,
-      role: 'admin',
+      privilege: 'owner',
     },
   });
 
@@ -165,8 +170,8 @@ export async function isClubAdmin(clubId: string, userId: string): Promise<boole
     where: {
       clubId,
       userId,
-      role: {
-        in: ['admin', 'co-admin'],
+      privilege: {
+        in: ['owner', 'manager'],
       },
     },
   });
@@ -211,7 +216,7 @@ export async function getClubMembers(clubId: string): Promise<ClubMember[]> {
     club_id: m.clubId,
     user_id: m.userId ?? null,
     player_id: m.playerId ?? null,
-    role: m.role as ClubMember['role'],
+    privilege: m.privilege as ClubMember['privilege'],
     joined_at: m.joinedAt.toISOString(),
     user: m.user ? {
       id: m.user.id,
@@ -245,7 +250,7 @@ export async function getClubMembersWithUsers(clubId: string): Promise<any[]> {
     clubId: m.clubId,
     userId: m.userId,
     playerId: m.playerId,
-    role: m.role,
+    privilege: m.privilege,
     joinedAt: m.joinedAt,
     user: m.user,
   }));
@@ -261,10 +266,10 @@ export async function getClubMemberCount(clubId: string): Promise<number> {
 // Member Management
 // ============================================================================
 
-export async function updateMemberRole(
+export async function updateMemberPrivilege(
   clubId: string,
   memberId: string,
-  newRole: 'admin' | 'co-admin' | 'member'
+  newPrivilege: 'owner' | 'manager' | 'member'
 ): Promise<void> {
   await prisma.clubMember.update({
     where: {
@@ -272,10 +277,13 @@ export async function updateMemberRole(
       clubId,
     },
     data: {
-      role: newRole,
+      privilege: newPrivilege,
     },
   });
 }
+
+// Backward compatibility alias
+export const updateMemberRole = updateMemberPrivilege;
 
 export async function removeClubMember(
   clubId: string,
@@ -299,7 +307,7 @@ export async function transferOwnership(
     where: {
       clubId,
       userId: currentAdminId,
-      role: 'admin',
+      privilege: 'owner',
     },
   });
 
@@ -317,13 +325,13 @@ export async function transferOwnership(
   // Demote current admin to member
   await prisma.clubMember.update({
     where: { id: currentAdmin.id },
-    data: { role: 'member' },
+    data: { privilege: 'member' },
   });
 
   // Promote new admin
   await prisma.clubMember.update({
     where: { id: newAdmin.id },
-    data: { role: 'admin' },
+    data: { privilege: 'owner' },
   });
 }
 
@@ -393,7 +401,7 @@ export async function redeemInvite(
     data: {
       clubId: invite.clubId,
       userId,
-      role: 'member',
+      privilege: 'member',
     },
   });
 

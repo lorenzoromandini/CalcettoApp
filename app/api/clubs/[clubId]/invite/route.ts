@@ -15,12 +15,12 @@ export async function POST(
 
   const { clubId } = await params;
 
-  // Verifica che l'utente sia Admin o Co-Admin
+  // Verifica che l'utente sia Owner o Manager
   const membership = await prisma.clubMember.findFirst({
     where: { clubId, userId },
   });
 
-  if (!membership || (membership.role !== 'admin' && membership.role !== 'co-admin')) {
+  if (!membership || (membership.privilege !== 'owner' && membership.privilege !== 'manager')) {
     return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
   }
 
