@@ -11,7 +11,7 @@ export const matchModeSchema = z.enum(['FIVE_V_FIVE', 'EIGHT_V_EIGHT']);
 
 // Create match schema
 export const createMatchSchema = z.object({
-  scheduled_at: z
+  scheduledAt: z
     .string()
     .min(1, 'Data e ora sono obbligatorie')
     .refine((val) => {

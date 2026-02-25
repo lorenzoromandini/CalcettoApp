@@ -31,7 +31,7 @@
 
 ---
 
-### Category 2: Property Name Mismatches (CRITICAL)
+### Category 2: Property Name Mismatches (CRITICAL) ⏳ IN PROGRESS
 **Problem:** Mixing camelCase and snake_case property names
 
 **Pattern:** Components expect `first_name` but get `firstName`, etc.
@@ -43,10 +43,12 @@
 - [ ] `app/[locale]/clubs/[clubId]/matches/[matchId]/ratings/match-ratings-client.tsx` - Multiple property issues
 - [ ] `app/[locale]/clubs/[clubId]/matches/[matchId]/results/match-results-client.tsx` - Type mismatch
 - [ ] `app/[locale]/clubs/[clubId]/members/players-page-client.tsx` - `user.first_name` vs `user.firstName`
-- [ ] `app/api/clubs/me/route.ts` - `privilege` vs `privileges`
+- [x] `app/api/clubs/me/route.ts` - `privilege` vs `privileges` ✅ FIXED
 - [ ] `components/matches/completed-match-detail.tsx` - Multiple property issues
 - [ ] `components/dashboard/dashboard-player-card.tsx` - Module export issues
 - [ ] `lib/db/matches.ts` - `scheduledAt` vs `scheduled_at`
+
+**Started:** 2026-02-25
 
 ---
 

@@ -49,9 +49,9 @@ export function MatchForm({
   const form = useForm<CreateMatchInput>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
-      scheduled_at: initialData?.scheduledAt || "",
+      scheduledAt: initialData?.scheduledAt || "",
       location: initialData?.location || "",
-      mode: initialData?.mode || "5vs5",
+      mode: initialData?.mode || "FIVE_V_FIVE",
       notes: initialData?.notes || "",
     },
   });
@@ -67,8 +67,8 @@ export function MatchForm({
   }
 
   const matchModes = [
-    { value: "5vs5" as const, label: t("mode.5vs5"), players: "5" },
-    { value: "8vs8" as const, label: t("mode.8vs8"), players: "8" },
+    { value: "FIVE_V_FIVE" as const, label: t("mode.5vs5"), players: "5" },
+    { value: "EIGHT_V_EIGHT" as const, label: t("mode.8vs8"), players: "8" },
   ];
 
   return (
@@ -84,7 +84,7 @@ export function MatchForm({
         {/* Date & Time */}
         <FormField
           control={form.control}
-          name="scheduled_at"
+          name="scheduledAt"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center gap-2">
