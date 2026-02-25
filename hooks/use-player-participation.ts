@@ -107,7 +107,7 @@ export function usePlayerParticipation(matchId: string): UsePlayerParticipationR
     const newPlayed = !currentPlayed
     setParticipants(prev => 
       prev.map(p => 
-        p.player_id === playerId 
+        p.clubMemberId === playerId 
           ? { ...p, played: newPlayed }
           : p
       )

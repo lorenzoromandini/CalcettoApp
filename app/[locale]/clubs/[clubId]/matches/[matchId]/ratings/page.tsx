@@ -1,5 +1,5 @@
 import { getMatch } from '@/lib/db/matches'
-import { getMatchParticipants } from '@/lib/db/player-participation'
+import { getMatchParticipants } from '@/lib/db/formations'
 import { getMatchRatings } from '@/lib/db/player-ratings'
 import { getUserIdFromHeaders } from '@/lib/auth-headers'
 import { isClubAdmin } from '@/lib/db/clubs'
@@ -52,7 +52,7 @@ export default async function MatchRatingsPage({ params }: MatchRatingsPageProps
   ])
 
   // Filter to only players who played
-  const playedPlayers = participants.filter(p => p.played)
+  const playedPlayers = participants?.filter(p => p.played) || []
 
   // Determine if editing is allowed
   // Only FINISHED matches can be edited, not COMPLETED

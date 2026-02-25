@@ -15,7 +15,6 @@ import {
 import { Loader2, Save, RotateCcw, LayoutGrid } from 'lucide-react';
 import { FormationSelector } from './formation-selector';
 import { PitchGrid } from './pitch-grid';
-import { PlayerPool } from './player-pool';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFormation } from '@/hooks/use-formation';
@@ -27,16 +26,23 @@ import {
 import type { FormationData } from '@/lib/db/formations';
 import { cn } from '@/lib/utils';
 
+interface FormationMember {
+  id: string;
+  firstName: string;
+  lastName: string;
+  nickname: string | null;
+  image: string | null;
+  primaryRole: string;
+  secondaryRoles: string[];
+  jerseyNumber: number;
+}
+
 interface FormationBuilderProps {
   matchId: string;
   clubId: string;
   mode: FormationMode;
-  players: Array<{
-    id: string;
-    name: string;
-    avatar?: string;
-    rsvp: 'in' | 'out' | 'maybe';
-  }>;
+  members: FormationMember[];
+  isHome: boolean;
   isAdmin: boolean;
 }
 
@@ -44,19 +50,20 @@ interface PositionAssignment {
   x: number;
   y: number;
   label: string;
-  playerId?: string;
+  clubMemberId?: string;
 }
 
 // Initial empty formation data
-function createEmptyFormation(preset: FormationPreset): FormationData {
+function createEmptyFormation(preset: FormationPreset, isHome: boolean): FormationData {
   return {
     formation: preset.id,
     positions: preset.positions.map((pos) => ({
       x: pos.x,
       y: pos.y,
       label: pos.label,
-      playerId: undefined,
+      clubMemberId: undefined,
     })),
+    isHome,
   };
 }
 
@@ -64,42 +71,22 @@ export function FormationBuilder({
   matchId,
   clubId,
   mode,
-  players,
+  members,
+  isHome,
   isAdmin,
 }: FormationBuilderProps) {
   const t = useTranslations('formations');
-  const { formation: savedFormation, isLoading, isSaving, updateFormation } = useFormation(matchId, mode);
+  const { formation: savedFormation, isLoading, isSaving, updateFormation } = useFormation(matchId, mode, isHome);
 
   // Local state
   const [selectedFormation, setSelectedFormation] = useState<string>(
-    savedFormation?.formation || (mode === '5vs5' ? '5-1-2-1' : '8-3-3-1')
+    savedFormation?.formation || (mode === 'FIVE_V_FIVE' ? '5-1-2-1' : '8-3-3-1')
   );
   const [positions, setPositions] = useState<PositionAssignment[]>(
     savedFormation?.positions || []
   );
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
-
-  // Initialize from saved formation
-  useState(() => {
-    if (savedFormation) {
-      setSelectedFormation(savedFormation.formation);
-      setPositions(savedFormation.positions);
-    } else {
-      // Initialize with default formation
-      const preset = getFormationPreset(mode, selectedFormation);
-      if (preset) {
-        setPositions(
-          preset.positions.map((pos) => ({
-            x: pos.x,
-            y: pos.y,
-            label: pos.label,
-            playerId: undefined,
-          }))
-        );
-      }
-    }
-  });
 
   // Sensors for drag detection
   const sensors = useSensors(
@@ -131,7 +118,7 @@ export function FormationBuilder({
             x: pos.x,
             y: pos.y,
             label: pos.label,
-            playerId: existingPos?.playerId,
+            clubMemberId: existingPos?.clubMemberId,
           };
         });
         setPositions(newPositions);
@@ -157,26 +144,26 @@ export function FormationBuilder({
       const activeId = active.id as string;
       const overId = over.id as string;
 
-      // Handle player drop on position
-      if (activeId.startsWith('player-') && overId.startsWith('position-')) {
-        const playerId = activeId.replace('player-', '');
+      // Handle member drop on position
+      if (activeId.startsWith('member-') && overId.startsWith('position-')) {
+        const memberId = activeId.replace('member-', '');
         const positionIndex = parseInt(overId.replace('position-', ''));
         
-        // Remove player from any existing position first
+        // Remove member from any existing position first
         setPositions((prev) => {
           const newPositions = prev.map((pos) =>
-            pos.playerId === playerId ? { ...pos, playerId: undefined } : pos
+            pos.clubMemberId === memberId ? { ...pos, clubMemberId: undefined } : pos
           );
           // Assign to new position
           if (newPositions[positionIndex]) {
             newPositions[positionIndex] = {
               ...newPositions[positionIndex],
-              playerId,
+              clubMemberId: memberId,
             };
           }
           return newPositions;
         });
-        setSelectedPlayerId(null);
+        setSelectedMemberId(null);
       }
     },
     []
@@ -185,27 +172,27 @@ export function FormationBuilder({
   // Handle tap-to-place
   const handleTapPosition = useCallback(
     (positionIndex: number) => {
-      if (!selectedPlayerId) return;
+      if (!selectedMemberId) return;
 
       setPositions((prev) => {
         // Remove from any existing position
         const newPositions = prev.map((pos) =>
-          pos.playerId === selectedPlayerId
-            ? { ...pos, playerId: undefined }
+          pos.clubMemberId === selectedMemberId
+            ? { ...pos, clubMemberId: undefined }
             : pos
         );
         // Assign to new position
         if (newPositions[positionIndex]) {
           newPositions[positionIndex] = {
             ...newPositions[positionIndex],
-            playerId: selectedPlayerId,
+            clubMemberId: selectedMemberId,
           };
         }
         return newPositions;
       });
-      setSelectedPlayerId(null);
+      setSelectedMemberId(null);
     },
-    [selectedPlayerId]
+    [selectedMemberId]
   );
 
   // Handle save
@@ -213,26 +200,27 @@ export function FormationBuilder({
     const data: FormationData = {
       formation: selectedFormation,
       positions,
+      isHome,
     };
     await updateFormation(data);
-  }, [selectedFormation, positions, updateFormation]);
+  }, [selectedFormation, positions, isHome, updateFormation]);
 
   // Handle clear
   const handleClear = useCallback(() => {
     setPositions((prev) =>
-      prev.map((pos) => ({ ...pos, playerId: undefined }))
+      prev.map((pos) => ({ ...pos, clubMemberId: undefined }))
     );
-    setSelectedPlayerId(null);
+    setSelectedMemberId(null);
   }, []);
 
-  // Get assigned player IDs
-  const assignedPlayerIds = positions
-    .map((p) => p.playerId)
+  // Get assigned member IDs
+  const assignedMemberIds = positions
+    .map((p) => p.clubMemberId)
     .filter((id): id is string => !!id);
 
-  // Get active drag player
-  const activeDragPlayer = activeDragId?.startsWith('player-')
-    ? players.find((p) => p.id === activeDragId.replace('player-', ''))
+  // Get active drag member
+  const activeDragMember = activeDragId?.startsWith('member-')
+    ? members.find((m) => m.id === activeDragId.replace('member-', ''))
     : null;
 
   if (isLoading) {
@@ -298,10 +286,10 @@ export function FormationBuilder({
         />
 
         {/* Tap-to-place hint */}
-        {selectedPlayerId && (
+        {selectedMemberId && (
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-sm text-center">
-            {t('tapPlayerThenPosition', {
-              player: players.find((p) => p.id === selectedPlayerId)?.name || '',
+            {t('tapMemberThenPosition', {
+              member: members.find((m) => m.id === selectedMemberId)?.firstName || '',
             })}
           </div>
         )}
@@ -315,8 +303,8 @@ export function FormationBuilder({
                 <PitchGrid
                   mode={mode}
                   positions={positions}
-                  players={players}
-                  selectedPlayerId={selectedPlayerId}
+                  members={members.map(m => ({ id: m.id, name: `${m.firstName} ${m.lastName}`.trim(), avatar: m.image || undefined }))}
+                  selectedMemberId={selectedMemberId}
                   onDrop={() => {}} // Handled by DndContext
                   onTapPosition={handleTapPosition}
                 />
@@ -324,19 +312,42 @@ export function FormationBuilder({
             </Card>
           </div>
 
-          {/* Player Pool */}
+          {/* Member Pool */}
           <div>
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">{t('playerPool')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <PlayerPool
-                  players={players}
-                  selectedPlayerId={selectedPlayerId}
-                  assignedPlayerIds={assignedPlayerIds}
-                  onSelectPlayer={setSelectedPlayerId}
-                />
+                <div className="space-y-2">
+                  {members.map((member) => (
+                    <div
+                      key={member.id}
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                        selectedMemberId === member.id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-muted bg-muted/50 hover:bg-muted'
+                      } ${assignedMemberIds.includes(member.id) ? 'opacity-50' : ''}`}
+                      onClick={() => setSelectedMemberId(member.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-sm font-bold text-primary">
+                            {member.firstName.charAt(0)}{member.lastName.charAt(0)}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {member.firstName} {member.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            #{member.jerseyNumber} · {member.primaryRole}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -347,15 +358,15 @@ export function FormationBuilder({
           <CardContent className="py-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {t('assignedCount', { count: assignedPlayerIds.length, total: positions.length })}
+                {t('assignedCount', { count: assignedMemberIds.length, total: positions.length })}
               </span>
               <span className={cn(
                 'font-medium',
-                assignedPlayerIds.length === positions.length
+                assignedMemberIds.length === positions.length
                   ? 'text-green-600'
                   : 'text-amber-600'
               )}>
-                {assignedPlayerIds.length === positions.length
+                {assignedMemberIds.length === positions.length
                   ? t('formationComplete')
                   : t('formationIncomplete')}
               </span>
@@ -366,15 +377,10 @@ export function FormationBuilder({
 
       {/* Drag Overlay */}
       <DragOverlay>
-        {activeDragPlayer ? (
+        {activeDragMember ? (
           <div className="bg-primary text-primary-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
             <span className="text-sm font-bold">
-              {activeDragPlayer.name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase()}
+              {activeDragMember.firstName.charAt(0)}{activeDragMember.lastName.charAt(0)}
             </span>
           </div>
         ) : null}

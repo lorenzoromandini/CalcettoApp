@@ -59,7 +59,7 @@ function RSVPGroup({
           <RSVPCard
             key={rsvp.id}
             rsvp={rsvp}
-            isCurrentPlayer={rsvp.player_id === currentPlayerId}
+            isCurrentPlayer={rsvp.playerId === currentPlayerId}
             status={status}
           />
         ))}
@@ -129,10 +129,10 @@ function RSVPCard({ rsvp, isCurrentPlayer, status }: RSVPCardProps) {
     >
       {/* Avatar placeholder */}
       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-        {rsvp.player_avatar ? (
+        {rsvp.clubMember.user.image ? (
           <img
-            src={rsvp.player_avatar}
-            alt={rsvp.player_name}
+            src={rsvp.clubMember.user.image}
+            alt={rsvp.clubMember.user.firstName}
             className="h-10 w-10 rounded-full object-cover"
           />
         ) : (
@@ -142,7 +142,7 @@ function RSVPCard({ rsvp, isCurrentPlayer, status }: RSVPCardProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-medium truncate">{rsvp.player_name}</p>
+          <p className="font-medium truncate">{rsvp.clubMember.user.firstName}</p>
           {isCurrentPlayer && (
             <span className="text-xs px-2 py-0.5 rounded border border-border shrink-0">
               {t("rsvpList.you")}
@@ -179,9 +179,9 @@ export function RSVPList({
   const t = useTranslations("matches");
 
   // Group RSVPs by status
-  const inRSVPs = rsvps.filter((r) => r.rsvp_status === "in");
-  const maybeRSVPs = rsvps.filter((r) => r.rsvp_status === "maybe");
-  const outRSVPs = rsvps.filter((r) => r.rsvp_status === "out");
+  const inRSVPs = rsvps.filter((r) => r.rsvpStatus === "in");
+  const maybeRSVPs = rsvps.filter((r) => r.rsvpStatus === "maybe");
+  const outRSVPs = rsvps.filter((r) => r.rsvpStatus === "out");
 
   if (isLoading) {
     return (

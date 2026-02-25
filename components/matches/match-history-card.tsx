@@ -24,7 +24,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { Match } from '@/lib/db/schema'
-import type { GoalWithPlayers } from '@/lib/db/goals'
+import type { GoalWithMembers, GoalWithPlayers } from '@/lib/db/goals'
 import type { PlayerRatingWithPlayer } from '@/lib/db/player-ratings'
 
 // ============================================================================
@@ -62,8 +62,8 @@ function formatDate(dateString: string, locale: string): string {
 }
 
 function getResult(match: Match): 'win' | 'loss' | 'draw' {
-  const homeScore = match.home_score ?? 0
-  const awayScore = match.away_score ?? 0
+  const homeScore = match.homeScore ?? 0
+  const awayScore = match.awayScore ?? 0
 
   if (homeScore > awayScore) return 'win'
   if (homeScore < awayScore) return 'loss'
@@ -115,8 +115,8 @@ function getBestRated(ratings: PlayerRatingWithPlayer[]): { name: string; rating
   const best = ratings[0]
   
   return {
-    name: best.player_nickname || 
-      `${best.player_name}${best.player_surname ? ` ${best.player_surname}` : ''}`,
+    name: best.clubMember.user.nickname || 
+      `${best.clubMember.user.firstName}${best.clubMember.user.lastName ? ` ${best.clubMember.user.lastName}` : ''}`,
     rating: best.rating,
   }
 }
@@ -133,8 +133,8 @@ export function MatchHistoryCard({ data, clubId, locale }: MatchHistoryCardProps
   const { match, goals, ratings } = data
   
   const result = getResult(match)
-  const homeScore = match.home_score ?? 0
-  const awayScore = match.away_score ?? 0
+  const homeScore = match.homeScore ?? 0
+  const awayScore = match.awayScore ?? 0
   const { scorers, extra } = getScorers(goals, clubId)
   const bestRated = getBestRated(ratings)
 
@@ -175,7 +175,7 @@ export function MatchHistoryCard({ data, clubId, locale }: MatchHistoryCardProps
             <div className="flex flex-col items-center justify-center shrink-0 w-14 h-14 rounded-lg bg-muted">
               <Calendar className="h-5 w-5 text-muted-foreground mb-1" />
               <span className="text-xs font-medium text-center leading-tight">
-                {new Date(match.scheduled_at).toLocaleDateString(
+                {new Date(match.scheduledAt).toLocaleDateString(
                   locale === 'it' ? 'it-IT' : 'en-US',
                   { day: 'numeric', month: 'short' }
                 )}
@@ -190,7 +190,7 @@ export function MatchHistoryCard({ data, clubId, locale }: MatchHistoryCardProps
                   {t(result)}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
-                  {match.mode === '5vs5' ? '5v5' : '8v8'}
+                  {match.mode === 'FIVE_V_FIVE' ? '5v5' : '8v8'}
                 </Badge>
               </div>
 

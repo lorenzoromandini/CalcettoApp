@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
+import { ClubPrivilege, PlayerRole } from '@prisma/client';
 
 export async function POST(
   request: NextRequest,
@@ -22,33 +23,23 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid invite' }, { status: 404 });
   }
 
-  if (invite.expiresAt < new Date()) {
+  if (invite.expiresAt && invite.expiresAt < new Date()) {
     return NextResponse.json({ error: 'Invite expired' }, { status: 400 });
   }
 
-  if (invite.useCount >= invite.maxUses) {
-    return NextResponse.json({ error: 'Invite max uses reached' }, { status: 400 });
-  }
-
-  const existingMember = await prisma.clubMember.findFirst({
+  // Check if user is already a member
+  const existingMember = await prisma.clubMember.findUnique({
     where: {
-      clubId: invite.clubId,
-      userId,
+      clubId_userId: {
+        clubId: invite.clubId,
+        userId,
+      },
     },
   });
 
-  let needsSetup = true;
-
   if (existingMember) {
-    const player = await prisma.player.findUnique({
-      where: { userId },
-      include: {
-        playerClubs: {
-          where: { clubId: invite.clubId },
-        },
-      },
-    });
-    needsSetup = !player || player.playerClubs.length === 0;
+    // Member already exists, check if they've set up their player data
+    const needsSetup = !existingMember.primaryRole;
     return NextResponse.json({ 
       success: true, 
       clubId: invite.clubId, 
@@ -57,20 +48,27 @@ export async function POST(
     });
   }
 
+  // Find the next available jersey number
+  const existingMembers = await prisma.clubMember.findMany({
+    where: { clubId: invite.clubId },
+    select: { jerseyNumber: true },
+  });
+  
+  const usedNumbers = new Set(existingMembers.map(m => m.jerseyNumber));
+  let jerseyNumber = 1;
+  while (usedNumbers.has(jerseyNumber)) {
+    jerseyNumber++;
+  }
+
+  // Create ClubMember with embedded player data
   await prisma.clubMember.create({
     data: {
       clubId: invite.clubId,
       userId,
-      privilege: 'member',
-    },
-  });
-
-  await prisma.clubInvite.update({
-    where: { id: invite.id },
-    data: {
-      useCount: { increment: 1 },
-      usedAt: new Date(),
-      usedBy: userId,
+      privileges: ClubPrivilege.MEMBER,
+      primaryRole: PlayerRole.CEN, // Default role
+      secondaryRoles: [],
+      jerseyNumber,
     },
   });
 

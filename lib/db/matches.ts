@@ -13,30 +13,30 @@
  */
 
 import { prisma } from './index';
-import { MatchStatus, MatchMode } from '@prisma/client';
+import { MatchStatus, MatchMode, ClubPrivilege } from '@prisma/client';
 import type { Match } from '@/types/database';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
 
 function toMatchType(dbMatch: any): Match {
   return {
     id: dbMatch.id,
-    club_id: dbMatch.clubId,
-    scheduled_at: dbMatch.scheduledAt.toISOString(),
+    clubId: dbMatch.clubId,
+    scheduledAt: dbMatch.scheduledAt.toISOString(),
     location: dbMatch.location ?? undefined,
     mode: dbMatch.mode as MatchMode,
     status: dbMatch.status as MatchStatus,
-    home_score: dbMatch.homeScore ?? undefined,
-    away_score: dbMatch.awayScore ?? undefined,
+    homeScore: dbMatch.homeScore ?? undefined,
+    awayScore: dbMatch.awayScore ?? undefined,
     notes: dbMatch.notes ?? undefined,
-    created_by: dbMatch.createdBy || '',
-    created_at: dbMatch.createdAt.toISOString(),
-    updated_at: dbMatch.updatedAt.toISOString(),
-    score_finalized_by: dbMatch.scoreFinalizedBy ?? undefined,
-    ratings_completed_by: dbMatch.ratingsCompletedBy ?? undefined,
-    score_finalized_at: dbMatch.scoreFinalizedAt?.toISOString() ?? undefined,
-    ratings_completed_at: dbMatch.ratingsCompletedAt?.toISOString() ?? undefined,
-    shared_token: dbMatch.sharedToken ?? undefined,
-    shared_at: dbMatch.sharedAt?.toISOString() ?? undefined,
+    createdBy: dbMatch.createdBy || '',
+    createdAt: dbMatch.createdAt.toISOString(),
+    updatedAt: dbMatch.updatedAt.toISOString(),
+    scoreFinalizedBy: dbMatch.scoreFinalizedBy ?? undefined,
+    ratingsCompletedBy: dbMatch.ratingsCompletedBy ?? undefined,
+    scoreFinalizedAt: dbMatch.scoreFinalizedAt?.toISOString() ?? undefined,
+    ratingsCompletedAt: dbMatch.ratingsCompletedAt?.toISOString() ?? undefined,
+    sharedToken: dbMatch.sharedToken ?? undefined,
+    sharedAt: dbMatch.sharedAt?.toISOString() ?? undefined,
   };
 }
 
@@ -60,7 +60,7 @@ export async function createMatch(
   const match = await prisma.match.create({
     data: {
       clubId,
-      scheduledAt: new Date(data.scheduled_at),
+      scheduledAt: new Date(data.scheduledAt),
       location: data.location,
       mode: data.mode as MatchMode,
       status: 'SCHEDULED' as MatchStatus,
@@ -193,7 +193,7 @@ export async function updateMatch(
     where: { id: matchId },
     data: {
       ...data,
-      scheduledAt: data.scheduled_at ? new Date(data.scheduled_at) : undefined,
+      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
       mode: data.mode ? data.mode as MatchMode : undefined,
     },
   });

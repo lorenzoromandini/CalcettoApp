@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import type { GoalWithPlayers } from '@/lib/db/goals'
+import type { GoalWithMembers, GoalWithPlayers } from '@/lib/db/goals'
 
 // ============================================================================
 // Component Props

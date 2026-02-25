@@ -7,7 +7,7 @@ import { z } from 'zod';
  */
 
 // Match mode enum values
-export const matchModeSchema = z.enum(['5vs5', '8vs8']);
+export const matchModeSchema = z.enum(['FIVE_V_FIVE', 'EIGHT_V_EIGHT']);
 
 // Create match schema
 export const createMatchSchema = z.object({

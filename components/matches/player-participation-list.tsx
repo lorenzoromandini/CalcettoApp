@@ -41,11 +41,11 @@ interface PlayerCardProps {
 function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
   const t = useTranslations('matches')
   
-  const displayName = participant.player_nickname || 
-    `${participant.player_name}${participant.player_surname ? ` ${participant.player_surname}` : ''}`
+  const displayName = participant.clubMember.user.nickname || 
+    `${participant.clubMember.user.firstName}${participant.clubMember.user.lastName ? ` ${participant.clubMember.user.lastName}` : ''}`
 
   const getRSVPIcon = () => {
-    switch (participant.rsvp_status) {
+    switch (participant.rsvpStatus) {
       case 'in':
         return <Check className="h-3 w-3" />
       case 'out':
@@ -58,7 +58,7 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
   }
 
   const getRSVPColor = () => {
-    switch (participant.rsvp_status) {
+    switch (participant.rsvpStatus) {
       case 'in':
         return 'bg-green-100 text-green-700 border-green-200'
       case 'out':
@@ -81,9 +81,9 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
     >
       {/* Avatar */}
       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-        {participant.player_avatar ? (
+        {participant.clubMember.user.image ? (
           <img
-            src={participant.player_avatar}
+            src={participant.clubMember.user.image}
             alt={displayName}
             className="h-10 w-10 rounded-full object-cover"
           />
@@ -103,12 +103,12 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
           </p>
           
           {/* Jersey Number Badge */}
-          {participant.jersey_number > 0 && (
+          {participant.jerseyNumber > 0 && (
             <Badge 
               variant="outline" 
               className="text-xs h-5 px-1.5 font-mono shrink-0"
             >
-              #{participant.jersey_number}
+              #{participant.jerseyNumber}
             </Badge>
           )}
         </div>
@@ -123,9 +123,9 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
           >
             {getRSVPIcon()}
             <span>
-              {participant.rsvp_status === 'in' && t('rsvp.in')}
-              {participant.rsvp_status === 'out' && t('rsvp.out')}
-              {participant.rsvp_status === 'maybe' && t('rsvp.maybe')}
+              {participant.rsvpStatus === 'in' && t('rsvp.in')}
+              {participant.rsvpStatus === 'out' && t('rsvp.out')}
+              {participant.rsvpStatus === 'maybe' && t('rsvp.maybe')}
             </span>
           </span>
         </div>
@@ -202,7 +202,7 @@ function RSVPGroup({
           <PlayerCard
             key={participant.id}
             participant={participant}
-            onToggle={() => onTogglePlayed(participant.player_id, participant.played)}
+            onToggle={() => onTogglePlayed(participant.playerId, participant.played)}
             canEdit={canEdit}
           />
         ))}
@@ -224,9 +224,9 @@ export function PlayerParticipationList({
   const t = useTranslations('matches')
 
   // Group by RSVP status
-  const inParticipants = participants.filter(p => p.rsvp_status === 'in')
-  const maybeParticipants = participants.filter(p => p.rsvp_status === 'maybe')
-  const outParticipants = participants.filter(p => p.rsvp_status === 'out')
+  const inParticipants = participants.filter(p => p.rsvpStatus === 'in')
+  const maybeParticipants = participants.filter(p => p.rsvpStatus === 'maybe')
+  const outParticipants = participants.filter(p => p.rsvpStatus === 'out')
 
   // Calculate counts
   const playedCount = participants.filter(p => p.played).length

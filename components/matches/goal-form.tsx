@@ -4,11 +4,14 @@
  * GoalForm Component
  * 
  * A modal/dialog for adding a goal with:
- * - Team selector (Our Team / Opponent)
- * - Scorer selector (dropdown from team players)
+ * - Scorer selector (dropdown from club members)
  * - Assist selector (optional, dropdown)
  * - Own goal checkbox
  * - Add/Cancel buttons
+ * 
+ * Updated for new schema:
+ * - Uses ClubMember instead of Player
+ * - Goals link to ClubMember via scorerId (which is clubMemberId)
  */
 
 import { useState } from 'react'
@@ -35,16 +38,25 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { AddGoalInput } from '@/lib/db/goals'
-import type { Player } from '@/lib/db/schema'
 
 // ============================================================================
 // Component Props
 // ============================================================================
 
+interface MemberWithUser {
+  id: string
+  user: {
+    first_name: string
+    last_name?: string
+    nickname?: string | null
+    image?: string | null
+  } | null
+}
+
 interface GoalFormProps {
   matchId: string
   clubId: string
-  players: Player[]
+  members: MemberWithUser[]
   onAddGoal: (data: AddGoalInput) => Promise<void>
   isOpen: boolean
   onOpenChange: (open: boolean) => void
@@ -55,17 +67,17 @@ interface GoalFormProps {
 // Helper Functions
 // ============================================================================
 
-function getPlayerInitials(name: string, surname?: string | null): string {
-  if (surname) {
-    return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase()
+function getMemberInitials(firstName: string, lastName?: string | null): string {
+  if (lastName) {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
-  return name.charAt(0).toUpperCase()
+  return firstName.charAt(0).toUpperCase()
 }
 
-function getPlayerDisplayName(name: string, surname?: string | null, nickname?: string | null): string {
+function getMemberDisplayName(firstName: string, lastName?: string | null, nickname?: string | null): string {
   if (nickname) return nickname
-  if (surname) return `${name} ${surname}`
-  return name
+  if (lastName) return `${firstName} ${lastName}`
+  return firstName
 }
 
 // ============================================================================
@@ -75,7 +87,7 @@ function getPlayerDisplayName(name: string, surname?: string | null, nickname?: 
 export function GoalForm({
   matchId,
   clubId,
-  players,
+  members,
   onAddGoal,
   isOpen,
   onOpenChange,
@@ -85,7 +97,6 @@ export function GoalForm({
   const tCommon = useTranslations('common')
 
   // Form state
-  const [selectedTeam, setSelectedTeam] = useState<'our' | 'opponent'>('our')
   const [scorerId, setScorerId] = useState<string>('')
   const [assisterId, setAssisterId] = useState<string>('')
   const [isOwnGoal, setIsOwnGoal] = useState(false)
@@ -94,7 +105,6 @@ export function GoalForm({
    * Reset form to initial state
    */
   const resetForm = () => {
-    setSelectedTeam('our')
     setScorerId('')
     setAssisterId('')
     setIsOwnGoal(false)
@@ -106,14 +116,9 @@ export function GoalForm({
   const handleSubmit = async () => {
     if (!scorerId) return
 
-    // For opponent goals without a specific scorer, use a placeholder
-    // In this case, we'll create a virtual opponent goal
-    const clubIdForGoal = selectedTeam === 'our' ? clubId : `opponent-${matchId}`
-
     const data: AddGoalInput = {
       matchId,
-      clubId: clubIdForGoal,
-      scorerId,
+      scorerId, // This is clubMemberId
       assisterId: assisterId || undefined,
       isOwnGoal,
     }
@@ -137,11 +142,6 @@ export function GoalForm({
     onOpenChange(open)
   }
 
-  // Filter players based on team selection
-  // For opponent goals, we don't have specific players, so we need a different approach
-  // Let's show all players and mark who scored
-  const availableScorers = selectedTeam === 'our' ? players : []
-
   // Disable assist if own goal is checked
   const isAssistDisabled = isOwnGoal
 
@@ -162,99 +162,60 @@ export function GoalForm({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Team Selector */}
+          {/* Scorer Selector */}
           <div className="space-y-2">
-            <Label>{t('selectClub')}</Label>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={selectedTeam === 'our' ? 'default' : 'outline'}
-                className="flex-1"
-                onClick={() => {
-                  setSelectedTeam('our')
-                  setScorerId('')
-                  setAssisterId('')
-                }}
-              >
-                {t('ourTeam')}
-              </Button>
-              <Button
-                type="button"
-                variant={selectedTeam === 'opponent' ? 'default' : 'outline'}
-                className="flex-1"
-                onClick={() => {
-                  setSelectedTeam('opponent')
-                  // For opponent, we don't have specific players
-                  // Use a placeholder scorer ID
-                  setScorerId('opponent-placeholder')
-                }}
-              >
-                {t('opponent')}
-              </Button>
-            </div>
+            <Label htmlFor="scorer">{t('scorer')}</Label>
+            <Select value={scorerId} onValueChange={setScorerId}>
+              <SelectTrigger id="scorer">
+                <SelectValue placeholder={t('selectScorer')} />
+              </SelectTrigger>
+              <SelectContent>
+                {members.map((member) => (
+                  <SelectItem key={member.id} value={member.id}>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={undefined} />
+                        <AvatarFallback className="text-xs">
+                          {getMemberInitials(member.user?.firstName || 'Unknown', member.user?.lastName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>
+                        {getMemberDisplayName(
+                          member.user?.firstName || 'Unknown', 
+                          member.user?.lastName, 
+                          member.user?.nickname
+                        )}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Scorer Selector - Only for our team */}
-          {selectedTeam === 'our' && (
-            <div className="space-y-2">
-              <Label htmlFor="scorer">{t('scorer')}</Label>
-              <Select value={scorerId} onValueChange={setScorerId}>
-                <SelectTrigger id="scorer">
-                  <SelectValue placeholder={t('selectScorer')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {players.map((player) => (
-                    <SelectItem key={player.id} value={player.id}>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={player.avatar_url ?? undefined} />
-                          <AvatarFallback className="text-xs">
-                            {getPlayerInitials(player.name, player.surname)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span>
-                          {getPlayerDisplayName(player.name, player.surname, player.nickname)}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {/* Own Goal Checkbox */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="ownGoal"
+              checked={isOwnGoal}
+              onCheckedChange={(checked) => {
+                setIsOwnGoal(checked as boolean)
+                if (checked) {
+                  setAssisterId('') // Clear assist for own goals
+                }
+              }}
+            />
+            <Label
+              htmlFor="ownGoal"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+            >
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              {t('ownGoal')}
+            </Label>
+          </div>
 
-          {/* Opponent Goal Info */}
-          {selectedTeam === 'opponent' && (
-            <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-              {t('opponentGoalNote')}
-            </div>
-          )}
-
-          {/* Own Goal Checkbox - Only for our team */}
-          {selectedTeam === 'our' && (
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="ownGoal"
-                checked={isOwnGoal}
-                onCheckedChange={(checked) => {
-                  setIsOwnGoal(checked as boolean)
-                  if (checked) {
-                    setAssisterId('') // Clear assist for own goals
-                  }
-                }}
-              />
-              <Label
-                htmlFor="ownGoal"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-              >
-                <AlertCircle className="h-4 w-4 text-destructive" />
-                {t('ownGoal')}
-              </Label>
-            </div>
-          )}
-
-          {/* Assist Selector - Only for our team and not own goal */}
-          {selectedTeam === 'our' && !isOwnGoal && (
+          {/* Assist Selector - Only if not own goal */}
+          {!isOwnGoal && (
             <div className="space-y-2">
               <Label htmlFor="assister">{t('assister')} ({t('optional')})</Label>
               <Select 
@@ -267,19 +228,23 @@ export function GoalForm({
                 </SelectTrigger>
                 <SelectContent>
                   {/* Don't show scorer as assister option */}
-                  {players
-                    .filter(p => p.id !== scorerId)
-                    .map((player) => (
-                      <SelectItem key={player.id} value={player.id}>
+                  {members
+                    .filter(m => m.id !== scorerId)
+                    .map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={player.avatar_url ?? undefined} />
+                            <AvatarImage src={undefined} />
                             <AvatarFallback className="text-xs">
-                              {getPlayerInitials(player.name, player.surname)}
+                              {getMemberInitials(member.user?.firstName || 'Unknown', member.user?.lastName)}
                             </AvatarFallback>
                           </Avatar>
                           <span>
-                            {getPlayerDisplayName(player.name, player.surname, player.nickname)}
+                            {getMemberDisplayName(
+                              member.user?.firstName || 'Unknown', 
+                              member.user?.lastName, 
+                              member.user?.nickname
+                            )}
                           </span>
                         </div>
                       </SelectItem>

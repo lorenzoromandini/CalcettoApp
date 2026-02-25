@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
-import type { PlayerRole } from '@/lib/db/schema';
+import { PlayerRole } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -23,12 +23,13 @@ export async function GET(
     return NextResponse.json({ error: 'Not a member of this team' }, { status: 403 });
   }
 
-  const playerClubs = await prisma.playerClub.findMany({
+  // Get all members to find taken jersey numbers
+  const members = await prisma.clubMember.findMany({
     where: { clubId },
     select: { jerseyNumber: true },
   });
 
-  const taken = playerClubs.map(pt => pt.jerseyNumber).sort((a, b) => a - b);
+  const taken = members.map(m => m.jerseyNumber).sort((a, b) => a - b);
   const min = 1;
   const max = 99;
   
@@ -39,17 +40,12 @@ export async function GET(
     }
   }
 
-  const player = await prisma.player.findUnique({
-    where: { userId },
-  });
-
   return NextResponse.json({
     availableJerseyNumbers: { min, max, taken, available },
-    player: player ? {
-      name: player.name,
-      surname: player.surname,
-      nickname: player.nickname,
-      avatarUrl: player.avatarUrl,
+    member: clubMember ? {
+      primaryRole: clubMember.primaryRole,
+      secondaryRoles: clubMember.secondaryRoles,
+      jerseyNumber: clubMember.jerseyNumber,
     } : null,
   });
 }
@@ -76,80 +72,22 @@ export async function POST(
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const clubMember = await prisma.clubMember.findFirst({
-    where: { clubId, userId },
-  });
-
-  if (!clubMember) {
-    return NextResponse.json({ error: 'Not a member of this team' }, { status: 403 });
-  }
-
-  let player = await prisma.player.findUnique({
-    where: { userId },
-  });
-
-  // Se il player non esiste, crealo (per retrocompatibilità con utenti registrati prima della modifica)
-  if (!player) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { firstName: true, lastName: true, nickname: true },
-    });
-    
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 400 });
-    }
-    
-    player = await prisma.player.create({
-      data: {
-        userId,
-        name: user.firstName,
-        surname: user.lastName,
-        nickname: user.nickname,
-        roles: [],
-      },
-    });
-  }
-
-  // Aggiorna i ruoli del player con quelli scelti per questo club e l'avatar se fornito
-  const updateData: { roles: string[]; avatarUrl?: string } = {
-    roles: [primaryRole, ...secondaryRoles],
-  };
-  
-  let avatarUrl: string | undefined;
-  if (avatarFile && avatarFile.size > 0) {
-    const buffer = Buffer.from(await avatarFile.arrayBuffer());
-    const base64 = buffer.toString('base64');
-    avatarUrl = `data:image/jpeg;base64,${base64}`;
-    updateData.avatarUrl = avatarUrl;
-  }
-  
-  await prisma.player.update({
-    where: { id: player.id },
-    data: updateData,
-  });
-
-  // Aggiorna anche l'avatar nell'utente
-  if (avatarUrl && player.userId) {
-    await prisma.user.update({
-      where: { id: player.userId },
-      data: { image: avatarUrl },
-    });
-  }
-
-  const existingPlayerClub = await prisma.playerClub.findUnique({
+  // Check if user is already a member
+  const existingMember = await prisma.clubMember.findUnique({
     where: {
-      playerId_clubId: {
-        playerId: player.id,
+      clubId_userId: {
         clubId,
+        userId,
       },
     },
   });
 
-  if (existingPlayerClub) {
-    return NextResponse.json({ error: 'Player already setup in this team' }, { status: 400 });
+  if (existingMember) {
+    return NextResponse.json({ error: 'Already a member of this team' }, { status: 400 });
   }
 
-  const jerseyTaken = await prisma.playerClub.findFirst({
+  // Check if jersey number is taken
+  const jerseyTaken = await prisma.clubMember.findFirst({
     where: { clubId, jerseyNumber },
   });
 
@@ -157,15 +95,31 @@ export async function POST(
     return NextResponse.json({ error: 'Jersey number already taken' }, { status: 400 });
   }
 
-  const playerClub = await prisma.playerClub.create({
+  // Handle avatar upload
+  let avatarUrl: string | undefined;
+  if (avatarFile && avatarFile.size > 0) {
+    const buffer = Buffer.from(await avatarFile.arrayBuffer());
+    const base64 = buffer.toString('base64');
+    avatarUrl = `data:image/jpeg;base64,${base64}`;
+    
+    // Update user image
+    await prisma.user.update({
+      where: { id: userId },
+      data: { image: avatarUrl },
+    });
+  }
+
+  // Create club member with player data
+  const clubMember = await prisma.clubMember.create({
     data: {
-      playerId: player.id,
       clubId,
+      userId,
+      privileges: 'MEMBER',
+      primaryRole,
+      secondaryRoles,
       jerseyNumber,
-      primaryRole: primaryRole,
-      secondaryRoles: secondaryRoles,
     },
   });
 
-  return NextResponse.json({ success: true, playerClubId: playerClub.id });
+  return NextResponse.json({ success: true, memberId: clubMember.id });
 }

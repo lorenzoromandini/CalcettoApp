@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
+import { ClubPrivilege } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -9,7 +10,7 @@ export async function GET(
   const userId = getUserIdFromRequest(request);
   
   if (!userId) {
-    return NextResponse.json({ isOwner: false, isManager: false, privilege: null }, { status: 401 });
+    return NextResponse.json({ isOwner: false, isManager: false, privileges: null }, { status: 401 });
   }
 
   const { clubId } = await params;
@@ -21,9 +22,9 @@ export async function GET(
     },
   });
 
-  const privilege = membership?.privilege || null;
-  const isOwner = privilege === 'owner';
-  const isManager = privilege === 'manager';
+  const privileges = membership?.privileges || null;
+  const isOwner = privileges === ClubPrivilege.OWNER;
+  const isManager = privileges === ClubPrivilege.MANAGER;
 
-  return NextResponse.json({ isOwner, isManager, privilege });
+  return NextResponse.json({ isOwner, isManager, privileges });
 }

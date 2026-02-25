@@ -63,9 +63,9 @@ function formatDateFull(dateString: string, locale: string): string {
 
 function getModeLabel(mode: Match['mode'], t: ReturnType<typeof useTranslations>): string {
   switch (mode) {
-    case '5vs5':
+    case 'FIVE_V_FIVE':
       return t('mode.5vs5')
-    case '8vs8':
+    case 'EIGHT_V_EIGHT':
       return t('mode.8vs8')
     default:
       return mode
@@ -107,7 +107,7 @@ export function MatchRatingsClient({
   const allRatings = ratings.length > 0 ? ratings : initialRatings
 
   // Create a map for quick lookup
-  const ratingsMap = new Map(allRatings.map(r => [r.player_id, r]))
+  const ratingsMap = new Map(allRatings.map(r => [r.clubMemberId, r]))
 
   const handleBack = () => {
     router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`)
@@ -197,7 +197,7 @@ export function MatchRatingsClient({
                 )}
               </div>
               <CardTitle className="text-xl">
-                {formatDateFull(match.scheduled_at, locale)}
+                {formatDateFull(match.scheduledAt, locale)}
               </CardTitle>
               {match.location && (
                 <p className="text-sm text-muted-foreground mt-1">{match.location}</p>
@@ -229,42 +229,42 @@ export function MatchRatingsClient({
       {canEdit && (
         <div className="space-y-3">
           {playedPlayers.map((player) => {
-            const currentRating = ratingsMap.get(player.player_id)
-            const localRating = localRatings.get(player.player_id)
-            const isPending = pendingPlayerId === player.player_id || localRating?.isPending
+            const currentRating = ratingsMap.get(player.clubMemberId)
+            const localRating = localRatings.get(player.clubMemberId)
+            const isPending = pendingPlayerId === player.clubMemberId || localRating?.isPending
 
             return (
               <PlayerRatingCard
-                key={player.player_id}
+                key={player.clubMemberId}
                 player={{
-                  id: player.player_id,
-                  name: player.player_name,
-                  surname: player.player_surname,
-                  nickname: player.player_nickname,
-                  avatarUrl: player.player_avatar,
-                  jerseyNumber: player.jersey_number,
+                  id: player.clubMemberId,
+                  name: player.clubMember.user.firstName,
+                  surname: player.clubMember.user.lastName,
+                  nickname: player.clubMember.user.nickname,
+                  avatarUrl: player.clubMember.user.image,
+                  jerseyNumber: player.jerseyNumber,
                 }}
                 currentRating={currentRating ? {
                   id: currentRating.id,
-                  match_id: currentRating.match_id,
-                  player_id: currentRating.player_id,
+                  match_id: currentRating.matchId,
+                  player_id: currentRating.clubMemberId,
                   rating: currentRating.rating,
                   rating_decimal: currentRating.rating_decimal,
                   comment: currentRating.comment,
-                  created_at: currentRating.created_at,
-                  updated_at: currentRating.updated_at,
+                  created_at: currentRating.createdAt,
+                  updated_at: currentRating.updatedAt,
                 } : localRating ? {
                   id: 'local',
                   match_id: matchId,
-                  player_id: player.player_id,
+                  player_id: player.clubMemberId,
                   rating: localRating.rating,
                   rating_decimal: 0,
                   comment: localRating.comment,
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString(),
                 } : undefined}
-                onRatingChange={(rating) => handleRatingChange(player.player_id, rating)}
-                onCommentChange={(comment) => handleCommentChange(player.player_id, comment)}
+                onRatingChange={(rating) => handleRatingChange(player.clubMemberId, rating)}
+                onCommentChange={(comment) => handleCommentChange(player.clubMemberId, comment)}
                 disabled={!canEdit}
                 isPending={isPending}
               />

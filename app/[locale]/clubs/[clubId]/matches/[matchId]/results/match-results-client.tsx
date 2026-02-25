@@ -22,8 +22,8 @@ import { GoalList } from '@/components/matches/goal-list'
 import { GoalForm } from '@/components/matches/goal-form'
 import { MatchStatusBadge } from '@/components/matches/match-status-badge'
 import { useGoals } from '@/hooks/use-goals'
-import type { Match, Player } from '@/lib/db/schema'
-import type { GoalWithPlayers } from '@/lib/db/goals'
+import type { Match, ClubMember } from '@/types/database'
+import type { GoalWithMembers } from '@/lib/db/goals'
 
 // ============================================================================
 // Component Props
@@ -34,8 +34,8 @@ interface MatchResultsClientProps {
   clubId: string
   matchId: string
   match: Match
-  goals: GoalWithPlayers[]
-  players: (Player & { jersey_number?: number; player_club_id?: string })[]
+  goals: GoalWithMembers[]
+  members: ClubMember[]
   isAdmin: boolean
   canEdit: boolean
 }
@@ -58,9 +58,9 @@ function formatDateFull(dateString: string, locale: string): string {
 
 function getModeLabel(mode: Match['mode'], t: ReturnType<typeof useTranslations>): string {
   switch (mode) {
-    case '5vs5':
+    case 'FIVE_V_FIVE':
       return t('mode.5vs5')
-    case '8vs8':
+    case 'EIGHT_V_EIGHT':
       return t('mode.8vs8')
     default:
       return mode
@@ -77,7 +77,7 @@ export function MatchResultsClient({
   matchId,
   match,
   goals: initialGoals,
-  players,
+  members,
   isAdmin,
   canEdit,
 }: MatchResultsClientProps) {
@@ -90,13 +90,13 @@ export function MatchResultsClient({
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   // Calculate scores from goals
-  const homeGoals = goals.filter(g => g.clubId === clubId && !g.isOwnGoal)
-  const awayGoals = goals.filter(g => g.clubId !== clubId && !g.isOwnGoal)
-  const ownGoalsForAway = goals.filter(g => g.clubId === clubId && g.isOwnGoal)
-  const ownGoalsForHome = goals.filter(g => g.clubId !== clubId && g.isOwnGoal)
+  // Note: In new schema, goals don't have clubId. 
+  // Home/away is determined by formation, simplified for now
+  const homeGoals = goals.filter(g => !g.isOwnGoal)
+  const ownGoals = goals.filter(g => g.isOwnGoal)
   
-  const homeScore = homeGoals.length + ownGoalsForHome.length
-  const awayScore = awayGoals.length + ownGoalsForAway.length
+  const homeScore = homeGoals.length
+  const awayScore = 0 // Placeholder - needs formation data
 
   const handleBack = () => {
     router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`)
@@ -128,7 +128,7 @@ export function MatchResultsClient({
                 )}
               </div>
               <CardTitle className="text-xl">
-                {formatDateFull(match.scheduled_at, locale)}
+                {formatDateFull(match.scheduledAt, locale)}
               </CardTitle>
               {match.location && (
                 <p className="text-sm text-muted-foreground mt-1">{match.location}</p>
@@ -180,7 +180,7 @@ export function MatchResultsClient({
               <GoalForm
                 matchId={matchId}
                 clubId={clubId}
-                players={players}
+                members={members}
                 onAddGoal={addGoal}
                 isOpen={isFormOpen}
                 onOpenChange={setIsFormOpen}

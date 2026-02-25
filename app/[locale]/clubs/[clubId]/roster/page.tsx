@@ -66,8 +66,8 @@ export default function ClubRosterPage() {
           const playersData = await playersRes.json();
           const playersByUserId = new Map();
           playersData.forEach((player: any) => {
-            if (player.user_id) {
-              playersByUserId.set(player.user_id, player);
+            if (player.userId) {
+              playersByUserId.set(player.userId, player);
             }
           });
 
@@ -269,7 +269,7 @@ export default function ClubRosterPage() {
                       <div className="relative w-10 h-10 flex items-center justify-center">
                         <Shirt className="h-10 w-10 text-primary" />
                         <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
-                          {member.playerData.jersey_number || '?'}
+                          {member.playerData.jerseyNumber || '?'}
                         </span>
                       </div>
                     ) : (
@@ -288,17 +288,17 @@ export default function ClubRosterPage() {
                         }
                       </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        {getPrivilegeIcon(member.privilege)}
-                        {getPrivilegeLabel(member.privilege)}
-                        {member.playerData?.primary_role && (
-                          <span className="ml-1">• {translatePlayerRole(member.playerData.primary_role)}</span>
+                        {getPrivilegeIcon(member.privileges)}
+                        {getPrivilegeLabel(member.privileges)}
+                        {member.playerData?.primaryRole && (
+                          <span className="ml-1">• {translatePlayerRole(member.playerData.primaryRole)}</span>
                         )}
                       </p>
                     </div>
                   </div>
                   
                   {/* Management actions - Solo Owner può gestire privilegi ed espellere */}
-                  {isOwner && member.user_id !== currentUserId && member.privilege !== 'owner' && (
+                  {isOwner && member.userId !== currentUserId && member.privileges !== 'owner' && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -307,14 +307,14 @@ export default function ClubRosterPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         {/* Solo per membri normali: opzione per nominare Manager */}
-                        {member.privilege === 'member' && (
+                        {member.privileges === 'member' && (
                           <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, 'manager')}>
                             <UserCog className="mr-2 h-4 w-4" />
                             {t('makeManager')}
                           </DropdownMenuItem>
                         )}
                         {/* Solo per Manager: opzione per rimuovere */}
-                        {member.privilege === 'manager' && (
+                        {member.privileges === 'manager' && (
                           <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, 'member')}>
                             <UserCog className="mr-2 h-4 w-4" />
                             {t('removeManager')}

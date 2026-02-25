@@ -2,68 +2,49 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-import { Calendar, MapPin, ChevronRight, Users } from "lucide-react";
+import { MapPin, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getRSVPCounts } from "@/lib/db/rsvps";
 import { cn } from "@/lib/utils";
-import type { Match } from "@/lib/db/schema";
+import type { Match } from "@/types/database";
+import { MatchMode, MatchStatus } from "@prisma/client";
 
 interface MatchCardProps {
   match: Match;
   clubId: string;
   onClick?: () => void;
-  showRSVPCount?: boolean;
 }
 
-export function MatchCard({ match, clubId, onClick, showRSVPCount = false }: MatchCardProps) {
+export function MatchCard({ match, clubId, onClick }: MatchCardProps) {
   const t = useTranslations("matches");
-  const common = useTranslations("common");
-  const [rsvpCount, setRsvpCount] = useState(0);
-  const [isLoadingRSVP, setIsLoadingRSVP] = useState(false);
 
-  useEffect(() => {
-    if (showRSVPCount) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsLoadingRSVP(true);
-      getRSVPCounts(match.id)
-        .then(counts => setRsvpCount(counts.in))
-        .finally(() => setIsLoadingRSVP(false));
-    }
-  }, [match.id, showRSVPCount]);
-
-  const playersNeeded = match.mode === '5vs5' ? 10 : 16;
-  const isFull = rsvpCount >= playersNeeded;
-  const isPartial = rsvpCount >= playersNeeded / 2;
-
-  const getStatusBadge = (status: Match['status']) => {
+  const getStatusBadge = (status: MatchStatus) => {
     switch (status) {
-      case 'SCHEDULED':
+      case MatchStatus.SCHEDULED:
         return (
           <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
             {t("status.scheduled")}
           </Badge>
         );
-      case 'IN_PROGRESS':
+      case MatchStatus.IN_PROGRESS:
         return (
           <Badge variant="default" className="bg-green-500 hover:bg-green-600">
             {t("status.inProgress")}
           </Badge>
         );
-      case 'FINISHED':
+      case MatchStatus.FINISHED:
         return (
           <Badge variant="outline" className="border-yellow-500 text-yellow-600">
             {t("status.finished")}
           </Badge>
         );
-      case 'COMPLETED':
+      case MatchStatus.COMPLETED:
         return (
           <Badge variant="secondary">
             {t("status.completed")}
           </Badge>
         );
-      case 'CANCELLED':
+      case MatchStatus.CANCELLED:
         return (
           <Badge variant="destructive">
             {t("status.cancelled")}
@@ -74,25 +55,17 @@ export function MatchCard({ match, clubId, onClick, showRSVPCount = false }: Mat
     }
   };
 
-  const getModeLabel = (mode: Match['mode']) => {
+  const getModeLabel = (mode: MatchMode) => {
     switch (mode) {
-      case '5vs5':
+      case MatchMode.FIVE_V_FIVE:
         return t("mode.5vs5");
-      case '8vs8':
+      case MatchMode.EIGHT_V_EIGHT:
         return t("mode.8vs8");
+      case MatchMode.ELEVEN_V_ELEVEN:
+        return t("mode.11vs11");
       default:
         return mode;
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('it-IT', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
   };
 
   const formatDateFull = (dateString: string) => {
@@ -116,17 +89,17 @@ export function MatchCard({ match, clubId, onClick, showRSVPCount = false }: Mat
           {/* Date Box */}
           <div className="flex flex-col items-center justify-center shrink-0 w-14 h-14 rounded-lg bg-primary/10 text-primary">
             <span className="text-xs font-medium uppercase">
-              {new Date(match.scheduled_at).toLocaleDateString('it-IT', { month: 'short' })}
+              {new Date(match.scheduledAt).toLocaleDateString('it-IT', { month: 'short' })}
             </span>
             <span className="text-lg font-bold">
-              {new Date(match.scheduled_at).getDate()}
+              {new Date(match.scheduledAt).getDate()}
             </span>
           </div>
           
           <div className="flex-1 min-w-0">
             {/* Date & Time */}
             <p className="text-sm text-muted-foreground">
-              {formatDateFull(match.scheduled_at)}
+              {formatDateFull(match.scheduledAt)}
             </p>
             
             {/* Location */}
@@ -147,22 +120,6 @@ export function MatchCard({ match, clubId, onClick, showRSVPCount = false }: Mat
           </div>
 
           <div className="flex flex-col items-end gap-2">
-            {showRSVPCount && (
-              <div className={cn(
-                "flex items-center gap-1 text-sm",
-                isFull ? "text-green-600" : isPartial ? "text-yellow-600" : "text-red-600"
-              )}>
-                <Users className="h-4 w-4" />
-                {isLoadingRSVP ? (
-                  <span className="w-8 h-4 bg-muted rounded animate-pulse" />
-                ) : (
-                  <>
-                    <span className="font-medium">{rsvpCount}</span>
-                    <span className="text-muted-foreground">/{playersNeeded}</span>
-                  </>
-                )}
-              </div>
-            )}
             <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
           </div>
         </div>

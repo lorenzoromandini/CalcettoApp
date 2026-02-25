@@ -2,34 +2,30 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Plus, Users, ArrowLeft } from 'lucide-react';
+import { Users, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlayerCard } from '@/components/players/player-card';
-import { usePlayers } from '@/hooks/use-players';
+import { useMembers } from '@/hooks/use-players';
 import { useClub } from '@/hooks/use-clubs';
 import { Card, CardContent } from '@/components/ui/card';
 
-interface PlayersPageClientProps {
+interface MembersPageClientProps {
   locale: string;
   clubId: string;
 }
 
-export function PlayersPageClient({ locale, clubId }: PlayersPageClientProps) {
+export function PlayersPageClient({ locale, clubId }: MembersPageClientProps) {
   const t = useTranslations('players');
   const router = useRouter();
-  const { players, isLoading, error, refetch } = usePlayers(clubId);
+  const { members, isLoading, error, refetch } = useMembers(clubId);
   const { club } = useClub(clubId);
 
-const handleBack = () => {
+  const handleBack = () => {
     router.push(`/${locale}/clubs/${clubId}`);
   };
 
-  const handleCreatePlayer = () => {
-    router.push(`/${locale}/clubs/${clubId}/players/create`);
-  };
-
-  const handlePlayerClick = (playerId: string) => {
-    router.push(`/${locale}/clubs/${clubId}/players/${playerId}`);
+  const handleMemberClick = (memberId: string) => {
+    router.push(`/${locale}/clubs/${clubId}/members/${memberId}`);
   };
 
   if (isLoading) {
@@ -40,21 +36,10 @@ const handleBack = () => {
             <div className="h-8 w-48 bg-muted rounded animate-pulse" />
             <div className="h-4 w-64 mt-2 bg-muted rounded animate-pulse" />
           </div>
-          <div className="h-12 w-32 bg-muted rounded animate-pulse" />
         </div>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-6 w-48 bg-muted rounded animate-pulse" />
-                    <div className="h-4 w-32 bg-muted rounded animate-pulse" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="aspect-[3/4] bg-muted rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -87,20 +72,14 @@ const handleBack = () => {
         {t('back')}
       </Button>
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {club ? `${club.name} - ${t('title')}` : t('title')}
-          </h1>
-          <p className="text-muted-foreground">{t('description')}</p>
-        </div>
-        <Button onClick={handleCreatePlayer} className="h-12">
-          <Plus className="mr-2 h-4 w-4" />
-          {t('create')}
-        </Button>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">
+          {club ? `${club.name} - ${t('title')}` : t('title')}
+        </h1>
+        <p className="text-muted-foreground">{t('description')}</p>
       </div>
 
-      {players.length === 0 ? (
+      {members.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="p-8 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -111,11 +90,11 @@ const handleBack = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {players.map((player) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {members.map((member) => (
             <PlayerCard
-              key={player.id}
-              player={player}
+              key={member.id}
+              member={member}
               clubId={clubId}
             />
           ))}

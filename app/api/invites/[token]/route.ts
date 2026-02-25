@@ -24,19 +24,17 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  if (invite.expiresAt < new Date()) {
+  // Check if invite has expired
+  if (invite.expiresAt && new Date(invite.expiresAt) < new Date()) {
     return NextResponse.json({ error: 'Expired' }, { status: 400 });
   }
 
-  if (invite.useCount >= invite.maxUses) {
-    return NextResponse.json({ error: 'Max uses reached' }, { status: 400 });
-  }
+  // Note: The new schema doesn't have useCount/maxUses on ClubInvite
+  // This feature was removed in the restructure
 
   return NextResponse.json({
     id: invite.id,
     club: invite.club,
     expiresAt: invite.expiresAt,
-    useCount: invite.useCount,
-    maxUses: invite.maxUses,
   });
 }

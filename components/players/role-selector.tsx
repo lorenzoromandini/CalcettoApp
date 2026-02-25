@@ -3,13 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { Toggle } from '@/components/ui/toggle';
 import { Shield, UserCircle, Zap, Target } from 'lucide-react';
-import type { PlayerRole } from '@/lib/db/schema';
+import { PlayerRole } from '@prisma/client';
 
 const ROLES: { id: PlayerRole; icon: typeof Shield; translationKey: string }[] = [
-  { id: 'goalkeeper', icon: Shield, translationKey: 'roles.goalkeeper' },
-  { id: 'defender', icon: UserCircle, translationKey: 'roles.defender' },
-  { id: 'midfielder', icon: Zap, translationKey: 'roles.midfielder' },
-  { id: 'attacker', icon: Target, translationKey: 'roles.attacker' },
+  { id: PlayerRole.POR, icon: Shield, translationKey: 'roles.goalkeeper' },
+  { id: PlayerRole.DIF, icon: UserCircle, translationKey: 'roles.defender' },
+  { id: PlayerRole.CEN, icon: Zap, translationKey: 'roles.midfielder' },
+  { id: PlayerRole.ATT, icon: Target, translationKey: 'roles.attacker' },
 ];
 
 interface RoleSelectorProps {

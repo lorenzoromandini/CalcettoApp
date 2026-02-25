@@ -36,7 +36,7 @@ export function RatingHistoryList({ data, title, showChart = false }: RatingHist
         <div className="space-y-3">
           {displayData.slice().reverse().map((entry) => (
             <div
-              key={entry.match_id}
+              key={entry.matchId}
               className="flex items-center justify-between py-2 border-b last:border-0"
             >
               <div className="flex-1 min-w-0">

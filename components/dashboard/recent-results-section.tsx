@@ -60,7 +60,7 @@ export function RecentResultsSection({ clubs, locale }: RecentResultsSectionProp
         }
 
         allMatches.sort((a, b) => 
-          new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime()
+          new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
         );
 
         setRecentMatches(allMatches.slice(0, 3));
@@ -87,8 +87,8 @@ export function RecentResultsSection({ clubs, locale }: RecentResultsSectionProp
   };
 
   const getResult = (match: Match): 'win' | 'loss' | 'draw' => {
-    const homeScore = match.home_score ?? 0;
-    const awayScore = match.away_score ?? 0;
+    const homeScore = match.homeScore ?? 0;
+    const awayScore = match.awayScore ?? 0;
 
     if (homeScore > awayScore) return 'win';
     if (homeScore < awayScore) return 'loss';
@@ -169,8 +169,8 @@ export function RecentResultsSection({ clubs, locale }: RecentResultsSectionProp
         {recentMatches.map((match) => {
           const result = getResult(match);
           const style = getResultStyle(result);
-          const homeScore = match.home_score ?? 0;
-          const awayScore = match.away_score ?? 0;
+          const homeScore = match.homeScore ?? 0;
+          const awayScore = match.awayScore ?? 0;
 
           return (
             <Link
@@ -188,7 +188,7 @@ export function RecentResultsSection({ clubs, locale }: RecentResultsSectionProp
                   <p className="font-medium truncate">{match.teamName}</p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {formatDate(match.scheduled_at)}
+                    {formatDate(match.scheduledAt)}
                   </p>
                 </div>
 

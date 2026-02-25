@@ -78,8 +78,8 @@ interface PlayerRatingRowProps {
 }
 
 function PlayerRatingRow({ rating, rank }: PlayerRatingRowProps) {
-  const displayName = rating.player_nickname ||
-    `${rating.player_name}${rating.player_surname ? ` ${rating.player_surname}` : ''}`
+  const displayName = rating.clubMember.user.nickname ||
+    `${rating.clubMember.user.firstName}${rating.clubMember.user.lastName ? ` ${rating.clubMember.user.lastName}` : ''}`
 
   // Get medal for top 3
   const getMedal = () => {
@@ -98,9 +98,9 @@ function PlayerRatingRow({ rating, rank }: PlayerRatingRowProps) {
 
       {/* Avatar */}
       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-        {rating.player_avatar ? (
+        {rating.clubMember.user.image ? (
           <img
-            src={rating.player_avatar}
+            src={rating.clubMember.user.image}
             alt={displayName}
             className="h-10 w-10 rounded-full object-cover"
           />
@@ -113,9 +113,9 @@ function PlayerRatingRow({ rating, rank }: PlayerRatingRowProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="font-medium truncate">{displayName}</p>
-          {rating.jersey_number > 0 && (
+          {rating.jerseyNumber > 0 && (
             <Badge variant="outline" className="text-xs h-5 px-1.5 font-mono shrink-0">
-              #{rating.jersey_number}
+              #{rating.jerseyNumber}
             </Badge>
           )}
         </div>
@@ -243,7 +243,7 @@ export function RatingsListCompact({
           <div key={rating.id} className="flex items-center gap-1">
             {index > 0 && <span className="text-muted-foreground text-xs">•</span>}
             <span className="text-sm">
-              {rating.player_nickname || rating.player_name}
+              {rating.clubMember.user.nickname || rating.clubMember.user.firstName}
             </span>
             <RatingDisplay rating={rating.rating} size="sm" />
           </div>
