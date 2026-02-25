@@ -19,13 +19,13 @@ export async function GET(request: NextRequest) {
       },
       select: {
         clubId: true,
-        privilege: true,
+        privileges: true,
       },
     });
 
     const privileges = memberships.map((m) => ({
       clubId: m.clubId,
-      privilege: m.privileges as 'owner' | 'manager' | 'member',
+      privileges: m.privileges,
     }));
 
     return NextResponse.json({ privileges });
