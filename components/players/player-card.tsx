@@ -9,7 +9,7 @@ import type { ClubMember } from '@/types/database';
 import { PlayerRole } from '@prisma/client';
 
 interface PlayerCardProps {
-  member: ClubMember & { user: { first_name: string; last_name: string; nickname: string | null; image: string | null } | null };
+  member: ClubMember & { user: { firstName: string; lastName: string; nickname: string | null; image: string | null } | null };
   clubId: string;
   onClick?: () => void;
 }

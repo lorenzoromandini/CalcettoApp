@@ -46,8 +46,8 @@ import type { AddGoalInput } from '@/lib/db/goals'
 interface MemberWithUser {
   id: string
   user: {
-    first_name: string
-    last_name?: string
+    firstName: string
+    lastName?: string
     nickname?: string | null
     image?: string | null
   } | null

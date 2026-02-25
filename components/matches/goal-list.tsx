@@ -91,8 +91,9 @@ export function GoalList({
   return (
     <div className="space-y-2">
       {goals.map((goal, index) => {
-        const isOurGoal = goal.clubId === clubId && !goal.isOwnGoal
-        const isOpponentGoal = goal.clubId !== clubId && !goal.isOwnGoal
+        // Note: clubId doesn't exist on Goal model - can't determine home/away team
+        const isOurGoal = false
+        const isOpponentGoal = false
         const isOwnGoal = goal.isOwnGoal
 
         return (
@@ -114,18 +115,18 @@ export function GoalList({
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Scorer Avatar */}
                     <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
-                      <AvatarImage src={goal.scorer.avatarUrl ?? undefined} />
+                      <AvatarImage src={goal.scorer.user.image ?? undefined} />
                       <AvatarFallback className="text-xs">
-                        {getPlayerInitials(goal.scorer.name, goal.scorer.surname)}
+                        {getPlayerInitials(goal.scorer.user.firstName, goal.scorer.user.lastName)}
                       </AvatarFallback>
                     </Avatar>
                     
                     {/* Scorer Name */}
                     <span className="font-medium text-sm sm:text-base truncate">
                       {getPlayerDisplayName(
-                        goal.scorer.name, 
-                        goal.scorer.surname, 
-                        goal.scorer.nickname
+                        goal.scorer.user.firstName, 
+                        goal.scorer.user.lastName, 
+                        goal.scorer.user.nickname
                       )}
                     </span>
 
@@ -153,16 +154,16 @@ export function GoalList({
                     <div className="flex items-center gap-2 mt-1 text-muted-foreground">
                       <span className="text-xs sm:text-sm">{t('assist')}</span>
                       <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
-                        <AvatarImage src={goal.assister.avatarUrl ?? undefined} />
+                        <AvatarImage src={goal.assister.user.image ?? undefined} />
                         <AvatarFallback className="text-[10px]">
-                          {getPlayerInitials(goal.assister.name, goal.assister.surname)}
+                          {getPlayerInitials(goal.assister.user.firstName, goal.assister.user.lastName)}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-xs sm:text-sm">
                         {getPlayerDisplayName(
-                          goal.assister.name, 
-                          goal.assister.surname, 
-                          goal.assister.nickname
+                          goal.assister.user.firstName, 
+                          goal.assister.user.lastName, 
+                          goal.assister.user.nickname
                         )}
                       </span>
                     </div>

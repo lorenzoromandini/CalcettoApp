@@ -28,7 +28,7 @@ export function AvailabilityCounter({
   const t = useTranslations("matches");
 
   // Calculate needed players based on mode
-  const neededPlayers = mode === "5vs5" ? 10 : 16;
+  const neededPlayers = mode === "FIVE_V_FIVE" ? 10 : 16;
   const confirmedCount = counts.in;
   const fillPercentage = Math.min((confirmedCount / neededPlayers) * 100, 100);
 

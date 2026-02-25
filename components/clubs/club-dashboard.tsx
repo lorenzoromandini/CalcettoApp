@@ -105,11 +105,12 @@ export function ClubDashboard({
               <p className="text-muted-foreground mt-1">{club.description}</p>
             )}
             <div className="flex items-center gap-2 mt-2">
+              {/* sync_status field not in current schema - offline sync not implemented
               {club.sync_status === 'pending' && (
                 <Badge variant="outline" className="text-yellow-600">
                   {t('syncing')}
                 </Badge>
-              )}
+              )} */}
             </div>
           </div>
         </div>
