@@ -37,7 +37,7 @@ function toClubType(dbClub: any): Club {
     id: dbClub.id,
     name: dbClub.name,
     description: dbClub.description ?? null,
-    imageUrl: dbClub.imageUrl ?? null,
+    imageUrl: dbClub.image_url ?? null,
     createdBy: dbClub.createdBy,
     createdAt: dbClub.createdAt.toISOString(),
     updatedAt: dbClub.updatedAt.toISOString(),
@@ -82,7 +82,7 @@ export async function createClub(
     data: {
       name: data.name,
       description: data.description,
-      imageUrl: data.imageUrl,
+      imageUrl: data.image_url,
       createdBy: userId,
     },
   });
@@ -168,7 +168,7 @@ export async function updateClub(
     data: {
       ...(data.name !== undefined && data.name !== null && { name: data.name }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(data.imageUrl !== undefined && { imageUrl: data.imageUrl }),
+      ...(data.image_url !== undefined && { imageUrl: data.image_url }),
     },
   });
 }
