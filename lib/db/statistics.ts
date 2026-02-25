@@ -383,7 +383,7 @@ export async function getTopRatedMembers(
   `
 
   return await enrichLeaderboardEntries(
-    result.map(r => ({ club_member_id: r.clubMemberId, count: BigInt(Math.round(r.avg_rating * 100)) }))
+    result.map(r => ({ club_member_id: r.club_member_id, count: BigInt(Math.round(r.avg_rating * 100)) }))
   ).then(entries => 
     entries.map((entry, i) => ({
       ...entry,
@@ -426,7 +426,7 @@ export async function getTopGoalsConceded(
   `
 
   return await enrichLeaderboardEntries(
-    result.map(r => ({ club_member_id: r.clubMemberId, count: r.goals_conceded }))
+    result.map(r => ({ club_member_id: r.club_member_id, count: r.goals_conceded }))
   ).then(entries => 
     entries.map((entry, i) => ({
       ...entry,
@@ -499,7 +499,7 @@ async function enrichLeaderboardEntries(
 ): Promise<MemberLeaderboardEntry[]> {
   if (results.length === 0) return []
 
-  const clubMemberIds = results.map(r => r.clubMemberId)
+  const clubMemberIds = results.map(r => r.club_member_id)
   
   const members = await prisma.clubMember.findMany({
     where: { id: { in: clubMemberIds } },
@@ -517,9 +517,9 @@ async function enrichLeaderboardEntries(
   const memberMap = new Map(members.map(m => [m.id, m]))
 
   return results.map(r => {
-    const member = memberMap.get(r.clubMemberId)
+    const member = memberMap.get(r.club_member_id)
     return {
-      club_member_id: r.clubMemberId,
+      club_member_id: r.club_member_id,
       first_name: member?.user.firstName ?? 'Unknown',
       nickname: member?.user.nickname ?? undefined,
       image: member?.user.image ?? undefined,
