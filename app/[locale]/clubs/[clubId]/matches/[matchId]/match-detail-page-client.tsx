@@ -287,10 +287,10 @@ export function MatchDetailPageClient({
       formation: formation || null,
       players: clubMembers.map(p => ({
         id: p.id,
-        name: p.name,
-        surname: p.surname ?? undefined,
-        nickname: p.nickname ?? undefined,
-        avatarUrl: p.avatar_url ?? undefined,
+        name: p.user?.firstName || '',
+        surname: p.user?.lastName ?? undefined,
+        nickname: p.user?.nickname ?? undefined,
+        avatarUrl: p.user?.image ?? undefined,
         jerseyNumber: p.jerseyNumber,
         played: true, // We don't have this info directly here
       })),
