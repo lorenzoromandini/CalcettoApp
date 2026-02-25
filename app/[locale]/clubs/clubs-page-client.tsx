@@ -206,7 +206,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
                 <ClubCard
                   club={club}
                   onClick={() => handleClubClick(club.id)}
-                  memberCount={club.memberCount || 1}
+                  memberCount={club.members?.length || 1}
                   userPrivilege={getClubPrivilege(club.id)}
                   isDefault={club.id === defaultClubId}
                 />
