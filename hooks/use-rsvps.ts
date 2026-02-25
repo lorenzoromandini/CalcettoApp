@@ -219,7 +219,7 @@ export function useUpdateRSVPWithOptimistic(
           // Update existing RSVP
           return prev.map((r) =>
             r.clubMemberId === playerId
-              ? { ...r, rsvp_status: status, rsvp_at: new Date().toISOString() }
+              ? { ...r, rsvpStatus: status, rsvpAt: new Date().toISOString() }
               : r
           );
         } else {

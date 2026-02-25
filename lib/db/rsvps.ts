@@ -19,11 +19,10 @@ export interface RSVPCounts {
 
 export interface MatchRSVP {
   id: string;
-  match_id: string;
-  user_id: string;
-  status: RSVPStatus;
-  created_at: string;
-  updated_at: string;
+  matchId: string;
+  clubMemberId: string;
+  rsvpStatus: RSVPStatus;
+  rsvpAt: string;
 }
 
 // Stub functions - RSVP not available in new schema
@@ -35,11 +34,11 @@ export async function getRSVPCounts(_matchId: string): Promise<RSVPCounts> {
   return { in: 0, out: 0, maybe: 0, total: 0 };
 }
 
-export async function updateRSVP(_matchId: string, _userId: string, _status: RSVPStatus): Promise<void> {
+export async function updateRSVP(_matchId: string, _clubMemberId: string, _status: RSVPStatus): Promise<void> {
   console.warn('RSVP functionality removed in DB restructure');
 }
 
-export async function getMyRSVP(_matchId: string, _userId: string): Promise<MatchRSVP | null> {
+export async function getMyRSVP(_matchId: string, _clubMemberId: string): Promise<MatchRSVP | null> {
   return null;
 }
 
