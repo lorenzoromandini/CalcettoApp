@@ -134,9 +134,8 @@ export function CompletedMatchDetail({
   const decimals = ratings.map(r => r.rating_decimal)
   const averageRating = calculateAverageRating(decimals)
 
-  // Filter goals by team
-  const ourGoals = goals.filter(g => g.clubId === clubId && !g.isOwnGoal)
-  const opponentGoals = goals.filter(g => g.clubId !== clubId && !g.isOwnGoal)
+  // All goals in the match (no filtering by team since teams change per match)
+  const allGoals = goals
   const ownGoals = goals.filter(g => g.isOwnGoal)
 
   // Result styles
@@ -216,7 +215,8 @@ export function CompletedMatchDetail({
           ) : (
             <div className="space-y-3">
               {goals.map((goal, index) => {
-                const isOurGoal = goal.clubId === clubId && !goal.isOwnGoal
+                // No team-based filtering - just show all goals
+                const isNotOwnGoal = !goal.isOwnGoal
                 
                 return (
                   <div 
@@ -235,16 +235,16 @@ export function CompletedMatchDetail({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <Avatar className="h-7 w-7">
-                          <AvatarImage src={goal.scorer.avatarUrl ?? undefined} />
+                          <AvatarImage src={goal.scorer.user.image ?? undefined} />
                           <AvatarFallback className="text-xs">
-                            {getPlayerInitials(goal.scorer.name, goal.scorer.surname)}
+                            {getPlayerInitials(goal.scorer.user.firstName, goal.scorer.user.lastName)}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium text-sm">
                           {getPlayerDisplayName(
-                            goal.scorer.name,
-                            goal.scorer.surname,
-                            goal.scorer.nickname
+                            goal.scorer.user.firstName,
+                            goal.scorer.user.lastName,
+                            goal.scorer.user.nickname
                           )}
                         </span>
                         
@@ -255,10 +255,10 @@ export function CompletedMatchDetail({
                         )}
                         
                         <Badge 
-                          variant={isOurGoal ? 'default' : 'secondary'} 
+                          variant="default" 
                           className="text-xs"
                         >
-                          {isOurGoal ? tGoals('ourTeam') : tGoals('opponent')}
+                          {tGoals('goal')}
                         </Badge>
                       </div>
 
@@ -267,16 +267,16 @@ export function CompletedMatchDetail({
                         <div className="flex items-center gap-2 mt-1 text-muted-foreground">
                           <span className="text-xs">{tGoals('assist')}</span>
                           <Avatar className="h-5 w-5">
-                            <AvatarImage src={goal.assister.avatarUrl ?? undefined} />
+                            <AvatarImage src={goal.assister.user.image ?? undefined} />
                             <AvatarFallback className="text-[10px]">
-                              {getPlayerInitials(goal.assister.name, goal.assister.surname)}
+                              {getPlayerInitials(goal.assister.user.firstName, goal.assister.user.lastName)}
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-xs">
                             {getPlayerDisplayName(
-                              goal.assister.name,
-                              goal.assister.surname,
-                              goal.assister.nickname
+                              goal.assister.user.firstName,
+                              goal.assister.user.lastName,
+                              goal.assister.user.nickname
                             )}
                           </span>
                         </div>
@@ -433,9 +433,9 @@ export function CompletedMatchDetail({
 
                     {/* Avatar */}
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={rating.clubMember.user.image} />
+                      <AvatarImage src={rating.image} />
                       <AvatarFallback>
-                        {getPlayerInitials(rating.clubMember.user.firstName, rating.clubMember.user.lastName)}
+                        {getPlayerInitials(rating.first_name, rating.last_name)}
                       </AvatarFallback>
                     </Avatar>
 
@@ -444,14 +444,14 @@ export function CompletedMatchDetail({
                       <div className="flex items-center gap-2">
                         <p className="font-medium truncate">
                           {getPlayerDisplayName(
-                            rating.clubMember.user.firstName,
-                            rating.clubMember.user.lastName,
-                            rating.clubMember.user.nickname
+                            rating.first_name,
+                            rating.last_name,
+                            rating.nickname
                           )}
                         </p>
-                        {rating.jerseyNumber > 0 && (
+                        {rating.jersey_number > 0 && (
                           <Badge variant="outline" className="text-xs font-mono shrink-0">
-                            #{rating.jerseyNumber}
+                            #{rating.jersey_number}
                           </Badge>
                         )}
                       </div>
@@ -492,18 +492,18 @@ export function CompletedMatchDetail({
               {playersWithComments.map((rating) => (
                 <div key={rating.id} className="flex items-start gap-3">
                   <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src={rating.clubMember.user.image} />
+                    <AvatarImage src={rating.image} />
                     <AvatarFallback>
-                      {getPlayerInitials(rating.clubMember.user.firstName, rating.clubMember.user.lastName)}
+                      {getPlayerInitials(rating.first_name, rating.last_name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-sm">
                         {getPlayerDisplayName(
-                          rating.clubMember.user.firstName,
-                          rating.clubMember.user.lastName,
-                          rating.clubMember.user.nickname
+                          rating.first_name,
+                          rating.last_name,
+                          rating.nickname
                         )}
                       </span>
                       <Badge variant="outline" className="text-xs">
