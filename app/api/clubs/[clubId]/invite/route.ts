@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ClubPrivilege } from '@prisma/client';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 import { createInvite } from '@/lib/db/invites';
@@ -20,14 +21,15 @@ export async function POST(
     where: { clubId, userId },
   });
 
-  if (!membership || (membership.privileges !== 'owner' && membership.privileges !== 'manager')) {
+  if (!membership || (membership.privileges !== ClubPrivilege.OWNER && membership.privileges !== ClubPrivilege.MANAGER)) {
     return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
   }
 
   const { maxUses = 50 } = await request.json();
 
   try {
-    const token = await createInvite(clubId, userId, maxUses);
+    // Note: maxUses parameter was removed in new schema
+    const token = await createInvite(clubId, userId);
     const link = `/clubs/invite?token=${token}`;
     
     return NextResponse.json({ link, token });

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ClubPrivilege } from '@prisma/client';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
@@ -20,7 +21,7 @@ export async function DELETE(
       where: { clubId, userId },
     });
 
-    if (!adminMembership || adminMembership.privileges !== 'owner') {
+    if (!adminMembership || adminMembership.privileges !== ClubPrivilege.OWNER) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -42,7 +43,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Cannot remove yourself' }, { status: 403 });
     }
 
-    if (targetMember.privileges === 'owner') {
+    if (targetMember.privileges === ClubPrivilege.OWNER) {
       return NextResponse.json({ error: 'Cannot remove owner' }, { status: 403 });
     }
 
