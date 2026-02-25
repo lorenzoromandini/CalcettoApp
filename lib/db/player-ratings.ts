@@ -30,24 +30,24 @@ import { Decimal } from '@prisma/client/runtime/library'
  */
 export interface PlayerRating {
   id: string
-  match_id: string
-  club_member_id: string
+  matchId: string
+  clubMemberId: string
   rating: string  // Formatted string (e.g., "6.5")
-  rating_decimal: number  // Decimal value for calculations
+  ratingDecimal: number  // Decimal value for calculations
   comment?: string
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
 }
 
 /**
  * Player rating with member details
  */
 export interface PlayerRatingWithMember extends PlayerRating {
-  first_name: string
-  last_name: string
+  firstName: string
+  lastName: string
   nickname?: string
   image?: string
-  jersey_number: number
+  jerseyNumber: number
 }
 
 // Backward compatibility alias
@@ -87,13 +87,13 @@ function toPlayerRating(dbRating: any): PlayerRating {
   const ratingDecimal = dbRating.rating.toNumber()
   return {
     id: dbRating.id,
-    match_id: dbRating.matchId,
-    club_member_id: dbRating.clubMemberId,
+    matchId: dbRating.matchId,
+    clubMemberId: dbRating.clubMemberId,
     rating: decimalToRating(ratingDecimal),
-    rating_decimal: ratingDecimal,
+    ratingDecimal: ratingDecimal,
     comment: dbRating.comment ?? undefined,
-    created_at: dbRating.createdAt.toISOString(),
-    updated_at: dbRating.updatedAt.toISOString(),
+    createdAt: dbRating.createdAt.toISOString(),
+    updatedAt: dbRating.updatedAt.toISOString(),
   }
 }
 
@@ -101,11 +101,11 @@ function toPlayerRatingWithMember(dbRating: any): PlayerRatingWithMember {
   const base = toPlayerRating(dbRating)
   return {
     ...base,
-    first_name: dbRating.clubMember?.user?.firstName || 'Unknown',
-    last_name: dbRating.clubMember?.user?.lastName || '',
+    firstName: dbRating.clubMember?.user?.firstName || 'Unknown',
+    lastName: dbRating.clubMember?.user?.lastName || '',
     nickname: dbRating.clubMember?.user?.nickname ?? undefined,
     image: dbRating.clubMember?.user?.image ?? undefined,
-    jersey_number: dbRating.clubMember?.jerseyNumber || 0,
+    jerseyNumber: dbRating.clubMember?.jerseyNumber || 0,
   }
 }
 
@@ -258,7 +258,7 @@ export async function getMatchRatings(matchId: string): Promise<PlayerRatingWith
   const results = ratings.map(toPlayerRatingWithMember)
 
   // Sort by rating descending (best first)
-  return results.sort((a: PlayerRatingWithMember, b: PlayerRatingWithMember) => b.rating_decimal - a.rating_decimal)
+  return results.sort((a: PlayerRatingWithMember, b: PlayerRatingWithMember) => b.ratingDecimal - a.ratingDecimal)
 }
 
 // ============================================================================
@@ -538,10 +538,10 @@ export async function bulkUpsertRatings(
  * Rating history entry for chart visualization
  */
 export interface RatingHistoryEntry {
-  match_id: string
-  match_date: Date
+  matchId: string
+  matchDate: Date
   rating: number
-  rating_display: string
+  ratingDisplay: string
   comment?: string
 }
 
@@ -583,10 +583,10 @@ export async function getPlayerRatingHistory(
   })
 
   return ratings.map((r: { matchId: string; match: { scheduledAt: Date }; rating: { toNumber: () => number }; comment?: string | null }) => ({
-    match_id: r.matchId,
-    match_date: r.match.scheduledAt,
+    matchId: r.matchId,
+    matchDate: r.match.scheduledAt,
     rating: r.rating.toNumber(),
-    rating_display: decimalToRating(r.rating.toNumber()),
+    ratingDisplay: decimalToRating(r.rating.toNumber()),
     comment: r.comment ?? undefined,
   }))
 }
@@ -600,8 +600,8 @@ export type FrameBorderColor = 'gray' | 'bronze' | 'silver' | 'gold' | 'platinum
 export interface DashboardMemberData {
   member: {
     id: string
-    first_name: string
-    last_name: string
+    firstName: string
+    lastName: string
     nickname: string | null
     image: string | null
   }
@@ -684,8 +684,8 @@ export async function getMemberDashboardData(
   return {
     member: {
       id: member.id,
-      first_name: member.user.firstName,
-      last_name: member.user.lastName,
+      firstName: member.user.firstName,
+      lastName: member.user.lastName,
       nickname: member.user.nickname,
       image: member.user.image,
     },
@@ -770,8 +770,8 @@ export async function getClubMembersDashboardData(clubId: string): Promise<Dashb
     results.push({
       member: {
         id: member.id,
-        first_name: member.user.firstName,
-        last_name: member.user.lastName,
+        firstName: member.user.firstName,
+        lastName: member.user.lastName,
         nickname: member.user.nickname,
         image: member.user.image,
       },
