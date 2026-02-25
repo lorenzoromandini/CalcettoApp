@@ -74,9 +74,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null
           }
 
-          if (!user.emailVerified) {
-            throw new Error("EMAIL_NOT_VERIFIED")
-          }
+          // Note: emailVerified field removed from schema - email verification not implemented
+          // if (!user.emailVerified) {
+          //   throw new Error("EMAIL_NOT_VERIFIED")
+          // }
 
           const isValid = await bcrypt.compare(credentials.password as string, user.password)
 

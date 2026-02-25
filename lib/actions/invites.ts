@@ -16,12 +16,12 @@ export async function generateInviteLink(
 
   const token = crypto.randomUUID().replace(/-/g, '')
   
+  // Note: maxUses field not in current schema - invites don't have usage limits
   const invite = await prisma.clubInvite.create({
     data: {
       clubId,
       createdBy: session.user.id,
       token,
-      maxUses: options?.maxUses ?? 50,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   })
