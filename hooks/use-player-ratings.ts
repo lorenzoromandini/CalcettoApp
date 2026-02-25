@@ -137,12 +137,12 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     // Optimistic update - update local state immediately
     setLocalRatings(prev => {
       const next = new Map(prev)
-      next.set(playerId, { rating, comment, isPending: true })
+      next.set(clubMemberId, { rating, comment, isPending: true })
       return next
     })
 
     // Also update counts optimistically
-    const hadRating = ratings.some(r => r.clubMemberId === playerId)
+    const hadRating = ratings.some(r => r.clubMemberId === clubMemberId)
     if (!hadRating) {
       setCounts(prev => ({ ...prev, rated: prev.rated + 1 }))
     }
@@ -150,14 +150,14 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     try {
       const result = await upsertPlayerRating({
         matchId,
-        playerId,
+        clubMemberId,
         rating,
         comment,
       })
 
       // Update ratings list
       setRatings(prev => {
-        const existing = prev.findIndex(r => r.clubMemberId === playerId)
+        const existing = prev.findIndex(r => r.clubMemberId === clubMemberId)
         if (existing >= 0) {
           // Update existing rating
           const updated = [...prev]
@@ -177,7 +177,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
       // Clear pending state
       setLocalRatings(prev => {
         const next = new Map(prev)
-        next.set(playerId, { rating, comment, isPending: false })
+        next.set(clubMemberId, { rating, comment, isPending: false })
         return next
       })
 
@@ -203,16 +203,16 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     const previousCounts = counts
 
     // Optimistic update
-    setRatings(prev => prev.filter(r => r.clubMemberId !== playerId))
+    setRatings(prev => prev.filter(r => r.clubMemberId !== clubMemberId))
     setCounts(prev => ({ ...prev, rated: Math.max(0, prev.rated - 1) }))
     setLocalRatings(prev => {
       const next = new Map(prev)
-      next.delete(playerId)
+      next.delete(clubMemberId)
       return next
     })
 
     try {
-      await deletePlayerRating(matchId, playerId)
+      await deletePlayerRating(matchId, clubMemberId)
       toast.success(MESSAGES.delete.success, { duration: 2000 })
     } catch (err) {
       // Rollback on error
@@ -237,7 +237,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
       await bulkUpsertRatings(
         ratingsToSave.map(r => ({
           matchId,
-          clubMemberId: r.playerId,
+          clubMemberId: r.clubMemberId,
           rating: r.rating,
           comment: r.comment,
         }))
@@ -274,8 +274,8 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     setRating,
     removeRating,
     saveAllRatings,
-    getRating: (clubMemberId: string) => ratingsMap.get(playerId),
-    getLocalRating: (clubMemberId: string) => localRatings.get(playerId),
+    getRating: (clubMemberId: string) => ratingsMap.get(clubMemberId),
+    getLocalRating: (clubMemberId: string) => localRatings.get(clubMemberId),
     refresh: fetchRatings,
   }
 }
