@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ClubPrivilege } from '@prisma/client';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
 
@@ -13,7 +14,7 @@ export async function PATCH(
   }
 
   const { clubId, memberId } = await params;
-  const { privilege } = await request.json();
+  const { privileges } = await request.json();
 
   try {
     // Verifica che l'utente sia Owner
@@ -21,7 +22,7 @@ export async function PATCH(
       where: { clubId, userId },
     });
 
-    if (!ownerMembership || ownerMembership.privileges !== 'owner') {
+    if (!ownerMembership || ownerMembership.privileges !== ClubPrivilege.OWNER) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -38,14 +39,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Member not in this club' }, { status: 403 });
     }
 
-    if (targetMember.privileges === 'owner') {
+    if (targetMember.privileges === ClubPrivilege.OWNER) {
       return NextResponse.json({ error: 'Cannot modify owner privilege' }, { status: 403 });
     }
 
     // Aggiorna il privilegio
     const updatedMember = await prisma.clubMember.update({
       where: { id: memberId },
-      data: { privilege },
+      data: { privileges },
     });
 
     return NextResponse.json({ success: true, member: updatedMember });
