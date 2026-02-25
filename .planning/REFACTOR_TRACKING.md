@@ -23,8 +23,8 @@
 - [x] `app/api/clubs/[clubId]/invite/route.ts` - Line 23 ✅ FIXED
 - [x] `app/api/clubs/[clubId]/members/[memberId]/route.ts` - Lines 23, 45 ✅ FIXED
 - [x] `app/api/clubs/[clubId]/members/[memberId]/role/route.ts` - Lines 24, 41, 49 ✅ FIXED (also fixed `privilege` → `privileges`)
-- [ ] `app/api/clubs/[clubId]/cleanup-test-members/route.ts` - Line 24
-- [ ] `app/[locale]/clubs/[clubId]/roster/page.tsx` - Lines 301, 310, 317
+- [x] `app/api/clubs/[clubId]/cleanup-test-members/route.ts` - Line 24 ✅ ALREADY CORRECT
+- [x] `app/[locale]/clubs/[clubId]/roster/page.tsx` - Lines 301, 310, 317 ✅ FIXED (also updated handlePrivilegeChange function type)
 
 **Fix:** Replace `'owner'` with `ClubPrivilege.OWNER`, etc.
 **Started:** 2026-02-25

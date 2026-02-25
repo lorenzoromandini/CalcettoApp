@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { ClubPrivilege } from '@prisma/client';
 import { useSession } from '@/components/providers/session-provider';
 import { ArrowLeft, Users, Settings, UserCog, Trash2, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -106,14 +107,14 @@ export default function ClubRosterPage() {
     loadData();
   }, [loadData]);
 
-  const handlePrivilegeChange = async (memberId: string, newPrivilege: 'owner' | 'manager' | 'member') => {
+  const handlePrivilegeChange = async (memberId: string, newPrivilege: ClubPrivilege) => {
     if (!isOwner) return;
 
     try {
       const res = await authFetch(`/api/clubs/${clubId}/members/${memberId}/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ privilege: newPrivilege }),
+        body: JSON.stringify({ privileges: newPrivilege }),
       });
 
       if (!res.ok) {
@@ -298,7 +299,7 @@ export default function ClubRosterPage() {
                   </div>
                   
                   {/* Management actions - Solo Owner può gestire privilegi ed espellere */}
-                  {isOwner && member.userId !== currentUserId && member.privileges !== 'owner' && (
+                  {isOwner && member.userId !== currentUserId && member.privileges !== ClubPrivilege.OWNER && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -307,15 +308,15 @@ export default function ClubRosterPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         {/* Solo per membri normali: opzione per nominare Manager */}
-                        {member.privileges === 'member' && (
-                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, 'manager')}>
+                        {member.privileges === ClubPrivilege.MEMBER && (
+                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, ClubPrivilege.MANAGER)}>
                             <UserCog className="mr-2 h-4 w-4" />
                             {t('makeManager')}
                           </DropdownMenuItem>
                         )}
                         {/* Solo per Manager: opzione per rimuovere */}
-                        {member.privileges === 'manager' && (
-                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, 'member')}>
+                        {member.privileges === ClubPrivilege.MANAGER && (
+                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, ClubPrivilege.MEMBER)}>
                             <UserCog className="mr-2 h-4 w-4" />
                             {t('removeManager')}
                           </DropdownMenuItem>
