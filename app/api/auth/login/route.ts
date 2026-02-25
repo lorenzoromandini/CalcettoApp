@@ -27,12 +27,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!user.emailVerified) {
-      return Response.json(
-        { error: "EMAIL_NOT_VERIFIED", message: "Devi verificare la tua email prima di accedere." },
-        { status: 401 }
-      );
-    }
+    // Note: emailVerified field removed from schema - email verification not implemented
+    // if (!user.emailVerified) {
+    //   return Response.json(
+    //     { error: "EMAIL_NOT_VERIFIED", message: "Devi verificare la tua email prima di accedere." },
+    //     { status: 401 }
+    //   );
+    // }
 
     const isValid = await bcrypt.compare(password, user.password);
 
