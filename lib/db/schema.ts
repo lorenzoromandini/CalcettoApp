@@ -5,7 +5,7 @@
  * Updated for new schema - removed eliminated model types.
  */
 
-export type { Club, ClubMember, User, Match, Formation, FormationPosition, Goal, PlayerRating } from '@/types/database';
+export type { Club, ClubMember, User, Match, Formation, FormationPosition, Goal, PlayerRating, MatchMode } from '@/types/database';
 
 // Backward compatibility - Club is the new Team
 export type { Club as Team } from '@/types/database';
