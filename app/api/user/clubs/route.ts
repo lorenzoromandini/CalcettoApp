@@ -27,34 +27,14 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const player = await prisma.player.findUnique({
-      where: { userId: userId },
+    const clubs = memberships.map((membership) => {
+      return {
+        id: membership.club.id,
+        name: membership.club.name,
+        jerseyNumber: membership.jerseyNumber,
+        memberId: membership.id,
+      };
     });
-
-    const clubs = await Promise.all(
-      memberships.map(async (membership) => {
-        let jerseyNumber = null;
-        let playerId = null;
-
-        if (player) {
-          const playerClub = await prisma.playerClub.findFirst({
-            where: {
-              playerId: player.id,
-              clubId: membership.clubId,
-            },
-          });
-          jerseyNumber = playerClub?.jerseyNumber ?? null;
-          playerId = player?.id ?? null;
-        }
-
-        return {
-          id: membership.club.id,
-          name: membership.club.name,
-          jerseyNumber,
-          playerId,
-        };
-      })
-    );
 
     return NextResponse.json({ clubs });
   } catch (error) {

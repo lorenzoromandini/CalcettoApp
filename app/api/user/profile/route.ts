@@ -51,81 +51,35 @@ export async function PATCH(request: NextRequest) {
       updateData.image = imageUrl;
     }
 
+    // Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updateData,
-      include: { playerProfile: true },
     });
 
-    if (updatedUser.playerProfile) {
-      const avatarUrl = (imageFile || removeImage) ? imageUrl : updatedUser.playerProfile.avatarUrl;
-      await prisma.player.update({
-        where: { id: updatedUser.playerProfile.id },
-        data: { 
-          name: firstName,
-          surname: lastName,
-          nickname: nickname || null,
-          avatarUrl: avatarUrl,
-        },
-      });
-    }
-
+    // Update jersey numbers in ClubMember table (new schema)
     if (jerseyChangesStr) {
       try {
         const jerseyChanges = JSON.parse(jerseyChangesStr) as Array<{
           clubId: string;
           jerseyNumber: number | null;
-          playerId: string | null;
         }>;
 
-        // Find or create player for this user
-        let player = await prisma.player.findUnique({
-          where: { userId: userId },
-        });
-
-        // If no player exists, create one
-        if (!player) {
-          player = await prisma.player.create({
-            data: {
+        for (const change of jerseyChanges) {
+          // Find the club membership for this user
+          const membership = await prisma.clubMember.findFirst({
+            where: {
               userId: userId,
-              name: firstName,
-              surname: lastName,
-              nickname: nickname || null,
+              clubId: change.clubId,
             },
           });
-        }
 
-        for (const change of jerseyChanges) {
-          if (!change.playerId) {
-            change.playerId = player.id;
-          }
-          
-          if (change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
-            const existing = await prisma.playerClub.findUnique({
-              where: {
-                playerId_clubId: {
-                  playerId: change.playerId,
-                  clubId: change.clubId,
-                },
-              },
+          if (membership && change.jerseyNumber !== null && change.jerseyNumber >= 1 && change.jerseyNumber <= 99) {
+            // Update the jersey number in ClubMember
+            await prisma.clubMember.update({
+              where: { id: membership.id },
+              data: { jerseyNumber: change.jerseyNumber },
             });
-
-            if (existing) {
-              await prisma.playerClub.update({
-                where: { id: existing.id },
-                data: { jerseyNumber: change.jerseyNumber },
-              });
-            } else {
-              await prisma.playerClub.create({
-                data: {
-                  playerId: change.playerId,
-                  clubId: change.clubId,
-                  jerseyNumber: change.jerseyNumber,
-                  primaryRole: 'member',
-                  secondaryRoles: [],
-                },
-              });
-            }
           }
         }
       } catch (e) {
