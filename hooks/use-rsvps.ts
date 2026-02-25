@@ -299,7 +299,7 @@ export function useMyRSVP(
 
     try {
       const data = await getMyRSVP(matchId, clubMemberId);
-      setStatus(data);
+      setStatus(data?.rsvpStatus ?? null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch RSVP status'));
     } finally {
