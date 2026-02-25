@@ -128,7 +128,7 @@ export function useRSVPCounts(matchId: string): UseRSVPCountsReturn {
 // ============================================================================
 
 interface UseUpdateRSVPReturn {
-  updateRSVP: (playerId: string, status: RSVPStatus) => Promise<void>;
+  updateRSVP: (clubMemberId: string, status: RSVPStatus) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
@@ -142,13 +142,13 @@ export function useUpdateRSVP(
   const [error, setError] = useState<Error | null>(null);
 
   const updateRSVP = useCallback(
-    async (playerId: string, status: RSVPStatus): Promise<void> => {
+    async (clubMemberId: string, status: RSVPStatus): Promise<void> => {
       setIsPending(true);
       setError(null);
 
       try {
         // Update in database (handles offline queueing internally)
-        await updateRSVPDB(matchId, playerId, status);
+        await updateRSVPDB(matchId, clubMemberId, status);
         
         toast.success(t('rsvp.updateSuccess'), {
           duration: 2000,
@@ -183,7 +183,7 @@ export function useUpdateRSVP(
 // ============================================================================
 
 interface UseUpdateRSVPWithOptimisticReturn {
-  updateRSVP: (playerId: string, status: RSVPStatus) => Promise<void>;
+  updateRSVP: (clubMemberId: string, status: RSVPStatus) => Promise<void>;
   isPending: boolean;
   error: Error | null;
   optimisticRSVPs: MatchRSVP[];
@@ -207,24 +207,24 @@ export function useUpdateRSVPWithOptimistic(
   }, [currentRSVPs, isPending]);
 
   const updateRSVP = useCallback(
-    async (playerId: string, status: RSVPStatus): Promise<void> => {
+    async (clubMemberId: string, status: RSVPStatus): Promise<void> => {
       // Store previous state for rollback
       const previousRSVPs = optimisticRSVPs;
 
       // Optimistic update: Update UI immediately
       setOptimisticRSVPs((prev) => {
-        const existing = prev.find((r) => r.clubMemberId === playerId);
+        const existing = prev.find((r) => r.clubMemberId === clubMemberId);
         
         if (existing) {
           // Update existing RSVP
           return prev.map((r) =>
-            r.clubMemberId === playerId
+            r.clubMemberId === clubMemberId
               ? { ...r, rsvpStatus: status, rsvpAt: new Date().toISOString() }
               : r
           );
         } else {
           // This shouldn't happen in normal flow, but handle gracefully
-          console.warn('[useRSVPs] RSVP not found for player:', playerId);
+          console.warn('[useRSVPs] RSVP not found for player:', clubMemberId);
           return prev;
         }
       });
@@ -234,7 +234,7 @@ export function useUpdateRSVPWithOptimistic(
 
       try {
         // Update in database
-        await updateRSVPDB(matchId, playerId, status);
+        await updateRSVPDB(matchId, clubMemberId, status);
         
         toast.success(t('rsvp.updateSuccess'), {
           duration: 2000,
@@ -281,14 +281,14 @@ interface UseMyRSVPReturn {
 
 export function useMyRSVP(
   matchId: string,
-  playerId: string | null
+  clubMemberId: string | null
 ): UseMyRSVPReturn {
   const [status, setStatus] = useState<RSVPStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(!!playerId);
+  const [isLoading, setIsLoading] = useState(!!clubMemberId);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchStatus = useCallback(async () => {
-    if (!playerId) {
+    if (!clubMemberId) {
       setStatus(null);
       setIsLoading(false);
       return;
@@ -298,14 +298,14 @@ export function useMyRSVP(
     setError(null);
 
     try {
-      const data = await getMyRSVP(matchId, playerId);
+      const data = await getMyRSVP(matchId, clubMemberId);
       setStatus(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch RSVP status'));
     } finally {
       setIsLoading(false);
     }
-  }, [matchId, playerId]);
+  }, [matchId, clubMemberId]);
 
   useEffect(() => {
     fetchStatus();
@@ -334,11 +334,11 @@ interface UseRSVPDataReturn {
 
 export function useRSVPData(
   matchId: string,
-  playerId: string | null
+  clubMemberId: string | null
 ): UseRSVPDataReturn {
   const { rsvps, isLoading: rsvpsLoading, error: rsvpsError, refetch } = useRSVPs(matchId);
   const { counts, isLoading: countsLoading, error: countsError } = useRSVPCounts(matchId);
-  const { status: myRSVP, isLoading: myRSVPLoading, error: myRSVPError } = useMyRSVP(matchId, playerId);
+  const { status: myRSVP, isLoading: myRSVPLoading, error: myRSVPError } = useMyRSVP(matchId, clubMemberId);
 
   const isLoading = rsvpsLoading || countsLoading || myRSVPLoading;
   const error = rsvpsError || countsError || myRSVPError;
