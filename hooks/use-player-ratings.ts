@@ -70,11 +70,11 @@ interface UsePlayerRatingsReturn {
     rated: number
     played: number
   }
-  setRating: (playerId: string, rating: RatingValue, comment?: string) => Promise<void>
-  removeRating: (playerId: string) => Promise<void>
-  saveAllRatings: (ratings: Array<{ playerId: string; rating: RatingValue; comment?: string }>) => Promise<void>
-  getRating: (playerId: string) => PlayerRatingWithPlayer | undefined
-  getLocalRating: (playerId: string) => LocalRating | undefined
+  setRating: (clubMemberId: string, rating: RatingValue, comment?: string) => Promise<void>
+  removeRating: (clubMemberId: string) => Promise<void>
+  saveAllRatings: (ratings: Array<{ clubMemberId: string; rating: RatingValue; comment?: string }>) => Promise<void>
+  getRating: (clubMemberId: string) => PlayerRatingWithPlayer | undefined
+  getLocalRating: (clubMemberId: string) => LocalRating | undefined
   refresh: () => Promise<void>
 }
 
@@ -125,7 +125,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
    * Set a player's rating with optimistic update
    */
   const setRating = useCallback(async (
-    playerId: string,
+    clubMemberId: string,
     rating: RatingValue,
     comment?: string
   ) => {
@@ -164,10 +164,10 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
           updated[existing] = {
             ...updated[existing],
             rating: result.rating,
-            rating_decimal: result.rating_decimal,
+            ratingDecimal: result.ratingDecimal,
             comment: result.comment,
           }
-          return updated.sort((a, b) => b.rating_decimal - a.rating_decimal)
+          return updated.sort((a, b) => b.ratingDecimal - a.ratingDecimal)
         } else {
           // Add new rating (would need player info from server)
           return prev
@@ -197,7 +197,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
   /**
    * Remove a player's rating
    */
-  const removeRating = useCallback(async (playerId: string) => {
+  const removeRating = useCallback(async (clubMemberId: string) => {
     // Store previous state for rollback
     const previousRatings = ratings
     const previousCounts = counts
@@ -229,7 +229,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
    * Save all ratings at once
    */
   const saveAllRatings = useCallback(async (
-    ratingsToSave: Array<{ playerId: string; rating: RatingValue; comment?: string }>
+    ratingsToSave: Array<{ clubMemberId: string; rating: RatingValue; comment?: string }>
   ) => {
     setIsLoading(true)
 
@@ -237,7 +237,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
       await bulkUpsertRatings(
         ratingsToSave.map(r => ({
           matchId,
-          playerId: r.playerId,
+          clubMemberId: r.playerId,
           rating: r.rating,
           comment: r.comment,
         }))
@@ -274,8 +274,8 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     setRating,
     removeRating,
     saveAllRatings,
-    getRating: (playerId: string) => ratingsMap.get(playerId),
-    getLocalRating: (playerId: string) => localRatings.get(playerId),
+    getRating: (clubMemberId: string) => ratingsMap.get(playerId),
+    getLocalRating: (clubMemberId: string) => localRatings.get(playerId),
     refresh: fetchRatings,
   }
 }
