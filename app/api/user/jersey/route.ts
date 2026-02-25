@@ -31,7 +31,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!membership) {
       return NextResponse.json(
-        { error: 'Non fai parte di questa squadra' },
+        { error: 'Non fai parte di questo club' },
         { status: 403 }
       );
     }
@@ -49,7 +49,7 @@ export async function PATCH(request: NextRequest) {
 
     if (existingMember) {
       return NextResponse.json(
-        { error: 'Questo numero è già stato preso da un altro giocatore in questa squadra' },
+        { error: 'Questo numero è già stato preso da un altro giocatore in questo club' },
         { status: 400 }
       );
     }

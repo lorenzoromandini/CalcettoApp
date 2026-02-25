@@ -10,7 +10,7 @@ import { z } from "zod";
 export const createClubSchema = z.object({
   name: z
     .string()
-    .min(1, "Il nome della squadra è obbligatorio")
+    .min(1, "Il nome del club è obbligatorio")
     .min(2, "Il nome deve essere di almeno 2 caratteri")
     .max(100, "Il nome non può superare i 100 caratteri"),
   description: z

@@ -43,7 +43,7 @@ export default function ProfilePageClient() {
         authFetch("/api/user").then(res => res.json()),
         authFetch("/api/user/clubs").then(res => res.json())
       ])
-        .then(([userData, teamsData]) => {
+        .then(([userData, clubsData]) => {
           if (!userData.error && userData.id) {
             const user = {
               id: userData.id,
@@ -63,8 +63,8 @@ export default function ProfilePageClient() {
               image: userData.image,
             }));
           }
-          if (Array.isArray(teamsData?.clubs)) {
-            setClubs(teamsData.clubs);
+          if (Array.isArray(clubsData?.clubs)) {
+            setClubs(clubsData.clubs);
           }
         })
         .catch(console.error)

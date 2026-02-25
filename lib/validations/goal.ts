@@ -13,7 +13,7 @@ export const addGoalSchema = z.object({
     .min(1, 'ID partita obbligatorio'),
   clubId: z
     .string()
-    .min(1, 'ID squadra obbligatorio'),
+    .min(1, 'ID club obbligatorio'),
   scorerId: z
     .string()
     .min(1, 'Seleziona il marcatore'),

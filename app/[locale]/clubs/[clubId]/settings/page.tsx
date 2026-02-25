@@ -24,7 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-export default function TeamSettingsPage() {
+export default function ClubSettingsPage() {
   const t = useTranslations('settings');
   const tClubs = useTranslations('clubs');
   const params = useParams();
