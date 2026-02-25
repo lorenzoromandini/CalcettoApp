@@ -53,11 +53,11 @@ export function MatchesPageClient({ locale }: MatchesPageClientProps) {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Calendar className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Non hai nessuna squadra disponibile</h3>
-              <p className="text-muted-foreground mb-4">Creane una per accedere alla sezione</p>
+              <h3 className="text-lg font-semibold mb-2">Non hai nessun club disponibile</h3>
+              <p className="text-muted-foreground mb-4">Creane uno per accedere alla sezione</p>
               <Button onClick={handleCreateClub}>
                 <Plus className="mr-2 h-4 w-4" />
-                Crea squadra
+                Crea club
               </Button>
             </CardContent>
           </Card>

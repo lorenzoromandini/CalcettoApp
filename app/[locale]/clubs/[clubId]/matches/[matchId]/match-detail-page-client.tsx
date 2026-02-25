@@ -598,7 +598,7 @@ export function MatchDetailPageClient({
                 />
                 {!currentPlayerId && (
                   <p className="text-sm text-muted-foreground mt-3 text-center">
-                    Unisciti alla squadra come giocatore per rispondere
+                    Unisciti al club come giocatore per rispondere
                   </p>
                 )}
               </CardContent>

@@ -327,7 +327,7 @@ export function ProfileForm({ user, clubs: initialClubs }: ProfileFormProps) {
               <CardTitle className="text-base">Numeri Maglia</CardTitle>
             </div>
             <CardDescription>
-              Gestisci i tuoi numeri di maglia per ogni squadra
+              Gestisci i tuoi numeri di maglia per ogni club
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

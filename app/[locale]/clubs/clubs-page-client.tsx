@@ -137,7 +137,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Users className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Non hai nessuna squadra disponibile</h3>
+              <h3 className="text-lg font-semibold mb-2">Non hai nessun club disponibile</h3>
               <p className="text-muted-foreground mb-4">Creane una per accedere alla sezione</p>
               {true && (
                 <Link href="/clubs/create">
