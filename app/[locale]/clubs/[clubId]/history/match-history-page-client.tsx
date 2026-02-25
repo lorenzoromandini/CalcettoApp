@@ -113,8 +113,8 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
     if (resultFilter === 'all') return matches
 
     return matches.filter(match => {
-      const homeScore = match.home_score ?? 0
-      const awayScore = match.away_score ?? 0
+      const homeScore = match.homeScore ?? 0
+      const awayScore = match.awayScore ?? 0
 
       if (resultFilter === 'win') return homeScore > awayScore
       if (resultFilter === 'loss') return homeScore < awayScore
@@ -125,10 +125,10 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
 
   // Calculate stats
   const stats = useMemo(() => {
-    const wins = matches.filter(m => (m.home_score ?? 0) > (m.away_score ?? 0)).length
-    const losses = matches.filter(m => (m.home_score ?? 0) < (m.away_score ?? 0)).length
-    const draws = matches.filter(m => (m.home_score ?? 0) === (m.away_score ?? 0)).length
-    const totalGoals = matches.reduce((sum, m) => sum + (m.home_score ?? 0), 0)
+    const wins = matches.filter(m => (m.homeScore ?? 0) > (m.awayScore ?? 0)).length
+    const losses = matches.filter(m => (m.homeScore ?? 0) < (m.awayScore ?? 0)).length
+    const draws = matches.filter(m => (m.homeScore ?? 0) === (m.awayScore ?? 0)).length
+    const totalGoals = matches.reduce((sum, m) => sum + (m.homeScore ?? 0), 0)
 
     return { wins, losses, draws, totalGoals, total: matches.length }
   }, [matches])

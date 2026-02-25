@@ -37,35 +37,35 @@ function toClubType(dbClub: any): Club {
     id: dbClub.id,
     name: dbClub.name,
     description: dbClub.description ?? null,
-    image_url: dbClub.imageUrl ?? null,
-    created_by: dbClub.createdBy,
-    created_at: dbClub.createdAt.toISOString(),
-    updated_at: dbClub.updatedAt.toISOString(),
-    deleted_at: dbClub.deletedAt?.toISOString() ?? null,
+    imageUrl: dbClub.imageUrl ?? null,
+    createdBy: dbClub.createdBy,
+    createdAt: dbClub.createdAt.toISOString(),
+    updatedAt: dbClub.updatedAt.toISOString(),
+    deletedAt: dbClub.deletedAt?.toISOString() ?? null,
   };
 }
 
 function toClubMemberType(dbMember: any): ClubMember & { user: User | null } {
   return {
     id: dbMember.id,
-    club_id: dbMember.clubId,
-    user_id: dbMember.userId,
+    clubId: dbMember.clubId,
+    userId: dbMember.userId,
     privileges: dbMember.privileges as ClubMember['privileges'],
-    joined_at: dbMember.joinedAt.toISOString(),
-    primary_role: dbMember.primaryRole as PlayerRole,
-    secondary_roles: (dbMember.secondaryRoles as PlayerRole[]) || [],
-    jersey_number: dbMember.jerseyNumber,
+    joinedAt: dbMember.joinedAt.toISOString(),
+    primaryRole: dbMember.primaryRole as PlayerRole,
+    secondaryRoles: (dbMember.secondaryRoles as PlayerRole[]) || [],
+    jerseyNumber: dbMember.jerseyNumber,
     user: dbMember.user ? {
       id: dbMember.user.id,
       email: dbMember.user.email,
-      first_name: dbMember.user.firstName,
-      last_name: dbMember.user.lastName,
+      firstName: dbMember.user.firstName,
+      lastName: dbMember.user.lastName,
       nickname: dbMember.user.nickname ?? null,
       image: dbMember.user.image ?? null,
       password: dbMember.user.password ?? null,
-      created_at: dbMember.user.createdAt.toISOString(),
-      updated_at: dbMember.user.updatedAt.toISOString(),
-      last_login: dbMember.user.lastLogin?.toISOString() ?? null,
+      createdAt: dbMember.user.createdAt.toISOString(),
+      updatedAt: dbMember.user.updatedAt.toISOString(),
+      lastLogin: dbMember.user.lastLogin?.toISOString() ?? null,
     } : null,
   };
 }
@@ -82,7 +82,7 @@ export async function createClub(
     data: {
       name: data.name,
       description: data.description,
-      imageUrl: data.image_url,
+      imageUrl: data.imageUrl,
       createdBy: userId,
     },
   });
@@ -168,7 +168,7 @@ export async function updateClub(
     data: {
       ...(data.name !== undefined && data.name !== null && { name: data.name }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(data.image_url !== undefined && { imageUrl: data.image_url }),
+      ...(data.imageUrl !== undefined && { imageUrl: data.imageUrl }),
     },
   });
 }

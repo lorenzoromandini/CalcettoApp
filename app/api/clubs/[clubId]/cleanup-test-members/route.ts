@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
+import { ClubPrivilege } from '@prisma/client';
 
 export async function POST(
   request: NextRequest,
@@ -20,7 +21,7 @@ export async function POST(
       where: { clubId, userId },
     });
 
-    if (!membership || membership.privilege !== 'owner') {
+    if (!membership || membership.privileges !== ClubPrivilege.OWNER) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 

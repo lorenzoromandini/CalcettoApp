@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import type { FormationMode } from '@/lib/formations';
+import { ClubPrivilege } from '@prisma/client';
 
 interface FormationPageProps {
   params: Promise<{
@@ -45,7 +46,7 @@ export default async function FormationPage({ params }: FormationPageProps) {
       userId,
     },
     select: {
-      privilege: true,
+      privileges: true,
     },
   });
 
@@ -53,40 +54,55 @@ export default async function FormationPage({ params }: FormationPageProps) {
     redirect(`/clubs/${clubId}`);
   }
 
-  const isOwner = membership.privilege === 'owner' || membership.privilege === 'manager';
+  const isOwner = membership.privileges === ClubPrivilege.OWNER || 
+                  membership.privileges === ClubPrivilege.MANAGER;
 
-  // Get players in team with their details
-  const playerClubs = await prisma.playerClub.findMany({
+  // Get club members who can play
+  const members = await prisma.clubMember.findMany({
     where: { clubId },
     include: {
-      player: true,
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          image: true,
+        },
+      },
     },
     orderBy: {
-      player: {
-        name: 'asc',
+      user: {
+        firstName: 'asc',
       },
     },
   });
 
-  // Get RSVPs for this match
-  const rsvps = await prisma.matchPlayer.findMany({
-    where: { matchId },
+  // Get formation positions for this match (who played)
+  const formationPositions = await prisma.formationPosition.findMany({
+    where: {
+      formation: {
+        matchId,
+      },
+      played: true,
+    },
     select: {
-      playerId: true,
-      rsvpStatus: true,
+      clubMemberId: true,
     },
   });
 
-  // Combine players with RSVPs
-  const players = playerClubs.map((pt) => {
-    const rsvp = rsvps.find((r) => r.playerId === pt.playerId);
-    return {
-      id: pt.player.id,
-      name: pt.player.name,
-      avatar: pt.player.avatarUrl || undefined,
-      rsvp: (rsvp?.rsvpStatus as 'in' | 'out' | 'maybe') || 'out',
-    };
-  });
+  const playedMemberIds = new Set(formationPositions.map((fp) => fp.clubMemberId));
+
+  // Combine members with played status
+  const membersWithStatus = members.map((member) => ({
+    id: member.id,
+    firstName: member.user?.firstName || 'Unknown',
+    lastName: member.user?.lastName || '',
+    nickname: member.user?.nickname || null,
+    image: member.user?.image || null,
+    primaryRole: member.primaryRole,
+    secondaryRoles: member.secondaryRoles,
+    jerseyNumber: member.jerseyNumber,
+  }));
 
   // Match mode is already in correct format
   const formationMode: FormationMode = match.mode as FormationMode;
@@ -108,7 +124,8 @@ export default async function FormationPage({ params }: FormationPageProps) {
         matchId={matchId}
         clubId={clubId}
         mode={formationMode}
-        players={players}
+        members={membersWithStatus}
+        isHome={true}
         isAdmin={isOwner}
       />
     </div>

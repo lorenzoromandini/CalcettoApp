@@ -44,7 +44,7 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
         }
 
         allMatches.sort((a, b) => 
-          new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
+          new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
         );
         
         setUpcomingMatches(allMatches.slice(0, 5));
@@ -74,11 +74,11 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
   };
 
   const getModeLabel = (mode: Match['mode']) => {
-    return mode === '5vs5' ? '5 vs 5' : '8 vs 8';
+    return mode === 'FIVE_V_FIVE' ? '5 vs 5' : '8 vs 8';
   };
 
   const getNeededPlayers = (mode: Match['mode']) => {
-    return mode === '5vs5' ? 10 : 16;
+    return mode === 'FIVE_V_FIVE' ? 10 : 16;
   };
 
   if (isLoading) {
@@ -141,22 +141,22 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
           return (
             <Link
               key={match.id}
-              href={`/clubs/${match.club_id}/matches/${match.id}`}
+              href={`/clubs/${match.clubId}/matches/${match.id}`}
             >
               <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
                 {/* Date Box */}
                 <div className="flex flex-col items-center justify-center shrink-0 w-14 h-14 rounded-lg bg-primary/10 text-primary">
                   <span className="text-xs font-medium uppercase">
-                    {new Date(match.scheduled_at).toLocaleDateString('it-IT', { month: 'short' })}
+                    {new Date(match.scheduledAt).toLocaleDateString('it-IT', { month: 'short' })}
                   </span>
                   <span className="text-lg font-bold">
-                    {new Date(match.scheduled_at).getDate()}
+                    {new Date(match.scheduledAt).getDate()}
                   </span>
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground">
-                    {formatDate(match.scheduled_at)}
+                    {formatDate(match.scheduledAt)}
                   </p>
                   <p className="font-medium truncate">{match.teamName}</p>
                   {match.location && (

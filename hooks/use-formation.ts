@@ -10,11 +10,11 @@ interface UseFormationReturn {
   isSaving: boolean;
   error: Error | null;
   updateFormation: (data: FormationData) => Promise<void>;
-  updatePosition: (index: number, playerId: string | undefined) => Promise<void>;
+  updatePosition: (index: number, clubMemberId: string | undefined) => Promise<void>;
   reload: () => Promise<void>;
 }
 
-export function useFormation(matchId: string, mode: FormationMode): UseFormationReturn {
+export function useFormation(matchId: string, mode: FormationMode, isHome: boolean = true): UseFormationReturn {
   const [formation, setFormation] = useState<FormationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -23,13 +23,13 @@ export function useFormation(matchId: string, mode: FormationMode): UseFormation
   // Load formation on mount
   useEffect(() => {
     loadFormation();
-  }, [matchId]);
+  }, [matchId, isHome]);
 
   const loadFormation = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getFormation(matchId);
+      const data = await getFormation(matchId, isHome);
       setFormation(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load formation'));
@@ -42,7 +42,7 @@ export function useFormation(matchId: string, mode: FormationMode): UseFormation
     setIsSaving(true);
     setError(null);
     try {
-      await saveFormation(matchId, data);
+      await saveFormation(matchId, { ...data, isHome });
       setFormation(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to save formation'));
@@ -50,21 +50,21 @@ export function useFormation(matchId: string, mode: FormationMode): UseFormation
     } finally {
       setIsSaving(false);
     }
-  }, [matchId]);
+  }, [matchId, isHome]);
 
-  const updatePosition = useCallback(async (index: number, playerId: string | undefined) => {
+  const updatePosition = useCallback(async (index: number, clubMemberId: string | undefined) => {
     if (!formation) return;
     
     const newPositions = [...formation.positions];
-    // Remove player from any other position first (prevent duplicates)
-    if (playerId) {
-      const existingIndex = newPositions.findIndex(p => p.playerId === playerId);
+    // Remove clubMember from any other position first (prevent duplicates)
+    if (clubMemberId) {
+      const existingIndex = newPositions.findIndex(p => p.clubMemberId === clubMemberId);
       if (existingIndex !== -1 && existingIndex !== index) {
-        newPositions[existingIndex] = { ...newPositions[existingIndex], playerId: undefined };
+        newPositions[existingIndex] = { ...newPositions[existingIndex], clubMemberId: undefined };
       }
     }
     // Assign to new position
-    newPositions[index] = { ...newPositions[index], playerId };
+    newPositions[index] = { ...newPositions[index], clubMemberId };
     
     const newData = { ...formation, positions: newPositions };
     await updateFormation(newData);

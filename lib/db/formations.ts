@@ -152,3 +152,57 @@ export async function getMatchFormations(matchId: string): Promise<{
 
   return { home, away };
 }
+
+/**
+ * Get all members who participated in a match (played=true)
+ * Used for rating - only players who played can be rated
+ * 
+ * @param matchId - Match ID
+ * @returns Array of club members with user info who played
+ */
+export async function getMatchParticipants(matchId: string): Promise<Array<{
+  id: string;
+  club_member_id: string;
+  first_name: string;
+  last_name: string;
+  nickname: string | null;
+  image: string | null;
+  jersey_number: number;
+  primary_role: string;
+  played: boolean;
+}> | null> {
+  const positions = await prisma.formationPosition.findMany({
+    where: {
+      played: true,
+      formation: {
+        matchId,
+      },
+    },
+    include: {
+      clubMember: {
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              nickname: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return positions.map((pos) => ({
+    id: pos.id,
+    club_member_id: pos.clubMemberId,
+    first_name: pos.clubMember.user?.firstName || 'Unknown',
+    last_name: pos.clubMember.user?.lastName || '',
+    nickname: pos.clubMember.user?.nickname || null,
+    image: pos.clubMember.user?.image || null,
+    jersey_number: pos.clubMember.jerseyNumber,
+    primary_role: pos.clubMember.primaryRole,
+    played: pos.played,
+  }));
+}

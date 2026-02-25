@@ -70,9 +70,9 @@ export function MyClubsSwitcher({ currentClubId, locale }: MyClubsSwitcherProps)
           variant="ghost"
           className="h-12 px-3 justify-start gap-2 w-full max-w-[280px]"
         >
-          {currentClub?.image_url ? (
+          {currentClub?.imageUrl ? (
             <img
-              src={currentClub.image_url}
+              src={currentClub.imageUrl}
               alt={currentClub.name}
               className="w-8 h-8 rounded-full object-cover"
             />
@@ -104,9 +104,9 @@ export function MyClubsSwitcher({ currentClubId, locale }: MyClubsSwitcherProps)
             onClick={() => handleClubSelect(club.id)}
             className="flex items-center gap-2 cursor-pointer"
           >
-            {club.image_url ? (
+            {club.imageUrl ? (
               <img
-                src={club.image_url}
+                src={club.imageUrl}
                 alt={club.name}
                 className="w-8 h-8 rounded-full object-cover"
               />

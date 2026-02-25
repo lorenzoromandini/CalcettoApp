@@ -31,7 +31,7 @@ import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import type { Match } from '@/lib/db/schema'
-import type { GoalWithPlayers } from '@/lib/db/goals'
+import type { GoalWithMembers, GoalWithPlayers } from '@/lib/db/goals'
 import type { PlayerRatingWithPlayer } from '@/lib/db/player-ratings'
 import { calculateAverageRating, formatAverageRating } from '@/lib/rating-utils'
 
@@ -86,8 +86,8 @@ function formatDateFull(dateString: string, locale: string): string {
 }
 
 function getResult(match: Match): 'win' | 'loss' | 'draw' {
-  const homeScore = match.home_score ?? 0
-  const awayScore = match.away_score ?? 0
+  const homeScore = match.homeScore ?? 0
+  const awayScore = match.awayScore ?? 0
 
   if (homeScore > awayScore) return 'win'
   if (homeScore < awayScore) return 'loss'
@@ -127,8 +127,8 @@ export function CompletedMatchDetail({
   const { match, goals, ratings, formation, players } = data
   
   const result = getResult(match)
-  const homeScore = match.home_score ?? 0
-  const awayScore = match.away_score ?? 0
+  const homeScore = match.homeScore ?? 0
+  const awayScore = match.awayScore ?? 0
 
   // Calculate average rating
   const decimals = ratings.map(r => r.rating_decimal)
@@ -162,7 +162,7 @@ export function CompletedMatchDetail({
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
                 <span className="text-sm">
-                  {formatDateFull(match.scheduled_at, locale)}
+                  {formatDateFull(match.scheduledAt, locale)}
                 </span>
               </div>
               
@@ -433,9 +433,9 @@ export function CompletedMatchDetail({
 
                     {/* Avatar */}
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={rating.player_avatar} />
+                      <AvatarImage src={rating.clubMember.user.image} />
                       <AvatarFallback>
-                        {getPlayerInitials(rating.player_name, rating.player_surname)}
+                        {getPlayerInitials(rating.clubMember.user.firstName, rating.clubMember.user.lastName)}
                       </AvatarFallback>
                     </Avatar>
 
@@ -444,14 +444,14 @@ export function CompletedMatchDetail({
                       <div className="flex items-center gap-2">
                         <p className="font-medium truncate">
                           {getPlayerDisplayName(
-                            rating.player_name,
-                            rating.player_surname,
-                            rating.player_nickname
+                            rating.clubMember.user.firstName,
+                            rating.clubMember.user.lastName,
+                            rating.clubMember.user.nickname
                           )}
                         </p>
-                        {rating.jersey_number > 0 && (
+                        {rating.jerseyNumber > 0 && (
                           <Badge variant="outline" className="text-xs font-mono shrink-0">
-                            #{rating.jersey_number}
+                            #{rating.jerseyNumber}
                           </Badge>
                         )}
                       </div>
@@ -492,18 +492,18 @@ export function CompletedMatchDetail({
               {playersWithComments.map((rating) => (
                 <div key={rating.id} className="flex items-start gap-3">
                   <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src={rating.player_avatar} />
+                    <AvatarImage src={rating.clubMember.user.image} />
                     <AvatarFallback>
-                      {getPlayerInitials(rating.player_name, rating.player_surname)}
+                      {getPlayerInitials(rating.clubMember.user.firstName, rating.clubMember.user.lastName)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-sm">
                         {getPlayerDisplayName(
-                          rating.player_name,
-                          rating.player_surname,
-                          rating.player_nickname
+                          rating.clubMember.user.firstName,
+                          rating.clubMember.user.lastName,
+                          rating.clubMember.user.nickname
                         )}
                       </span>
                       <Badge variant="outline" className="text-xs">

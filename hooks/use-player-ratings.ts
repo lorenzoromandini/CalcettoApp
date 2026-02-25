@@ -142,7 +142,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     })
 
     // Also update counts optimistically
-    const hadRating = ratings.some(r => r.player_id === playerId)
+    const hadRating = ratings.some(r => r.clubMemberId === playerId)
     if (!hadRating) {
       setCounts(prev => ({ ...prev, rated: prev.rated + 1 }))
     }
@@ -157,7 +157,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
 
       // Update ratings list
       setRatings(prev => {
-        const existing = prev.findIndex(r => r.player_id === playerId)
+        const existing = prev.findIndex(r => r.clubMemberId === playerId)
         if (existing >= 0) {
           // Update existing rating
           const updated = [...prev]
@@ -203,7 +203,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
     const previousCounts = counts
 
     // Optimistic update
-    setRatings(prev => prev.filter(r => r.player_id !== playerId))
+    setRatings(prev => prev.filter(r => r.clubMemberId !== playerId))
     setCounts(prev => ({ ...prev, rated: Math.max(0, prev.rated - 1) }))
     setLocalRatings(prev => {
       const next = new Map(prev)
@@ -262,7 +262,7 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
   }, [fetchRatings])
 
   // Create a map for quick lookup
-  const ratingsMap = new Map(ratings.map(r => [r.player_id, r]))
+  const ratingsMap = new Map(ratings.map(r => [r.clubMemberId, r]))
 
   return {
     ratings,

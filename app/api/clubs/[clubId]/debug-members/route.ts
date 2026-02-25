@@ -53,7 +53,7 @@ export async function GET(
       members: members.map(m => ({
         id: m.id,
         userId: m.userId,
-        privilege: m.privilege,
+        privilege: m.privileges,
         email: m.user?.email,
         name: m.user?.firstName && m.user?.lastName 
           ? `${m.user.firstName} ${m.user.lastName}`

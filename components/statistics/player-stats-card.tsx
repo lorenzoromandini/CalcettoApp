@@ -4,10 +4,10 @@ import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Target, Crosshair, Users, Trophy, X, Minus, Star, Shield } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { PlayerStats } from '@/lib/db/statistics'
+import type { MemberStats } from '@/lib/db/statistics'
 
 interface PlayerStatsCardProps {
-  stats: PlayerStats
+  stats: MemberStats
   showTitle?: boolean
   className?: string
 }
@@ -23,14 +23,14 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
 
   // Generate initials for placeholder
   const getInitials = () => {
-    const first = stats.player_name?.charAt(0) || ''
-    const last = stats.player_surname?.charAt(0) || ''
-    return (first + last).toUpperCase() || stats.player_name?.charAt(0).toUpperCase() || '?'
+    const first = stats.firstName?.charAt(0) || ''
+    const last = stats.lastName?.charAt(0) || ''
+    return (first + last).toUpperCase() || stats.firstName?.charAt(0).toUpperCase() || '?'
   }
 
-  const displayName = stats.player_nickname 
-    ? `"${stats.player_nickname}"` 
-    : `${stats.player_name}${stats.player_surname ? ` ${stats.player_surname}` : ''}`
+  const displayName = stats.nickname 
+    ? `"${stats.nickname}"` 
+    : `${stats.firstName}${stats.lastName ? ` ${stats.lastName}` : ''}`
 
   // Check if player is a goalkeeper with goals conceded data
   const isGoalkeeper = stats.goals_conceded !== null
@@ -42,11 +42,11 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
           <CardTitle className="text-lg flex items-center gap-3">
             {/* Player Avatar */}
             <div className="flex-shrink-0">
-              {stats.player_avatar ? (
+              {stats.image ? (
                 <div className="relative h-12 w-12 rounded-full overflow-hidden">
                   <Image
-                    src={stats.player_avatar}
-                    alt={stats.player_name}
+                    src={stats.image}
+                    alt={stats.firstName}
                     fill
                     className="object-cover"
                   />
@@ -124,7 +124,7 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
           </div>
         )}
 
-        {/* Goalkeeper Section - Only shown for GKs with goals_conceded data */}
+        {/* Goalkeeper Section - Only shown for GKs with goals conceded data */}
         {isGoalkeeper && (
           <div className="mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-center gap-3">

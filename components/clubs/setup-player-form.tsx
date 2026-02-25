@@ -11,7 +11,7 @@ import { AvatarCropper } from '@/components/players/avatar-cropper';
 import { resizeImage } from '@/lib/image-utils';
 import { Loader2, AlertCircle, Upload, User } from 'lucide-react';
 import { authFetch } from '@/lib/auth-fetch';
-import type { PlayerRole } from '@/lib/db/schema';
+import { PlayerRole } from '@prisma/client';
 
 interface AvailableJerseyNumbers {
   min: number;

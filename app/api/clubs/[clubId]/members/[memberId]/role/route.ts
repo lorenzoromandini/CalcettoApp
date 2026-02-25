@@ -21,7 +21,7 @@ export async function PATCH(
       where: { clubId, userId },
     });
 
-    if (!ownerMembership || ownerMembership.privilege !== 'owner') {
+    if (!ownerMembership || ownerMembership.privileges !== 'owner') {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -38,7 +38,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Member not in this club' }, { status: 403 });
     }
 
-    if (targetMember.privilege === 'owner') {
+    if (targetMember.privileges === 'owner') {
       return NextResponse.json({ error: 'Cannot modify owner privilege' }, { status: 403 });
     }
 

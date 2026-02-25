@@ -1,6 +1,6 @@
 import { getMatch } from '@/lib/db/matches'
 import { getMatchGoals } from '@/lib/db/goals'
-import { getClubPlayers } from '@/lib/db/players'
+import { getClubMembers } from '@/lib/db/clubs'
 import { getUserIdFromHeaders } from '@/lib/auth-headers'
 import { isClubAdmin } from '@/lib/db/clubs'
 import { notFound, redirect } from 'next/navigation'
@@ -48,10 +48,10 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
     redirect(`/${locale}/clubs/${clubId}/matches/${matchId}`)
   }
 
-  // Fetch goals and players
-  const [goals, players] = await Promise.all([
+  // Fetch goals and members
+  const [goals, members] = await Promise.all([
     getMatchGoals(matchId),
-    getClubPlayers(clubId),
+    getClubMembers(clubId),
   ])
 
   // Determine if editing is allowed
@@ -64,7 +64,7 @@ export default async function MatchResultsPage({ params }: MatchResultsPageProps
       matchId={matchId}
       match={match}
       goals={goals}
-      players={players}
+      members={members}
       isAdmin={isOwner}
       canEdit={canEdit}
     />

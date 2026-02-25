@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const privileges = memberships.map((m) => ({
       clubId: m.clubId,
-      privilege: m.privilege as 'owner' | 'manager' | 'member',
+      privilege: m.privileges as 'owner' | 'manager' | 'member',
     }));
 
     return NextResponse.json({ privileges });

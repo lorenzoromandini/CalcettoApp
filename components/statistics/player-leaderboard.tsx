@@ -108,7 +108,7 @@ export function PlayerLeaderboard({
 
           return (
             <div
-              key={entry.player_id}
+              key={entry.playerId}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
             >
               {/* Position Badge */}
@@ -124,11 +124,11 @@ export function PlayerLeaderboard({
 
               {/* Player Avatar */}
               <div className="flex-shrink-0">
-                {entry.player_avatar ? (
+                {entry.clubMember.user.image ? (
                   <div className="relative h-9 w-9 rounded-full overflow-hidden">
                     <Image
-                      src={entry.player_avatar}
-                      alt={entry.player_name}
+                      src={entry.clubMember.user.image}
+                      alt={entry.clubMember.user.firstName}
                       fill
                       className="object-cover"
                     />
@@ -143,11 +143,11 @@ export function PlayerLeaderboard({
               {/* Player Name */}
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-sm truncate">
-                  {entry.player_nickname || entry.player_name}
+                  {entry.clubMember.user.nickname || entry.clubMember.user.firstName}
                 </div>
-                {entry.player_nickname && (
+                {entry.clubMember.user.nickname && (
                   <div className="text-xs text-muted-foreground truncate">
-                    {entry.player_name}
+                    {entry.clubMember.user.firstName}
                   </div>
                 )}
               </div>

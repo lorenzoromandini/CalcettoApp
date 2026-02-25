@@ -49,7 +49,7 @@ export function MatchForm({
   const form = useForm<CreateMatchInput>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
-      scheduled_at: initialData?.scheduled_at || "",
+      scheduled_at: initialData?.scheduledAt || "",
       location: initialData?.location || "",
       mode: initialData?.mode || "5vs5",
       notes: initialData?.notes || "",

@@ -229,9 +229,9 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
               placeholder="10"
               className="h-12"
             />
-            {form.formState.errors.jersey_number && (
+            {form.formState.errors.jerseyNumber && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.jersey_number.message}
+                {form.formState.errors.jerseyNumber.message}
               </p>
             )}
           </div>

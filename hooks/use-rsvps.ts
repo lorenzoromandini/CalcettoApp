@@ -213,12 +213,12 @@ export function useUpdateRSVPWithOptimistic(
 
       // Optimistic update: Update UI immediately
       setOptimisticRSVPs((prev) => {
-        const existing = prev.find((r) => r.player_id === playerId);
+        const existing = prev.find((r) => r.clubMemberId === playerId);
         
         if (existing) {
           // Update existing RSVP
           return prev.map((r) =>
-            r.player_id === playerId
+            r.clubMemberId === playerId
               ? { ...r, rsvp_status: status, rsvp_at: new Date().toISOString() }
               : r
           );
@@ -345,9 +345,9 @@ export function useRSVPData(
 
   // Derive counts from RSVPs for consistency
   const derivedCounts: RSVPCounts = {
-    in: rsvps.filter((r) => r.rsvp_status === 'in').length,
-    out: rsvps.filter((r) => r.rsvp_status === 'out').length,
-    maybe: rsvps.filter((r) => r.rsvp_status === 'maybe').length,
+    in: rsvps.filter((r) => r.rsvpStatus === 'in').length,
+    out: rsvps.filter((r) => r.rsvpStatus === 'out').length,
+    maybe: rsvps.filter((r) => r.rsvpStatus === 'maybe').length,
     total: rsvps.length,
   };
 

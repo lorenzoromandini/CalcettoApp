@@ -71,7 +71,7 @@ export default function TeamSettingsPage() {
     if (club) {
       setName(club.name || '');
       setDescription(club.description || '');
-      setImageUrl(club.image_url || undefined);
+      setImageUrl(club.imageUrl || undefined);
     }
   }, [club]);
 

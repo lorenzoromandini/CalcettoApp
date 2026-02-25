@@ -84,9 +84,9 @@ export function ClubDashboard({
         <div className="flex items-start gap-4">
           {/* Team Image */}
           <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0">
-            {club.image_url ? (
+            {club.imageUrl ? (
               <img
-                src={club.image_url}
+                src={club.imageUrl}
                 alt={club.name}
                 className="w-full h-full object-cover"
               />

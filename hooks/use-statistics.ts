@@ -9,16 +9,16 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  getPlayerStats,
+  getMemberStats as getPlayerStats,
   getTopScorers,
   getTopAssisters,
   getTopAppearances,
   getTopWins,
   getTopLosses,
-  getTopRatedPlayers,
+  getTopRatedMembers as getTopRatedPlayers,
   getTopGoalsConceded,
-  type PlayerStats,
-  type PlayerLeaderboardEntry,
+  type MemberStats as PlayerStats,
+  type MemberLeaderboardEntry as PlayerLeaderboardEntry,
 } from '@/lib/db/statistics'
 
 // ============================================================================

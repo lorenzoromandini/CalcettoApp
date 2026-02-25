@@ -1,24 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from '@/components/providers/session-provider';
 import { authFetch } from '@/lib/auth-fetch';
-import type { Player, PlayerClub } from '@/lib/db/schema';
-import type { CreatePlayerInput, UpdatePlayerInput } from '@/lib/validations/player';
+import type { ClubMember, User, PlayerRole } from '@/types/database';
 
-interface UsePlayersReturn {
-  players: (Player & { jersey_number?: number })[];
+// Re-export PlayerRole for backward compatibility
+export type { PlayerRole };
+
+export interface MemberWithUser extends ClubMember {
+  user: User | null;
+}
+
+interface UseMembersReturn {
+  members: MemberWithUser[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 }
 
-export function usePlayers(clubId: string | null): UsePlayersReturn {
-  const [players, setPlayers] = useState<(Player & { jersey_number?: number })[]>([]);
+export function useMembers(clubId: string | null): UseMembersReturn {
+  const [members, setMembers] = useState<MemberWithUser[]>([]);
   const [isLoading, setIsLoading] = useState(!!clubId);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchPlayers = useCallback(async () => {
+  const fetchMembers = useCallback(async () => {
     if (!clubId) {
-      setPlayers([]);
+      setMembers([]);
       setIsLoading(false);
       return;
     }
@@ -27,103 +32,60 @@ export function usePlayers(clubId: string | null): UsePlayersReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}/players`);
-      if (!response.ok) throw new Error('Failed to fetch players');
+      const response = await authFetch(`/api/clubs/${clubId}/members`);
+      if (!response.ok) throw new Error('Failed to fetch members');
       const data = await response.json();
-      setPlayers(data);
+      setMembers(data);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch players'));
+      setError(err instanceof Error ? err : new Error('Failed to fetch members'));
     } finally {
       setIsLoading(false);
     }
   }, [clubId]);
 
   useEffect(() => {
-    fetchPlayers();
-  }, [fetchPlayers]);
+    fetchMembers();
+  }, [fetchMembers]);
 
   return {
-    players,
+    members,
     isLoading,
     error,
-    refetch: fetchPlayers,
+    refetch: fetchMembers,
   };
 }
 
-interface UseCreatePlayerReturn {
-  createPlayer: (data: CreatePlayerInput) => Promise<string>;
+// Backward compatibility - useMembers is the new usePlayers
+export const usePlayers = useMembers;
+
+interface UseUpdateMemberReturn {
+  updateMember: (memberId: string, data: Partial<ClubMember>) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useCreatePlayer(clubId: string | null): UseCreatePlayerReturn {
+export function useUpdateMember(clubId?: string): UseUpdateMemberReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const createPlayerMutation = useCallback(async (
-    data: CreatePlayerInput
-  ): Promise<string> => {
-    if (!clubId) {
-      throw new Error('Club ID is required');
-    }
-
-    setIsPending(true);
-    setError(null);
-
-    try {
-      const response = await authFetch(`/api/clubs/${clubId}/players`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to create player');
-      }
-      const result = await response.json();
-      return result.id;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to create player');
-      setError(error);
-      throw error;
-    } finally {
-      setIsPending(false);
-    }
-  }, [clubId]);
-
-  return {
-    createPlayer: createPlayerMutation,
-    isPending,
-    error,
-  };
-}
-
-interface UseUpdatePlayerReturn {
-  updatePlayer: (playerId: string, data: UpdatePlayerInput) => Promise<void>;
-  isPending: boolean;
-  error: Error | null;
-}
-
-export function useUpdatePlayer(clubId?: string): UseUpdatePlayerReturn {
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const updatePlayerMutation = useCallback(async (
-    playerId: string, 
-    data: UpdatePlayerInput
+  const updateMemberMutation = useCallback(async (
+    memberId: string, 
+    data: Partial<ClubMember>
   ): Promise<void> => {
+    if (!clubId) throw new Error('Club ID is required');
+    
     setIsPending(true);
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}`, {
+      const response = await authFetch(`/api/clubs/${clubId}/members/${memberId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to update player');
+      if (!response.ok) throw new Error('Failed to update member');
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to update player');
+      const error = err instanceof Error ? err : new Error('Failed to update member');
       setError(error);
       throw error;
     } finally {
@@ -132,33 +94,38 @@ export function useUpdatePlayer(clubId?: string): UseUpdatePlayerReturn {
   }, [clubId]);
 
   return {
-    updatePlayer: updatePlayerMutation,
+    updateMember: updateMemberMutation,
     isPending,
     error,
   };
 }
 
-interface UseDeletePlayerReturn {
-  deletePlayer: (playerId: string) => Promise<void>;
+// Backward compatibility
+export const useUpdatePlayer = useUpdateMember;
+
+interface UseRemoveMemberReturn {
+  removeMember: (memberId: string) => Promise<void>;
   isPending: boolean;
   error: Error | null;
 }
 
-export function useDeletePlayer(clubId: string): UseDeletePlayerReturn {
+export function useRemoveMember(clubId: string | null): UseRemoveMemberReturn {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const deletePlayerMutation = useCallback(async (playerId: string): Promise<void> => {
+  const removeMemberMutation = useCallback(async (memberId: string): Promise<void> => {
+    if (!clubId) throw new Error('Club ID is required');
+    
     setIsPending(true);
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}`, {
+      const response = await authFetch(`/api/clubs/${clubId}/members/${memberId}`, {
         method: 'DELETE',
       });
-      if (!response.ok) throw new Error('Failed to delete player');
+      if (!response.ok) throw new Error('Failed to remove member');
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to delete player');
+      const error = err instanceof Error ? err : new Error('Failed to remove member');
       setError(error);
       throw error;
     } finally {
@@ -167,91 +134,12 @@ export function useDeletePlayer(clubId: string): UseDeletePlayerReturn {
   }, [clubId]);
 
   return {
-    deletePlayer: deletePlayerMutation,
+    removeMember: removeMemberMutation,
     isPending,
     error,
   };
 }
 
-interface UseAddPlayerToTeamReturn {
-  addPlayerToTeam: (playerId: string, jerseyNumber: number) => Promise<void>;
-  isPending: boolean;
-  error: Error | null;
-}
-
-export function useAddPlayerToTeam(clubId: string | null): UseAddPlayerToTeamReturn {
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const addPlayerMutation = useCallback(async (
-    playerId: string, 
-    jerseyNumber: number
-  ): Promise<void> => {
-    if (!clubId) {
-      throw new Error('Club ID is required');
-    }
-
-    setIsPending(true);
-    setError(null);
-
-    try {
-      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jerseyNumber }),
-      });
-      if (!response.ok) throw new Error('Failed to add player to club');
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to add player to club');
-      setError(error);
-      throw error;
-    } finally {
-      setIsPending(false);
-    }
-  }, [clubId]);
-
-  return {
-    addPlayerToTeam: addPlayerMutation,
-    isPending,
-    error,
-  };
-}
-
-interface UseRemovePlayerFromTeamReturn {
-  removePlayerFromTeam: (playerId: string) => Promise<void>;
-  isPending: boolean;
-  error: Error | null;
-}
-
-export function useRemovePlayerFromTeam(clubId: string | null): UseRemovePlayerFromTeamReturn {
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const removePlayerMutation = useCallback(async (playerId: string): Promise<void> => {
-    if (!clubId) {
-      throw new Error('Club ID is required');
-    }
-
-    setIsPending(true);
-    setError(null);
-
-    try {
-      const response = await authFetch(`/api/clubs/${clubId}/players/${playerId}/remove`, {
-        method: 'POST',
-      });
-      if (!response.ok) throw new Error('Failed to remove player from club');
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to remove player from club');
-      setError(error);
-      throw error;
-    } finally {
-      setIsPending(false);
-    }
-  }, [clubId]);
-
-  return {
-    removePlayerFromTeam: removePlayerMutation,
-    isPending,
-    error,
-  };
-}
+// Backward compatibility
+export const useDeletePlayer = useRemoveMember;
+export const useRemovePlayerFromTeam = useRemoveMember;

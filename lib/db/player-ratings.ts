@@ -50,6 +50,9 @@ export interface PlayerRatingWithMember extends PlayerRating {
   jersey_number: number
 }
 
+// Backward compatibility alias
+export type PlayerRatingWithPlayer = PlayerRatingWithMember
+
 /**
  * Data for creating/updating a rating
  */

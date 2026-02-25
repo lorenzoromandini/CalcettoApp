@@ -26,9 +26,9 @@ export function ClubCard({ club, onClick, memberCount, userPrivilege, isDefault 
         <div className="flex items-stretch">
           {/* Team Image or Initials */}
           <div className="relative w-24 h-24 shrink-0 bg-muted">
-            {club.image_url ? (
+            {club.imageUrl ? (
               <img
-                src={club.image_url}
+                src={club.imageUrl}
                 alt={club.name}
                 className="w-full h-full object-cover"
               />

@@ -20,7 +20,7 @@ export async function POST(
     where: { clubId, userId },
   });
 
-  if (!membership || (membership.privilege !== 'owner' && membership.privilege !== 'manager')) {
+  if (!membership || (membership.privileges !== 'owner' && membership.privileges !== 'manager')) {
     return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
   }
 

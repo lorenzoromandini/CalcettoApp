@@ -99,8 +99,8 @@ export default function ClubPageClient() {
       <div className="container mx-auto px-4 py-6">
         <div className="mb-8">
           <div className="flex items-center gap-4">
-            {club.image_url ? (
-              <img src={club.image_url} alt={club.name} className="w-16 h-16 rounded-full object-cover" />
+            {club.imageUrl ? (
+              <img src={club.imageUrl} alt={club.name} className="w-16 h-16 rounded-full object-cover" />
             ) : (
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-2xl font-bold text-primary">{club.name.charAt(0)}</span>

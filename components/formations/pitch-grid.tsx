@@ -3,40 +3,41 @@
 import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import { FormationMode, Position, positionToStyle, getRoleColor } from '@/lib/formations';
+import type { ClubMember } from '@/types/database';
 
-interface PitchPlayer {
+interface PitchMember {
   id: string;
   name: string;
   avatar?: string;
 }
 
-interface PositionWithPlayer {
+interface PositionWithMember {
   x: number;
   y: number;
   label: string;
-  playerId?: string;
+  clubMemberId?: string;
 }
 
 interface PitchGridProps {
   mode: FormationMode;
-  positions: PositionWithPlayer[];
-  players: PitchPlayer[];
-  selectedPlayerId: string | null;
-  onDrop: (positionIndex: number, playerId: string) => void;
+  positions: PositionWithMember[];
+  members: PitchMember[];
+  selectedMemberId: string | null;
+  onDrop: (positionIndex: number, memberId: string) => void;
   onTapPosition: (positionIndex: number) => void;
 }
 
 function PositionMarker({
   position,
   index,
-  player,
+  member,
   isSelected,
   isHighlighted,
   onTap,
 }: {
-  position: PositionWithPlayer;
+  position: PositionWithMember;
   index: number;
-  player?: PitchPlayer;
+  member?: PitchMember;
   isSelected: boolean;
   isHighlighted: boolean;
   onTap: () => void;
@@ -70,27 +71,27 @@ function PositionMarker({
           'flex items-center justify-center',
           'border-2 border-white shadow-lg',
           'transition-colors duration-200',
-          player
+          member
             ? 'bg-primary text-primary-foreground'
             : 'bg-background/80 text-muted-foreground border-dashed',
           isOver && 'bg-primary/20 border-primary',
           isSelected && 'ring-2 ring-primary'
         )}
       >
-        {player ? (
+        {member ? (
           <span className="text-xs font-bold text-center px-1 truncate max-w-full">
-            {player.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+            {member.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
           </span>
         ) : (
           <span className="text-xs font-medium">{position.label}</span>
         )}
       </div>
 
-      {/* Player Name Tooltip */}
-      {player && (
+      {/* Member Name Tooltip */}
+      {member && (
         <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
           <span className="text-xs font-medium text-foreground bg-background/90 px-2 py-0.5 rounded shadow-sm">
-            {player.name.split(' ')[0]}
+            {member.name.split(' ')[0]}
           </span>
         </div>
       )}
@@ -101,8 +102,8 @@ function PositionMarker({
 export function PitchGrid({
   mode,
   positions,
-  players,
-  selectedPlayerId,
+  members,
+  selectedMemberId,
   onDrop,
   onTapPosition,
 }: PitchGridProps) {
@@ -110,10 +111,10 @@ export function PitchGrid({
     onTapPosition(index);
   };
 
-  // Get player by ID
-  const getPlayer = (playerId?: string) => {
-    if (!playerId) return undefined;
-    return players.find(p => p.id === playerId);
+  // Get member by ID
+  const getMember = (memberId?: string) => {
+    if (!memberId) return undefined;
+    return members.find((m) => m.id === memberId);
   };
 
   return (
@@ -146,16 +147,16 @@ export function PitchGrid({
           key={index}
           position={position}
           index={index}
-          player={getPlayer(position.playerId)}
+          member={getMember(position.clubMemberId)}
           isSelected={false}
-          isHighlighted={!!selectedPlayerId && !position.playerId}
+          isHighlighted={!!selectedMemberId && !position.clubMemberId}
           onTap={() => handleTap(index)}
         />
       ))}
 
       {/* Mode Indicator */}
       <div className="absolute top-3 right-3 bg-black/30 text-white text-xs px-2 py-1 rounded-full">
-        {mode === '5vs5' ? '5 vs 5' : '8 vs 8'}
+        {mode === 'FIVE_V_FIVE' ? '5 vs 5' : mode === 'EIGHT_V_EIGHT' ? '8 vs 8' : '11 vs 11'}
       </div>
     </div>
   );

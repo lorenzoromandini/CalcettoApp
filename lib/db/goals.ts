@@ -68,6 +68,9 @@ export interface GoalWithMembers extends Goal {
   } | null
 }
 
+// Backward compatibility alias
+export type GoalWithPlayers = GoalWithMembers
+
 // ============================================================================
 // Helper: Convert Prisma Goal to app type
 // ============================================================================

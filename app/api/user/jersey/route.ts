@@ -20,10 +20,12 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const membership = await prisma.clubMember.findFirst({
+    const membership = await prisma.clubMember.findUnique({
       where: {
-        userId,
-        clubId,
+        clubId_userId: {
+          clubId,
+          userId,
+        },
       },
     });
 
@@ -34,62 +36,29 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const existingPlayerClub = await prisma.playerClub.findFirst({
+    // Check if jersey number is already taken by another member
+    const existingMember = await prisma.clubMember.findFirst({
       where: {
         clubId,
         jerseyNumber,
+        id: {
+          not: membership.id,
+        },
       },
     });
 
-    let player = await prisma.player.findUnique({
-      where: { userId },
-    });
-
-    if (existingPlayerClub && existingPlayerClub.playerId !== player?.id) {
+    if (existingMember) {
       return NextResponse.json(
         { error: 'Questo numero è già stato preso da un altro giocatore in questa squadra' },
         { status: 400 }
       );
     }
 
-    if (!player) {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      player = await prisma.player.create({
-        data: {
-          name: user?.firstName || 'Player',
-          surname: user?.lastName,
-          nickname: user?.nickname,
-          userId,
-          roles: [],
-        },
-      });
-    }
-
-    const existingEntry = await prisma.playerClub.findFirst({
-      where: {
-        playerId: player.id,
-        clubId,
-      },
+    // Update the member's jersey number
+    await prisma.clubMember.update({
+      where: { id: membership.id },
+      data: { jerseyNumber },
     });
-
-    if (existingEntry) {
-      await prisma.playerClub.update({
-        where: { id: existingEntry.id },
-        data: { jerseyNumber },
-      });
-    } else {
-      await prisma.playerClub.create({
-        data: {
-          playerId: player.id,
-          clubId,
-          jerseyNumber,
-          primaryRole: 'player',
-        },
-      });
-    }
 
     return NextResponse.json({ success: true, jerseyNumber });
   } catch (error) {

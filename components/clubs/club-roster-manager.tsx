@@ -13,7 +13,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Shield, User, UserCog, Trash2, AlertTriangle, Settings } from 'lucide-react';
-import type { ClubMember } from '@/lib/db/schema';
+import { ClubPrivilege } from '@prisma/client';
+import type { ClubMember, User as UserType } from '@/types/database';
 
 interface ClubRosterManagerProps {
   clubId: string;
@@ -34,7 +35,7 @@ export function ClubRosterManager({
   const [memberToRemove, setMemberToRemove] = useState<ClubMember | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
 
-  const handlePrivilegeChange = async (memberId: string, newPrivilege: 'owner' | 'manager' | 'member') => {
+  const handlePrivilegeChange = async (memberId: string, newPrivilege: ClubPrivilege) => {
     if (!isAdmin) return;
 
     try {
@@ -66,7 +67,7 @@ export function ClubRosterManager({
     switch (privilege) {
       case 'owner':
         return <Shield className="h-4 w-4 text-primary" />;
-      case 'manager':
+      case ClubPrivilege.MANAGER:
         return <UserCog className="h-4 w-4 text-muted-foreground" />;
       default:
         return <User className="h-4 w-4 text-muted-foreground" />;
@@ -77,7 +78,7 @@ export function ClubRosterManager({
     switch (privilege) {
       case 'owner':
         return t('privileges.owner');
-      case 'manager':
+      case ClubPrivilege.MANAGER:
         return t('privileges.manager');
       default:
         return t('privileges.member');
@@ -97,18 +98,18 @@ export function ClubRosterManager({
               className="flex items-center justify-between p-3 border rounded-lg"
             >
               <div className="flex items-center gap-3">
-                {getPrivilegeIcon(member.privilege)}
+                {getPrivilegeIcon(member.privileges)}
                 <div>
                   <p className="font-medium">
-                    {member.user_id === currentUserId ? t('you') : member.user_id?.slice(0, 8)}
+                    {member.userId === currentUserId ? t('you') : member.userId?.slice(0, 8)}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {getPrivilegeLabel(member.privilege)}
+                    {getPrivilegeLabel(member.privileges)}
                   </p>
                 </div>
               </div>
 
-              {isAdmin && member.user_id !== currentUserId ? (
+              {isAdmin && member.userId !== currentUserId ? (
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -117,9 +118,9 @@ export function ClubRosterManager({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, member.privilege === 'manager' ? 'member' : 'manager')}>
+                      <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, member.privileges === ClubPrivilege.MANAGER ? ClubPrivilege.MEMBER : ClubPrivilege.MANAGER)}>
                         <UserCog className="mr-2 h-4 w-4" />
-                        {member.privilege === 'manager' ? t('removeManager') : t('makeManager')}
+                        {member.privileges === ClubPrivilege.MANAGER ? t('removeManager') : t('makeManager')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
@@ -134,7 +135,7 @@ export function ClubRosterManager({
                 </div>
               ) : (
                 <span className="text-sm text-muted-foreground">
-                  {getPrivilegeLabel(member.privilege)}
+                  {getPrivilegeLabel(member.privileges)}
                 </span>
               )}
             </div>
