@@ -3,10 +3,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import type { FrameBorderColor, DashboardPlayerData } from '@/lib/db/player-ratings'
+import type { FrameBorderColor, DashboardMemberData } from '@/lib/db/player-ratings'
 
 interface DashboardPlayerCardProps {
-  data: DashboardPlayerData
+  data: DashboardMemberData
   locale: string
   className?: string
 }
@@ -51,12 +51,12 @@ function getInitials(name: string, surname: string | null): string {
 }
 
 export function DashboardPlayerCard({ data, locale, className }: DashboardPlayerCardProps) {
-  const { player, clubId, teamName, jerseyNumber, frameColor } = data
+  const { member, clubId, teamName, jerseyNumber, frameColor } = data
   const colors = FRAME_COLORS[frameColor]
 
   const profileUrl = clubId
-    ? `/${locale}/clubs/${clubId}/players/${player.id}`
-    : `/${locale}/players/${player.id}`
+    ? `/${locale}/clubs/${clubId}/players/${member.id}`
+    : `/${locale}/players/${member.id}`
 
   return (
     <Link href={profileUrl}>
@@ -72,17 +72,17 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
             'group-hover:scale-105'
           )}
         >
-          {player.avatar_url ? (
+          {member.image ? (
             <Image
-              src={player.avatar_url}
-              alt={player.name}
+              src={member.image}
+              alt={member.first_name}
               fill
               className="object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
               <span className="text-2xl font-bold text-muted-foreground">
-                {getInitials(player.name, player.surname)}
+                {getInitials(member.first_name, member.last_name)}
               </span>
             </div>
           )}
@@ -96,7 +96,7 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
 
         <div className="mt-2 text-center">
           <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[100px]">
-            {player.nickname || player.name}
+            {member.nickname || member.first_name}
           </p>
           {teamName && (
             <p className="text-xs text-muted-foreground truncate max-w-[100px]">
