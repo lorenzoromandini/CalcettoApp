@@ -12,6 +12,7 @@
 
 import { prisma } from './index';
 import type { FormationMode } from '@/lib/formations';
+import type { MatchPlayerWithPlayer } from './player-participation';
 
 export interface FormationPosition {
   x: number;
@@ -160,17 +161,7 @@ export async function getMatchFormations(matchId: string): Promise<{
  * @param matchId - Match ID
  * @returns Array of club members with user info who played
  */
-export async function getMatchParticipants(matchId: string): Promise<Array<{
-  id: string;
-  club_member_id: string;
-  first_name: string;
-  last_name: string;
-  nickname: string | null;
-  image: string | null;
-  jersey_number: number;
-  primary_role: string;
-  played: boolean;
-}> | null> {
+export async function getMatchParticipants(matchId: string): Promise<MatchPlayerWithPlayer[]> {
   const positions = await prisma.formationPosition.findMany({
     where: {
       played: true,
@@ -196,13 +187,10 @@ export async function getMatchParticipants(matchId: string): Promise<Array<{
 
   return positions.map((pos) => ({
     id: pos.id,
-    club_member_id: pos.clubMemberId,
-    first_name: pos.clubMember.user?.firstName || 'Unknown',
-    last_name: pos.clubMember.user?.lastName || '',
-    nickname: pos.clubMember.user?.nickname || null,
-    image: pos.clubMember.user?.image || null,
-    jersey_number: pos.clubMember.jerseyNumber,
-    primary_role: pos.clubMember.primaryRole,
+    clubMemberId: pos.clubMemberId,
+    user: pos.clubMember.user || null,
+    jerseyNumber: pos.clubMember.jerseyNumber,
+    primaryRole: pos.clubMember.primaryRole,
     played: pos.played,
   }));
 }
