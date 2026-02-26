@@ -238,10 +238,10 @@ export function MatchRatingsClient({
                 key={player.clubMemberId}
                 player={{
                   id: player.clubMemberId,
-                  name: player.clubMember.user.firstName,
-                  surname: player.clubMember.user.lastName,
-                  nickname: player.clubMember.user.nickname,
-                  avatarUrl: player.clubMember.user.image,
+                  name: player.user?.firstName || "Unknown",
+                  surname: player.user?.lastName,
+                  nickname: player.user?.nickname,
+                  avatarUrl: player.user?.image,
                   jerseyNumber: player.jerseyNumber,
                 }}
                 currentRating={currentRating ? {
