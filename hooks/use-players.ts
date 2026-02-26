@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authFetch } from '@/lib/auth-fetch';
+import { updateMemberAction, removeMemberAction } from '@/lib/actions/members';
 import type { ClubMember, User, PlayerRole } from '@/types/database';
 
 // Re-export PlayerRole for backward compatibility
@@ -78,12 +79,7 @@ export function useUpdateMember(clubId?: string): UseUpdateMemberReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}/members/${memberId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Failed to update member');
+      await updateMemberAction(clubId, memberId, data);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update member');
       setError(error);
@@ -120,10 +116,7 @@ export function useRemoveMember(clubId: string | null): UseRemoveMemberReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}/members/${memberId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to remove member');
+      await removeMemberAction(clubId, memberId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to remove member');
       setError(error);

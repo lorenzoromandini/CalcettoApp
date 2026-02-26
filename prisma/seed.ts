@@ -194,12 +194,11 @@ async function main() {
 
   // Add some goals
   const scorers = allMembers.slice(0, 3);
-  for (let i = 0; i < 3; i++) {
+  for (const scorer of scorers) {
     await prisma.goal.create({
       data: {
         matchId: completedMatch.id,
-        scorerId: scorers[i].id,
-        order: i + 1,
+        scorerId: scorer.id,
         isOwnGoal: false,
       },
     });

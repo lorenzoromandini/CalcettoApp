@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/lib/i18n/routing';
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 
 export const metadata: Metadata = {
   title: "Calcetto Manager",
@@ -46,11 +47,13 @@ export default async function LocaleLayout({
       enableSystem
       disableTransitionOnChange={false}
     >
-      <AuthProvider>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          {children}
-        </NextIntlClientProvider>
-      </AuthProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <NextIntlClientProvider messages={messages} locale={locale}>
+            {children}
+          </NextIntlClientProvider>
+        </AuthProvider>
+      </QueryProvider>
     </ThemeProvider>
   );
 }

@@ -133,56 +133,51 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithMembers> {
     throw new Error(ERRORS.INVALID_STATUS)
   }
 
-  // Get current max order for the match
-  const maxOrderGoal = await prisma.goal.findFirst({
-    where: { matchId: data.matchId },
-    orderBy: { order: 'desc' },
-    select: { order: true },
-  })
-
-  const nextOrder = (maxOrderGoal?.order ?? 0) + 1
-
-  // Create goal
-  const goal = await prisma.goal.create({
-    data: {
-      matchId: data.matchId,
-      scorerId: data.scorerId,
-      assisterId: data.assisterId,
-      isOwnGoal: data.isOwnGoal ?? false,
-      order: nextOrder,
-    },
-    include: {
-      scorer: {
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              nickname: true,
-              image: true,
+  // Execute goal creation and score update in a transaction
+  const goal = await prisma.$transaction(async (tx) => {
+    // Create goal within transaction
+    const createdGoal = await tx.goal.create({
+      data: {
+        matchId: data.matchId,
+        scorerId: data.scorerId,
+        assisterId: data.assisterId,
+        isOwnGoal: data.isOwnGoal ?? false,
+      },
+      include: {
+        scorer: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                nickname: true,
+                image: true,
+              },
+            },
+          },
+        },
+        assister: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                nickname: true,
+                image: true,
+              },
             },
           },
         },
       },
-      assister: {
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              nickname: true,
-              image: true,
-            },
-          },
-        },
-      },
-    },
+    })
+
+    // Update match score within the same transaction
+    await updateMatchScoreInTransaction(tx, data.matchId)
+
+    return createdGoal
   })
 
-  // Update match score
-  await updateMatchScore(data.matchId)
-
-  console.log('[Goals] Goal added:', goal.id, 'Order:', nextOrder)
+  console.log('[Goals] Goal added:', goal.id)
   return toGoalWithMembers(goal)
 }
 
@@ -218,29 +213,16 @@ export async function removeGoal(goalId: string): Promise<void> {
     throw new Error(ERRORS.MATCH_COMPLETED)
   }
 
-  // Delete goal
-  await prisma.goal.delete({
-    where: { id: goalId },
+  // Execute deletion and score update in a transaction
+  await prisma.$transaction(async (tx) => {
+    // Delete goal within transaction
+    await tx.goal.delete({
+      where: { id: goalId },
+    })
+
+    // Update match score within transaction
+    await updateMatchScoreInTransaction(tx, goal.matchId)
   })
-
-  // Reorder remaining goals to maintain sequential order
-  const remainingGoals = await prisma.goal.findMany({
-    where: { matchId: goal.matchId },
-    orderBy: { order: 'asc' },
-  })
-
-  // Update order for each remaining goal
-  for (let i = 0; i < remainingGoals.length; i++) {
-    if (remainingGoals[i].order !== i + 1) {
-      await prisma.goal.update({
-        where: { id: remainingGoals[i].id },
-        data: { order: i + 1 },
-      })
-    }
-  }
-
-  // Update match score
-  await updateMatchScore(goal.matchId)
 
   console.log('[Goals] Goal removed:', goalId)
 }
@@ -252,7 +234,7 @@ export async function removeGoal(goalId: string): Promise<void> {
 export async function getMatchGoals(matchId: string): Promise<GoalWithMembers[]> {
   const goals = await prisma.goal.findMany({
     where: { matchId },
-    orderBy: { order: 'asc' },
+    orderBy: { createdAt: 'asc' },
     include: {
       scorer: {
         include: {
@@ -285,12 +267,14 @@ export async function getMatchGoals(matchId: string): Promise<GoalWithMembers[]>
 }
 
 // ============================================================================
-// Update Match Score (helper)
+// Update Match Score (helpers)
 // ============================================================================
 
-export async function updateMatchScore(matchId: string): Promise<void> {
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+async function updateMatchScoreInTransaction(tx: TransactionClient, matchId: string): Promise<void> {
   // Get all goals for this match
-  const goals = await prisma.goal.findMany({
+  const goals = await tx.goal.findMany({
     where: { matchId },
     select: { 
       isOwnGoal: true,
@@ -298,26 +282,19 @@ export async function updateMatchScore(matchId: string): Promise<void> {
   })
 
   // Count goals (simplified logic - goals are just counted)
-  // In a real scenario, you'd need to know if a goal was for home or away
-  // This is simplified based on the new schema
   let homeScore = 0
   let awayScore = 0
 
-  // This is a simplified implementation
-  // The actual logic would depend on how you track which side scored
   for (const goal of goals) {
     if (!goal.isOwnGoal) {
-      // Non-own goals count for the scorer's team
-      // This is simplified - you'd need more info to determine home/away
       homeScore++
     } else {
-      // Own goals count for the opponent
       awayScore++
     }
   }
 
   // Update match with calculated scores
-  await prisma.match.update({
+  await tx.match.update({
     where: { id: matchId },
     data: {
       homeScore,
@@ -326,4 +303,8 @@ export async function updateMatchScore(matchId: string): Promise<void> {
   })
 
   console.log('[Goals] Match score updated:', matchId, homeScore, '-', awayScore)
+}
+
+export async function updateMatchScore(matchId: string): Promise<void> {
+  await updateMatchScoreInTransaction(prisma, matchId)
 }

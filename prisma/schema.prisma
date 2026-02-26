@@ -46,9 +46,12 @@ model User {
   updatedAt DateTime  @updatedAt
   lastLogin DateTime?
 
-  ownedClubs     Club[]         @relation("ClubOwner")
-  memberships    ClubMember[]
-  createdMatches Match[]        @relation("MatchCreator")
+  ownedClubs      Club[]         @relation("ClubOwner")
+  memberships     ClubMember[]
+  createdMatches  Match[]        @relation("MatchCreator")
+  createdInvites  ClubInvite[]   @relation("InviteCreator")
+  finalizedScores Match[]        @relation("MatchScoreFinalizer")
+  finalizedRatings Match[]       @relation("MatchRatingsFinalizer")
 
   @@index([email])
   @@map("users")
@@ -153,8 +156,7 @@ model Match {
   scoreFinalizer     User?       @relation("MatchScoreFinalizer", fields: [scoreFinalizedBy], references: [id], onDelete: SetNull)
   ratingsFinalizer   User?       @relation("MatchRatingsFinalizer", fields: [ratingsCompletedBy], references: [id], onDelete: SetNull)
 
-  homeFormation      Formation?  @relation("HomeFormation")
-  awayFormation      Formation?  @relation("AwayFormation")
+  formations         Formation[]
 
   goals              Goal[]
   ratings            PlayerRating[]

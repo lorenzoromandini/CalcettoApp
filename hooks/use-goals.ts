@@ -10,11 +10,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import {
-  addGoal as addGoalAction,
-  removeGoal as removeGoalAction,
-  getMatchGoals,
-} from '@/lib/db/goals'
+import { addGoalAction, removeGoalAction } from '@/lib/actions/goals'
+import { getMatchGoals } from '@/lib/db/goals'
 import type { GoalWithMembers, AddGoalInput } from '@/lib/db/goals'
 
 // Re-export for convenience (backward compatibility)
@@ -82,8 +79,8 @@ export function useGoals(matchId: string): UseGoalsReturn {
     const toastId = toast.loading(MESSAGES.addGoal.loading)
 
     try {
-      const newGoal = await addGoalAction(data)
-      setGoals(prev => [...prev, newGoal])
+      const result = await addGoalAction(data)
+      setGoals(prev => [...prev, result.goal])
       toast.success(MESSAGES.addGoal.success, { id: toastId })
       router.refresh() // Refresh to update match score
     } catch (error) {
@@ -104,7 +101,7 @@ export function useGoals(matchId: string): UseGoalsReturn {
     setGoals(prev => prev.filter(g => g.id !== goalId))
 
     try {
-      await removeGoalAction(goalId)
+      await removeGoalAction(goalId, matchId)
       toast.success(MESSAGES.removeGoal.success, { id: toastId })
       router.refresh() // Refresh to update match score
     } catch (error) {
@@ -114,7 +111,7 @@ export function useGoals(matchId: string): UseGoalsReturn {
       toast.error(message, { id: toastId })
       throw error
     }
-  }, [goals, router])
+  }, [goals, router, matchId])
 
   // Fetch goals on mount and when matchId changes
   useEffect(() => {
