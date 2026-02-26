@@ -236,19 +236,31 @@ export async function getTopScorers(
   clubId: string,
   limit: number = 3
 ): Promise<MemberLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ clubMemberId: string; count: bigint }[]>`
-    SELECT 
-      g.scorerId as clubMemberId,
-      COUNT(*) as count
-    FROM goals g
-    JOIN matches m ON g.matchId = m.id
-    WHERE m.clubId = ${clubId}
-      AND m.status = 'COMPLETED'
-      AND g.isOwnGoal = false
-    GROUP BY g.scorerId
-    ORDER BY count DESC
-    LIMIT ${limit}
-  `
+  const goals = await prisma.goal.findMany({
+    where: {
+      isOwnGoal: false,
+      match: {
+        clubId,
+        status: MatchStatus.COMPLETED,
+      },
+    },
+    select: {
+      scorerId: true,
+    },
+  })
+
+  // Count goals per member
+  const countMap = new Map<string, number>()
+  for (const goal of goals) {
+    const current = countMap.get(goal.scorerId) ?? 0
+    countMap.set(goal.scorerId, current + 1)
+  }
+
+  // Convert to array and sort
+  const result = Array.from(countMap.entries())
+    .map(([clubMemberId, count]) => ({ clubMemberId, count: BigInt(count) }))
+    .sort((a, b) => Number(b.count) - Number(a.count))
+    .slice(0, limit)
 
   return await enrichLeaderboardEntries(result)
 }
@@ -260,19 +272,33 @@ export async function getTopAssisters(
   clubId: string,
   limit: number = 3
 ): Promise<MemberLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ clubMemberId: string; count: bigint }[]>`
-    SELECT 
-      g.assisterId as clubMemberId,
-      COUNT(*) as count
-    FROM goals g
-    JOIN matches m ON g.matchId = m.id
-    WHERE m.clubId = ${clubId}
-      AND m.status = 'COMPLETED'
-      AND g.assisterId IS NOT NULL
-    GROUP BY g.assisterId
-    ORDER BY count DESC
-    LIMIT ${limit}
-  `
+  const goals = await prisma.goal.findMany({
+    where: {
+      assisterId: { not: null },
+      match: {
+        clubId,
+        status: MatchStatus.COMPLETED,
+      },
+    },
+    select: {
+      assisterId: true,
+    },
+  })
+
+  // Count assists per member
+  const countMap = new Map<string, number>()
+  for (const goal of goals) {
+    if (goal.assisterId) {
+      const current = countMap.get(goal.assisterId) ?? 0
+      countMap.set(goal.assisterId, current + 1)
+    }
+  }
+
+  // Convert to array and sort
+  const result = Array.from(countMap.entries())
+    .map(([clubMemberId, count]) => ({ clubMemberId, count: BigInt(count) }))
+    .sort((a, b) => Number(b.count) - Number(a.count))
+    .slice(0, limit)
 
   return await enrichLeaderboardEntries(result)
 }
@@ -284,20 +310,34 @@ export async function getTopAppearances(
   clubId: string,
   limit: number = 3
 ): Promise<MemberLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ clubMemberId: string; count: bigint }[]>`
-    SELECT 
-      fp.clubMemberId as clubMemberId,
-      COUNT(*) as count
-    FROM formation_positions fp
-    JOIN formations f ON fp.formationId = f.id
-    JOIN matches m ON f.matchId = m.id
-    WHERE m.clubId = ${clubId}
-      AND m.status = 'COMPLETED'
-      AND fp.played = true
-    GROUP BY fp.clubMemberId
-    ORDER BY count DESC
-    LIMIT ${limit}
-  `
+  // Get all formation positions with played=true from completed matches
+  const positions = await prisma.formationPosition.findMany({
+    where: {
+      played: true,
+      formation: {
+        match: {
+          clubId,
+          status: MatchStatus.COMPLETED,
+        },
+      },
+    },
+    select: {
+      clubMemberId: true,
+    },
+  })
+
+  // Count appearances per member
+  const countMap = new Map<string, number>()
+  for (const position of positions) {
+    const current = countMap.get(position.clubMemberId) ?? 0
+    countMap.set(position.clubMemberId, current + 1)
+  }
+
+  // Convert to array and sort
+  const result = Array.from(countMap.entries())
+    .map(([clubMemberId, count]) => ({ clubMemberId, count: BigInt(count) }))
+    .sort((a, b) => Number(b.count) - Number(a.count))
+    .slice(0, limit)
 
   return await enrichLeaderboardEntries(result)
 }
@@ -309,24 +349,53 @@ export async function getTopWins(
   clubId: string,
   limit: number = 3
 ): Promise<MemberLeaderboardEntry[]> {
-  const result = await prisma.$queryRaw<{ clubMemberId: string; count: bigint }[]>`
-    SELECT 
-      fp.clubMemberId as clubMemberId,
-      COUNT(*) as count
-    FROM formation_positions fp
-    JOIN formations f ON fp.formationId = f.id
-    JOIN matches m ON f.matchId = m.id
-    WHERE m.clubId = ${clubId}
-      AND m.status = 'COMPLETED'
-      AND fp.played = true
-      AND (
-        (f.is_home = true AND m.homeScore > m.awayScore)
-        OR (f.is_home = false AND m.awayScore > m.homeScore)
-      )
-    GROUP BY fp.clubMemberId
-    ORDER BY count DESC
-    LIMIT ${limit}
-  `
+  // Get all formation positions with match info for wins calculation
+  const positions = await prisma.formationPosition.findMany({
+    where: {
+      played: true,
+      formation: {
+        match: {
+          clubId,
+          status: MatchStatus.COMPLETED,
+        },
+      },
+    },
+    include: {
+      formation: {
+        select: {
+          isHome: true,
+          match: {
+            select: {
+              homeScore: true,
+              awayScore: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  // Count wins per member
+  const countMap = new Map<string, number>()
+  for (const position of positions) {
+    const match = position.formation.match
+    const isHome = position.formation.isHome
+    const homeScore = match.homeScore ?? 0
+    const awayScore = match.awayScore ?? 0
+    
+    const isWin = (isHome && homeScore > awayScore) || (!isHome && awayScore > homeScore)
+    
+    if (isWin) {
+      const current = countMap.get(position.clubMemberId) ?? 0
+      countMap.set(position.clubMemberId, current + 1)
+    }
+  }
+
+  // Convert to array and sort
+  const result = Array.from(countMap.entries())
+    .map(([clubMemberId, count]) => ({ clubMemberId, count: BigInt(count) }))
+    .sort((a, b) => Number(b.count) - Number(a.count))
+    .slice(0, limit)
 
   return await enrichLeaderboardEntries(result)
 }
@@ -514,15 +583,15 @@ async function enrichLeaderboardEntries(
     },
   })
 
-  const memberMap = new Map(members.map(m => [m.id, m]))
+  const memberMap = new Map<string, typeof members[0]>(members.map(m => [m.id, m]))
 
   return results.map(r => {
     const member = memberMap.get(r.clubMemberId)
     return {
       clubMemberId: r.clubMemberId,
-      firstName: member?.user.firstName ?? 'Unknown',
-      nickname: member?.user.nickname ?? undefined,
-      image: member?.user.image ?? undefined,
+      firstName: member?.user?.firstName ?? 'Unknown',
+      nickname: member?.user?.nickname ?? undefined,
+      image: member?.user?.image ?? undefined,
       value: Number(r.count),
     }
   })

@@ -38,20 +38,28 @@ const ERRORS = {
 // Helper: Mark all formation positions as played
 // ============================================================================
 
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
 /**
  * Mark all FormationPosition records as played=true
  * Called when match transitions to FINISHED state
  */
 async function markFormationPositionsAsPlayed(matchId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    await markFormationPositionsAsPlayedInTransaction(tx, matchId)
+  })
+}
+
+async function markFormationPositionsAsPlayedInTransaction(tx: TransactionClient, matchId: string): Promise<void> {
   // Get formations for this match
-  const formations = await prisma.formation.findMany({
+  const formations = await tx.formation.findMany({
     where: { matchId },
     include: { positions: true },
   })
 
   for (const formation of formations) {
     for (const position of formation.positions) {
-      await prisma.formationPosition.update({
+      await tx.formationPosition.update({
         where: { id: position.id },
         data: { played: true },
       })
@@ -144,16 +152,20 @@ export async function endMatch(matchId: string): Promise<Match> {
     throw new Error(ERRORS.INVALID_STATUS.END)
   }
 
-  // Update match status
-  const updatedMatch = await prisma.match.update({
-    where: { id: matchId },
-    data: {
-      status: MatchStatus.FINISHED,
-    },
-  })
+  // Update match status and mark formation positions as played in a transaction
+  const updatedMatch = await prisma.$transaction(async (tx) => {
+    const match = await tx.match.update({
+      where: { id: matchId },
+      data: {
+        status: MatchStatus.FINISHED,
+      },
+    })
 
-  // Mark all formation positions as played
-  await markFormationPositionsAsPlayed(matchId)
+    // Mark all formation positions as played within the transaction
+    await markFormationPositionsAsPlayedInTransaction(tx, matchId)
+
+    return match
+  })
 
   return toMatchType(updatedMatch)
 }
@@ -242,18 +254,22 @@ export async function inputFinalResults(
     throw new Error('I punteggi devono essere tra 0 e 99')
   }
 
-  // Update match status and scores
-  const updatedMatch = await prisma.match.update({
-    where: { id: matchId },
-    data: {
-      status: MatchStatus.FINISHED,
-      homeScore,
-      awayScore,
-    },
-  })
+  // Update match status/scores and mark formation positions as played in a transaction
+  const updatedMatch = await prisma.$transaction(async (tx) => {
+    const match = await tx.match.update({
+      where: { id: matchId },
+      data: {
+        status: MatchStatus.FINISHED,
+        homeScore,
+        awayScore,
+      },
+    })
 
-  // Mark all formation positions as played
-  await markFormationPositionsAsPlayed(matchId)
+    // Mark all formation positions as played within the transaction
+    await markFormationPositionsAsPlayedInTransaction(tx, matchId)
+
+    return match
+  })
 
   return toMatchType(updatedMatch)
 }

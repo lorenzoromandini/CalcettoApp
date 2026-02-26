@@ -105,7 +105,6 @@ export interface Goal {
   scorerId: string;
   assisterId: string | null;
   isOwnGoal: boolean;
-  order: number;
   createdAt: string;
 }
 
@@ -149,8 +148,11 @@ export interface MatchWithClub extends Match {
 }
 
 export interface MatchWithFormations extends Match {
-  homeFormation?: Formation & { positions: FormationPositionWithMember[] };
-  awayFormation?: Formation & { positions: FormationPositionWithMember[] };
+  formations: FormationWithPositions[];
+}
+
+export interface FormationWithPositions extends Formation {
+  positions: FormationPositionWithMember[];
 }
 
 export interface FormationPositionWithMember extends FormationPosition {

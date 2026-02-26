@@ -8,6 +8,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSession } from '@/components/providers/session-provider';
 import { authFetch } from '@/lib/auth-fetch';
+import { createClubAction, updateClubAction, deleteClubAction } from '@/lib/actions/clubs';
 import type { Club } from '@/lib/db/schema';
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club';
 
@@ -119,6 +120,7 @@ export function useClub(clubId: string | null): UseClubReturn {
 
 // ============================================================================
 // useCreateClub Hook - Create club mutation
+// Uses Server Actions for instant feedback
 // ============================================================================
 
 interface UseCreateClubReturn {
@@ -128,26 +130,15 @@ interface UseCreateClubReturn {
 }
 
 export function useCreateClub(): UseCreateClubReturn {
-  const { data: session } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const createClub = useCallback(async (data: CreateClubInput): Promise<string> => {
-    if (!session?.user?.id) {
-      throw new Error('User not authenticated');
-    }
-
     setIsPending(true);
     setError(null);
 
     try {
-      const response = await authFetch('/api/clubs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Failed to create club');
-      const result = await response.json();
+      const result = await createClubAction(data);
       return result.id;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create club');
@@ -156,7 +147,7 @@ export function useCreateClub(): UseCreateClubReturn {
     } finally {
       setIsPending(false);
     }
-  }, [session?.user?.id]);
+  }, []);
 
   return {
     createClub,
@@ -167,6 +158,7 @@ export function useCreateClub(): UseCreateClubReturn {
 
 // ============================================================================
 // useUpdateClub Hook - Update club mutation
+// Uses Server Actions for instant feedback
 // ============================================================================
 
 interface UseUpdateClubReturn {
@@ -184,12 +176,7 @@ export function useUpdateClub(): UseUpdateClubReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Failed to update club');
+      await updateClubAction(clubId, data);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update club');
       setError(error);
@@ -208,6 +195,7 @@ export function useUpdateClub(): UseUpdateClubReturn {
 
 // ============================================================================
 // useDeleteClub Hook - Delete club mutation
+// Uses Server Actions for instant feedback
 // ============================================================================
 
 interface UseDeleteClubReturn {
@@ -225,10 +213,7 @@ export function useDeleteClub(): UseDeleteClubReturn {
     setError(null);
 
     try {
-      const response = await authFetch(`/api/clubs/${clubId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete club');
+      await deleteClubAction(clubId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to delete club');
       setError(error);
