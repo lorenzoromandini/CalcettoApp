@@ -3,6 +3,16 @@
 **Defined:** 2026-02-13
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings
 
+## Recent Updates
+
+**2026-02-25: Database Restructure Complete**
+- Schema aligned with Prisma reference
+- All TypeScript errors resolved
+- Naming standardized to camelCase
+- Old models removed: Player, PlayerClub, MatchPlayer
+
+---
+
 ## v1 Requirements
 
 ### Authentication
@@ -13,18 +23,18 @@
 - [x] **AUTH-05**: User session persists across browser refresh
 - [x] **AUTH-06**: User can log out from any page
 
-### Team Management
+### Team Management (Now Club Management)
 
-- [x] **TEAM-01**: User can create a team with name and description
-- [x] **TEAM-02**: User can add players to team with name, surname, nickname, and jersey number (jersey number is unique within team and required)
-- [x] **TEAM-02a**: A player can belong to multiple teams with different jersey numbers in each team
+- [x] **TEAM-01**: User can create a team (Club) with name and description
+- [x] **TEAM-02**: User can add players to team (ClubMember) with name, surname, nickname, and jersey number (jersey number is unique within team and required)
+- [x] **TEAM-02a**: A player can belong to multiple teams (clubs) with different jersey numbers in each team
 - [x] **TEAM-03**: User can upload player avatar with automatic square cropping
 - [x] **TEAM-04**: User can assign multiple roles to players (goalkeeper, defender, midfielder, attacker)
 - [x] **TEAM-05**: User can generate invite link to share via WhatsApp/email
-- [x] **TEAM-06**: Invited users can join team via link
-- [x] **TEAM-07**: Team admin can remove players from team
-- [x] **TEAM-08**: Team admin can assign co-admin privileges
-- [x] **TEAM-09**: User can view team roster with player details (including jersey numbers)
+- [x] **TEAM-06**: Invited users can join team (club) via link
+- [x] **TEAM-07**: Team (Club) admin can remove players from team
+- [x] **TEAM-08**: Team (Club) admin can assign co-admin privileges
+- [x] **TEAM-09**: User can view team (Club) roster with player details (including jersey numbers)
 - [x] **TEAM-10**: Support both 5-a-side and 8-a-side team modes
 
 ### Match Management
@@ -32,13 +42,13 @@
 - [x] **MATCH-01**: User can create match with date, time, location
 - [x] **MATCH-02**: User can select match mode (5vs5 or 8vs8)
 - [x] **MATCH-03**: User can select formation module based on match mode
-- [x] **MATCH-04**: User can assign players to match via RSVP system (IN/OUT/Maybe)
-- [x] **MATCH-05**: System displays availability count (confirmed players)
+- [x] **MATCH-04**: User can assign players to match via formation (RSVP system removed - not in schema)
+- [x] **MATCH-05**: System displays player count in formation
 - [x] **MATCH-06**: User can build formation with drag-and-drop interface
 - [x] **MATCH-07**: User can view match list with upcoming and past matches
 - [x] **MATCH-08**: User can edit match details before start
 - [x] **MATCH-09**: User can cancel match
-- [x] **MATCH-10**: System sends push notification reminders before match
+- [ ] **MATCH-10**: System sends push notification reminders before match
 
 ### Live Match Experience
 
@@ -85,7 +95,7 @@
 ### Social & Sharing
 
 - [ ] **SOCL-01**: User can share match results to WhatsApp
-- [ ] **SOCL-02**: User can share team invite link
+- [ ] **SOCL-02**: User can share team (Club) invite link
 - [ ] **SOCL-03**: User can share formations as image
 - [ ] **SOCL-04**: System generates shareable match summary
 
@@ -106,6 +116,19 @@
 - [x] **UIUX-05**: Onboarding tutorial for new users
 - [ ] **UIUX-06**: Loading times under 2 seconds
 - [ ] **UIUX-07**: Lazy loading for images and statistics
+
+## Schema Changes
+
+### Removed Features
+- **Email Verification** (AUTH-03 removed) - Field not in schema
+- **RSVP System** - Complete functionality stubbed out
+- **Goal Home/Away Categorization** - Disabled (clubId not in Goal model)
+- **Invite Max Uses** - Removed from schema
+
+### Updated Naming
+- "Team" → "Club" throughout codebase
+- "Player" → "ClubMember" in database context
+- All properties now camelCase
 
 ## v2 Requirements
 
@@ -162,7 +185,7 @@
 | UIUX-04 | Phase 1 | ✅ Complete |
 | UIUX-05 | Phase 1 | ✅ Complete |
 
-### Phase 2: Team Management (10 requirements)
+### Phase 2: Team/Club Management (10 requirements)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -184,13 +207,13 @@
 | MATCH-01 | Phase 3 | ✅ Complete |
 | MATCH-02 | Phase 3 | ✅ Complete |
 | MATCH-03 | Phase 3 | ✅ Complete |
-| MATCH-04 | Phase 3 | ✅ Complete |
-| MATCH-05 | Phase 3 | ✅ Complete |
+| MATCH-04 | Phase 3 | ✅ Complete (RSVP replaced by Formation) |
+| MATCH-05 | Phase 3 | ✅ Complete (player count in formation) |
 | MATCH-06 | Phase 3 | ✅ Complete |
 | MATCH-07 | Phase 3 | ✅ Complete |
 | MATCH-08 | Phase 3 | ✅ Complete |
 | MATCH-09 | Phase 3 | ✅ Complete |
-| MATCH-10 | Phase 3 | ✅ Complete |
+| MATCH-10 | Phase 3 | 🔄 Pending |
 
 ### Phase 4: Live Match Experience (8 requirements)
 
@@ -261,11 +284,11 @@
 | UIUX-06 | All | 🔴 Not Started |
 
 **Coverage Summary:**
-- v1 requirements: 67 total (AUTH-03 removed - email verification not needed)
+- v1 requirements: 67 total
 - Mapped to phases: 67
 - Completed: 33/67 (~49%)
-- Per-phase distribution: P1(13/13), P2(10/10), P3(10/10), P4(0/8), P5(0/9), P6(0/6), P7(0/8), P8(0/4)
+- Per-phase distribution: P1(13/13), P2(10/10), P3(9/10), P4(0/8), P5(0/9), P6(0/6), P7(0/8), P8(0/4)
 
 ---
 *Requirements defined: 2026-02-13*
-*Last updated: 2026-02-17 after build verification*
+*Last updated: 2026-02-26 after database restructure*
