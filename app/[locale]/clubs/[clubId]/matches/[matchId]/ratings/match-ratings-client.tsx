@@ -247,7 +247,7 @@ export function MatchRatingsClient({
                 currentRating={currentRating ? {
                   id: currentRating.id,
                   matchId: currentRating.matchId,
-                  playerId: currentRating.clubMemberId,
+                  clubMemberId: currentRating.clubMemberId,
                   rating: currentRating.rating,
                   ratingDecimal: currentRating.ratingDecimal,
                   comment: currentRating.comment,
@@ -256,7 +256,7 @@ export function MatchRatingsClient({
                 } : localRating ? {
                   id: 'local',
                   matchId: matchId,
-                  playerId: player.clubMemberId,
+                  clubMemberId: player.clubMemberId,
                   rating: localRating.rating,
                   ratingDecimal: 0,
                   comment: localRating.comment,
