@@ -33,7 +33,7 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
     : `${stats.firstName}${stats.lastName ? ` ${stats.lastName}` : ''}`
 
   // Check if player is a goalkeeper with goals conceded data
-  const isGoalkeeper = stats.goals_conceded !== null
+  const isGoalkeeper = stats.goalsConceded !== null
 
   return (
     <Card className={className}>
@@ -111,15 +111,15 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
         </div>
 
         {/* Average Rating */}
-        {stats.avg_rating !== null && (
+        {stats.avgRating !== null && (
           <div className="mt-4 flex items-center justify-center gap-2 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
             <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
             <span className="text-lg font-semibold">{t('avg_rating')}</span>
             <span className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {stats.avg_rating.toFixed(2)}
+              {stats.avgRating.toFixed(2)}
             </span>
             <span className="text-sm text-muted-foreground">
-              ({stats.total_ratings} {stats.total_ratings === 1 ? t('rating') : t('ratings')})
+              ({stats.totalRatings} {stats.totalRatings === 1 ? t('rating') : t('ratings')})
             </span>
           </div>
         )}
@@ -134,7 +134,7 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
                   {t('goals_conceded_as_gk')}
                 </div>
                 <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {stats.goals_conceded}
+                  {stats.goalsConceded}
                 </div>
               </div>
             </div>

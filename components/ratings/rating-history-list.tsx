@@ -42,7 +42,7 @@ export function RatingHistoryList({ data, title, showChart = false }: RatingHist
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-3 w-3" />
-                  {formatDate(entry.match_date)}
+                  {formatDate(entry.matchDate)}
                 </div>
                 {entry.comment && (
                   <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground truncate">
@@ -52,7 +52,7 @@ export function RatingHistoryList({ data, title, showChart = false }: RatingHist
                 )}
               </div>
               <div className="text-xl font-bold text-primary ml-4">
-                {entry.rating_display}
+                {entry.ratingDisplay}
               </div>
             </div>
           ))}

@@ -4,11 +4,11 @@ import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Trophy, Medal, User } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { PlayerLeaderboardEntry } from '@/lib/db/statistics'
+import type { MemberLeaderboardEntry } from '@/lib/db/statistics'
 
 interface PlayerLeaderboardProps {
   title: string
-  entries: PlayerLeaderboardEntry[]
+  entries: MemberLeaderboardEntry[]
   valueLabel: string
   lowerIsBetter?: boolean  // For goals conceded
   isLoading?: boolean
@@ -108,7 +108,7 @@ export function PlayerLeaderboard({
 
           return (
             <div
-              key={entry.playerId}
+              key={entry.clubMemberId}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
             >
               {/* Position Badge */}
@@ -124,11 +124,11 @@ export function PlayerLeaderboard({
 
               {/* Player Avatar */}
               <div className="flex-shrink-0">
-                {entry.clubMember.user.image ? (
+                {entry.image ? (
                   <div className="relative h-9 w-9 rounded-full overflow-hidden">
                     <Image
-                      src={entry.clubMember.user.image}
-                      alt={entry.clubMember.user.firstName}
+                      src={entry.image}
+                      alt={entry.firstName}
                       fill
                       className="object-cover"
                     />
@@ -143,11 +143,11 @@ export function PlayerLeaderboard({
               {/* Player Name */}
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-sm truncate">
-                  {entry.clubMember.user.nickname || entry.clubMember.user.firstName}
+                  {entry.nickname || entry.firstName}
                 </div>
-                {entry.clubMember.user.nickname && (
+                {entry.nickname && (
                   <div className="text-xs text-muted-foreground truncate">
-                    {entry.clubMember.user.firstName}
+                    {entry.firstName}
                   </div>
                 )}
               </div>

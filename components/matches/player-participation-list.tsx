@@ -3,19 +3,17 @@
 /**
  * Player Participation List Component
  * 
- * Displays all RSVP'd players with toggle for played status.
- * Grouped by RSVP status (IN first, then MAYBE, then OUT).
+ * Displays players with toggle for played status.
  * Visual distinction for played vs not-played players.
  */
 
 import { useTranslations } from 'next-intl'
-import { Check, X, HelpCircle, User, Users } from 'lucide-react'
+import { Check, User, Users } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { MatchPlayerWithPlayer } from '@/lib/db/player-participation'
-import type { RSVPStatus } from '@/lib/db/schema'
 
 // ============================================================================
 // Props
@@ -23,7 +21,7 @@ import type { RSVPStatus } from '@/lib/db/schema'
 
 interface PlayerParticipationListProps {
   participants: MatchPlayerWithPlayer[]
-  onTogglePlayed: (playerId: string, currentPlayed: boolean) => void
+  onTogglePlayed: (clubMemberId: string, currentPlayed: boolean) => void
   canEdit: boolean // isAdmin && match not completed
   isLoading?: boolean
 }
@@ -41,34 +39,8 @@ interface PlayerCardProps {
 function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
   const t = useTranslations('matches')
   
-  const displayName = participant.clubMember.user.nickname || 
-    `${participant.clubMember.user.firstName}${participant.clubMember.user.lastName ? ` ${participant.clubMember.user.lastName}` : ''}`
-
-  const getRSVPIcon = () => {
-    switch (participant.rsvpStatus) {
-      case 'in':
-        return <Check className="h-3 w-3" />
-      case 'out':
-        return <X className="h-3 w-3" />
-      case 'maybe':
-        return <HelpCircle className="h-3 w-3" />
-      default:
-        return null
-    }
-  }
-
-  const getRSVPColor = () => {
-    switch (participant.rsvpStatus) {
-      case 'in':
-        return 'bg-green-100 text-green-700 border-green-200'
-      case 'out':
-        return 'bg-red-100 text-red-700 border-red-200'
-      case 'maybe':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200'
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200'
-    }
-  }
+  const displayName = participant.user?.nickname || 
+    `${participant.user?.firstName || ''}${participant.user?.lastName ? ` ${participant.user.lastName}` : ''}`
 
   return (
     <div
@@ -81,9 +53,9 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
     >
       {/* Avatar */}
       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-        {participant.clubMember.user.image ? (
+        {participant.user?.image ? (
           <img
-            src={participant.clubMember.user.image}
+            src={participant.user.image}
             alt={displayName}
             className="h-10 w-10 rounded-full object-cover"
           />
@@ -112,23 +84,6 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
             </Badge>
           )}
         </div>
-
-        {/* RSVP Badge */}
-        <div className="flex items-center gap-1 mt-0.5">
-          <span
-            className={cn(
-              'shrink-0 flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[10px] font-medium',
-              getRSVPColor()
-            )}
-          >
-            {getRSVPIcon()}
-            <span>
-              {participant.rsvpStatus === 'in' && t('rsvp.in')}
-              {participant.rsvpStatus === 'out' && t('rsvp.out')}
-              {participant.rsvpStatus === 'maybe' && t('rsvp.maybe')}
-            </span>
-          </span>
-        </div>
       </div>
 
       {/* Played Toggle */}
@@ -153,65 +108,6 @@ function PlayerCard({ participant, onToggle, canEdit }: PlayerCardProps) {
 }
 
 // ============================================================================
-// RSVP Group Component
-// ============================================================================
-
-interface RSVPGroupProps {
-  title: string
-  status: RSVPStatus
-  participants: MatchPlayerWithPlayer[]
-  onTogglePlayed: (playerId: string, currentPlayed: boolean) => void
-  canEdit: boolean
-  icon: React.ReactNode
-  badgeColor: string
-}
-
-function RSVPGroup({
-  title,
-  status,
-  participants,
-  onTogglePlayed,
-  canEdit,
-  icon,
-  badgeColor,
-}: RSVPGroupProps) {
-  const t = useTranslations('matches')
-
-  if (participants.length === 0) {
-    return null
-  }
-
-  const playedCount = participants.filter(p => p.played).length
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          {icon}
-          {title}
-          <span className={cn('text-xs px-2 py-0.5 rounded-full bg-secondary', badgeColor)}>
-            {participants.length}
-          </span>
-        </h4>
-        <span className="text-xs text-muted-foreground">
-          {t('participation.playedCount', { count: playedCount, total: participants.length })}
-        </span>
-      </div>
-      <div className="space-y-2">
-        {participants.map((participant) => (
-          <PlayerCard
-            key={participant.id}
-            participant={participant}
-            onToggle={() => onTogglePlayed(participant.playerId, participant.played)}
-            canEdit={canEdit}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -222,11 +118,6 @@ export function PlayerParticipationList({
   isLoading = false,
 }: PlayerParticipationListProps) {
   const t = useTranslations('matches')
-
-  // Group by RSVP status
-  const inParticipants = participants.filter(p => p.rsvpStatus === 'in')
-  const maybeParticipants = participants.filter(p => p.rsvpStatus === 'maybe')
-  const outParticipants = participants.filter(p => p.rsvpStatus === 'out')
 
   // Calculate counts
   const playedCount = participants.filter(p => p.played).length
@@ -269,46 +160,31 @@ export function PlayerParticipationList({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* IN Group */}
-        <RSVPGroup
-          title={t('participation.groups.in')}
-          status="in"
-          participants={inParticipants}
-          onTogglePlayed={onTogglePlayed}
-          canEdit={canEdit}
-          icon={<Check className="h-4 w-4 text-green-500" />}
-          badgeColor="bg-green-100 text-green-700"
-        />
-
-        {inParticipants.length > 0 && (maybeParticipants.length > 0 || outParticipants.length > 0) && (
-          <div className="h-px bg-border" />
-        )}
-
-        {/* MAYBE Group */}
-        <RSVPGroup
-          title={t('participation.groups.maybe')}
-          status="maybe"
-          participants={maybeParticipants}
-          onTogglePlayed={onTogglePlayed}
-          canEdit={canEdit}
-          icon={<HelpCircle className="h-4 w-4 text-yellow-500" />}
-          badgeColor="bg-yellow-100 text-yellow-700"
-        />
-
-        {maybeParticipants.length > 0 && outParticipants.length > 0 && (
-          <div className="h-px bg-border" />
-        )}
-
-        {/* OUT Group */}
-        <RSVPGroup
-          title={t('participation.groups.out')}
-          status="out"
-          participants={outParticipants}
-          onTogglePlayed={onTogglePlayed}
-          canEdit={canEdit}
-          icon={<X className="h-4 w-4 text-red-500" />}
-          badgeColor="bg-red-100 text-red-700"
-        />
+        {/* Player List */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Check className="h-4 w-4 text-green-500" />
+              {t('participation.players')}
+              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary bg-green-100 text-green-700">
+                {participants.length}
+              </span>
+            </h4>
+            <span className="text-xs text-muted-foreground">
+              {t('participation.playedCount', { count: playedCount, total: participants.length })}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {participants.map((participant) => (
+              <PlayerCard
+                key={participant.id}
+                participant={participant}
+                onToggle={() => onTogglePlayed(participant.clubMemberId, participant.played)}
+                canEdit={canEdit}
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Empty State */}
         {participants.length === 0 && (

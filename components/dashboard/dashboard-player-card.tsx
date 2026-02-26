@@ -75,14 +75,14 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
           {member.image ? (
             <Image
               src={member.image}
-              alt={member.first_name}
+              alt={member.firstName}
               fill
               className="object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
               <span className="text-2xl font-bold text-muted-foreground">
-                {getInitials(member.first_name, member.last_name)}
+                {getInitials(member.firstName, member.lastName)}
               </span>
             </div>
           )}
@@ -96,7 +96,7 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
 
         <div className="mt-2 text-center">
           <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[100px]">
-            {member.nickname || member.first_name}
+            {member.nickname || member.firstName}
           </p>
           {teamName && (
             <p className="text-xs text-muted-foreground truncate max-w-[100px]">

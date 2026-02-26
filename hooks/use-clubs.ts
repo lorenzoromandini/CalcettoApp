@@ -11,12 +11,15 @@ import { authFetch } from '@/lib/auth-fetch';
 import type { Club } from '@/lib/db/schema';
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club';
 
+// Club with memberCount from getUserClubs
+type ClubWithMemberCount = Club & { memberCount: number };
+
 // ============================================================================
 // useClubs Hook - Get all clubs for current user
 // ============================================================================
 
 interface UseClubsReturn {
-  clubs: Club[];
+  clubs: ClubWithMemberCount[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
@@ -24,7 +27,7 @@ interface UseClubsReturn {
 
 export function useClubs(): UseClubsReturn {
   const { data: session, isLoading: sessionLoading } = useSession();
-  const [clubs, setClubs] = useState<Club[]>([]);
+  const [clubs, setClubs] = useState<ClubWithMemberCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 

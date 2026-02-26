@@ -30,7 +30,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useMatchLifecycle } from '@/hooks/use-match-lifecycle'
-import type { MatchStatus } from '@/lib/db/schema'
+import type { MatchStatus } from '@/types/database'
 
 // ============================================================================
 // Component Props

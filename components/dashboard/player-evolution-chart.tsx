@@ -35,13 +35,13 @@ function CustomTooltip({ active, payload }: {
   const data = payload[0].payload
   return (
     <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-      <p className="text-sm text-muted-foreground mb-2">{data.match_label}</p>
+      <p className="text-sm text-muted-foreground mb-2">{data.matchLabel}</p>
       <div className="space-y-1">
         {payload.map((entry, i) => (
           <p key={i} className="text-sm">
             <span className="font-medium capitalize">{entry.dataKey}:</span>{' '}
-            {entry.dataKey === 'rating' && data.rating_display
-              ? data.rating_display
+            {entry.dataKey === 'rating' && data.ratingDisplay
+              ? data.ratingDisplay
               : entry.value}
           </p>
         ))}
