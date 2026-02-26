@@ -212,7 +212,6 @@ model Goal {
   scorerId     String   @map("scorer_id")
   assisterId   String?  @map("assister_id")
   isOwnGoal    Boolean  @default(false) @map("is_own_goal")
-  order        Int
 
   createdAt    DateTime @default(now()) @map("created_at")
 
@@ -220,7 +219,6 @@ model Goal {
   scorer       ClubMember  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
   assister     ClubMember? @relation("GoalAssister", fields: [assisterId], references: [id], onDelete: SetNull)
 
-  @@unique([matchId, order])
   @@index([matchId])
   @@index([scorerId])
   @@map("goals")
