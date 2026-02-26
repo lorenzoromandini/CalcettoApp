@@ -642,7 +642,7 @@ export function MatchDetailPageClient({
                   <div className="absolute top-1/2 left-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 border-2 border-white/30 rounded-full" />
                   
                   {/* Player dots */}
-                  {formation.positions.filter(p => p.playerId).map((pos, idx) => (
+                  {formation.positions.filter(p => p.clubMemberId).map((pos, idx) => (
                     <div
                       key={idx}
                       className="absolute w-4 h-4 bg-white rounded-full border-2 border-primary shadow-lg"
@@ -656,7 +656,7 @@ export function MatchDetailPageClient({
                 </div>
                 
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <span>{formation.positions.filter(p => p.playerId).length}</span>
+                  <span>{formation.positions.filter(p => p.clubMemberId).length}</span>
                   <span>/</span>
                   <span>{formation.positions.length}</span>
                   <span>giocatori posizionati</span>

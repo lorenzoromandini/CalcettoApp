@@ -11,7 +11,7 @@ interface ClubData {
   id: string;
   name: string;
   description: string | null;
-  image_url: string | null;
+  imageUrl: string | null;
 }
 
 export default function ClubPageClient() {
