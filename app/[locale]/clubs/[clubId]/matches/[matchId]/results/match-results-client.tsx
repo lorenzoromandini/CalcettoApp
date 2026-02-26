@@ -22,8 +22,9 @@ import { GoalList } from '@/components/matches/goal-list'
 import { GoalForm } from '@/components/matches/goal-form'
 import { MatchStatusBadge } from '@/components/matches/match-status-badge'
 import { useGoals } from '@/hooks/use-goals'
-import type { Match, ClubMember } from '@/types/database'
+import type { Match } from '@/types/database'
 import type { GoalWithMembers } from '@/lib/db/goals'
+import type { MemberWithUser } from '@/hooks/use-players'
 
 // ============================================================================
 // Component Props
@@ -35,7 +36,7 @@ interface MatchResultsClientProps {
   matchId: string
   match: Match
   goals: GoalWithMembers[]
-  members: ClubMember[]
+  members: MemberWithUser[]
   isAdmin: boolean
   canEdit: boolean
 }

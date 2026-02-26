@@ -36,7 +36,7 @@ function CustomTooltip({ active, payload }: {
   return (
     <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
       <p className="text-sm text-muted-foreground">{data.match_label}</p>
-      <p className="text-2xl font-bold text-primary">{data.rating_display}</p>
+      <p className="text-2xl font-bold text-primary">{data.ratingDisplay}</p>
       {data.comment && (
         <p className="text-sm text-muted-foreground mt-1 max-w-48 truncate">
           {data.comment}
@@ -53,7 +53,7 @@ export function RatingTrendChart({ data, title }: RatingTrendChartProps) {
 
   const chartData = data.map((entry, index) => ({
     ...entry,
-    match_label: formatMatchLabel(entry.match_date, index),
+    match_label: formatMatchLabel(entry.matchDate, index),
   }))
 
   return (

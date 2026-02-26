@@ -131,7 +131,7 @@ export function CompletedMatchDetail({
   const awayScore = match.awayScore ?? 0
 
   // Calculate average rating
-  const decimals = ratings.map(r => r.rating_decimal)
+  const decimals = ratings.map(r => r.ratingDecimal)
   const averageRating = calculateAverageRating(decimals)
 
   // All goals in the match (no filtering by team since teams change per match)
@@ -435,7 +435,7 @@ export function CompletedMatchDetail({
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={rating.image} />
                       <AvatarFallback>
-                        {getPlayerInitials(rating.first_name, rating.last_name)}
+                        {getPlayerInitials(rating.firstName, rating.lastName)}
                       </AvatarFallback>
                     </Avatar>
 
@@ -444,14 +444,14 @@ export function CompletedMatchDetail({
                       <div className="flex items-center gap-2">
                         <p className="font-medium truncate">
                           {getPlayerDisplayName(
-                            rating.first_name,
-                            rating.last_name,
+                            rating.firstName,
+                            rating.lastName,
                             rating.nickname
                           )}
                         </p>
-                        {rating.jersey_number > 0 && (
+                        {rating.jerseyNumber > 0 && (
                           <Badge variant="outline" className="text-xs font-mono shrink-0">
-                            #{rating.jersey_number}
+                            #{rating.jerseyNumber}
                           </Badge>
                         )}
                       </div>
@@ -494,15 +494,15 @@ export function CompletedMatchDetail({
                   <Avatar className="h-8 w-8 shrink-0">
                     <AvatarImage src={rating.image} />
                     <AvatarFallback>
-                      {getPlayerInitials(rating.first_name, rating.last_name)}
+                      {getPlayerInitials(rating.firstName, rating.lastName)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-sm">
                         {getPlayerDisplayName(
-                          rating.first_name,
-                          rating.last_name,
+                          rating.firstName,
+                          rating.lastName,
                           rating.nickname
                         )}
                       </span>

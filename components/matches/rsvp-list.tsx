@@ -59,7 +59,7 @@ function RSVPGroup({
           <RSVPCard
             key={rsvp.id}
             rsvp={rsvp}
-            isCurrentPlayer={rsvp.playerId === currentPlayerId}
+            isCurrentPlayer={rsvp.clubMemberId === currentPlayerId}
             status={status}
           />
         ))}
@@ -150,7 +150,7 @@ function RSVPCard({ rsvp, isCurrentPlayer, status }: RSVPCardProps) {
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          {t("rsvpList.responded")} {formatTimeAgo(rsvp.rsvp_at)}
+          {t("rsvpList.responded")} {formatTimeAgo(rsvp.rsvpAt)}
         </p>
       </div>
 

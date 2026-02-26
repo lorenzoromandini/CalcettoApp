@@ -23,13 +23,13 @@ import { decimalToRating } from '@/lib/rating-utils'
  * Evolution data point for chart visualization
  */
 export interface EvolutionDataPoint {
-  match_id: string
-  match_date: string  // Formatted date for chart display
-  match_label: string  // Short label (e.g., "15 Gen")
+  matchId: string
+  matchDate: string  // Formatted date for chart display
+  matchLabel: string  // Short label (e.g., "15 Gen")
   goals: number
   assists: number
   rating: number | null
-  rating_display?: string
+  ratingDisplay?: string
 }
 
 // ============================================================================
@@ -132,16 +132,16 @@ export async function getMemberEvolution(
     const rating = ratingsMap.get(match.id) ?? null
 
     return {
-      match_id: match.id,
-      match_date: date.toISOString(),
-      match_label: new Intl.DateTimeFormat('it-IT', {
+      matchId: match.id,
+      matchDate: date.toISOString(),
+      matchLabel: new Intl.DateTimeFormat('it-IT', {
         day: 'numeric',
         month: 'short'
       }).format(date),
       goals: goalsMap.get(match.id) ?? 0,
       assists: assistsMap.get(match.id) ?? 0,
       rating,
-      rating_display: rating !== null ? decimalToRating(rating) : undefined,
+      ratingDisplay: rating !== null ? decimalToRating(rating) : undefined,
     }
   })
 }

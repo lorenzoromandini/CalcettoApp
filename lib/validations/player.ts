@@ -12,18 +12,11 @@ export const createClubMemberSchema = z.object({
   primary_role: z.enum(playerRoles).refine((val) => val !== undefined, {
     message: 'Seleziona un ruolo principale',
   }),
-  secondary_roles: z
-    .array(z.enum(playerRoles))
-    .default([]),
+  secondary_roles: z.array(z.enum(playerRoles)).default([]),
 });
 
-export const updateClubMemberSchema = createClubMemberSchema.partial();
-
 export type CreateClubMemberInput = z.infer<typeof createClubMemberSchema>;
-export type UpdateClubMemberInput = z.infer<typeof updateClubMemberSchema>;
 
 // Backward compatibility - player schema is now club member schema
 export const createPlayerSchema = createClubMemberSchema;
-export const updatePlayerSchema = updateClubMemberSchema;
 export type CreatePlayerInput = CreateClubMemberInput;
-export type UpdatePlayerInput = UpdateClubMemberInput;

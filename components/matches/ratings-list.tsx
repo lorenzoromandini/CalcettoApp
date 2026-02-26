@@ -41,7 +41,7 @@ function AverageRatingCard({ ratings }: AverageRatingCardProps) {
 
   if (ratings.length === 0) return null
 
-  const decimals = ratings.map(r => r.rating_decimal)
+  const decimals = ratings.map(r => r.ratingDecimal)
   const average = calculateAverageRating(decimals)
 
   if (average === null) return null
@@ -78,8 +78,8 @@ interface PlayerRatingRowProps {
 }
 
 function PlayerRatingRow({ rating, rank }: PlayerRatingRowProps) {
-  const displayName = rating.clubMember.user.nickname ||
-    `${rating.clubMember.user.firstName}${rating.clubMember.user.lastName ? ` ${rating.clubMember.user.lastName}` : ''}`
+  const displayName = rating.nickname ||
+    `${rating.firstName}${rating.lastName ? ` ${rating.lastName}` : ''}`
 
   // Get medal for top 3
   const getMedal = () => {
@@ -98,9 +98,9 @@ function PlayerRatingRow({ rating, rank }: PlayerRatingRowProps) {
 
       {/* Avatar */}
       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-        {rating.clubMember.user.image ? (
+        {rating.image ? (
           <img
-            src={rating.clubMember.user.image}
+            src={rating.image}
             alt={displayName}
             className="h-10 w-10 rounded-full object-cover"
           />
@@ -149,7 +149,7 @@ export function RatingsList({
   const t = useTranslations('matches.ratings')
 
   // Sort by rating descending
-  const sortedRatings = [...ratings].sort((a, b) => b.rating_decimal - a.rating_decimal)
+  const sortedRatings = [...ratings].sort((a, b) => b.ratingDecimal - a.ratingDecimal)
 
   if (sortedRatings.length === 0) {
     return (
@@ -221,10 +221,10 @@ export function RatingsListCompact({
     return null
   }
 
-  const decimals = ratings.map(r => r.rating_decimal)
+  const decimals = ratings.map(r => r.ratingDecimal)
   const average = calculateAverageRating(decimals)
   const sortedRatings = [...ratings]
-    .sort((a, b) => b.rating_decimal - a.rating_decimal)
+    .sort((a, b) => b.ratingDecimal - a.ratingDecimal)
     .slice(0, maxDisplay)
 
   return (
@@ -243,7 +243,7 @@ export function RatingsListCompact({
           <div key={rating.id} className="flex items-center gap-1">
             {index > 0 && <span className="text-muted-foreground text-xs">•</span>}
             <span className="text-sm">
-              {rating.clubMember.user.nickname || rating.clubMember.user.firstName}
+              {rating.nickname || rating.firstName}
             </span>
             <RatingDisplay rating={rating.rating} size="sm" />
           </div>

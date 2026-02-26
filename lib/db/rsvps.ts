@@ -23,6 +23,14 @@ export interface MatchRSVP {
   clubMemberId: string;
   rsvpStatus: RSVPStatus;
   rsvpAt: string;
+  clubMember: {
+    user: {
+      firstName: string;
+      lastName: string;
+      nickname: string | null;
+      image: string | null;
+    };
+  };
 }
 
 // Stub functions - RSVP not available in new schema

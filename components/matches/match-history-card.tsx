@@ -72,11 +72,10 @@ function getResult(match: Match): 'win' | 'loss' | 'draw' {
 
 function getScorers(
   goals: GoalWithPlayers[], 
-  clubId: string,
   maxDisplay: number = 3
 ): { scorers: Array<{ name: string; count: number }>; extra: number } {
-  // Filter goals for our team (not opponent goals, not own goals)
-  const ourGoals = goals.filter(g => g.clubId === clubId && !g.isOwnGoal)
+  // Filter own goals
+  const ourGoals = goals.filter(g => !g.isOwnGoal)
 
   if (ourGoals.length === 0) return { scorers: [], extra: 0 }
 
@@ -91,8 +90,8 @@ function getScorers(
       existing.count++
     } else {
       scorerMap.set(playerId, {
-        name: goal.scorer.nickname || 
-          `${goal.scorer.name}${goal.scorer.surname ? ` ${goal.scorer.surname}` : ''}`,
+        name: goal.scorer.user.nickname || 
+          `${goal.scorer.user.firstName}${goal.scorer.user.lastName ? ` ${goal.scorer.user.lastName}` : ''}`,
         count: 1,
       })
     }
@@ -115,8 +114,8 @@ function getBestRated(ratings: PlayerRatingWithPlayer[]): { name: string; rating
   const best = ratings[0]
   
   return {
-    name: best.clubMember.user.nickname || 
-      `${best.clubMember.user.firstName}${best.clubMember.user.lastName ? ` ${best.clubMember.user.lastName}` : ''}`,
+    name: best.nickname || 
+      `${best.firstName}${best.lastName ? ` ${best.lastName}` : ''}`,
     rating: best.rating,
   }
 }
@@ -135,7 +134,7 @@ export function MatchHistoryCard({ data, clubId, locale }: MatchHistoryCardProps
   const result = getResult(match)
   const homeScore = match.homeScore ?? 0
   const awayScore = match.awayScore ?? 0
-  const { scorers, extra } = getScorers(goals, clubId)
+  const { scorers, extra } = getScorers(goals)
   const bestRated = getBestRated(ratings)
 
   // Color coding based on result

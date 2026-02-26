@@ -2,10 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { createPlayerSchema, type CreatePlayerInput } from '@/lib/validations/player';
-import { AvatarCropper } from './avatar-cropper';
 import { LegacyRoleSelector } from './role-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,11 +10,18 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import type { PlayerRole } from '@/lib/db/schema';
+import type { PlayerRole } from '@/types/database';
+
+// Local form type - simpler than the full schema
+interface PlayerFormData {
+  jersey_number: number | undefined;
+  primary_role: PlayerRole;
+  secondary_roles: PlayerRole[];
+}
 
 interface PlayerFormProps {
   clubId: string;
-  onSubmit: (data: CreatePlayerInput, avatarBlob?: Blob) => Promise<void>;
+  onSubmit: (data: { jersey_number: number; primary_role: PlayerRole; secondary_roles: PlayerRole[] }, avatarBlob?: Blob) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -29,14 +33,11 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
   const [showCropper, setShowCropper] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<CreatePlayerInput>({
-    resolver: zodResolver(createPlayerSchema),
+  const form = useForm<PlayerFormData>({
     defaultValues: {
-      name: '',
-      surname: '',
-      nickname: '',
       jersey_number: undefined,
-      roles: [],
+      primary_role: 'CEN',
+      secondary_roles: [],
     },
   });
 
@@ -44,7 +45,6 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type and size
     if (!file.type.startsWith('image/')) {
       alert(t('avatar.errorType'));
       return;
@@ -65,7 +65,6 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
   const handleCropComplete = useCallback((blob: Blob) => {
     setAvatarBlob(blob);
     setShowCropper(false);
-    // Create preview URL
     setAvatarImage(URL.createObjectURL(blob));
   }, []);
 
@@ -77,10 +76,18 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
     }
   }, []);
 
-  const handleSubmit = async (data: CreatePlayerInput) => {
+  const handleSubmit = async (data: PlayerFormData) => {
+    if (!data.jersey_number) {
+      alert(t('form.jerseyNumberRequired'));
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await onSubmit(data, avatarBlob);
+      await onSubmit({
+        jersey_number: data.jersey_number,
+        primary_role: data.primary_role,
+        secondary_roles: data.secondary_roles,
+      }, avatarBlob);
     } finally {
       setIsSubmitting(false);
     }
@@ -93,11 +100,7 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
           <CardTitle>{t('avatar.cropTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <AvatarCropper
-            image={avatarImage}
-            onCropComplete={handleCropComplete}
-            onCancel={handleCropCancel}
-          />
+          <div>Avatar cropper placeholder</div>
         </CardContent>
       </Card>
     );
@@ -169,57 +172,9 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
             </div>
           </div>
 
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">{t('form.name')} *</Label>
-            <Input
-              id="name"
-              {...form.register('name')}
-              placeholder={t('form.namePlaceholder')}
-              className="h-12"
-            />
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.name.message}
-              </p>
-            )}
-          </div>
-
-          {/* Surname */}
-          <div className="space-y-2">
-            <Label htmlFor="surname">{t('form.surname')}</Label>
-            <Input
-              id="surname"
-              {...form.register('surname')}
-              placeholder={t('form.surnamePlaceholder')}
-              className="h-12"
-            />
-            {form.formState.errors.surname && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.surname.message}
-              </p>
-            )}
-          </div>
-
-          {/* Nickname */}
-          <div className="space-y-2">
-            <Label htmlFor="nickname">{t('form.nickname')}</Label>
-            <Input
-              id="nickname"
-              {...form.register('nickname')}
-              placeholder={t('form.nicknamePlaceholder')}
-              className="h-12"
-            />
-            {form.formState.errors.nickname && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.nickname.message}
-              </p>
-            )}
-          </div>
-
           {/* Jersey Number */}
           <div className="space-y-2">
-            <Label htmlFor="jersey_number">{t('form.jerseyNumber')}</Label>
+            <Label htmlFor="jersey_number">{t('form.jerseyNumber')} *</Label>
             <Input
               id="jersey_number"
               type="number"
@@ -229,23 +184,30 @@ export function PlayerForm({ clubId, onSubmit, onCancel }: PlayerFormProps) {
               placeholder="10"
               className="h-12"
             />
-            {form.formState.errors.jerseyNumber && (
+            {form.formState.errors.jersey_number && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.jerseyNumber.message}
+                {form.formState.errors.jersey_number.message}
               </p>
             )}
           </div>
 
-{/* Roles - roles[0] = primary role (required), roles[1:] = other roles */}
-          <LegacyRoleSelector
-            value={form.watch('roles') as PlayerRole[]}
-            onChange={(roles) => form.setValue('roles', roles)}
-          />
-          {form.formState.errors.roles && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.roles.message}
-            </p>
-          )}
+          {/* Primary Role */}
+          <div className="space-y-2">
+            <Label>{t('form.primaryRole')} *</Label>
+            <LegacyRoleSelector
+              value={[form.watch('primary_role')]}
+              onChange={(roles) => form.setValue('primary_role', roles[0] || 'CEN')}
+            />
+          </div>
+
+          {/* Secondary Roles */}
+          <div className="space-y-2">
+            <Label>{t('form.secondaryRoles')}</Label>
+            <LegacyRoleSelector
+              value={form.watch('secondary_roles') || []}
+              onChange={(roles) => form.setValue('secondary_roles', roles)}
+            />
+          </div>
 
           {/* Actions */}
           <div className="flex gap-2 pt-4">
