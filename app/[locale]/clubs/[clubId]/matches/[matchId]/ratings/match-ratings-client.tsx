@@ -239,29 +239,29 @@ export function MatchRatingsClient({
                 player={{
                   id: player.clubMemberId,
                   name: player.user?.firstName || "Unknown",
-                  surname: player.user?.lastName,
-                  nickname: player.user?.nickname,
-                  avatarUrl: player.user?.image,
+                  surname: player.user?.lastName ?? undefined,
+                  nickname: player.user?.nickname ?? undefined,
+                  avatarUrl: player.user?.image ?? undefined,
                   jerseyNumber: player.jerseyNumber,
                 }}
                 currentRating={currentRating ? {
                   id: currentRating.id,
-                  match_id: currentRating.matchId,
-                  player_id: currentRating.clubMemberId,
+                  matchId: currentRating.matchId,
+                  playerId: currentRating.clubMemberId,
                   rating: currentRating.rating,
-                  rating_decimal: currentRating.rating_decimal,
+                  ratingDecimal: currentRating.ratingDecimal,
                   comment: currentRating.comment,
-                  created_at: currentRating.createdAt,
-                  updated_at: currentRating.updatedAt,
+                  createdAt: currentRating.createdAt,
+                  updatedAt: currentRating.updatedAt,
                 } : localRating ? {
                   id: 'local',
-                  match_id: matchId,
-                  player_id: player.clubMemberId,
+                  matchId: matchId,
+                  playerId: player.clubMemberId,
                   rating: localRating.rating,
-                  rating_decimal: 0,
+                  ratingDecimal: 0,
                   comment: localRating.comment,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
                 } : undefined}
                 onRatingChange={(rating) => handleRatingChange(player.clubMemberId, rating)}
                 onCommentChange={(comment) => handleCommentChange(player.clubMemberId, comment)}
