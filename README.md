@@ -12,18 +12,18 @@
 
 ## Features
 
-- **Team Management** - Create and manage teams, add players
+- **Club Management** - Create and manage clubs, add members with roles
 - **Match Organization** - Schedule matches, set dates and locations
 - **Live Match Tracking** - Real-time score updates during games
 - **Player Statistics** - Track goals, assists, and performance metrics
-- **Player Ratings** - Rate teammates after each match
-- **Leaderboards** - Rank players across multiple statistics
+- **Player Ratings** - Rate members after each match
+- **Leaderboards** - Rank members across multiple statistics
 - **Dark/Light Theme** - Automatic system detection + manual toggle
 - **Multi-language** - Italian (default) and English support
 
 ## Tech Stack
 
-- **Frontend**: React 19 + Next.js 16 (App Router)
+- **Frontend**: React 19 + Next.js 15 (App Router)
 - **Styling**: Tailwind CSS 4.x + shadcn/ui components
 - **i18n**: next-intl v4
 
@@ -33,7 +33,7 @@
 - **PostgreSQL** - Primary relational database
 - **Prisma** - Type-safe ORM for database operations
   - Schema defined in `prisma/schema.prisma`
-  - Models: User, Account, Session, Team, Player, Match, Goal, Rating
+  - Models: User, Club, ClubMember, ClubInvite, Match, Formation, FormationPosition, Goal, PlayerRating
   - Run `npx prisma studio` to explore data
 
 ### Authentication
