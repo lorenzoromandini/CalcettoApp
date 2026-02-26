@@ -17,6 +17,25 @@ Permettere a gruppi di amici di organizzare, giocare e tenere traccia delle loro
 - Old models removed: Player, PlayerClub, MatchPlayer
 - Features updated: formations, ratings, goals, clubs
 
+**Mobile Optimization:** ✅ COMPLETE (2026-02-26)
+- TanStack Query (React Query) installed and configured
+- 5 React Query hooks created with optimistic updates:
+  - `use-clubs-react-query.ts` - Club queries/mutations
+  - `use-matches-react-query.ts` - Match queries/mutations
+  - `use-goals-react-query.ts` - Goal queries/mutations
+  - `use-members-react-query.ts` - Member queries/mutations
+  - `use-ratings-react-query.ts` - Rating queries/mutations
+- 7 Server Actions implemented:
+  - `lib/actions/clubs.ts` - Club CRUD
+  - `lib/actions/matches.ts` - Match lifecycle
+  - `lib/actions/goals.ts` - Goal operations
+  - `lib/actions/members.ts` - Member management
+  - `lib/actions/ratings.ts` - Rating operations
+  - `lib/actions/formations.ts` - Formation operations
+  - `lib/actions/invites.ts` - Invite generation
+- Mobile-optimized caching: 5-min stale time, offline support
+- Build: 0 TypeScript errors, all 47 routes generating correctly
+
 ## Requirements
 
 ### Validated
