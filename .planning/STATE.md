@@ -2,8 +2,8 @@
 
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
-**Current Focus:** Phase 6 — Rating Trends & History  
-**Last Updated:** 2026-02-18 (Phase 6 Complete - Rating Trends & History)
+**Current Focus:** Mobile Performance Optimization  
+**Last Updated:** 2026-02-26 (Mobile Optimization Complete)
 
 ---
 
@@ -11,19 +11,19 @@
 
 | Property | Value |
 |----------|-------|
-| **Phase** | 6 — Rating Trends & History |
-| **Phase Goal** | Users can view rating evolution and trends over time |
-| **Plan** | 01-02 Complete |
+| **Phase** | Mobile Optimization |
+| **Phase Goal** | Optimize performance for mobile devices with TanStack Query |
+| **Plan** | 01-01 Complete |
 | **Status** | 🟢 Complete |
 | **Progress** | 100% |
 
-### Phase 6 Progress Bar
+### Mobile Optimization Progress Bar
 
 ```
 [████████████████████████] 100%
 ```
 
-*Phase 6 complete: Rating history backend + UI with Recharts charts*
+*Mobile optimization complete: TanStack Query integration with server state management*
 
 ---
 
@@ -44,6 +44,7 @@
 | Offline | idb + Workbox | IndexedDB wrapper, Service Worker management |
 | Styling | Tailwind CSS 4.x + shadcn/ui | Mobile-first, accessible components |
 | Real-time | To be determined | WebSockets, SSE, or polling (Phase 4) |
+| State Management | TanStack Query | Server state caching, offline support, optimistic updates |
 
 ### v1 Requirements Summary
 - **Total:** 68 requirements
@@ -62,10 +63,11 @@
 | 4 | Match Results & Ratings | 8 | 🟢 Complete | 100% |
 | 5 | Post-Match Statistics | 9 | 🟢 Complete | 100% |
 | 6 | Player Ratings | 6 | 🟢 Complete | 100% |
-| 7 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
-| 8 | Social & Sharing | 4 | 🔴 Not Started | 0% |
+| 7 | Mobile Optimization | 5 | 🟢 Complete | 100% |
+| 8 | Dashboard & Leaderboards | 8 | 🔴 Not Started | 0% |
+| 9 | Social & Sharing | 4 | 🔴 Not Started | 0% |
 
-**Overall:** 45/68 requirements complete (~66%)
+**Overall:** 50/73 requirements complete (~68%)
 
 ---
 
@@ -131,6 +133,11 @@
 | 2026-02-18 | Chart only for 3+ ratings | LineChart with fewer points looks wrong | ✅ Confirmed |
 | 2026-02-18 | ResponsiveContainer with initialDimension | Prevents width/height warning on first render | ✅ Confirmed |
 | 2026-02-18 | Y-axis domain [1, 10] with reference at 6 | Italian school passing grade visualization | ✅ Confirmed |
+| 2026-02-26 | TanStack Query for server state | Mobile-optimized caching, offline support, optimistic updates | ✅ Confirmed |
+| 2026-02-26 | Server Actions for mutations | Next.js native mutations with automatic revalidation | ✅ Confirmed |
+| 2026-02-26 | 5-min stale time default | Reduces network requests on mobile, better battery life | ✅ Confirmed |
+| 2026-02-26 | Optimistic updates for mutations | Instant UI feedback, rollback on error | ✅ Confirmed |
+| 2026-02-26 | React Query hooks pattern | use-*-react-query.ts naming convention for all data hooks | ✅ Confirmed |
 
 ---
 
@@ -718,29 +725,28 @@
 ## Session Continuity
 
 ### Last Session
-- **Date:** 2026-02-18
-- **Activity:** Executed Plan 06-02 (Rating Trends UI)
+- **Date:** 2026-02-26
+- **Activity:** Executed Mobile Optimization Phase
 - **Outcome:** 
-  - Created RatingTrendChart component with Recharts LineChart
-  - Created RatingHistoryList component for displaying rating history
-  - Integrated rating history into player profile page
-  - Added Italian/English translation keys
-  - Phase 6: 100% Complete
+  - Integrated TanStack Query for server state management
+  - Established hooks naming pattern (use-*-react-query.ts)
+  - Configured 5-minute stale time for mobile battery optimization
+  - Implemented optimistic updates pattern for mutations
+  - Phase Mobile Optimization: 100% Complete
 
 ### Next Session
-- **Status:** Phase 6 Complete
-- **Action:** Begin Phase 7 (Dashboard & Leaderboards) with `/gsd-plan-phase 7`
-- **When ready:** Run `/gsd-plan-phase 7` to plan dashboard features
+- **Status:** Phase 7 (Mobile Optimization) Complete
+- **Action:** Begin Phase 8 (Dashboard & Leaderboards)
+- **When ready:** Run `/gsd-plan-phase 8` to plan dashboard features
 
 ### Context for Claude
 When resuming this project:
 1. Read this STATE.md first
-2. Phase 6 complete - rating trends visualization fully implemented
-3. Read 06-01-SUMMARY.md and 06-02-SUMMARY.md for implementation details
-4. RatingTrendChart shows LineChart for players with 3+ ratings
-5. RatingHistoryList shows all ratings in reverse chronological order
-6. Player profile shows chart/list/empty state based on rating count
-7. Run `/gsd-plan-phase 7` to continue with Dashboard & Leaderboards
+2. Phase Mobile Optimization complete - TanStack Query fully integrated
+3. All data hooks now follow use-*-react-query.ts pattern
+4. Server Actions handle mutations with automatic revalidation
+5. 5-minute stale time reduces network requests on mobile
+6. Run `/gsd-plan-phase 8` to continue with Dashboard & Leaderboards
 
 ---
 
