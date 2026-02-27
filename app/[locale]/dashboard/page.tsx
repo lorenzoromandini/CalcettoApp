@@ -141,8 +141,8 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* La mia carta - più grande */}
           {memberData ? (
-            <div className="flex justify-center pt-20 pb-10">
-              <div className="scale-[2] transform-gpu">
+            <div className="flex justify-center py-6">
+              <div className="scale-150 transform-gpu origin-top">
                 <DashboardPlayerCard 
                   data={memberData} 
                   locale={typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'it'}
@@ -166,17 +166,17 @@ export default function DashboardPage() {
           )}
 
           {/* Separatore */}
-          <Separator className="mt-14 mb-4" />
+          <Separator className="my-4" />
 
           {/* Due quadrati affiancati: Club e Prossime partite */}
           <div className="grid grid-cols-2 gap-4">
-            <Link href="/clubs">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full aspect-square flex flex-col">
+            <Link href="/clubs" className="block">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer h-40 flex flex-col">
                 <CardHeader className="flex-1 flex flex-col items-center justify-center space-y-2 pb-0">
                   <Users className="h-12 w-12 text-primary" />
                   <CardTitle className="text-xl font-bold text-center">Club</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center pb-4">
+                <CardContent className="text-center pb-2 -mt-4">
                   <p className="text-sm text-muted-foreground">
                     {clubs.length > 0 ? 'Gestisci' : 'Crea'}
                   </p>
@@ -184,14 +184,14 @@ export default function DashboardPage() {
               </Card>
             </Link>
 
-            <Card className="h-full aspect-square flex flex-col">
+            <Card className="h-40 flex flex-col">
               <CardHeader className="flex-1 flex flex-col items-center justify-center space-y-2 pb-0">
                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                   <span className="text-2xl">⚽</span>
                 </div>
                 <CardTitle className="text-xl font-bold text-center">Partite</CardTitle>
               </CardHeader>
-              <CardContent className="text-center pb-4">
+              <CardContent className="text-center pb-2 -mt-4">
                 <p className="text-sm text-muted-foreground">
                   Nessuna
                 </p>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden md:block px-4">
           {error && (
             <p className="text-red-500 mt-2">Errore: {error}</p>
           )}

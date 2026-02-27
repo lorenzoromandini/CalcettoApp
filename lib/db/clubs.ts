@@ -173,26 +173,13 @@ export async function updateClub(
 export const updateTeam = updateClub;
 
 export async function deleteClub(clubId: string): Promise<void> {
-  // Elimina in ordine corretto per rispettare le foreign key
-  
-  // 1. Prima elimina le partite (cascade elimina: formations, goals, playerRatings)
-  await prisma.match.deleteMany({
-    where: { clubId },
-  });
-  
-  // 2. Elimina gli inviti del club
-  await prisma.clubInvite.deleteMany({
-    where: { clubId },
-  });
-  
-  // 3. Elimina i membri del club
-  await prisma.clubMember.deleteMany({
-    where: { clubId },
-  });
-  
-  // 4. Infine elimina fisicamente il club (hard delete)
-  await prisma.club.delete({
+  // Soft delete: set deletedAt timestamp instead of actually deleting
+  // This preserves all data and allows for recovery if needed
+  await prisma.club.update({
     where: { id: clubId },
+    data: {
+      deletedAt: new Date(),
+    },
   });
 }
 

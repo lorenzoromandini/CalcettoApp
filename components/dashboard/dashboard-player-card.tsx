@@ -115,16 +115,6 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
         )}
       </div>
 
-      <div className="mt-2 text-center">
-        <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[100px]">
-          {member.nickname || member.firstName}
-        </p>
-        {teamName && (
-          <p className="text-xs text-muted-foreground truncate max-w-[100px]">
-            {teamName}
-          </p>
-        )}
-      </div>
     </div>
   )
 }

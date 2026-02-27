@@ -24,7 +24,7 @@ export function AuthCard({ title, description, children, footer }: AuthCardProps
                 alt="Calcetto Manager"
                 width={64}
                 height={64}
-                className="h-16 w-auto"
+                style={{ width: 'auto' }}
               />
             </Link>
           </div>

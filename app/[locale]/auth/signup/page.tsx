@@ -24,13 +24,6 @@ export default async function SignupPage({
     <AuthCard
       title={t('auth.createAccount')}
       description={t('auth.createAccountDescription')}
-      footer={
-        <AuthFooterLink
-          text={t('auth.alreadyHaveAccount')}
-          linkText={t('auth.signIn')}
-          href="/auth/login"
-        />
-      }
     >
       <SignupForm />
     </AuthCard>
