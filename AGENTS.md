@@ -129,6 +129,7 @@ Three privilege levels exist, managed via the `ClubPrivilege` enum in Prisma:
 | **Match Operations** ||||
 | Create matches | ✅ | ✅ | ❌ |
 | Edit match details | ✅ | ✅ | ❌ |
+| Match formations management | ✅ | ✅ | ❌ |
 | Delete matches | ✅ | ✅ | ❌ |
 | Join match as player | ✅ | ✅ | ✅ |
 | **Match Lifecycle** ||||
