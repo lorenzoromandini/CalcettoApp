@@ -197,17 +197,23 @@ export default function ClubRosterPage() {
     }
   };
 
-  const ROLE_ICONS: Record<string, React.ReactNode> = {
+  const ROLE_ICONS: Record<string, string> = {
     // New English abbreviations
-    GK: <Grab className="h-3 w-3" />,
-    DEF: <Shield className="h-3 w-3" />,
-    MID: <Activity className="h-3 w-3" />,
-    ST: <Target className="h-3 w-3" />,
+    GK: '/icons/roles/goalkeeper.png',
+    DEF: '/icons/roles/defender.png',
+    MID: '/icons/roles/midfielder.png',
+    ST: '/icons/roles/attacker.png',
     // Old Italian (for backward compatibility until DB is migrated)
-    POR: <Grab className="h-3 w-3" />,
-    DIF: <Shield className="h-3 w-3" />,
-    CEN: <Activity className="h-3 w-3" />,
-    ATT: <Target className="h-3 w-3" />,
+    POR: '/icons/roles/goalkeeper.png',
+    DIF: '/icons/roles/defender.png',
+    CEN: '/icons/roles/midfielder.png',
+    ATT: '/icons/roles/attacker.png',
+  };
+
+  const getRoleIcon = (role: string) => {
+    const iconPath = ROLE_ICONS[role];
+    if (!iconPath) return null;
+    return <img src={iconPath} alt={translatePlayerRole(role)} className="h-5 w-5 object-contain" />;
   };
 
   const translatePlayerRole = (role: string) => {
@@ -231,10 +237,6 @@ export default function ClubRosterPage() {
       default:
         return role;
     }
-  };
-
-  const getRoleIcon = (role: string) => {
-    return ROLE_ICONS[role] || null;
   };
 
   if (isLoading) {

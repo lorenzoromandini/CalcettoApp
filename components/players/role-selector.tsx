@@ -2,14 +2,18 @@
 
 import { useTranslations } from 'next-intl';
 import { Toggle } from '@/components/ui/toggle';
-import { Hand, Shield, Zap, Target, Activity } from 'lucide-react';
-import { PlayerRole } from '@prisma/client';
+const ROLE_IMAGES: Record<PlayerRole, string> = {
+  [PlayerRole.POR]: '/icons/roles/goalkeeper.png',
+  [PlayerRole.DIF]: '/icons/roles/defender.png',
+  [PlayerRole.CEN]: '/icons/roles/midfielder.png',
+  [PlayerRole.ATT]: '/icons/roles/attacker.png',
+};
 
-const ROLES: { id: PlayerRole; icon: typeof Shield; translationKey: string }[] = [
-  { id: PlayerRole.POR, icon: Hand, translationKey: 'roles.goalkeeper' },
-  { id: PlayerRole.DIF, icon: Shield, translationKey: 'roles.defender' },
-  { id: PlayerRole.CEN, icon: Activity, translationKey: 'roles.midfielder' },
-  { id: PlayerRole.ATT, icon: Target, translationKey: 'roles.attacker' },
+const ROLES: { id: PlayerRole; translationKey: string }[] = [
+  { id: PlayerRole.POR, translationKey: 'roles.goalkeeper' },
+  { id: PlayerRole.DIF, translationKey: 'roles.defender' },
+  { id: PlayerRole.CEN, translationKey: 'roles.midfielder' },
+  { id: PlayerRole.ATT, translationKey: 'roles.attacker' },
 ];
 
 interface RoleSelectorProps {
