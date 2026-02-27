@@ -12,7 +12,7 @@
  * - Removed MatchPlayer model references
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/clubs'
 import { MatchStatus } from '@prisma/client'
@@ -82,9 +82,9 @@ function toMatchType(dbMatch: Match): Match {
 // ============================================================================
 
 export async function startMatch(matchId: string): Promise<Match> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -99,7 +99,7 @@ export async function startMatch(matchId: string): Promise<Match> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -125,9 +125,9 @@ export async function startMatch(matchId: string): Promise<Match> {
 // ============================================================================
 
 export async function endMatch(matchId: string): Promise<Match> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -142,7 +142,7 @@ export async function endMatch(matchId: string): Promise<Match> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -175,9 +175,9 @@ export async function endMatch(matchId: string): Promise<Match> {
 // ============================================================================
 
 export async function completeMatch(matchId: string): Promise<Match> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -192,7 +192,7 @@ export async function completeMatch(matchId: string): Promise<Match> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -222,9 +222,9 @@ export async function inputFinalResults(
   homeScore: number,
   awayScore: number
 ): Promise<Match> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -239,7 +239,7 @@ export async function inputFinalResults(
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }

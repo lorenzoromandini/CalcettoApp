@@ -14,7 +14,7 @@
  * - FormationPosition tracks played status instead of MatchPlayer
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/clubs'
 import { ratingToDecimal, decimalToRating, isValidRating } from '@/lib/rating-utils'
@@ -126,9 +126,9 @@ function toPlayerRatingWithMember(dbRating: any): PlayerRatingWithMember {
  * @returns Created/updated PlayerRating
  */
 export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRating> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -153,7 +153,7 @@ export async function upsertPlayerRating(data: RatingInput): Promise<PlayerRatin
   }
 
   // Check if user is club admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -342,9 +342,9 @@ export async function deletePlayerRating(
   matchId: string,
   clubMemberId: string
 ): Promise<void> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -359,7 +359,7 @@ export async function deletePlayerRating(
   }
 
   // Check if user is club admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -436,9 +436,9 @@ export async function getRatingsCount(matchId: string): Promise<{
 export async function bulkUpsertRatings(
   ratings: RatingInput[]
 ): Promise<PlayerRating[]> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -468,7 +468,7 @@ export async function bulkUpsertRatings(
   }
 
   // Check if user is club admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
