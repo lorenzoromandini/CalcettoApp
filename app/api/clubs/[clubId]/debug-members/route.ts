@@ -58,8 +58,8 @@ export async function GET(
         name: m.user?.firstName && m.user?.lastName 
           ? `${m.user.firstName} ${m.user.lastName}`
           : m.user?.email,
-        isTestUser: m.user?.email?.startsWith('test.') || m.user?.password === 'test-password-hash',
-        password: m.user?.password, // Solo per debug
+        isTestUser: m.user?.email?.startsWith('test.'),
+        // NOTE: Never expose password hashes in API responses
         createdAt: m.user?.createdAt,
       })),
     });
