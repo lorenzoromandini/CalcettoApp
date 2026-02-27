@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { getPlayerEvolution, type EvolutionDataPoint } from '@/lib/db/player-evolution'
+import { getMemberEvolutionAction } from '@/lib/actions/player-evolution'
+import type { EvolutionDataPoint } from '@/lib/db/player-evolution'
 
 // ============================================================================
 // Types
@@ -63,7 +64,7 @@ export function usePlayerEvolution(
     setError(null)
 
     try {
-      const result = await getPlayerEvolution(playerId, clubId, limit)
+      const result = await getMemberEvolutionAction(playerId, clubId, limit)
       setEvolution(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
