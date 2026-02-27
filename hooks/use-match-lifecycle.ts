@@ -11,11 +11,11 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import {
-  startMatch as startMatchAction,
-  endMatch as endMatchAction,
-  completeMatch as completeMatchAction,
-  inputFinalResults as inputFinalResultsAction,
-} from '@/lib/db/match-lifecycle'
+  startMatchAction,
+  endMatchAction,
+  completeMatchAction,
+  inputFinalResultsAction,
+} from '@/lib/actions/match-lifecycle'
 
 // ============================================================================
 // Italian Messages
