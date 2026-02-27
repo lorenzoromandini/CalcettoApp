@@ -138,7 +138,6 @@ export async function bulkUpdateParticipationAction(
 export async function getParticipationCountsAction(matchId: string): Promise<{
   played: number
   total: number
-  rsvps: { in: number; maybe: number; out: number }
 }> {
   const session = await getSession()
   

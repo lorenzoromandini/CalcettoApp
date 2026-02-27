@@ -5,13 +5,12 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Users, Calendar } from 'lucide-react';
+import { ChevronRight, Calendar } from 'lucide-react';
 import { getUpcomingMatchesAction } from '@/lib/actions/matches';
 import type { Match } from '@/lib/db/schema';
 
 interface UpcomingMatch extends Match {
   teamName: string;
-  rsvpIn: number;
 }
 
 interface UpcomingMatchesSectionProps {
@@ -33,11 +32,9 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
           const matches = await getUpcomingMatchesAction(club.id);
           
           for (const match of matches) {
-            // RSVP functionality removed in DB restructure - using 0
             allMatches.push({
               ...match,
               teamName: club.name,
-              rsvpIn: 0,
             });
           }
         }
@@ -74,10 +71,6 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
 
   const getModeLabel = (mode: Match['mode']) => {
     return mode === 'FIVE_V_FIVE' ? '5 vs 5' : '8 vs 8';
-  };
-
-  const getNeededPlayers = (mode: Match['mode']) => {
-    return mode === 'FIVE_V_FIVE' ? 10 : 16;
   };
 
   if (isLoading) {
@@ -133,9 +126,6 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
       </CardHeader>
       <CardContent className="space-y-3">
         {upcomingMatches.map((match) => {
-          const needed = getNeededPlayers(match.mode);
-          const isFull = match.rsvpIn >= needed;
-          const isPartial = match.rsvpIn >= needed / 2;
           
           return (
             <Link
@@ -163,15 +153,6 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
                       {match.location}
                     </p>
                   )}
-                </div>
-
-                {/* RSVP Count */}
-                <div className={`flex items-center gap-1.5 text-sm ${
-                  isFull ? 'text-green-600' : isPartial ? 'text-yellow-600' : 'text-red-600'
-                }`}>
-                  <Users className="h-4 w-4" />
-                  <span className="font-medium">{match.rsvpIn}</span>
-                  <span className="text-muted-foreground">/{needed}</span>
                 </div>
 
                 <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

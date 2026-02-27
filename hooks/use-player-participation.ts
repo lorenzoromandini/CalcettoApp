@@ -179,7 +179,6 @@ export function usePlayerParticipation(matchId: string): UsePlayerParticipationR
 interface UseParticipationCountsReturn {
   played: number
   total: number
-  rsvps: { in: number; maybe: number; out: number }
   isLoading: boolean
   error: Error | null
   refetch: () => Promise<void>
@@ -191,7 +190,6 @@ interface UseParticipationCountsReturn {
 export function useParticipationCounts(matchId: string): UseParticipationCountsReturn {
   const [played, setPlayed] = useState(0)
   const [total, setTotal] = useState(0)
-  const [rsvps, setRsvps] = useState({ in: 0, maybe: 0, out: 0 })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -205,7 +203,6 @@ export function useParticipationCounts(matchId: string): UseParticipationCountsR
       const data = await getParticipationCountsAction(matchId)
       setPlayed(data.played)
       setTotal(data.total)
-      setRsvps(data.rsvps)
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to fetch counts')
       setError(error)
@@ -221,7 +218,6 @@ export function useParticipationCounts(matchId: string): UseParticipationCountsR
   return {
     played,
     total,
-    rsvps,
     isLoading,
     error,
     refetch: fetchCounts,

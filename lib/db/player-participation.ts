@@ -112,7 +112,6 @@ export async function bulkUpdateParticipation(
 export async function getParticipationCounts(matchId: string): Promise<{
   played: number;
   total: number;
-  rsvps: { in: number; maybe: number; out: number };
 }> {
   const positions = await prisma.formationPosition.findMany({
     where: {
@@ -125,11 +124,9 @@ export async function getParticipationCounts(matchId: string): Promise<{
   const played = positions.filter(p => p.played).length;
   const total = positions.length;
 
-  // RSVP functionality not implemented in new schema
   return {
     played,
     total,
-    rsvps: { in: 0, maybe: 0, out: 0 },
   };
 }
 

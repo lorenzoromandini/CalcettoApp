@@ -10,8 +10,5 @@ export type { Club, ClubMember, User, Match, Formation, FormationPosition, Goal,
 // Backward compatibility - Club is the new Team
 export type { Club as Team } from '@/types/database';
 
-// RSVP Status type (no longer a database enum)
-export type RSVPStatus = 'in' | 'out' | 'maybe';
-
 // Sync Status for offline support
 export type SyncStatus = 'synced' | 'pending' | 'error';
