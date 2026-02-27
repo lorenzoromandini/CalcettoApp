@@ -26,20 +26,17 @@ import { Separator } from "@/components/ui/separator";
 import { useMatch, useCancelMatch } from "@/hooks/use-matches";
 import { useClub } from "@/hooks/use-clubs";
 import { useMembers } from "@/hooks/use-players";
-import { useRSVPData, useUpdateRSVP } from "@/hooks/use-rsvps";
 import { useFormation } from "@/hooks/use-formation";
 import { useGoals } from "@/hooks/use-goals";
 import { usePlayerRatings } from "@/hooks/use-player-ratings";
-import { RSVPButton } from "@/components/matches/rsvp-button";
-import { RSVPList } from "@/components/matches/rsvp-list";
-import { AvailabilityCounter } from "@/components/matches/availability-counter";
+
 import { MatchLifecycleButtons } from "@/components/matches/match-lifecycle-buttons";
 import { CompletedMatchDetail, type CompletedMatchData } from "@/components/matches/completed-match-detail";
 import { checkIsClubAdminAction } from "@/lib/actions/clubs";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "@/components/providers/session-provider";
-import type { Match, RSVPStatus } from "@/lib/db/schema";
+import type { Match } from "@/lib/db/schema";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,6 +61,7 @@ export function MatchDetailPageClient({
   matchId,
 }: MatchDetailPageClientProps) {
   const t = useTranslations("matches");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const { match, isLoading: isMatchLoading, error, refetch } = useMatch(matchId);
   const { club } = useClub(clubId);
@@ -89,20 +87,6 @@ export function MatchDetailPageClient({
       window.history.replaceState({ clubId }, '', `/${locale}/clubs`);
     }
   }, [clubId, locale]);
-
-  // Get RSVP data
-  const {
-    rsvps,
-    counts,
-    myRSVP,
-    isLoading: isRSVPLoading,
-    refetch: refetchRSVPs,
-  } = useRSVPData(matchId, currentPlayerId);
-
-  // RSVP mutation
-  const { updateRSVP, isPending: isRSVPPending } = useUpdateRSVP(matchId, () => {
-    refetchRSVPs();
-  });
 
   const { data: session } = useSession();
   
@@ -152,16 +136,6 @@ export function MatchDetailPageClient({
       refetch();
     } catch (err) {
       console.error("Failed to uncancel match:", err);
-    }
-  };
-
-  const handleRSVPChange = async (status: RSVPStatus) => {
-    if (!currentPlayerId) return;
-    
-    try {
-      await updateRSVP(currentPlayerId, status);
-    } catch (err) {
-      console.error("Failed to update RSVP:", err);
     }
   };
 
@@ -232,8 +206,7 @@ export function MatchDetailPageClient({
   // Goal counting requires formation data to determine home/away team
   const ourGoalsCount = goals.length; // Simplified - all goals count for now
 
-  const isLoading = isMatchLoading || isRSVPLoading;
-  const canShowRSVP = match?.status === 'SCHEDULED' && currentPlayerId;
+  const isLoading = isMatchLoading;
   const canEdit = isOwner && match?.status === 'SCHEDULED';
   const canCancel = isOwner && match?.status === 'SCHEDULED';
   const canUncancel = isOwner && match?.status === 'CANCELLED';
@@ -417,7 +390,7 @@ export function MatchDetailPageClient({
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                        <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
                         <AlertDialogAction 
                           onClick={handleCancel}
                           disabled={isActionPending}
@@ -571,55 +544,6 @@ export function MatchDetailPageClient({
               </Link>
             </Card>
           )}
-        </div>
-      )}
-
-      {/* Availability Counter - SCHEDULED only */}
-      {isScheduled && (
-        <div className="mb-6">
-          <AvailabilityCounter 
-            counts={counts} 
-            mode={match.mode} 
-            isLoading={isRSVPLoading}
-          />
-        </div>
-      )}
-
-      {/* RSVP Sections - SCHEDULED only */}
-      {isScheduled && (
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* My RSVP Section */}
-          {canShowRSVP && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  {t("detail.sections.rsvp")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RSVPButton
-                  currentStatus={myRSVP}
-                  onChange={handleRSVPChange}
-                  disabled={!currentPlayerId}
-                  isPending={isRSVPPending}
-                />
-                {!currentPlayerId && (
-                  <p className="text-sm text-muted-foreground mt-3 text-center">
-                    Unisciti al club come giocatore per rispondere
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* RSVP List */}
-          <div className={canShowRSVP ? "" : "md:col-span-2"}>
-            <RSVPList
-              rsvps={rsvps}
-              currentPlayerId={currentPlayerId || undefined}
-              isLoading={isRSVPLoading}
-            />
-          </div>
         </div>
       )}
 
