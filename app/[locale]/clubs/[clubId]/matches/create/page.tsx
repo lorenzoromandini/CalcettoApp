@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { CreateMatchPageClient } from "./create-match-page-client";
+import { CreateMatchWizard } from "./create-match-wizard";
 
 interface CreateMatchPageProps {
   params: Promise<{
@@ -24,5 +24,5 @@ export default async function CreateMatchPage({
   params,
 }: CreateMatchPageProps) {
   const { locale, clubId } = await params;
-  return <CreateMatchPageClient locale={locale} clubId={clubId} />;
+  return <CreateMatchWizard locale={locale} clubId={clubId} />;
 }
