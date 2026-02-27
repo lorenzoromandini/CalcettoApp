@@ -14,9 +14,6 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-};
-
-export const metadata = {
   icons: {
     icon: '/favicon.ico',
   },

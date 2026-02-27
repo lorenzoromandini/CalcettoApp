@@ -173,24 +173,33 @@ export async function updateClub(
 export const updateTeam = updateClub;
 
 export async function deleteClub(clubId: string): Promise<void> {
-  // Soft delete: set deletedAt timestamp for both club and all its members
-  // This preserves all data and allows for recovery if needed
-  await prisma.$transaction([
-    // Soft delete the club
-    prisma.club.update({
-      where: { id: clubId },
-      data: {
-        deletedAt: new Date(),
-      },
-    }),
-    // Soft delete all members of the club
-    prisma.clubMember.updateMany({
-      where: { clubId },
-      data: {
-        deletedAt: new Date(),
-      },
-    }),
-  ]);
+  console.log('[deleteClub] Starting deletion for club:', clubId)
+  
+  try {
+    // Soft delete: set deletedAt timestamp for both club and all its members
+    // This preserves all data and allows for recovery if needed
+    await prisma.$transaction([
+      // Soft delete the club
+      prisma.club.update({
+        where: { id: clubId },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+      // Soft delete all members of the club
+      prisma.clubMember.updateMany({
+        where: { clubId },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
+    
+    console.log('[deleteClub] Successfully deleted club and members:', clubId)
+  } catch (error) {
+    console.error('[deleteClub] Error during deletion:', error)
+    throw error
+  }
 }
 
 // Alias for backward compatibility
