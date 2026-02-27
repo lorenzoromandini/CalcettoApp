@@ -39,7 +39,7 @@ export function Header() {
           ) : session?.user ? (
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
-                src="/icons/logo.png"
+                src="/logo.png"
                 alt="Calcetto Manager"
                 width={28}
                 height={28}
@@ -52,7 +52,7 @@ export function Header() {
           ) : (
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="/icons/logo.png"
+                src="/logo.png"
                 alt="Calcetto Manager"
                 width={28}
                 height={28}

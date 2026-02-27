@@ -218,6 +218,7 @@
       "roles": "Ruoli",
       "rolesHint": "Seleziona uno o più ruoli",
       "primaryRole": "Ruolo principale",
+      "primaryRoleWarning": "Il ruolo principale non può essere cambiato in seguito. Scegli con cura!",
       "otherRoles": "Altri ruoli (opzionale)",
       "otherRolesHint": "Ruoli secondari che il giocatore può ricoprire",
       "avatar": "Foto profilo",

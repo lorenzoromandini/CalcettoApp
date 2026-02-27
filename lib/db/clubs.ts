@@ -173,14 +173,24 @@ export async function updateClub(
 export const updateTeam = updateClub;
 
 export async function deleteClub(clubId: string): Promise<void> {
-  // Soft delete: set deletedAt timestamp instead of actually deleting
+  // Soft delete: set deletedAt timestamp for both club and all its members
   // This preserves all data and allows for recovery if needed
-  await prisma.club.update({
-    where: { id: clubId },
-    data: {
-      deletedAt: new Date(),
-    },
-  });
+  await prisma.$transaction([
+    // Soft delete the club
+    prisma.club.update({
+      where: { id: clubId },
+      data: {
+        deletedAt: new Date(),
+      },
+    }),
+    // Soft delete all members of the club
+    prisma.clubMember.updateMany({
+      where: { clubId },
+      data: {
+        deletedAt: new Date(),
+      },
+    }),
+  ]);
 }
 
 // Alias for backward compatibility
@@ -236,7 +246,10 @@ export async function isClubMember(clubId: string, userId: string): Promise<bool
 
 export async function getClubMembers(clubId: string): Promise<(ClubMember & { user: User | null })[]> {
   const members = await prisma.clubMember.findMany({
-    where: { clubId },
+    where: {
+      clubId,
+      deletedAt: null,
+    },
     include: {
       user: {
         select: {
@@ -267,7 +280,10 @@ export async function getClubMembersWithUsers(clubId: string): Promise<(ClubMemb
 
 export async function getClubMemberCount(clubId: string): Promise<number> {
   return await prisma.clubMember.count({
-    where: { clubId },
+    where: {
+      clubId,
+      deletedAt: null,
+    },
   });
 }
 
