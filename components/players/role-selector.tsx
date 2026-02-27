@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Toggle } from '@/components/ui/toggle';
+import { PlayerRole } from '@prisma/client';
+
 const ROLE_IMAGES: Record<PlayerRole, string> = {
   [PlayerRole.POR]: '/icons/roles/goalkeeper.png',
   [PlayerRole.DIF]: '/icons/roles/defender.png',
@@ -54,7 +55,7 @@ export function RoleSelector({
           {t('form.primaryRole')} <span className="text-destructive">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {ROLES.map(({ id, icon: Icon, translationKey }) => {
+          {ROLES.map(({ id, translationKey }) => {
             const isSelected = primaryRole === id;
             const isDisabled = disabled;
             
@@ -73,7 +74,11 @@ export function RoleSelector({
                   ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
-                <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                <img 
+                  src={ROLE_IMAGES[id]} 
+                  alt={t(translationKey)}
+                  className={`h-8 w-8 object-contain dark:invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                />
                 <span className="text-sm font-medium">{t(translationKey)}</span>
               </button>
             );
@@ -93,7 +98,7 @@ export function RoleSelector({
           {t('form.otherRoles')}
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {ROLES.map(({ id, icon: Icon, translationKey }) => {
+          {ROLES.map(({ id, translationKey }) => {
             const isSelected = otherRoles.includes(id);
             const isDisabled = disabled || primaryRole === id;
             
@@ -112,7 +117,11 @@ export function RoleSelector({
                   ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
-                <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                <img 
+                  src={ROLE_IMAGES[id]} 
+                  alt={t(translationKey)}
+                  className={`h-8 w-8 object-contain dark:invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                />
                 <span className="text-sm font-medium">{t(translationKey)}</span>
               </button>
             );

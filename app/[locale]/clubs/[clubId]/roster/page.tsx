@@ -208,7 +208,7 @@ export default function ClubRosterPage() {
   const getRoleIcon = (role: string) => {
     const iconPath = ROLE_ICONS[role];
     if (!iconPath) return null;
-    return <img src={iconPath} alt={translatePlayerRole(role)} className="h-5 w-5 object-contain" />;
+    return <img src={iconPath} alt={translatePlayerRole(role)} className="h-5 w-5 object-contain dark:invert" />;
   };
 
   const translatePlayerRole = (role: string) => {
