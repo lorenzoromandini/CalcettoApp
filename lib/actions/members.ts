@@ -6,7 +6,7 @@
  * Mobile-optimized Server Actions for club member operations.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { 
   updateClubMember as dbUpdateClubMember,
   removeClubMember as dbRemoveClubMember
@@ -33,13 +33,13 @@ export async function updateMemberAction(
   memberId: string,
   data: Partial<ClubMember>
 ) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
-  const isAdmin = await isTeamAdmin(clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -67,13 +67,13 @@ export async function updateMemberAction(
 // ============================================================================
 
 export async function removeMemberAction(clubId: string, memberId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
-  const isAdmin = await isTeamAdmin(clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }

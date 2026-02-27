@@ -593,7 +593,7 @@ export function MatchDetailPageClient({
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  {t("detail.sections.rvp")}
+                  {t("detail.sections.rsvp")}
                 </CardTitle>
               </CardHeader>
               <CardContent>

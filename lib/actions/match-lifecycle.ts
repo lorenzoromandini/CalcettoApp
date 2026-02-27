@@ -7,7 +7,7 @@
  * These wrap the DB functions to provide proper Server Action interface.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { 
   startMatch as dbStartMatch,
   endMatch as dbEndMatch,
@@ -31,9 +31,9 @@ const ERRORS = {
 // ============================================================================
 
 export async function startMatchAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -56,9 +56,9 @@ export async function startMatchAction(matchId: string) {
 // ============================================================================
 
 export async function endMatchAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -81,9 +81,9 @@ export async function endMatchAction(matchId: string) {
 // ============================================================================
 
 export async function completeMatchAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -110,9 +110,9 @@ export async function inputFinalResultsAction(
   homeScore: number,
   awayScore: number
 ) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 

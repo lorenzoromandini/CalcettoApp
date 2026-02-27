@@ -6,7 +6,7 @@
  * Mobile-optimized Server Actions for rating operations.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { 
   upsertPlayerRating as dbUpsertPlayerRating,
   deletePlayerRating as dbDeletePlayerRating,
@@ -29,9 +29,9 @@ const ERRORS = {
 // ============================================================================
 
 export async function upsertRatingAction(data: RatingInput) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -55,9 +55,9 @@ export async function upsertRatingAction(data: RatingInput) {
 // ============================================================================
 
 export async function deleteRatingAction(matchId: string, clubMemberId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -81,9 +81,9 @@ export async function deleteRatingAction(matchId: string, clubMemberId: string) 
 // ============================================================================
 
 export async function bulkUpsertRatingsAction(ratings: RatingInput[]) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 

@@ -1,16 +1,16 @@
 'use server'
 
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
 export async function generateInviteLink(
   clubId: string,
   options?: { maxUses?: number }
 ): Promise<{ link: string; token: string }> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error('Not authenticated')
   }
 
@@ -20,7 +20,7 @@ export async function generateInviteLink(
   const invite = await prisma.clubInvite.create({
     data: {
       clubId,
-      createdBy: session.user.id,
+      createdBy: session.id,
       token,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },

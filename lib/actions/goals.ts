@@ -6,7 +6,7 @@
  * Mobile-optimized Server Actions for goal operations.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { addGoal as dbAddGoal, removeGoal as dbRemoveGoal } from '@/lib/db/goals'
 import { getMatch } from '@/lib/db/matches'
 import type { AddGoalInput } from '@/lib/db/goals'
@@ -25,9 +25,9 @@ const ERRORS = {
 // ============================================================================
 
 export async function addGoalAction(data: AddGoalInput) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -52,9 +52,9 @@ export async function addGoalAction(data: AddGoalInput) {
 // ============================================================================
 
 export async function removeGoalAction(goalId: string, matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -81,9 +81,9 @@ export async function removeGoalAction(goalId: string, matchId: string) {
 import { getMatchGoals as dbGetMatchGoals } from '@/lib/db/goals'
 
 export async function getMatchGoalsAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 

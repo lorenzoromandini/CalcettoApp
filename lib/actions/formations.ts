@@ -6,7 +6,7 @@
  * Mobile-optimized Server Actions for formation operations.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { 
   saveFormation as dbSaveFormation, 
   deleteFormation as dbDeleteFormation, 
@@ -36,9 +36,9 @@ const ERRORS = {
 // ============================================================================
 
 export async function saveFormationAction(matchId: string, data: FormationData) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -48,7 +48,7 @@ export async function saveFormationAction(matchId: string, data: FormationData) 
   }
 
   // Check admin permission
-  const isAdmin = await isClubAdmin(match.clubId, session.user.id)
+  const isAdmin = await isClubAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -71,9 +71,9 @@ export async function saveFormationAction(matchId: string, data: FormationData) 
 // ============================================================================
 
 export async function saveMatchFormationsAction(payload: SaveMatchFormationsPayload) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -83,7 +83,7 @@ export async function saveMatchFormationsAction(payload: SaveMatchFormationsPayl
   }
 
   // Check admin permission
-  const isAdmin = await isClubAdmin(match.clubId, session.user.id)
+  const isAdmin = await isClubAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -119,9 +119,9 @@ export async function getClubMembersWithRolePriorityAction(
   clubId: string,
   targetRole?: string
 ): Promise<{ members: ClubMemberWithRolePriority[] }> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -139,9 +139,9 @@ export async function getClubMembersWithRolePriorityAction(
 // ============================================================================
 
 export async function deleteFormationAction(matchId: string, isHome: boolean) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -151,7 +151,7 @@ export async function deleteFormationAction(matchId: string, isHome: boolean) {
   }
 
   // Check admin permission
-  const isAdmin = await isClubAdmin(match.clubId, session.user.id)
+  const isAdmin = await isClubAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -176,9 +176,9 @@ export async function deleteFormationAction(matchId: string, isHome: boolean) {
 import { getFormation as dbGetFormation, getMatchFormations as dbGetMatchFormations } from '@/lib/db/formations'
 
 export async function getFormationAction(matchId: string, isHome: boolean = true) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -196,9 +196,9 @@ export async function getFormationAction(matchId: string, isHome: boolean = true
 // ============================================================================
 
 export async function getMatchFormationsAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -216,9 +216,9 @@ export async function getMatchFormationsAction(matchId: string) {
 // ============================================================================
 
 export async function getMatchParticipantsAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
