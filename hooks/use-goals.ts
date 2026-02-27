@@ -10,8 +10,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { addGoalAction, removeGoalAction } from '@/lib/actions/goals'
-import { getMatchGoals } from '@/lib/db/goals'
+import { addGoalAction, removeGoalAction, getMatchGoalsAction } from '@/lib/actions/goals'
 import type { GoalWithMembers, AddGoalInput } from '@/lib/db/goals'
 
 // Re-export for convenience (backward compatibility)
@@ -62,7 +61,7 @@ export function useGoals(matchId: string): UseGoalsReturn {
     setIsLoading(true)
 
     try {
-      const data = await getMatchGoals(matchId)
+      const data = await getMatchGoalsAction(matchId)
       setGoals(data)
     } catch (error) {
       const message = error instanceof Error ? error.message : MESSAGES.fetchGoals.error
