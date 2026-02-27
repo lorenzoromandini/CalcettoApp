@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Users, Calendar } from 'lucide-react';
 import { getUpcomingMatchesAction } from '@/lib/actions/matches';
-import { getRSVPCounts } from '@/lib/db/rsvps';
 import type { Match } from '@/lib/db/schema';
 
 interface UpcomingMatch extends Match {
@@ -34,11 +33,11 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
           const matches = await getUpcomingMatchesAction(club.id);
           
           for (const match of matches) {
-            const counts = await getRSVPCounts(match.id);
+            // RSVP functionality removed in DB restructure - using 0
             allMatches.push({
               ...match,
               teamName: club.name,
-              rsvpIn: counts.in,
+              rsvpIn: 0,
             });
           }
         }
