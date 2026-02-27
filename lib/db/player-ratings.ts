@@ -18,8 +18,8 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/clubs'
 import { ratingToDecimal, decimalToRating, isValidRating } from '@/lib/rating-utils'
-import { MatchStatus } from '@prisma/client'
-import { Decimal } from '@prisma/client/runtime/library'
+import { MatchStatus, Prisma } from '@prisma/client'
+import { Decimal } from 'decimal.js'
 
 // ============================================================================
 // Types
