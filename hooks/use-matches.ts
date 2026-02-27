@@ -4,16 +4,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@/components/providers/session-provider';
-import { 
-  getClubMatches, 
-  getMatch, 
-  updateMatch as updateMatchDB,
-  cancelMatch as cancelMatchDB,
-  uncancelMatch as uncancelMatchDB,
-  getUpcomingMatches as getUpcomingMatchesDB,
-  getPastMatches as getPastMatchesDB,
-} from '@/lib/db/matches';
 import { createMatchAction } from '@/lib/actions/matches';
+import { 
+  getClubMatchesAction, 
+  getMatchAction, 
+  getUpcomingMatchesAction,
+  getPastMatchesAction,
+  updateMatchAction,
+  cancelMatchAction,
+  uncancelMatchAction
+} from '@/lib/actions/matches';
 import type { Match } from '@/lib/db/schema';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
 
@@ -42,9 +42,9 @@ export function useMatches(clubId: string): UseMatchesReturn {
     setError(null);
 
     try {
-      const allMatches = await getClubMatches(clubId);
-      const upcoming = await getUpcomingMatchesDB(clubId);
-      const past = await getPastMatchesDB(clubId);
+      const allMatches = await getClubMatchesAction(clubId);
+      const upcoming = await getUpcomingMatchesAction(clubId);
+      const past = await getPastMatchesAction(clubId);
 
       setMatches(allMatches);
       setUpcomingMatches(upcoming);
@@ -97,7 +97,7 @@ export function useMatch(matchId: string | null): UseMatchReturn {
     setError(null);
 
     try {
-      const matchData = await getMatch(matchId);
+      const matchData = await getMatchAction(matchId);
       setMatch(matchData);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch match'));
@@ -179,7 +179,7 @@ export function useUpdateMatch(): UseUpdateMatchReturn {
     setError(null);
 
     try {
-      await updateMatchDB(matchId, data);
+      await updateMatchAction(matchId, data);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update match');
       setError(error);
@@ -216,7 +216,7 @@ export function useCancelMatch(): UseCancelMatchReturn {
     setError(null);
 
     try {
-      await cancelMatchDB(matchId);
+      await cancelMatchAction(matchId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to cancel match');
       setError(error);
@@ -231,7 +231,7 @@ export function useCancelMatch(): UseCancelMatchReturn {
     setError(null);
 
     try {
-      await uncancelMatchDB(matchId);
+      await uncancelMatchAction(matchId);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to uncancel match');
       setError(error);
