@@ -29,7 +29,11 @@
   },
   "common": {
     "welcome": "Benvenuto",
-    "loading": "Caricamento..."
+    "loading": "Caricamento...",
+    "back": "Indietro",
+    "next": "Avanti",
+    "skip": "Salta",
+    "done": "Fatto"
   },
   "theme": {
     "light": "Chiaro",
@@ -46,6 +50,24 @@
       "matches": "Partite live",
       "stats": "Statistiche",
       "ratings": "Valutazioni"
+    }
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Benvenuto in Calcetto Manager!",
+      "description": "L'app definitiva per gestire le tue partite di calcetto con amici. Organizza club, traccia statistiche e vota i giocatori."
+    },
+    "step2": {
+      "title": "Crea il tuo Club",
+      "description": "Inizia creando un club per la tua squadra. Invita amici, gestisci i membri e tieni traccia di tutto."
+    },
+    "step3": {
+      "title": "Organizza Partite",
+      "description": "Programma partite, gestisci le convocazioni e traccia i risultati in tempo reale."
+    },
+    "step4": {
+      "title": "Funziona Offline",
+      "description": "Continua a usare l'app anche senza connessione. I dati si sincronizzeranno automaticamente."
     }
   },
   "dashboard": {
@@ -105,7 +127,7 @@
       "imageHint": "Max 5MB",
       "imageUploading": "Caricamento...",
       "imageInvalidType": "Il file deve essere un'immagine",
-      "imageTooLarge": "L'immagine non può superare i 5MB",
+      "imageTooLarge": "L'immagine non può superare i 10MB",
       "imageUploadError": "Errore nel caricamento dell'immagine",
       "clubMode": {
         "label": "Modalità di gioco",
@@ -151,7 +173,7 @@
       "imageHint": "Max 5MB",
       "imageUploading": "Caricamento...",
       "imageInvalidType": "Il file deve essere un'immagine",
-      "imageTooLarge": "L'immagine non può superare i 5MB",
+      "imageTooLarge": "L'immagine non può superare i 10MB",
       "imageUploadError": "Errore nel caricamento dell'immagine",
       "submit": "Crea club",
       "creating": "Creazione in corso...",
@@ -312,6 +334,11 @@
     "tabs": {
       "players": "Giocatori",
       "members": "Membri"
+    },
+    "privileges": {
+      "owner": "Proprietario",
+      "manager": "Manager",
+      "member": "Membro"
     },
     "roles": {
       "owner": "Proprietario",

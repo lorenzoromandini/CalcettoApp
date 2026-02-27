@@ -151,6 +151,7 @@ export function useClubLeaderboards(clubId: string | null): UseTeamLeaderboardsR
 
     try {
       // Fetch all 7 leaderboards in parallel
+      console.log('[useClubLeaderboards] Fetching leaderboards for club:', clubId)
       const [
         scorers,
         assisters,
@@ -168,6 +169,7 @@ export function useClubLeaderboards(clubId: string | null): UseTeamLeaderboardsR
         getTopRatedPlayers(clubId, 3),
         getTopGoalsConceded(clubId, 3),
       ])
+      console.log('[useClubLeaderboards] All leaderboards fetched')
 
       setLeaderboards({
         scorers,

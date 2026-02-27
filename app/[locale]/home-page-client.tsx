@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { LocaleSwitcher } from '@/components/locale-switcher';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/lib/i18n/navigation';
 import { OnboardingTutorial } from '@/components/onboarding/tutorial';
@@ -52,7 +51,6 @@ export default function HomePageClient() {
           <span className="text-xl font-bold text-primary">Calcetto Manager</span>
         </Link>
         <div className="flex items-center gap-2">
-          <LocaleSwitcher />
           <ThemeToggle />
         </div>
       </header>

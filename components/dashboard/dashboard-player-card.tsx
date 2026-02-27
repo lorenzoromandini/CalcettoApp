@@ -1,8 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 import type { FrameBorderColor, DashboardMemberData } from '@/lib/db/player-ratings'
 
 interface DashboardPlayerCardProps {
@@ -54,58 +54,78 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
   const { member, clubId, teamName, jerseyNumber, frameColor } = data
   const colors = FRAME_COLORS[frameColor]
 
+  console.log('[DashboardPlayerCard] Received data:', {
+    jerseyNumber,
+    jerseyNumberType: typeof jerseyNumber,
+    jerseyNumberValue: jerseyNumber,
+    condition: jerseyNumber && jerseyNumber > 0
+  })
+
   const profileUrl = clubId
-    ? `/${locale}/clubs/${clubId}/players/${member.id}`
-    : `/${locale}/players/${member.id}`
+    ? `/clubs/${clubId}/players/${member.id}`
+    : `/players/${member.id}`
+
+  const handleClick = () => {
+    if (typeof window !== 'undefined') {
+      // Naviga alla pagina del profilo
+      window.location.href = profileUrl;
+      
+      // Dopo la navigazione, nascondi l'URL completo
+      setTimeout(() => {
+        window.history.replaceState({}, '', '/player');
+      }, 100);
+    }
+  }
 
   return (
-    <Link href={profileUrl}>
-      <div className={cn('flex flex-col items-center group cursor-pointer', className)}>
-        <div
-          className={cn(
-            'relative w-24 aspect-[3/4] rounded-lg overflow-hidden',
-            'border-4 transition-all duration-300',
-            'ring-2',
-            colors.border,
-            colors.glow,
-            colors.ring,
-            'group-hover:scale-105'
-          )}
-        >
-          {member.image ? (
-            <Image
-              src={member.image}
-              alt={member.firstName}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-              <span className="text-2xl font-bold text-muted-foreground">
-                {getInitials(member.firstName, member.lastName)}
-              </span>
-            </div>
-          )}
+    <div 
+      onClick={handleClick}
+      className={cn('flex flex-col items-center group cursor-pointer', className)}
+    >
+      <div
+        className={cn(
+          'relative w-24 aspect-[3/4] rounded-lg overflow-hidden',
+          'border-4 transition-all duration-300',
+          'ring-2',
+          colors.border,
+          colors.glow,
+          colors.ring,
+          'group-hover:scale-105'
+        )}
+      >
+        {member.image ? (
+          <Image
+            src={member.image}
+            alt={member.firstName}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+            <span className="text-2xl font-bold text-muted-foreground">
+              {getInitials(member.firstName, member.lastName)}
+            </span>
+          </div>
+        )}
 
-          {jerseyNumber && jerseyNumber > 0 && (
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-background border-2 border-current flex items-center justify-center shadow-md text-xs font-bold">
-              #{jerseyNumber}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-2 text-center">
-          <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[100px]">
-            {member.nickname || member.firstName}
-          </p>
-          {teamName && (
-            <p className="text-xs text-muted-foreground truncate max-w-[100px]">
-              {teamName}
-            </p>
-          )}
-        </div>
+        {jerseyNumber && jerseyNumber > 0 && (
+          <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-background border-2 border-current flex items-center justify-center shadow-md text-xs font-bold">
+            #{jerseyNumber}
+          </div>
+        )}
       </div>
-    </Link>
+
+      <div className="mt-2 text-center">
+        <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[100px]">
+          {member.nickname || member.firstName}
+        </p>
+        {teamName && (
+          <p className="text-xs text-muted-foreground truncate max-w-[100px]">
+            {teamName}
+          </p>
+        )}
+      </div>
+    </div>
   )
 }
 

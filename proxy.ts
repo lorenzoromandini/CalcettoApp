@@ -4,23 +4,16 @@ import { routing } from '@/lib/i18n/routing';
 
 const intlMiddleware = createMiddleware(routing);
 
-export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
+export function proxy(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
   
   if (intlResponse.status !== 200 || intlResponse.headers.get('location')) {
     return intlResponse;
   }
-  
-  // Authentication is now handled client-side via localStorage
-  // Removed server-side auth check
 
-  const response = NextResponse.next({
+  return NextResponse.next({
     request,
   });
-
-  return response;
 }
 
 export const config = {

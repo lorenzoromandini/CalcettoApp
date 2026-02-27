@@ -60,7 +60,7 @@ export function ClubsPageClient({ locale }: ClubsPageClientProps) {
   };
 
   const handleClubClick = (clubId: string) => {
-    router.push(`/${locale}/clubs/${clubId}`);
+    router.push(`/clubs/${clubId}`);
   };
 
   const handleSetDefault = (clubId: string, e: React.MouseEvent) => {

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "@/components/providers/session-provider";
 import { authFetch } from "@/lib/auth-fetch";
-import { ArrowLeft, Settings, Loader2 } from "lucide-react";
+import { ArrowLeft, Settings, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface ClubData {
@@ -21,9 +22,20 @@ export default function ClubPageClient() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
   
+  // Cambia l'URL visibile per mostrare solo /clubs senza ricaricare
+  useEffect(() => {
+    if (typeof window !== 'undefined' && clubId) {
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/clubs/') && currentPath.includes(clubId)) {
+        window.history.replaceState({ clubId }, '', `/clubs`);
+      }
+    }
+  }, []);
+  
   const [club, setClub] = useState<ClubData | null>(null);
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [isOwner, setIsOwner] = useState(false);
+  const [isManager, setIsManager] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,18 +46,29 @@ export default function ClubPageClient() {
 
     if (session?.user?.id) {
       authFetch(`/api/clubs/${clubId}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`Club API error: ${res.status}`);
+          return res.json();
+        })
         .then(data => {
           if (data.error) {
+            console.error('[ClubPage] Club error:', data.error);
             router.push("/clubs");
             return;
           }
           setClub(data);
           
           // Get player count
-          return authFetch(`/api/clubs/${clubId}/players`);
+          return authFetch(`/api/clubs/${clubId}/members`);
         })
-        .then(res => res?.json())
+        .then(res => {
+          if (!res) return null;
+          if (!res.ok) {
+            console.error('[ClubPage] Members API error:', res.status);
+            return [];
+          }
+          return res.json();
+        })
         .then(playersData => {
           if (Array.isArray(playersData)) {
             setPlayerCount(playersData.length);
@@ -54,13 +77,22 @@ export default function ClubPageClient() {
           // Check admin status
           return authFetch(`/api/clubs/${clubId}/admin`);
         })
-        .then(adminRes => adminRes?.json())
+        .then(adminRes => {
+          if (!adminRes) return { isOwner: false };
+          if (!adminRes.ok) {
+            console.error('[ClubPage] Admin API error:', adminRes.status);
+            return { isOwner: false };
+          }
+          return adminRes.json();
+        })
         .then(adminData => {
           setIsOwner(adminData?.isOwner || false);
+          setIsManager(adminData?.isManager || false);
           setLoading(false);
         })
-        .catch(() => {
-          router.push("/clubs");
+        .catch((err) => {
+          console.error('[ClubPage] Error loading club:', err);
+          setLoading(false);
         });
     }
   }, [sessionLoading, session, clubId, router]);
@@ -129,6 +161,22 @@ export default function ClubPageClient() {
             <p className="text-3xl font-bold">→</p>
           </Link>
         </div>
+        
+        {/* Pulsante Crea Partita - visibile solo per OWNER e MANAGER */}
+        {(isOwner || isManager) && (
+          <div className="mt-8 flex justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="gap-2"
+            >
+              <Link href={`/clubs/${clubId}/matches/create`}>
+                <Plus className="h-5 w-5" />
+                Crea Partita
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

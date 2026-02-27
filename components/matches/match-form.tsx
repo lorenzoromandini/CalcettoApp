@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -17,7 +16,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/match";
-import { AlertCircle, Calendar, MapPin, FileText, Loader2 } from "lucide-react";
+import { IOSDateTimePicker } from "@/components/ui/ios-datetime-picker";
+import { AlertCircle, MapPin, Loader2 } from "lucide-react";
 
 interface MatchFormProps {
   clubId: string;
@@ -46,19 +46,36 @@ export function MatchForm({
     return now.toISOString().slice(0, 16);
   };
 
+  // Separiamo date e time per il form, poi li combiniamo in scheduledAt
+  const [date, setDate] = React.useState("");
+  const [time, setTime] = React.useState("");
+  
   const form = useForm<CreateMatchInput>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
       scheduledAt: initialData?.scheduledAt || "",
       location: initialData?.location || "",
       mode: initialData?.mode || "FIVE_V_FIVE",
-      notes: initialData?.notes || "",
+      notes: "",
     },
   });
+  
+  // Estrai date e time da scheduledAt quando cambia
+  React.useEffect(() => {
+    if (initialData?.scheduledAt) {
+      const [datePart, timePart] = initialData.scheduledAt.split('T');
+      setDate(datePart || "");
+      setTime(timePart?.slice(0, 5) || "");
+    }
+  }, [initialData?.scheduledAt]);
 
   async function handleSubmit(data: CreateMatchInput) {
     setError(null);
     try {
+      // Combina date e time in scheduledAt
+      if (date && time) {
+        data.scheduledAt = `${date}T${time}`;
+      }
       await onSubmit(data);
       onSuccess?.();
     } catch (err) {
@@ -69,6 +86,7 @@ export function MatchForm({
   const matchModes = [
     { value: "FIVE_V_FIVE" as const, label: t("mode.5vs5"), players: "5" },
     { value: "EIGHT_V_EIGHT" as const, label: t("mode.8vs8"), players: "8" },
+    { value: "ELEVEN_V_ELEVEN" as const, label: "11 vs 11", players: "11" },
   ];
 
   return (
@@ -81,28 +99,15 @@ export function MatchForm({
           </div>
         )}
 
-        {/* Date & Time */}
-        <FormField
-          control={form.control}
-          name="scheduledAt"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                {t("scheduledAt")}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="datetime-local"
-                  min={getMinDatetime()}
-                  disabled={isLoading}
-                  className="h-12"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        {/* Data e Ora con stile iOS */}
+        <IOSDateTimePicker
+          value={date && time ? `${date}T${time}` : ''}
+          onChange={(value) => {
+            const [newDate, newTime] = value.split('T');
+            setDate(newDate || '');
+            setTime(newTime || '');
+          }}
+          minDate={new Date().toISOString().split('T')[0]}
         />
 
         {/* Location */}
@@ -137,7 +142,7 @@ export function MatchForm({
             <FormItem>
               <FormLabel>{t("mode.label")}</FormLabel>
               <FormControl>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   {matchModes.map((mode) => (
                     <button
                       key={mode.value}
@@ -157,30 +162,6 @@ export function MatchForm({
                     </button>
                   ))}
                 </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Notes */}
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                {t("notes")}
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={t("notesPlaceholder")}
-                  disabled={isLoading}
-                  className="min-h-[120px] resize-none"
-                  {...field}
-                  value={field.value || ""}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

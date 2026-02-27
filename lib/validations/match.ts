@@ -7,7 +7,7 @@ import { z } from 'zod';
  */
 
 // Match mode enum values
-export const matchModeSchema = z.enum(['FIVE_V_FIVE', 'EIGHT_V_EIGHT']);
+export const matchModeSchema = z.enum(['FIVE_V_FIVE', 'EIGHT_V_EIGHT', 'ELEVEN_V_ELEVEN']);
 
 // Create match schema
 export const createMatchSchema = z.object({
@@ -18,6 +18,8 @@ export const createMatchSchema = z.object({
       const date = new Date(val);
       return !isNaN(date.getTime());
     }, 'Data e ora non valide'),
+  date: z.string().optional(),
+  time: z.string().optional(),
   location: z
     .string()
     .min(2, 'La location deve essere di almeno 2 caratteri')
@@ -29,6 +31,20 @@ export const createMatchSchema = z.object({
     .max(1000, 'Note troppo lunghe')
     .optional(),
 });
+
+// Schema per il form con date/time separati
+export const createMatchFormSchema = z.object({
+  date: z.string().min(1, 'Data è obbligatoria'),
+  time: z.string().min(1, 'Ora è obbligatoria'),
+  location: z.string().optional(),
+  mode: matchModeSchema,
+  notes: z.string().optional(),
+});
+
+// Helper per combinare date e time
+export const combineDateTime = (date: string, time: string): string => {
+  return `${date}T${time}`;
+};
 
 // Update match schema - all fields optional
 export const updateMatchSchema = createMatchSchema.partial();

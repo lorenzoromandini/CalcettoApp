@@ -15,29 +15,20 @@
 import { prisma } from './index';
 import type { Club, ClubMember, User } from '@/types/database';
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club';
-// ClubPrivilege enum values
-const ClubPrivilege = {
-  MEMBER: 'MEMBER',
-  MANAGER: 'MANAGER',
-  OWNER: 'OWNER',
-} as const;
-type ClubPrivilege = typeof ClubPrivilege[keyof typeof ClubPrivilege];
-
-// PlayerRole enum values
-const PlayerRole = {
-  POR: 'POR',
-  DIF: 'DIF',
-  CEN: 'CEN',
-  ATT: 'ATT',
-} as const;
-type PlayerRole = typeof PlayerRole[keyof typeof PlayerRole];
+import { ClubPrivilege, PlayerRole } from '@/types/database';
 
 function toClubType(dbClub: any): Club {
+  console.log('[toClubType] Raw club data:', {
+    id: dbClub.id,
+    image_url: dbClub.image_url,
+    imageUrl: dbClub.imageUrl,
+    hasImage: !!dbClub.image_url || !!dbClub.imageUrl
+  });
   return {
     id: dbClub.id,
     name: dbClub.name,
     description: dbClub.description ?? null,
-    imageUrl: dbClub.image_url ?? null,
+    imageUrl: dbClub.image_url ?? dbClub.imageUrl ?? null,
     createdBy: dbClub.createdBy,
     createdAt: dbClub.createdAt.toISOString(),
     updatedAt: dbClub.updatedAt.toISOString(),
@@ -53,16 +44,16 @@ function toClubMemberType(dbMember: any): ClubMember & { user: User | null } {
     privileges: dbMember.privileges as ClubMember['privileges'],
     joinedAt: dbMember.joinedAt.toISOString(),
     primaryRole: dbMember.primaryRole as PlayerRole,
-    secondaryRoles: (dbMember.secondaryRoles as PlayerRole[]) || [],
+    secondaryRoles: dbMember.secondaryRoles as PlayerRole[],
     jerseyNumber: dbMember.jerseyNumber,
     user: dbMember.user ? {
       id: dbMember.user.id,
       email: dbMember.user.email,
       firstName: dbMember.user.firstName,
       lastName: dbMember.user.lastName,
-      nickname: dbMember.user.nickname ?? null,
-      image: dbMember.user.image ?? null,
-      password: dbMember.user.password ?? null,
+      nickname: dbMember.user.nickname,
+      image: dbMember.user.image,
+      password: null,
       createdAt: dbMember.user.createdAt.toISOString(),
       updatedAt: dbMember.user.updatedAt.toISOString(),
       lastLogin: dbMember.user.lastLogin?.toISOString() ?? null,
@@ -78,26 +69,31 @@ export async function createClub(
   data: CreateClubInput,
   userId: string
 ): Promise<string> {
+  console.log('[DB Clubs] createClub called with:', { data, userId })
+  
+  // Sanitize data for Prisma - undefined values must be removed
+  const clubData: Record<string, unknown> = {
+    name: data.name,
+    createdBy: userId,
+  }
+  
+  // Only add optional fields if they have values
+  if (data.description !== undefined && data.description !== '') {
+    clubData.description = data.description
+  }
+  if (data.image_url !== undefined && data.image_url !== '' && data.image_url !== null) {
+    clubData.imageUrl = data.image_url
+    console.log('[DB Clubs] Image URL provided:', data.image_url.substring(0, 50) + '...')
+  }
+  
+  console.log('[DB Clubs] Club data to create:', clubData)
+  
   const club = await prisma.club.create({
-    data: {
-      name: data.name,
-      description: data.description,
-      imageUrl: data.image_url,
-      createdBy: userId,
-    },
+    data: clubData as { name: string; description?: string | null; imageUrl?: string | null; createdBy: string },
   });
 
-  // Create club member (creator is owner)
-  await prisma.clubMember.create({
-    data: {
-      clubId: club.id,
-      userId: userId,
-      privileges: ClubPrivilege.OWNER,
-      primaryRole: PlayerRole.CEN,
-      secondaryRoles: [],
-      jerseyNumber: 1,
-    },
-  });
+  // Creator will be added as member during setup-player phase
+  // This allows them to configure their jersey number, role, etc.
 
   return club.id;
 }
@@ -177,17 +173,36 @@ export async function updateClub(
 export const updateTeam = updateClub;
 
 export async function deleteClub(clubId: string): Promise<void> {
-  await prisma.club.update({
+  // Elimina in ordine corretto per rispettare le foreign key
+  
+  // 1. Prima elimina le partite (cascade elimina: formations, goals, playerRatings)
+  await prisma.match.deleteMany({
+    where: { clubId },
+  });
+  
+  // 2. Elimina gli inviti del club
+  await prisma.clubInvite.deleteMany({
+    where: { clubId },
+  });
+  
+  // 3. Elimina i membri del club
+  await prisma.clubMember.deleteMany({
+    where: { clubId },
+  });
+  
+  // 4. Infine elimina fisicamente il club (hard delete)
+  await prisma.club.delete({
     where: { id: clubId },
-    data: {
-      deletedAt: new Date(),
-    },
   });
 }
 
 // Alias for backward compatibility
 export const deleteTeam = deleteClub;
 
+/**
+ * Check if user has admin privileges (OWNER or MANAGER)
+ * Used for: creating matches, managing invites, team operations
+ */
 export async function isClubAdmin(clubId: string, userId: string): Promise<boolean> {
   const membership = await prisma.clubMember.findFirst({
     where: {
@@ -204,6 +219,22 @@ export async function isClubAdmin(clubId: string, userId: string): Promise<boole
 
 // Alias for backward compatibility
 export const isTeamAdmin = isClubAdmin;
+
+/**
+ * Check if user is the club OWNER
+ * Used for: modifying club details, deleting club, managing member roles
+ */
+export async function isClubOwner(clubId: string, userId: string): Promise<boolean> {
+  const membership = await prisma.clubMember.findFirst({
+    where: {
+      clubId,
+      userId,
+      privileges: ClubPrivilege.OWNER,
+    },
+  });
+
+  return !!membership;
+}
 
 export async function isClubMember(clubId: string, userId: string): Promise<boolean> {
   const membership = await prisma.clubMember.findFirst({

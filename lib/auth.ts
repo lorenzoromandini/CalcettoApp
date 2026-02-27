@@ -3,6 +3,11 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
+// Ensure AUTH_SECRET is set
+if (!process.env.AUTH_SECRET) {
+  throw new Error("AUTH_SECRET environment variable is not set. Please set it in your .env file.")
+}
+
 declare module "next-auth" {
   interface User {
     firstName?: string | null

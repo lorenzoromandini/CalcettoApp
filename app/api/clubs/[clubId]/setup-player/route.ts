@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
-import { PlayerRole } from '@prisma/client';
+import { PlayerRole, ClubPrivilege } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -15,13 +15,31 @@ export async function GET(
 
   const { clubId } = await params;
 
+  // Check if user is already a member
   const clubMember = await prisma.clubMember.findFirst({
     where: { clubId, userId },
   });
 
-  if (!clubMember) {
-    return NextResponse.json({ error: 'Not a member of this team' }, { status: 403 });
+  // Get club to check if user is the creator
+  const club = await prisma.club.findUnique({
+    where: { id: clubId },
+    select: { createdBy: true },
+  });
+
+  const isCreator = club?.createdBy === userId;
+
+  // Allow access if:
+  // 1. User is already a member (updating profile)
+  // 2. User is the creator setting up for the first time
+  if (!clubMember && !isCreator) {
+    return NextResponse.json({ error: 'Not authorized to setup player for this team' }, { status: 403 });
   }
+
+  // Get user's existing avatar from User table
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { image: true },
+  });
 
   // Get all members to find taken jersey numbers
   const members = await prisma.clubMember.findMany({
@@ -47,6 +65,7 @@ export async function GET(
       secondaryRoles: clubMember.secondaryRoles,
       jerseyNumber: clubMember.jerseyNumber,
     } : null,
+    userAvatar: user?.image || null, // Include user's existing avatar
   });
 }
 
@@ -95,6 +114,15 @@ export async function POST(
     return NextResponse.json({ error: 'Jersey number already taken' }, { status: 400 });
   }
 
+  // Get club to check if user is the creator (should be OWNER)
+  const club = await prisma.club.findUnique({
+    where: { id: clubId },
+    select: { createdBy: true },
+  });
+
+  // Determine privilege: OWNER if creator, MEMBER otherwise
+  const privilege = club?.createdBy === userId ? ClubPrivilege.OWNER : ClubPrivilege.MEMBER;
+
   // Handle avatar upload
   let avatarUrl: string | undefined;
   if (avatarFile && avatarFile.size > 0) {
@@ -114,7 +142,7 @@ export async function POST(
     data: {
       clubId,
       userId,
-      privileges: 'MEMBER',
+      privileges: privilege,
       primaryRole,
       secondaryRoles,
       jerseyNumber,

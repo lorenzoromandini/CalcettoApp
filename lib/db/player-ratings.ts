@@ -617,8 +617,8 @@ export async function getMemberDashboardData(
   userId: string,
   clubId?: string
 ): Promise<DashboardMemberData | null> {
-  // Find member by userId
-  const member = await prisma.clubMember.findFirst({
+  // Find member by userId - preferisci OWNER, poi ordina per data di adesione
+  const memberships = await prisma.clubMember.findMany({
     where: { 
       userId,
       ...(clubId ? { clubId } : {}),
@@ -627,9 +627,26 @@ export async function getMemberDashboardData(
       user: true,
       club: true,
     },
+    orderBy: [
+      { privileges: 'desc' }, // OWNER prima, poi MANAGER, poi MEMBER
+      { joinedAt: 'desc' },  // Poi il più recente
+    ],
+    take: 1,
   })
+  
+  const member = memberships[0]
 
-  if (!member) return null
+  if (!member) {
+    console.log('[getMemberDashboardData] No member found for userId:', userId, 'clubId:', clubId)
+    return null
+  }
+  
+  console.log('[getMemberDashboardData] Found member:', {
+    memberId: member.id,
+    jerseyNumber: member.jerseyNumber,
+    privileges: member.privileges,
+    clubName: member.club?.name
+  })
 
   const lastThreeRatings = await prisma.playerRating.findMany({
     where: {
@@ -681,7 +698,7 @@ export async function getMemberDashboardData(
 
   const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
 
-  return {
+  const result = {
     member: {
       id: member.id,
       firstName: member.user.firstName,
@@ -696,6 +713,15 @@ export async function getMemberDashboardData(
     hasMvpInLastThree,
     frameColor,
   }
+
+  console.log('[getMemberDashboardData] RETURNING:', {
+    jerseyNumber: result.jerseyNumber,
+    type: typeof result.jerseyNumber,
+    clubName: result.teamName,
+    memberId: result.member.id
+  })
+
+  return result
 }
 
 export async function calculateFrameColor(
@@ -703,7 +729,7 @@ export async function calculateFrameColor(
   hasMvp: boolean
 ): Promise<FrameBorderColor> {
   if (hasMvp) return 'fire-red'
-  if (avgRating === null) return 'gray'
+  if (avgRating === null) return 'bronze' // Nessuna partita disputata = bronzo
   if (avgRating < 6) return 'bronze'
   if (avgRating < 7) return 'silver'
   if (avgRating < 8) return 'gold'

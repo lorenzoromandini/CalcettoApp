@@ -36,7 +36,7 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
   const [error, setError] = useState<string | null>(null);
 
   const [availableNumbers, setAvailableNumbers] = useState<AvailableJerseyNumbers | null>(null);
-  const [jerseyNumber, setJerseyNumber] = useState<number>(1);
+  const [jerseyNumber, setJerseyNumber] = useState<number | ''>('');
   const [primaryRole, setPrimaryRole] = useState<PlayerRole | null>(null);
   const [secondaryRoles, setSecondaryRoles] = useState<PlayerRole[]>([]);
   
@@ -54,13 +54,11 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
         const data = await res.json();
         setAvailableNumbers(data.availableJerseyNumbers);
         
-        if (data.player?.avatarUrl) {
-          setAvatarPreview(data.player.avatarUrl);
+        if (data.userAvatar) {
+          setAvatarPreview(data.userAvatar);
         }
         
-        if (data.availableJerseyNumbers.available.length > 0) {
-          setJerseyNumber(data.availableJerseyNumbers.available[0]);
-        }
+        // Non impostare automaticamente il numero, lascia vuoto così l'utente deve scegliere
       } catch {
         setError('Failed to load setup data');
       } finally {
@@ -106,7 +104,7 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
       return;
     }
 
-    if (!availableNumbers?.available.includes(jerseyNumber)) {
+    if (typeof jerseyNumber !== 'number' || !availableNumbers?.available.includes(jerseyNumber)) {
       setError(t('setup.jerseyTaken'));
       return;
     }

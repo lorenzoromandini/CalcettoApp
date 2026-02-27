@@ -83,6 +83,13 @@ export function MatchDetailPageClient({
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+  // Hide club ID from URL, show only section path
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/${locale}/clubs`);
+    }
+  }, [clubId, locale]);
+
   // Get RSVP data
   const {
     rsvps,

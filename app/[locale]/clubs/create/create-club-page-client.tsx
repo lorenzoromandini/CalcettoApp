@@ -29,6 +29,10 @@ export function CreateClubPageClient({ locale }: CreateClubPageClientProps) {
   };
 
   const handleSetupComplete = () => {
+    // Imposta automaticamente il club appena creato come preferito
+    if (createdClubId) {
+      localStorage.setItem("defaultClubId", createdClubId);
+    }
     router.push(`/${locale}/clubs/${createdClubId}`);
   };
 

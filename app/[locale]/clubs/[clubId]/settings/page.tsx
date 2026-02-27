@@ -32,6 +32,13 @@ export default function ClubSettingsPage() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
 
+  // Hide club ID from URL, show only section path
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/${locale}/clubs/settings`);
+    }
+  }, [clubId, locale]);
+
   const [isOwner, setIsOwner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

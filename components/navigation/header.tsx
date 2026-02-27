@@ -4,7 +4,6 @@ import { useSession } from '@/components/providers/session-provider';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { LocaleSwitcher } from '@/components/locale-switcher';
 import { UserMenu } from './user-menu';
 import { Link } from '@/lib/i18n/navigation';
 import { Menu, X, ArrowLeft, LayoutDashboard, User, Settings, LogOut } from 'lucide-react';
@@ -18,15 +17,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  
-  // Get locale from pathname - just extract it without leading slash
-  const getLocale = () => {
-    if (!pathname) return 'it';
-    const parts = pathname.split('/').filter(Boolean);
-    if (parts[0] === 'it' || parts[0] === 'en') return parts[0];
-    return 'it';
-  };
-  const locale = getLocale();
+  const locale = 'it';
   
   const isDashboard = pathname?.includes('/dashboard');
   const isClubCreate = pathname?.includes('/clubs/create');
@@ -74,9 +65,8 @@ export function Header() {
 
         {/* Right side - Desktop: user menu, Mobile: hamburger */}
         <div className="flex items-center gap-2">
-          {/* Desktop: LocaleSwitcher, ThemeToggle, UserMenu */}
+          {/* Desktop: ThemeToggle, UserMenu */}
           <div className="hidden md:flex items-center gap-2">
-            <LocaleSwitcher />
             <ThemeToggle />
             {session?.user ? (
               <UserMenu user={session.user} />
@@ -156,8 +146,7 @@ export function Header() {
 
             {/* Bottom section */}
             <div className="pt-2 mt-2 border-t flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <LocaleSwitcher />
+              <div className="flex items-center justify-end">
                 <ThemeToggle />
               </div>
               <button
@@ -185,8 +174,7 @@ export function Header() {
             >
               {t('signIn')}
             </Link>
-            <div className="pt-2 mt-2 border-t flex items-center justify-between">
-              <LocaleSwitcher />
+            <div className="pt-2 mt-2 border-t flex items-center justify-end">
               <ThemeToggle />
             </div>
           </div>

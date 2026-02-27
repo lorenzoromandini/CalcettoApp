@@ -33,6 +33,13 @@ export default function ClubRosterPage() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
 
+  // Nascondi l'ID del club dall'URL, mostra solo /clubs/roster
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/clubs/roster`);
+    }
+  }, [clubId, locale]);
+
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -53,38 +60,15 @@ export default function ClubRosterPage() {
     try {
       setIsLoading(true);
 
-      const [membersRes, adminRes, playersRes] = await Promise.all([
+      const [membersRes, adminRes] = await Promise.all([
         authFetch(`/api/clubs/${clubId}/members`),
         authFetch(`/api/clubs/${clubId}/admin`),
-        authFetch(`/api/clubs/${clubId}/players`),
       ]);
 
       if (membersRes.ok) {
         const membersData = await membersRes.json();
-
-        // Mappa i player con i membri
-        if (playersRes.ok) {
-          const playersData = await playersRes.json();
-          const playersByUserId = new Map();
-          playersData.forEach((player: any) => {
-            if (player.userId) {
-              playersByUserId.set(player.userId, player);
-            }
-          });
-
-          // Unisci i dati dei player ai membri
-          const enrichedMembers = membersData.map((member: any) => {
-            const playerData = playersByUserId.get(member.userId);
-            return {
-              ...member,
-              playerData: playerData || null,
-            };
-          });
-
-          setMembers(enrichedMembers);
-        } else {
-          setMembers(membersData);
-        }
+        // I membri contengono già tutti i dati necessari (jerseyNumber, primaryRole, ecc.)
+        setMembers(membersData);
       }
 
       if (adminRes.ok) {
@@ -188,10 +172,12 @@ export default function ClubRosterPage() {
   };
 
   const getPrivilegeIcon = (privilege: string) => {
-    switch (privilege) {
-      case 'owner':
+    // Handle both uppercase (from DB) and lowercase (for compatibility)
+    const normalizedPrivilege = privilege.toUpperCase();
+    switch (normalizedPrivilege) {
+      case 'OWNER':
         return <Shield className="h-4 w-4 text-primary" />;
-      case 'manager':
+      case 'MANAGER':
         return <UserCog className="h-4 w-4 text-muted-foreground" />;
       default:
         return <User className="h-4 w-4 text-muted-foreground" />;
@@ -199,10 +185,12 @@ export default function ClubRosterPage() {
   };
 
   const getPrivilegeLabel = (privilege: string) => {
-    switch (privilege) {
-      case 'owner':
+    // Handle both uppercase (from DB) and lowercase (for compatibility)
+    const normalizedPrivilege = privilege.toUpperCase();
+    switch (normalizedPrivilege) {
+      case 'OWNER':
         return t('privileges.owner');
-      case 'manager':
+      case 'MANAGER':
         return t('privileges.manager');
       default:
         return t('privileges.member');
@@ -211,6 +199,14 @@ export default function ClubRosterPage() {
 
   const translatePlayerRole = (role: string) => {
     switch (role) {
+      case 'POR':
+        return 'Portiere';
+      case 'DIF':
+        return 'Difensore';
+      case 'CEN':
+        return 'Centrocampista';
+      case 'ATT':
+        return 'Attaccante';
       case 'GOALKEEPER':
         return 'Portiere';
       case 'DEFENDER':
@@ -239,7 +235,7 @@ export default function ClubRosterPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Back button */}
       <div className="flex items-center justify-between mb-6">
-        <Link href={`/${locale}/clubs/${clubId}`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+        <Link href={`/clubs/${clubId}`} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
           <span>Indietro</span>
         </Link>
@@ -265,22 +261,14 @@ export default function ClubRosterPage() {
               {members.map((member: any) => (
                 <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    {/* Avatar con iniziali o maglietta */}
-                    {member.playerData ? (
-                      <div className="relative w-10 h-10 flex items-center justify-center">
-                        <Shirt className="h-10 w-10 text-primary" />
-                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
-                          {member.playerData.jerseyNumber || '?'}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-sm font-medium">
-                          {member.user?.firstName?.charAt(0) || member.user?.email?.charAt(0) || '?'}
-                        </span>
-                      </div>
-                    )}
-                    {/* Nome e ruolo */}
+                    {/* Maglietta con numero */}
+                    <div className="relative w-12 h-12 flex items-center justify-center">
+                      <Shirt className="h-12 w-12 text-primary" />
+                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+                        {member.jerseyNumber || '?'}
+                      </span>
+                    </div>
+                    {/* Nome, ruolo e privilegio */}
                     <div>
                       <p className="font-medium">
                         {member.user?.firstName && member.user?.lastName 
@@ -291,8 +279,8 @@ export default function ClubRosterPage() {
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         {getPrivilegeIcon(member.privileges)}
                         {getPrivilegeLabel(member.privileges)}
-                        {member.playerData?.primaryRole && (
-                          <span className="ml-1">• {translatePlayerRole(member.playerData.primaryRole)}</span>
+                        {member.primaryRole && (
+                          <span className="ml-1">• {translatePlayerRole(member.primaryRole)}</span>
                         )}
                       </p>
                     </div>
