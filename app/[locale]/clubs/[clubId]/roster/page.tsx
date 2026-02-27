@@ -33,12 +33,7 @@ export default function ClubRosterPage() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
 
-  // Nascondi l'ID del club dall'URL, mostra solo /clubs/roster
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.history.replaceState({ clubId }, '', `/clubs/roster`);
-    }
-  }, [clubId, locale]);
+
 
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
