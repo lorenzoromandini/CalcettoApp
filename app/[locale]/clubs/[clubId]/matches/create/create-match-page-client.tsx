@@ -39,12 +39,12 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     isLoading: isNotificationLoading 
   } = useNotifications();
 
-  // Hide club ID from URL, show only section path
+  // Keep full URL with clubId for proper routing
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.history.replaceState({ clubId }, '', `/clubs/matches`);
+      window.history.replaceState({ clubId }, '', `/clubs/${clubId}/matches/create`);
     }
-  }, [clubId, locale]);
+  }, [clubId]);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -108,14 +108,14 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     await requestPermission();
     setShowNotificationModal(false);
     if (createdMatchId) {
-      router.push(`/${locale}/clubs/${clubId}/matches/${createdMatchId}`);
+      router.push(`/clubs/${clubId}/matches/${createdMatchId}`);
     }
   };
 
   const handleSkipNotifications = () => {
     setShowNotificationModal(false);
     if (createdMatchId) {
-      router.push(`/${locale}/clubs/${clubId}/matches/${createdMatchId}`);
+      router.push(`/clubs/${clubId}/matches/${createdMatchId}`);
     }
   };
 
