@@ -52,7 +52,7 @@ const nextConfig: NextConfig = {
         },
         // Rewrite all other routes to /it prefix (hidden from URL)
         {
-          source: '/:path((?!_next|api).*)',
+          source: '/:path((?!_next|api|favicon\\.ico|icons/).*)',
           destination: '/it/:path*',
         },
       ],

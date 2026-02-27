@@ -216,8 +216,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="hidden md:block">
-          <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-          <p className="text-muted-foreground">Ciao, {userName || "Utente"}!</p>
           {error && (
             <p className="text-red-500 mt-2">Errore: {error}</p>
           )}
