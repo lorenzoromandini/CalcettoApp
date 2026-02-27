@@ -73,3 +73,25 @@ export async function removeGoalAction(goalId: string, matchId: string) {
     throw error
   }
 }
+
+// ============================================================================
+// Get Match Goals
+// ============================================================================
+
+import { getMatchGoals as dbGetMatchGoals } from '@/lib/db/goals'
+
+export async function getMatchGoalsAction(matchId: string) {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  try {
+    const goals = await dbGetMatchGoals(matchId)
+    return goals
+  } catch (error) {
+    console.error('[GoalAction] Get match goals error:', error)
+    throw new Error('Failed to get match goals')
+  }
+}

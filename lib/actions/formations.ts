@@ -168,3 +168,65 @@ export async function deleteFormationAction(matchId: string, isHome: boolean) {
     throw new Error('Failed to delete formation')
   }
 }
+
+// ============================================================================
+// Get Formation
+// ============================================================================
+
+import { getFormation as dbGetFormation, getMatchFormations as dbGetMatchFormations } from '@/lib/db/formations'
+
+export async function getFormationAction(matchId: string, isHome: boolean = true) {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  try {
+    const formation = await dbGetFormation(matchId, isHome)
+    return formation
+  } catch (error) {
+    console.error('[FormationAction] Get formation error:', error)
+    throw new Error('Failed to get formation')
+  }
+}
+
+// ============================================================================
+// Get Match Formations
+// ============================================================================
+
+export async function getMatchFormationsAction(matchId: string) {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  try {
+    const formations = await dbGetMatchFormations(matchId)
+    return formations
+  } catch (error) {
+    console.error('[FormationAction] Get match formations error:', error)
+    throw new Error('Failed to get match formations')
+  }
+}
+
+// ============================================================================
+// Get Match Participants
+// ============================================================================
+
+export async function getMatchParticipantsAction(matchId: string) {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  try {
+    const participants = await dbGetMatchParticipants(matchId)
+    return participants
+  } catch (error) {
+    console.error('[FormationAction] Get match participants error:', error)
+    throw new Error('Failed to get match participants')
+  }
+}
