@@ -14,7 +14,7 @@
  * - ClubMember is used for all player references
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { prisma } from '@/lib/db'
 import { isTeamAdmin } from '@/lib/db/clubs'
 import { MatchStatus } from '@prisma/client'
@@ -106,9 +106,9 @@ function toGoalWithMembers(dbGoal: any): GoalWithMembers {
 // ============================================================================
 
 export async function addGoal(data: AddGoalInput): Promise<GoalWithMembers> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -123,7 +123,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithMembers> {
   }
 
   // Check if user is club admin
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -186,9 +186,9 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithMembers> {
 // ============================================================================
 
 export async function removeGoal(goalId: string): Promise<void> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -203,7 +203,7 @@ export async function removeGoal(goalId: string): Promise<void> {
   }
 
   // Check if user is team admin
-  const isAdmin = await isTeamAdmin(goal.match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(goal.match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
