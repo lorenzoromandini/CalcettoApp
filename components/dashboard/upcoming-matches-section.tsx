@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Users, Calendar } from 'lucide-react';
-import { getUpcomingMatches } from '@/lib/db/matches';
+import { getUpcomingMatchesAction } from '@/lib/actions/matches';
 import { getRSVPCounts } from '@/lib/db/rsvps';
 import type { Match } from '@/lib/db/schema';
 
@@ -31,7 +31,7 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
         const allMatches: UpcomingMatch[] = [];
 
         for (const club of clubs) {
-          const matches = await getUpcomingMatches(club.id);
+          const matches = await getUpcomingMatchesAction(club.id);
           
           for (const match of matches) {
             const counts = await getRSVPCounts(match.id);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { updateMemberPrivilege, removeClubMember } from '@/lib/db/clubs';
+import { updateMemberPrivilegeAction, removeClubMemberAction } from '@/lib/actions/clubs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -39,7 +39,7 @@ export function ClubRosterManager({
     if (!isAdmin) return;
 
     try {
-      await updateMemberPrivilege(clubId, memberId, newPrivilege);
+      await updateMemberPrivilegeAction(clubId, memberId, newPrivilege);
       onMembersChange();
     } catch (error) {
       console.error('Failed to update privilege:', error);
@@ -52,7 +52,7 @@ export function ClubRosterManager({
 
     setIsRemoving(true);
     try {
-      await removeClubMember(clubId, memberToRemove.id);
+      await removeClubMemberAction(clubId, memberToRemove.id);
       setMemberToRemove(null);
       onMembersChange();
     } catch (error) {

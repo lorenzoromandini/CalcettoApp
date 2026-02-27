@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Trophy, Calendar } from 'lucide-react';
-import { getClubMatches } from '@/lib/db/matches';
+import { getClubMatchesAction } from '@/lib/actions/matches';
 import type { Match } from '@/lib/db/schema';
 
 // ============================================================================
@@ -46,17 +46,15 @@ export function RecentResultsSection({ clubs, locale }: RecentResultsSectionProp
         const allMatches: CompletedMatch[] = [];
 
         for (const club of clubs) {
-          const matches = await getClubMatches(club.id);
-          
-          const completedMatches = matches.filter(m => m.status === 'COMPLETED');
-          
-          for (const match of completedMatches) {
-            allMatches.push({
-              ...match,
+          const matches = await getClubMatchesAction(club.id);
+          const completed = matches.filter((m) => m.status === 'COMPLETED');
+          allMatches.push(
+            ...completed.map((m) => ({
+              ...m,
               teamName: club.name,
               clubId: club.id,
-            });
-          }
+            }))
+          );
         }
 
         allMatches.sort((a, b) => 
