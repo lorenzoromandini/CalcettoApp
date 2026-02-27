@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ClubPrivilege } from '@prisma/client';
 import { useSession } from '@/components/providers/session-provider';
-import { ArrowLeft, Users, Settings, UserCog, Trash2, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt } from 'lucide-react';
+import { ArrowLeft, Users, Settings, UserCog, Trash2, Crown, Briefcase, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt, Activity, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -176,9 +176,9 @@ export default function ClubRosterPage() {
     const normalizedPrivilege = privilege.toUpperCase();
     switch (normalizedPrivilege) {
       case 'OWNER':
-        return <Shield className="h-4 w-4 text-primary" />;
+        return <Crown className="h-4 w-4 text-yellow-500" />;
       case 'MANAGER':
-        return <UserCog className="h-4 w-4 text-muted-foreground" />;
+        return <Briefcase className="h-4 w-4 text-blue-500" />;
       default:
         return <User className="h-4 w-4 text-muted-foreground" />;
     }
@@ -195,6 +195,19 @@ export default function ClubRosterPage() {
       default:
         return t('privileges.member');
     }
+  };
+
+  const ROLE_ICONS: Record<string, React.ReactNode> = {
+    // New English abbreviations
+    GK: <Grab className="h-3 w-3" />,
+    DEF: <Shield className="h-3 w-3" />,
+    MID: <Activity className="h-3 w-3" />,
+    ST: <Target className="h-3 w-3" />,
+    // Old Italian (for backward compatibility until DB is migrated)
+    POR: <Grab className="h-3 w-3" />,
+    DIF: <Shield className="h-3 w-3" />,
+    CEN: <Activity className="h-3 w-3" />,
+    ATT: <Target className="h-3 w-3" />,
   };
 
   const translatePlayerRole = (role: string) => {
@@ -218,6 +231,10 @@ export default function ClubRosterPage() {
       default:
         return role;
     }
+  };
+
+  const getRoleIcon = (role: string) => {
+    return ROLE_ICONS[role] || null;
   };
 
   if (isLoading) {
@@ -272,16 +289,16 @@ export default function ClubRosterPage() {
                     <div>
                       <p className="font-medium">
                         {member.user?.firstName && member.user?.lastName 
-                          ? `${member.user.firstName} ${member.user.lastName}`
+                          ? `${member.user.firstName} ${member.user.lastName}${member.user?.nickname ? ` | ${member.user.nickname}` : ''}`
                           : member.user?.email || 'Utente'
                         }
                       </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-2">
                         {getPrivilegeIcon(member.privileges)}
-                        {getPrivilegeLabel(member.privileges)}
-                        {member.primaryRole && (
-                          <span className="ml-1">• {translatePlayerRole(member.primaryRole)}</span>
-                        )}
+                        {member.primaryRole && getRoleIcon(member.primaryRole)}
+                        {member.secondaryRoles?.length > 0 && member.secondaryRoles.map((role: string) => (
+                          <span key={role}>{getRoleIcon(role)}</span>
+                        ))}
                       </p>
                     </div>
                   </div>

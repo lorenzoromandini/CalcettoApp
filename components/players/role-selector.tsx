@@ -75,6 +75,9 @@ export function RoleSelector({
             );
           })}
         </div>
+        <p className="text-xs text-amber-600 dark:text-amber-500 mt-2">
+          {t('form.primaryRoleWarning')}
+        </p>
       </div>
 
       {/* Separator */}

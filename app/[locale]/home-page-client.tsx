@@ -42,7 +42,7 @@ export default function HomePageClient() {
       <header className="flex items-center justify-between border-b px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/icons/logo.png"
+            src="/logo.png"
             alt="Calcetto Manager"
             width={32}
             height={32}

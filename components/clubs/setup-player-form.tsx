@@ -247,9 +247,6 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
               onPrimaryRoleChange={setPrimaryRole}
               onOtherRolesChange={setSecondaryRoles}
             />
-            <p className="text-xs text-amber-600 dark:text-amber-500">
-              {t('setup.primaryRoleWarning')}
-            </p>
           </div>
 
           {/* Bottoni */}
