@@ -9,17 +9,16 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  getMemberStats as getPlayerStats,
-  getTopScorers,
-  getTopAssisters,
-  getTopAppearances,
-  getTopWins,
-  getTopLosses,
-  getTopRatedMembers as getTopRatedPlayers,
-  getTopGoalsConceded,
-  type MemberStats as PlayerStats,
-  type MemberLeaderboardEntry as PlayerLeaderboardEntry,
-} from '@/lib/db/statistics'
+  getMemberStatsAction,
+  getTopScorersAction,
+  getTopAssistersAction,
+  getTopAppearancesAction,
+  getTopWinsAction,
+  getTopLossesAction,
+  getTopRatedMembersAction,
+  getTopGoalsConcededAction,
+} from '@/lib/actions/statistics'
+import type { MemberStats, MemberLeaderboardEntry } from '@/lib/db/statistics'
 
 // ============================================================================
 // Italian Messages
@@ -36,7 +35,7 @@ const MESSAGES = {
 // ============================================================================
 
 interface UsePlayerStatsReturn {
-  stats: PlayerStats | null
+  stats: MemberStats | null
   isLoading: boolean
   error: string | null
   refresh: () => Promise<void>
@@ -53,7 +52,7 @@ export function usePlayerStats(
   playerId: string | null,
   clubId?: string
 ): UsePlayerStatsReturn {
-  const [stats, setStats] = useState<PlayerStats | null>(null)
+  const [stats, setStats] = useState<MemberStats | null>(null)
   const [isLoading, setIsLoading] = useState(!!playerId)
   const [error, setError] = useState<string | null>(null)
 
@@ -68,7 +67,7 @@ export function usePlayerStats(
     setError(null)
 
     try {
-      const result = await getPlayerStats(playerId, clubId)
+      const result = await getMemberStatsAction(playerId, clubId)
       setStats(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
@@ -96,13 +95,13 @@ export function usePlayerStats(
 // ============================================================================
 
 interface TeamLeaderboards {
-  scorers: PlayerLeaderboardEntry[]
-  assisters: PlayerLeaderboardEntry[]
-  appearances: PlayerLeaderboardEntry[]
-  wins: PlayerLeaderboardEntry[]
-  losses: PlayerLeaderboardEntry[]
-  rated: PlayerLeaderboardEntry[]
-  goalsConceded: PlayerLeaderboardEntry[]
+  scorers: MemberLeaderboardEntry[]
+  assisters: MemberLeaderboardEntry[]
+  appearances: MemberLeaderboardEntry[]
+  wins: MemberLeaderboardEntry[]
+  losses: MemberLeaderboardEntry[]
+  rated: MemberLeaderboardEntry[]
+  goalsConceded: MemberLeaderboardEntry[]
 }
 
 interface UseTeamLeaderboardsReturn {
@@ -161,13 +160,13 @@ export function useClubLeaderboards(clubId: string | null): UseTeamLeaderboardsR
         rated,
         goalsConceded,
       ] = await Promise.all([
-        getTopScorers(clubId, 3),
-        getTopAssisters(clubId, 3),
-        getTopAppearances(clubId, 3),
-        getTopWins(clubId, 3),
-        getTopLosses(clubId, 3),
-        getTopRatedPlayers(clubId, 3),
-        getTopGoalsConceded(clubId, 3),
+        getTopScorersAction(clubId, 3),
+        getTopAssistersAction(clubId, 3),
+        getTopAppearancesAction(clubId, 3),
+        getTopWinsAction(clubId, 3),
+        getTopLossesAction(clubId, 3),
+        getTopRatedMembersAction(clubId, 3),
+        getTopGoalsConcededAction(clubId, 3),
       ])
       console.log('[useClubLeaderboards] All leaderboards fetched')
 
@@ -206,7 +205,7 @@ export function useClubLeaderboards(clubId: string | null): UseTeamLeaderboardsR
 // ============================================================================
 
 interface UseLeaderboardReturn {
-  entries: PlayerLeaderboardEntry[]
+  entries: MemberLeaderboardEntry[]
   isLoading: boolean
   error: string | null
   refresh: () => Promise<void>
@@ -216,7 +215,7 @@ interface UseLeaderboardReturn {
  * Hook to fetch top scorers leaderboard
  */
 export function useTopScorers(clubId: string | null, limit: number = 3): UseLeaderboardReturn {
-  const [entries, setEntries] = useState<PlayerLeaderboardEntry[]>([])
+  const [entries, setEntries] = useState<MemberLeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(!!clubId)
   const [error, setError] = useState<string | null>(null)
 
@@ -231,7 +230,7 @@ export function useTopScorers(clubId: string | null, limit: number = 3): UseLead
     setError(null)
 
     try {
-      const result = await getTopScorers(clubId, limit)
+      const result = await getTopScorersAction(clubId, limit)
       setEntries(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
@@ -257,7 +256,7 @@ export function useTopScorers(clubId: string | null, limit: number = 3): UseLead
  * Hook to fetch top rated players leaderboard
  */
 export function useTopRatedPlayers(clubId: string | null, limit: number = 3): UseLeaderboardReturn {
-  const [entries, setEntries] = useState<PlayerLeaderboardEntry[]>([])
+  const [entries, setEntries] = useState<MemberLeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(!!clubId)
   const [error, setError] = useState<string | null>(null)
 
@@ -272,7 +271,7 @@ export function useTopRatedPlayers(clubId: string | null, limit: number = 3): Us
     setError(null)
 
     try {
-      const result = await getTopRatedPlayers(clubId, limit)
+      const result = await getTopRatedMembersAction(clubId, limit)
       setEntries(result)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
