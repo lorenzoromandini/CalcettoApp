@@ -87,6 +87,7 @@ model ClubMember {
 
   privileges     ClubPrivilege @default(MEMBER)
   joinedAt       DateTime      @default(now()) @map("joined_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   primaryRole    PlayerRole
   secondaryRoles PlayerRole[]  @default([])
@@ -104,6 +105,7 @@ model ClubMember {
   @@unique([clubId, jerseyNumber])
   @@index([clubId])
   @@index([userId])
+  @@index([deletedAt])
   @@map("club_members")
 }
 
