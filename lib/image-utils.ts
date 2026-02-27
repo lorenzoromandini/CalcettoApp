@@ -1,6 +1,9 @@
+'use client';
+
 /**
  * Image cropping utilities for avatar upload
  * Uses Canvas API for client-side processing
+ * Client-side only - must not be imported in server components
  */
 
 export interface CropArea {

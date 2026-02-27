@@ -108,7 +108,9 @@ export async function deleteClubAction(clubId: string) {
   }
 
   try {
+    console.log('[ClubAction] Starting delete for club:', clubId)
     await dbDeleteClub(clubId)
+    console.log('[ClubAction] Delete successful for club:', clubId)
     
     // Revalidate club lists
     revalidatePath('/clubs')
@@ -117,6 +119,9 @@ export async function deleteClubAction(clubId: string) {
     return { success: true }
   } catch (error) {
     console.error('[ClubAction] Delete error:', error)
+    if (error instanceof Error) {
+      console.error('[ClubAction] Error details:', error.message, error.stack)
+    }
     throw new Error('Failed to delete club')
   }
 }

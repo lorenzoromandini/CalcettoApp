@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/lib/i18n/navigation';
 import { OnboardingTutorial } from '@/components/onboarding/tutorial';
 import { useOnboarding } from '@/hooks/use-onboarding';
-;
+import Image from 'next/image';
 
 export default function HomePageClient() {
   const t = useTranslations();
