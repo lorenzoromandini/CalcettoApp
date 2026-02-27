@@ -2,6 +2,24 @@ import { MatchMode } from '@prisma/client';
 export type FormationMode = MatchMode;
 export type PositionRole = 'GK' | 'DEF' | 'MID' | 'FWD';
 
+// Re-export dal nuovo sistema di formazioni
+export type { 
+  FormationRole, 
+  MatchMode as FormationMatchMode
+} from './formations-config';
+export { 
+  getFormationsByMode,
+  getFormationById,
+  getFormationPositionsCount,
+  getRoleDisplayName,
+  getRoleShortName,
+  ROLE_COLORS,
+  ALL_FORMATIONS,
+  FORMATIONS_5V5,
+  FORMATIONS_8V8,
+  FORMATIONS_11V11
+} from './formations-config';
+
 export interface Position {
   x: number;
   y: number;

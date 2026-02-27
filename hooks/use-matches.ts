@@ -7,13 +7,13 @@ import { useSession } from '@/components/providers/session-provider';
 import { 
   getClubMatches, 
   getMatch, 
-  createMatch as createMatchDB, 
   updateMatch as updateMatchDB,
   cancelMatch as cancelMatchDB,
   uncancelMatch as uncancelMatchDB,
   getUpcomingMatches as getUpcomingMatchesDB,
   getPastMatches as getPastMatchesDB,
 } from '@/lib/db/matches';
+import { createMatchAction } from '@/lib/actions/matches';
 import type { Match } from '@/lib/db/schema';
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match';
 
@@ -142,8 +142,8 @@ export function useCreateMatch(): UseCreateMatchReturn {
     setError(null);
 
     try {
-      const matchId = await createMatchDB(data, clubId, session.user.id);
-      return matchId;
+      const result = await createMatchAction(data, clubId);
+      return result.id;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to create match');
       setError(error);

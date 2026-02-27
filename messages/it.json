@@ -561,6 +561,12 @@
   "formations": {
     "title": "Formazione",
     "selectFormation": "Seleziona modulo",
+    "selectModule": "Seleziona il modulo tattico",
+    "selectModuleDescription": "Scegli il modulo per la partita {mode}",
+    "selectModuleFirst": "Seleziona un modulo per continuare",
+    "continueToTeam1": "Vai alla formazione Team 1",
+    "continueToTeam2": "Vai alla formazione Team 2",
+    "continueToRecap": "Vai al riepilogo",
     "dragOrTap": "Trascina o tocca per posizionare",
     "tapPlayerThenPosition": "Tocca una posizione per {player}",
     "playerPool": "Giocatori disponibili",
@@ -569,7 +575,21 @@
     "backToMatch": "Torna alla partita",
     "assignedCount": "{count} di {total} posizioni assegnate",
     "formationComplete": "Formazione completa",
-    "formationIncomplete": "Formazione incompleta"
+    "formationIncomplete": "Formazione incompleta",
+    "team1": "Team 1 (Casa)",
+    "team2": "Team 2 (Trasferta)",
+    "confirmCreation": "Conferma Creazione del Match",
+    "editFormation": "Modifica formazione",
+    "searchPlayer": "Cerca giocatore...",
+    "primaryRole": "Ruolo primario",
+    "secondaryRole": "Ruolo secondario",
+    "otherPlayers": "Altri giocatori",
+    "positions": {
+      "POR": "Portiere",
+      "DIF": "Difensore",
+      "CEN": "Centrocampista",
+      "ATT": "Attaccante"
+    }
   },
   "notifications": {
     "title": "Notifiche",
