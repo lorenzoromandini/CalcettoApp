@@ -10,15 +10,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import {
-  getMatchRatings,
-  upsertPlayerRating,
-  deletePlayerRating,
-  getRatingsCount,
-  bulkUpsertRatings,
-  type PlayerRatingWithPlayer,
-  type PlayerRating,
-  type RatingInput,
-} from '@/lib/db/player-ratings'
+  getMatchRatingsAction,
+  getRatingsCountAction,
+} from '@/lib/actions/player-ratings'
+import {
+  upsertRatingAction,
+  deleteRatingAction,
+  bulkUpsertRatingsAction,
+} from '@/lib/actions/ratings'
+import type { PlayerRatingWithMember } from '@/lib/db/player-ratings'
 import type { RatingValue } from '@/lib/rating-utils'
 
 // ============================================================================
@@ -61,8 +61,8 @@ interface LocalRating {
 // ============================================================================
 
 interface UsePlayerRatingsReturn {
-  ratings: PlayerRatingWithPlayer[]
-  ratingsMap: Map<string, PlayerRatingWithPlayer>
+  ratings: PlayerRatingWithMember[]
+  ratingsMap: Map<string, PlayerRatingWithMember>
   localRatings: Map<string, LocalRating>
   isLoading: boolean
   error: Error | null
@@ -73,7 +73,7 @@ interface UsePlayerRatingsReturn {
   setRating: (clubMemberId: string, rating: RatingValue, comment?: string) => Promise<void>
   removeRating: (clubMemberId: string) => Promise<void>
   saveAllRatings: (ratings: Array<{ clubMemberId: string; rating: RatingValue; comment?: string }>) => Promise<void>
-  getRating: (clubMemberId: string) => PlayerRatingWithPlayer | undefined
+  getRating: (clubMemberId: string) => PlayerRatingWithMember | undefined
   getLocalRating: (clubMemberId: string) => LocalRating | undefined
   refresh: () => Promise<void>
 }
@@ -89,7 +89,7 @@ interface UsePlayerRatingsReturn {
  * @returns Ratings state and handlers
  */
 export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
-  const [ratings, setRatings] = useState<PlayerRatingWithPlayer[]>([])
+  const [ratings, setRatings] = useState<PlayerRatingWithMember[]>([])
   const [localRatings, setLocalRatings] = useState<Map<string, LocalRating>>(new Map())
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -106,8 +106,8 @@ export function usePlayerRatings(matchId: string): UsePlayerRatingsReturn {
 
     try {
       const [ratingsData, countsData] = await Promise.all([
-        getMatchRatings(matchId),
-        getRatingsCount(matchId),
+        getMatchRatingsAction(matchId),
+        getRatingsCountAction(matchId),
       ])
 
       setRatings(ratingsData)
