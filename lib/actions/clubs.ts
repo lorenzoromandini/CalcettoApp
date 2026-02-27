@@ -8,7 +8,16 @@
  */
 
 import { getSession } from '@/lib/session'
-import { createClub, updateClub as dbUpdateClub, deleteClub as dbDeleteClub, isTeamAdmin, isClubOwner, getClub } from '@/lib/db/clubs'
+import {
+  createClub,
+  updateClub as dbUpdateClub,
+  deleteClub as dbDeleteClub,
+  isTeamAdmin,
+  isClubOwner,
+  getClub,
+  updateMemberPrivilege as dbUpdateMemberPrivilege,
+  removeClubMember as dbRemoveClubMember
+} from '@/lib/db/clubs'
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club'
 import { revalidatePath } from 'next/cache'
 
@@ -118,5 +127,102 @@ export async function deleteClubAction(clubId: string) {
   } catch (error) {
     console.error('[ClubAction] Delete error:', error)
     throw new Error('Failed to delete club')
+  }
+}
+
+// ============================================================================
+// Check Club Admin Status
+// ============================================================================
+
+/**
+ * Check if current user is admin of a club (OWNER or MANAGER)
+ */
+export async function checkIsClubAdminAction(clubId: string): Promise<boolean> {
+  const session = await getSession()
+  
+  if (!session?.id) {
+    return false
+  }
+
+  return isTeamAdmin(clubId, session.id)
+}
+
+/**
+ * Check if current user is owner of a club
+ */
+export async function checkIsClubOwnerAction(clubId: string): Promise<boolean> {
+  const session = await getSession()
+  
+  if (!session?.id) {
+    return false
+  }
+
+  return isClubOwner(clubId, session.id)
+}
+
+// ============================================================================
+// Member Management
+// ============================================================================
+
+/**
+ * Update a member's privilege (ADMIN only)
+ */
+export async function updateMemberPrivilegeAction(
+  clubId: string,
+  memberId: string,
+  privilege: 'MEMBER' | 'MANAGER' | 'OWNER'
+) {
+  const session = await getSession()
+  
+  if (!session?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  // Check admin status
+  const isAdmin = await isTeamAdmin(clubId, session.id)
+  if (!isAdmin) {
+    throw new Error(ERRORS.NOT_ADMIN)
+  }
+
+  try {
+    await dbUpdateMemberPrivilege(clubId, memberId, privilege)
+    
+    revalidatePath(`/clubs/${clubId}/roster`)
+    revalidatePath(`/clubs/${clubId}`)
+    
+    return { success: true }
+  } catch (error) {
+    console.error('[ClubAction] Update privilege error:', error)
+    throw new Error('Failed to update member privilege')
+  }
+}
+
+/**
+ * Remove a member from club (ADMIN only)
+ */
+export async function removeClubMemberAction(clubId: string, memberId: string) {
+  const session = await getSession()
+  
+  if (!session?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  // Check admin status
+  const isAdmin = await isTeamAdmin(clubId, session.id)
+  if (!isAdmin) {
+    throw new Error(ERRORS.NOT_ADMIN)
+  }
+
+  try {
+    await dbRemoveClubMember(clubId, memberId)
+    
+    revalidatePath(`/clubs/${clubId}/roster`)
+    revalidatePath(`/clubs/${clubId}`)
+    revalidatePath('/clubs')
+    
+    return { success: true }
+  } catch (error) {
+    console.error('[ClubAction] Remove member error:', error)
+    throw new Error('Failed to remove member')
   }
 }
