@@ -7,7 +7,7 @@
  * These complement the existing actions in ratings.ts
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import {
   getMatchRatings as dbGetMatchRatings,
   getRatingsCount as dbGetRatingsCount,
@@ -30,9 +30,9 @@ const ERRORS = {
 // ============================================================================
 
 export async function getMatchRatingsAction(matchId: string): Promise<PlayerRatingWithMember[]> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -53,9 +53,9 @@ export async function getRatingsCountAction(matchId: string): Promise<{
   rated: number
   played: number
 }> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -76,9 +76,9 @@ export async function getPlayerRatingHistoryAction(
   clubMemberId: string,
   clubId?: string
 ): Promise<RatingHistoryEntry[]> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -99,9 +99,9 @@ export async function getPlayerMatchRatingAction(
   matchId: string,
   clubMemberId: string
 ) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -119,9 +119,9 @@ export async function getPlayerMatchRatingAction(
 // ============================================================================
 
 export async function getPlayerAverageRatingAction(clubMemberId: string): Promise<number | null> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 

@@ -7,7 +7,7 @@
  * These wrap the DB functions to provide proper Server Action interface.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import {
   getMatchParticipants as dbGetMatchParticipants,
   updatePlayerParticipation as dbUpdatePlayerParticipation,
@@ -33,9 +33,9 @@ const ERRORS = {
 // ============================================================================
 
 export async function getMatchParticipantsAction(matchId: string): Promise<MatchPlayerWithPlayer[]> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -57,9 +57,9 @@ export async function updatePlayerParticipationAction(
   playerId: string,
   played: boolean
 ) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -71,7 +71,7 @@ export async function updatePlayerParticipationAction(
 
   // Check admin permission
   const { isTeamAdmin } = await import('@/lib/db/clubs')
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -98,9 +98,9 @@ export async function bulkUpdateParticipationAction(
   matchId: string,
   updates: ParticipationUpdate[]
 ) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -112,7 +112,7 @@ export async function bulkUpdateParticipationAction(
 
   // Check admin permission
   const { isTeamAdmin } = await import('@/lib/db/clubs')
-  const isAdmin = await isTeamAdmin(match.clubId, session.user.id)
+  const isAdmin = await isTeamAdmin(match.clubId, session.id)
   if (!isAdmin) {
     throw new Error(ERRORS.NOT_ADMIN)
   }
@@ -140,9 +140,9 @@ export async function getParticipationCountsAction(matchId: string): Promise<{
   total: number
   rsvps: { in: number; maybe: number; out: number }
 }> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 

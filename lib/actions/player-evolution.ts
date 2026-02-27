@@ -7,7 +7,7 @@
  * These wrap the DB functions to provide proper Server Action interface.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import {
   getMemberEvolution as dbGetMemberEvolution,
   getPlayerEvolution as dbGetPlayerEvolution
@@ -31,9 +31,9 @@ export async function getMemberEvolutionAction(
   clubId: string,
   limit: number = 10
 ): Promise<EvolutionDataPoint[]> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -55,9 +55,9 @@ export async function getPlayerEvolutionAction(
   clubId: string,
   limit: number = 10
 ): Promise<EvolutionDataPoint[]> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 

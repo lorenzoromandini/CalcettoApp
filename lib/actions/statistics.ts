@@ -7,7 +7,7 @@
  * These wrap the DB functions to provide proper Server Action interface.
  */
 
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import {
   getMemberStats as dbGetMemberStats,
   getTopScorers as dbGetTopScorers,
@@ -37,9 +37,9 @@ export async function getMemberStatsAction(
   clubMemberId: string,
   clubId?: string
 ): Promise<MemberStats | null> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -70,9 +70,9 @@ export async function getClubLeaderboardsAction(
   clubId: string,
   limit: number = 3
 ): Promise<ClubLeaderboards> {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -115,9 +115,9 @@ export async function getClubLeaderboardsAction(
 // ============================================================================
 
 export async function getTopScorersAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -131,9 +131,9 @@ export async function getTopScorersAction(clubId: string, limit: number = 3) {
 }
 
 export async function getTopAssistersAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -147,9 +147,9 @@ export async function getTopAssistersAction(clubId: string, limit: number = 3) {
 }
 
 export async function getTopAppearancesAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -163,9 +163,9 @@ export async function getTopAppearancesAction(clubId: string, limit: number = 3)
 }
 
 export async function getTopWinsAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -179,9 +179,9 @@ export async function getTopWinsAction(clubId: string, limit: number = 3) {
 }
 
 export async function getTopLossesAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -195,9 +195,9 @@ export async function getTopLossesAction(clubId: string, limit: number = 3) {
 }
 
 export async function getTopRatedMembersAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -211,9 +211,9 @@ export async function getTopRatedMembersAction(clubId: string, limit: number = 3
 }
 
 export async function getTopGoalsConcededAction(clubId: string, limit: number = 3) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
@@ -231,9 +231,9 @@ export async function getTopGoalsConcededAction(clubId: string, limit: number = 
 // ============================================================================
 
 export async function getMatchScorersAction(matchId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
