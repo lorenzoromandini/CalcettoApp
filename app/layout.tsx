@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 export const metadata = {
 };
 
+export const metadata = {
+  icons: {
+    icon: '/favicon.ico',
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -23,6 +29,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it" suppressHydrationWarning>
+      <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
