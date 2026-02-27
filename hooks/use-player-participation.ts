@@ -10,13 +10,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import {
-  getMatchParticipants,
-  updatePlayerParticipation as updatePlayerParticipationAction,
-  bulkUpdateParticipation as bulkUpdateParticipationAction,
-  getParticipationCounts,
-  type MatchPlayerWithPlayer,
-  type ParticipationUpdate,
-} from '@/lib/db/player-participation'
+  getMatchParticipantsAction,
+  updatePlayerParticipationAction,
+  bulkUpdateParticipationAction,
+  getParticipationCountsAction,
+} from '@/lib/actions/player-participation'
+import type { ParticipationUpdate, MatchPlayerWithPlayer } from '@/lib/db/player-participation'
 
 // ============================================================================
 // Italian Messages
@@ -80,7 +79,7 @@ export function usePlayerParticipation(matchId: string): UsePlayerParticipationR
     setError(null)
 
     try {
-      const data = await getMatchParticipants(matchId)
+      const data = await getMatchParticipantsAction(matchId)
       setParticipants(data)
       
       // Calculate counts
