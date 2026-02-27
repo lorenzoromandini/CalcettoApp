@@ -9,9 +9,9 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  getPlayerRatingHistory,
-  type RatingHistoryEntry,
-} from '@/lib/db/player-ratings'
+  getPlayerRatingHistoryAction,
+} from '@/lib/actions/player-ratings'
+import type { RatingHistoryEntry } from '@/lib/db/player-ratings'
 
 // ============================================================================
 // Types
@@ -64,7 +64,7 @@ export function useRatingHistory(
     setError(null)
 
     try {
-      const data = await getPlayerRatingHistory(playerId, clubId)
+      const data = await getPlayerRatingHistoryAction(playerId, clubId)
       setHistory(data)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : MESSAGES.fetch.error
