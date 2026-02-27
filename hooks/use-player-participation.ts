@@ -202,7 +202,7 @@ export function useParticipationCounts(matchId: string): UseParticipationCountsR
     setError(null)
 
     try {
-      const data = await getParticipationCounts(matchId)
+      const data = await getParticipationCountsAction(matchId)
       setPlayed(data.played)
       setTotal(data.total)
       setRsvps(data.rsvps)

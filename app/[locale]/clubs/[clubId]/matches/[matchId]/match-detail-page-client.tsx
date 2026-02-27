@@ -35,7 +35,7 @@ import { RSVPList } from "@/components/matches/rsvp-list";
 import { AvailabilityCounter } from "@/components/matches/availability-counter";
 import { MatchLifecycleButtons } from "@/components/matches/match-lifecycle-buttons";
 import { CompletedMatchDetail, type CompletedMatchData } from "@/components/matches/completed-match-detail";
-import { isClubAdmin } from "@/lib/db/clubs";
+import { checkIsClubAdminAction } from "@/lib/actions/clubs";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "@/components/providers/session-provider";
@@ -113,7 +113,7 @@ export function MatchDetailPageClient({
       setCurrentUserId(session.user.id);
       
       // Check admin status
-      const admin = await isClubAdmin(clubId, session.user!.id);
+      const admin = await checkIsClubAdminAction(clubId);
       setIsOwner(admin);
       
       // Find current player's ID from club players

@@ -26,11 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { MatchHistoryCard, MatchHistoryCardSkeleton, type MatchHistoryData } from '@/components/matches/match-history-card'
-import { getClubMatches } from '@/lib/db/matches'
-import { getMatchGoals, type GoalWithPlayers } from '@/lib/db/goals'
-import { getMatchRatings, type PlayerRatingWithPlayer } from '@/lib/db/player-ratings'
-import { getFormation } from '@/lib/db/formations'
-import { isClubAdmin } from '@/lib/db/clubs'
+import { getClubMatchesAction, getMatchHistoryDetailsAction } from '@/lib/actions/matches'
+import { checkIsClubAdminAction } from '@/lib/actions/clubs'
 import { useSession } from '@/components/providers/session-provider'
 import type { Match } from '@/lib/db/schema'
 
@@ -61,13 +58,6 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
   const [isOwner, setIsOwner] = useState(false)
   const [resultFilter, setResultFilter] = useState<ResultFilter>('all')
 
-  // Hide club ID from URL, show only section path
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.history.replaceState({ clubId }, '', `/${locale}/clubs/history`)
-    }
-  }, [clubId, locale])
-
   // Load matches and check admin status
   useEffect(() => {
     async function loadData() {
@@ -75,32 +65,28 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
       try {
         // Check admin status
         if (session?.user?.id) {
-          const admin = await isClubAdmin(clubId, session.user.id)
+          const admin = await checkIsClubAdminAction(clubId)
           setIsOwner(admin)
         }
 
         // Get all team matches
-        const allMatches = await getClubMatches(clubId)
+        const allMatches = await getClubMatchesAction(clubId)
         
         // Filter to only completed matches
-        const completedMatches = allMatches.filter(m => m.status === 'COMPLETED')
+        const completedMatches = allMatches.filter((m: Match) => m.status === 'COMPLETED')
         setMatches(completedMatches)
 
         // Load goals, ratings, and formation for each match
         const dataMap = new Map<string, MatchHistoryData>()
         
         for (const match of completedMatches) {
-          const [goals, ratings, formation] = await Promise.all([
-            getMatchGoals(match.id),
-            getMatchRatings(match.id),
-            getFormation(match.id),
-          ])
+          const details = await getMatchHistoryDetailsAction(match.id)
 
           dataMap.set(match.id, {
             match,
-            goals,
-            ratings,
-            formation,
+            goals: details.goals,
+            ratings: details.ratings,
+            formation: details.formation,
           })
         }
 
@@ -141,7 +127,7 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
   }, [matches])
 
   const handleBack = () => {
-    router.push(`/${locale}/clubs/${clubId}`)
+    router.push(`/clubs/${clubId}`)
   }
 
   return (

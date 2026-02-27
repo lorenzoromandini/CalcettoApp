@@ -43,7 +43,7 @@ export function useFormation(matchId: string, mode: FormationMode, isHome: boole
     setIsSaving(true);
     setError(null);
     try {
-      await saveFormation(matchId, { ...data, isHome });
+      await saveFormationAction(matchId, { ...data, isHome });
       setFormation(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to save formation'));

@@ -22,6 +22,7 @@ export function useNotifications() {
     setIsSupported(isPushSupported());
     checkPermission();
     // TODO: Load preferences from database when implemented (Phase 8)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkPermission = async () => {
