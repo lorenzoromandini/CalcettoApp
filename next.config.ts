@@ -50,9 +50,18 @@ const nextConfig: NextConfig = {
           source: '/api/:path*',
           destination: '/api/:path*',
         },
+        // Non riscrivere file statici
+        {
+          source: '/logo.png',
+          destination: '/logo.png',
+        },
+        {
+          source: '/icons/:path*',
+          destination: '/icons/:path*',
+        },
         // Rewrite all other routes to /it prefix (hidden from URL)
         {
-          source: '/:path((?!_next|api|favicon\\.ico|icons/).*)',
+          source: '/:path((?!_next|api|favicon\\.ico|icons/|logo\\.png).*)',
           destination: '/it/:path*',
         },
       ],
