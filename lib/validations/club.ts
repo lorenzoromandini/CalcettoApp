@@ -19,7 +19,6 @@ export const createClubSchema = z.object({
     .optional(),
   image_url: z
     .string()
-    .url("URL immagine non valido")
     .optional(),
 });
 

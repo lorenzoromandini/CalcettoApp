@@ -130,6 +130,10 @@ export default function InvitePage() {
   };
 
   const handleSetupComplete = () => {
+    // Imposta automaticamente il club appena joinato come preferito
+    if (joinResult.clubId) {
+      localStorage.setItem("defaultClubId", joinResult.clubId);
+    }
     setShowSetupForm(false);
     router.push(`/clubs/${joinResult.clubId}`);
   };

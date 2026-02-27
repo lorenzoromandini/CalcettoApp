@@ -10,8 +10,7 @@ import { MatchForm } from "@/components/matches/match-form";
 import { useCreateMatch } from "@/hooks/use-matches";
 import { useClub } from "@/hooks/use-clubs";
 import { useNotifications } from "@/hooks/use-notifications";
-import { isClubAdmin, getUserClubs } from "@/lib/db/clubs";
-import { getClubMatches } from "@/lib/db/matches";
+import { authFetch } from "@/lib/auth-fetch";
 import type { CreateMatchInput } from "@/lib/validations/match";
 import { useState, useEffect } from "react";
 
@@ -39,11 +38,25 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     isLoading: isNotificationLoading 
   } = useNotifications();
 
+  // Hide club ID from URL, show only section path
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/clubs/matches`);
+    }
+  }, [clubId, locale]);
+
   useEffect(() => {
     async function checkAdmin() {
       if (session?.user?.id) {
-        const admin = await isClubAdmin(clubId, session.user.id);
-        setIsOwner(admin);
+        try {
+          const res = await authFetch(`/api/clubs/${clubId}/admin`);
+          if (res.ok) {
+            const data = await res.json();
+            setIsOwner(data.isOwner || data.isManager);
+          }
+        } catch (err) {
+          console.error("Failed to check admin:", err);
+        }
       }
       setIsCheckingAdmin(false);
     }
@@ -54,16 +67,28 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
   useEffect(() => {
     async function checkFirstMatch() {
       if (session?.user?.id && isSupported && permission === 'default') {
-        const clubs = await getUserClubs(session.user.id);
-        let totalMatches = 0;
-        
-        for (const club of clubs) {
-          const matches = await getClubMatches(club.id);
-          totalMatches += matches.length;
+        try {
+          // Get user's clubs
+          const clubsRes = await authFetch("/api/clubs");
+          if (!clubsRes.ok) return;
+          
+          const clubs = await clubsRes.json();
+          let totalMatches = 0;
+          
+          // Count matches in each club
+          for (const club of clubs) {
+            const matchesRes = await authFetch(`/api/clubs/${club.id}/matches`);
+            if (matchesRes.ok) {
+              const matches = await matchesRes.json();
+              totalMatches += matches.length;
+            }
+          }
+          
+          // If no matches exist yet, this will be the first
+          setIsFirstMatch(totalMatches === 0);
+        } catch (err) {
+          console.error("Failed to check first match:", err);
         }
-        
-        // If no matches exist yet, this will be the first
-        setIsFirstMatch(totalMatches === 0);
       }
     }
     checkFirstMatch();
@@ -72,12 +97,12 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
   // Redirect if not admin
   useEffect(() => {
     if (!isCheckingAdmin && !isOwner) {
-      router.push(`/${locale}/clubs/${clubId}/matches`);
+      router.push(`/clubs/${clubId}/matches`);
     }
   }, [isCheckingAdmin, isOwner, router, locale, clubId]);
 
   const handleBack = () => {
-    router.push(`/${locale}/clubs/${clubId}/matches`);
+    router.push(`/dashboard`);
   };
 
   const handleSubmit = async (data: CreateMatchInput) => {
@@ -89,7 +114,7 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
       setShowNotificationModal(true);
     } else {
       // Navigate directly if not showing modal
-      router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`);
+      router.push(`/clubs/${clubId}/matches/${matchId}`);
     }
   };
 
@@ -131,14 +156,14 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
           className="mb-4 -ml-2"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          {t("back")}
+          Torna alla Dashboard
         </Button>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">{t("create")}</CardTitle>
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl">{t("create")}</CardTitle>
             {club && (
-              <p className="text-sm text-muted-foreground">{club.name}</p>
+              <p className="text-base text-muted-foreground">{club.name}</p>
             )}
           </CardHeader>
           <CardContent>

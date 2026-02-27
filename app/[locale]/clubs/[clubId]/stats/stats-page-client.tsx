@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -21,8 +22,10 @@ export function StatsPageClient({ locale, clubId }: StatsPageClientProps) {
   const { club } = useClub(clubId)
   const { leaderboards, isLoading, error } = useClubLeaderboards(clubId)
 
+
+
   const handleBack = () => {
-    router.push(`/${locale}/clubs/${clubId}`)
+    router.push(`/clubs/${clubId}`)
   }
 
   // Check if there's any data

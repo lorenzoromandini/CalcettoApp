@@ -409,19 +409,19 @@ export async function getTopLosses(
 ): Promise<MemberLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ clubMemberId: string; count: bigint }[]>`
     SELECT 
-      fp.clubMemberId as clubMemberId,
+      fp.club_member_id as clubMemberId,
       COUNT(*) as count
     FROM formation_positions fp
-    JOIN formations f ON fp.formationId = f.id
-    JOIN matches m ON f.matchId = m.id
-    WHERE m.clubId = ${clubId}
+    JOIN formations f ON fp.formation_id = f.id
+    JOIN matches m ON f.match_id = m.id
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.played = true
       AND (
-        (f.is_home = true AND m.homeScore < m.awayScore)
-        OR (f.is_home = false AND m.awayScore < m.homeScore)
+        (f.is_home = true AND m.home_score < m.away_score)
+        OR (f.is_home = false AND m.away_score < m.home_score)
       )
-    GROUP BY fp.clubMemberId
+    GROUP BY fp.club_member_id
     ORDER BY count DESC
     LIMIT ${limit}
   `
@@ -439,13 +439,13 @@ export async function getTopRatedMembers(
 ): Promise<MemberLeaderboardEntry[]> {
   const result = await prisma.$queryRaw<{ clubMemberId: string; avgRating: number }[]>`
     SELECT 
-      pr.clubMemberId as clubMemberId,
+      pr.club_member_id as clubMemberId,
       AVG(pr.rating) as avgRating
     FROM player_ratings pr
-    JOIN matches m ON pr.matchId = m.id
-    WHERE m.clubId = ${clubId}
+    JOIN matches m ON pr.match_id = m.id
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
-    GROUP BY pr.clubMemberId
+    GROUP BY pr.club_member_id
     HAVING COUNT(*) >= 3
     ORDER BY avgRating DESC
     LIMIT ${limit}
@@ -472,24 +472,24 @@ export async function getTopGoalsConceded(
   // Get goalkeepers with their goals conceded
   const result = await prisma.$queryRaw<{ clubMemberId: string; goalsConceded: bigint }[]>`
     SELECT 
-      fp.clubMemberId as clubMemberId,
+      fp.club_member_id as clubMemberId,
       SUM(
         CASE 
-          WHEN f.is_home = true THEN m.awayScore
-          WHEN f.is_home = false THEN m.homeScore
+          WHEN f.is_home = true THEN m.away_score
+          WHEN f.is_home = false THEN m.home_score
           ELSE 0
         END
       ) as goalsConceded
     FROM formation_positions fp
-    JOIN formations f ON fp.formationId = f.id
-    JOIN matches m ON f.matchId = m.id
-    JOIN club_members cm ON fp.clubMemberId = cm.id
-    WHERE m.clubId = ${clubId}
+    JOIN formations f ON fp.formation_id = f.id
+    JOIN matches m ON f.match_id = m.id
+    JOIN club_members cm ON fp.club_member_id = cm.id
+    WHERE m.club_id = ${clubId}
       AND m.status = 'COMPLETED'
       AND fp.played = true
-      AND fp.positionLabel = 'GK'
-      AND cm.primaryRole = 'POR'
-    GROUP BY fp.clubMemberId
+      AND fp.position_label = 'GK'
+      AND cm."primaryRole" = 'POR'
+    GROUP BY fp.club_member_id
     ORDER BY goalsConceded ASC
     LIMIT ${limit}
   `

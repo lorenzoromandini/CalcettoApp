@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
@@ -27,14 +27,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Note: emailVerified field removed from schema - email verification not implemented
-    // if (!user.emailVerified) {
-    //   return Response.json(
-    //     { error: "EMAIL_NOT_VERIFIED", message: "Devi verificare la tua email prima di accedere." },
-    //     { status: 401 }
-    //   );
-    // }
-
     const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
@@ -44,19 +36,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create session data
+    const sessionData = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      nickname: user.nickname,
+      image: user.image,
+    };
+    
+    const sessionCookie = Buffer.from(JSON.stringify(sessionData)).toString("base64");
     const sessionToken = Buffer.from(user.id).toString("base64url");
 
-    return Response.json({ 
+    const response = NextResponse.json({ 
       success: true, 
       token: sessionToken,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        nickname: user.nickname,
-        email: user.email,
-      }
+      user: sessionData
     });
+    
+    // Set HTTP-only cookie for server-side session
+    response.cookies.set("app-session", sessionCookie, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return Response.json(

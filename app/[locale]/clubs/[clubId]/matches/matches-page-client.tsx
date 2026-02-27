@@ -27,6 +27,13 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   const { club } = useClub(clubId);
   const [isOwner, setIsOwner] = useState(false);
 
+  // Hide club ID from URL, show only section path
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/clubs/matches`);
+    }
+  }, [clubId, locale]);
+
   useEffect(() => {
     async function checkAdmin() {
       if (session?.user?.id) {
@@ -43,15 +50,15 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   }, [clubId, session?.user?.id]);
 
   const handleBack = () => {
-    router.push(`/${locale}/clubs/${clubId}`);
+    router.push(`/clubs/${clubId}`);
   };
 
   const handleCreateMatch = () => {
-    router.push(`/${locale}/clubs/${clubId}/matches/create`);
+    router.push(`/clubs/${clubId}/matches/create`);
   };
 
   const handleMatchClick = (matchId: string) => {
-    router.push(`/${locale}/clubs/${clubId}/matches/${matchId}`);
+    router.push(`/clubs/${clubId}/matches/${matchId}`);
   };
 
   if (isLoading) {

@@ -92,8 +92,8 @@ export function ProfileForm({ user, clubs: initialClubs }: ProfileFormProps) {
       toast.error('Errore', { description: 'Seleziona un file immagine valido' });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Errore', { description: "L'immagine deve essere inferiore a 5MB" });
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Errore', { description: "L'immagine deve essere inferiore a 10MB" });
       return;
     }
 
@@ -275,7 +275,7 @@ export function ProfileForm({ user, clubs: initialClubs }: ProfileFormProps) {
               </Button>
             </Label>
             <p className="text-xs text-muted-foreground mt-2">
-              JPG, PNG. Max 5MB.
+              JPG, PNG. Max 10MB.
             </p>
           </div>
         </div>

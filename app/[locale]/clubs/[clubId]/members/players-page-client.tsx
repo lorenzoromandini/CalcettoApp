@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { Users, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlayerCard } from '@/components/players/player-card';
@@ -19,6 +20,13 @@ export function PlayersPageClient({ locale, clubId }: MembersPageClientProps) {
   const router = useRouter();
   const { members, isLoading, error, refetch } = useMembers(clubId);
   const { club } = useClub(clubId);
+
+  // Hide club ID from URL, show only section path
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/${locale}/clubs/members`);
+    }
+  }, [clubId, locale]);
 
   const handleBack = () => {
     router.push(`/${locale}/clubs/${clubId}`);

@@ -7,8 +7,8 @@
  * Provides mutations with automatic revalidation.
  */
 
-import { auth } from '@/lib/auth'
-import { createClub, updateClub as dbUpdateClub, deleteClub as dbDeleteClub, isTeamAdmin, getClub } from '@/lib/db/clubs'
+import { getSession } from '@/lib/session'
+import { createClub, updateClub as dbUpdateClub, deleteClub as dbDeleteClub, isTeamAdmin, isClubOwner, getClub } from '@/lib/db/clubs'
 import type { CreateClubInput, UpdateClubInput } from '@/lib/validations/club'
 import { revalidatePath } from 'next/cache'
 
@@ -27,14 +27,22 @@ const ERRORS = {
 // ============================================================================
 
 export async function createClubAction(data: CreateClubInput) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
+  console.log('[ClubAction] Creating club with data:', JSON.stringify(data, null, 2))
+  console.log('[ClubAction] image_url present:', data.image_url ? 'YES' : 'NO')
+  console.log('[ClubAction] image_url type:', typeof data.image_url)
+  console.log('[ClubAction] image_url length:', data.image_url?.length || 0)
+  console.log('[ClubAction] User ID:', session.id)
+
   try {
-    const clubId = await createClub(data, session.user.id)
+    console.log('[ClubAction] Calling createClub with session.id:', session.id)
+    const clubId = await createClub(data, session.id)
+    console.log('[ClubAction] Club created successfully:', clubId)
     
     // Revalidate club lists
     revalidatePath('/clubs')
@@ -43,7 +51,10 @@ export async function createClubAction(data: CreateClubInput) {
     return { success: true, id: clubId }
   } catch (error) {
     console.error('[ClubAction] Create error:', error)
-    throw new Error('Failed to create club')
+    console.error('[ClubAction] Error stack:', error instanceof Error ? error.stack : 'No stack')
+    console.error('[ClubAction] Error type:', typeof error)
+    console.error('[ClubAction] Error message:', error instanceof Error ? error.message : 'Unknown error')
+    throw error instanceof Error ? error : new Error('Failed to create club')
   }
 }
 
@@ -52,16 +63,16 @@ export async function createClubAction(data: CreateClubInput) {
 // ============================================================================
 
 export async function updateClubAction(clubId: string, data: UpdateClubInput) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
-  // Check admin permission
-  const isAdmin = await isTeamAdmin(clubId, session.user.id)
-  if (!isAdmin) {
-    throw new Error(ERRORS.NOT_ADMIN)
+  // Only OWNER can update club details
+  const isOwner = await isClubOwner(clubId, session.id)
+  if (!isOwner) {
+    throw new Error('Solo il proprietario può modificare il club')
   }
 
   try {
@@ -84,16 +95,16 @@ export async function updateClubAction(clubId: string, data: UpdateClubInput) {
 // ============================================================================
 
 export async function deleteClubAction(clubId: string) {
-  const session = await auth()
+  const session = await getSession()
   
-  if (!session?.user?.id) {
+  if (!session?.id) {
     throw new Error(ERRORS.UNAUTHORIZED)
   }
 
-  // Check admin permission
-  const isAdmin = await isTeamAdmin(clubId, session.user.id)
-  if (!isAdmin) {
-    throw new Error(ERRORS.NOT_ADMIN)
+  // Only OWNER can delete club
+  const isOwner = await isClubOwner(clubId, session.id)
+  if (!isOwner) {
+    throw new Error('Solo il proprietario può eliminare il club')
   }
 
   try {

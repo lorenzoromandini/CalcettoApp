@@ -61,6 +61,13 @@ export function MatchHistoryPageClient({ locale, clubId }: MatchHistoryPageClien
   const [isOwner, setIsOwner] = useState(false)
   const [resultFilter, setResultFilter] = useState<ResultFilter>('all')
 
+  // Hide club ID from URL, show only section path
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({ clubId }, '', `/${locale}/clubs/history`)
+    }
+  }, [clubId, locale])
+
   // Load matches and check admin status
   useEffect(() => {
     async function loadData() {
