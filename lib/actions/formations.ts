@@ -7,10 +7,18 @@
  */
 
 import { auth } from '@/lib/auth'
-import { saveFormation as dbSaveFormation, deleteFormation as dbDeleteFormation, getMatchParticipants as dbGetMatchParticipants } from '@/lib/db/formations'
+import { 
+  saveFormation as dbSaveFormation, 
+  deleteFormation as dbDeleteFormation, 
+  getMatchParticipants as dbGetMatchParticipants,
+  saveMatchFormations as dbSaveMatchFormations,
+  getClubMembersWithRolePriority as dbGetClubMembersWithRolePriority
+} from '@/lib/db/formations'
 import { getMatch } from '@/lib/db/matches'
 import type { FormationData } from '@/lib/db/formations'
+import type { SaveMatchFormationsPayload, ClubMemberWithRolePriority } from '@/types/formations'
 import { revalidatePath } from 'next/cache'
+import { isClubAdmin } from '@/lib/db/clubs'
 
 // ============================================================================
 // Error Messages (Italian)
@@ -20,10 +28,11 @@ const ERRORS = {
   UNAUTHORIZED: 'Devi essere autenticato per eseguire questa azione',
   NOT_ADMIN: 'Solo gli amministratori possono gestire le formazioni',
   MATCH_NOT_FOUND: 'Partita non trovata',
+  INVALID_FORMATION: 'Dati formazione non validi',
 }
 
 // ============================================================================
-// Save Formation
+// Save Formation (legacy - single team)
 // ============================================================================
 
 export async function saveFormationAction(matchId: string, data: FormationData) {
@@ -38,6 +47,12 @@ export async function saveFormationAction(matchId: string, data: FormationData) 
     throw new Error(ERRORS.MATCH_NOT_FOUND)
   }
 
+  // Check admin permission
+  const isAdmin = await isClubAdmin(match.clubId, session.user.id)
+  if (!isAdmin) {
+    throw new Error(ERRORS.NOT_ADMIN)
+  }
+
   try {
     await dbSaveFormation(matchId, data)
     
@@ -48,6 +63,74 @@ export async function saveFormationAction(matchId: string, data: FormationData) 
   } catch (error) {
     console.error('[FormationAction] Save error:', error)
     throw new Error('Failed to save formation')
+  }
+}
+
+// ============================================================================
+// Save Match Formations (new - both teams)
+// ============================================================================
+
+export async function saveMatchFormationsAction(payload: SaveMatchFormationsPayload) {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  const match = await getMatch(payload.matchId)
+  if (!match) {
+    throw new Error(ERRORS.MATCH_NOT_FOUND)
+  }
+
+  // Check admin permission
+  const isAdmin = await isClubAdmin(match.clubId, session.user.id)
+  if (!isAdmin) {
+    throw new Error(ERRORS.NOT_ADMIN)
+  }
+
+  try {
+    const result = await dbSaveMatchFormations(payload)
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to save formations')
+    }
+    
+    // Revalidate paths
+    revalidatePath(`/clubs/${match.clubId}/matches/${payload.matchId}/formation`)
+    revalidatePath(`/clubs/${match.clubId}/matches/${payload.matchId}`)
+    revalidatePath(`/clubs/${match.clubId}/matches`)
+    
+    return { 
+      success: true, 
+      team1FormationId: result.team1FormationId,
+      team2FormationId: result.team2FormationId 
+    }
+  } catch (error) {
+    console.error('[FormationAction] Save match formations error:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to save formations')
+  }
+}
+
+// ============================================================================
+// Get Club Members with Role Priority
+// ============================================================================
+
+export async function getClubMembersWithRolePriorityAction(
+  clubId: string,
+  targetRole?: string
+): Promise<{ members: ClubMemberWithRolePriority[] }> {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  try {
+    const members = await dbGetClubMembersWithRolePriority(clubId, targetRole)
+    return { members }
+  } catch (error) {
+    console.error('[FormationAction] Get club members error:', error)
+    throw new Error('Failed to fetch club members')
   }
 }
 
@@ -65,6 +148,12 @@ export async function deleteFormationAction(matchId: string, isHome: boolean) {
   const match = await getMatch(matchId)
   if (!match) {
     throw new Error(ERRORS.MATCH_NOT_FOUND)
+  }
+
+  // Check admin permission
+  const isAdmin = await isClubAdmin(match.clubId, session.user.id)
+  if (!isAdmin) {
+    throw new Error(ERRORS.NOT_ADMIN)
   }
 
   try {

@@ -13,6 +13,7 @@
 import { prisma } from './index';
 import type { FormationMode } from '@/lib/formations';
 import type { MatchPlayerWithPlayer } from './player-participation';
+import type { ClubMemberWithRolePriority, SaveMatchFormationsPayload } from '@/types/formations';
 
 export interface FormationPosition {
   x: number;
@@ -193,4 +194,140 @@ export async function getMatchParticipants(matchId: string): Promise<MatchPlayer
     primaryRole: pos.clubMember.primaryRole,
     played: pos.played,
   }));
+}
+
+/**
+ * Get club members ordered by role priority
+ * Used in formation builder - shows players with target role first
+ * 
+ * @param clubId - Club ID
+ * @param targetRole - Optional role to prioritize
+ * @returns Array of members sorted by role priority
+ */
+export async function getClubMembersWithRolePriority(
+  clubId: string,
+  targetRole?: string
+): Promise<ClubMemberWithRolePriority[]> {
+  const members = await prisma.clubMember.findMany({
+    where: { clubId },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          image: true,
+        },
+      },
+    },
+    orderBy: [
+      { primaryRole: 'asc' },
+      { jerseyNumber: 'asc' },
+    ],
+  });
+
+  return members.map((member) => {
+    const isPrimary = member.primaryRole === targetRole;
+    const isSecondary = member.secondaryRoles.includes(targetRole as any);
+    
+    // Priority: 0 = primary, 1 = secondary, 2 = other
+    const rolePriority = isPrimary ? 0 : isSecondary ? 1 : 2;
+    
+    return {
+      id: member.id,
+      userId: member.userId,
+      firstName: member.user?.firstName || '',
+      lastName: member.user?.lastName || '',
+      nickname: member.user?.nickname || undefined,
+      jerseyNumber: member.jerseyNumber,
+      primaryRole: member.primaryRole as any,
+      secondaryRoles: member.secondaryRoles as any[],
+      rolePriority,
+      isAssigned: false,
+      isAssignedToOtherTeam: false,
+    };
+  }).sort((a, b) => {
+    // Sort by priority first, then by jersey number
+    if (a.rolePriority !== b.rolePriority) {
+      return a.rolePriority - b.rolePriority;
+    }
+    return a.jerseyNumber - b.jerseyNumber;
+  });
+}
+
+/**
+ * Save both team formations for a match in a transaction
+ * Used in formation builder - saves team1 and team2 atomically
+ * 
+ * @param payload - SaveMatchFormationsPayload with both team formations
+ * @returns Object with success status and formation IDs
+ */
+export async function saveMatchFormations(
+  payload: SaveMatchFormationsPayload
+): Promise<{ success: boolean; team1FormationId?: string; team2FormationId?: string; error?: string }> {
+  const { matchId, team1, team2 } = payload;
+  
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // Delete existing formations
+      await tx.formation.deleteMany({
+        where: { matchId },
+      });
+      
+      // Create Team 1 (home) formation
+      const formation1 = await tx.formation.create({
+        data: {
+          matchId,
+          isHome: true,
+          formationName: team1.moduleId,
+          positions: {
+            create: team1.assignments.map((a) => ({
+              clubMemberId: a.clubMemberId,
+              positionX: a.positionX,
+              positionY: a.positionY,
+              positionLabel: a.positionLabel,
+              isSubstitute: false,
+              played: false,
+            })),
+          },
+        },
+      });
+      
+      // Create Team 2 (away) formation
+      const formation2 = await tx.formation.create({
+        data: {
+          matchId,
+          isHome: false,
+          formationName: team2.moduleId,
+          positions: {
+            create: team2.assignments.map((a) => ({
+              clubMemberId: a.clubMemberId,
+              positionX: a.positionX,
+              positionY: a.positionY,
+              positionLabel: a.positionLabel,
+              isSubstitute: false,
+              played: false,
+            })),
+          },
+        },
+      });
+      
+      return {
+        team1FormationId: formation1.id,
+        team2FormationId: formation2.id,
+      };
+    });
+    
+    return {
+      success: true,
+      team1FormationId: result.team1FormationId,
+      team2FormationId: result.team2FormationId,
+    };
+  } catch (error) {
+    console.error('[FormationDB] Save match formations error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to save formations',
+    };
+  }
 }

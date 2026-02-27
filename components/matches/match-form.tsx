@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/match";
-import { IOSDateTimePicker } from "@/components/ui/ios-datetime-picker";
 import { AlertCircle, MapPin, Loader2 } from "lucide-react";
 
 interface MatchFormProps {
@@ -39,43 +38,19 @@ export function MatchForm({
   const t = useTranslations("matches.form");
   const [error, setError] = React.useState<string | null>(null);
 
-  // Get current datetime in local ISO format for min attribute
-  const getMinDatetime = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
-  };
-
-  // Separiamo date e time per il form, poi li combiniamo in scheduledAt
-  const [date, setDate] = React.useState("");
-  const [time, setTime] = React.useState("");
-  
   const form = useForm<CreateMatchInput>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
-      scheduledAt: initialData?.scheduledAt || "",
+      scheduledAt: initialData?.scheduledAt || new Date().toISOString().slice(0, 16),
       location: initialData?.location || "",
       mode: initialData?.mode || "FIVE_V_FIVE",
       notes: "",
     },
   });
   
-  // Estrai date e time da scheduledAt quando cambia
-  React.useEffect(() => {
-    if (initialData?.scheduledAt) {
-      const [datePart, timePart] = initialData.scheduledAt.split('T');
-      setDate(datePart || "");
-      setTime(timePart?.slice(0, 5) || "");
-    }
-  }, [initialData?.scheduledAt]);
-
   async function handleSubmit(data: CreateMatchInput) {
     setError(null);
     try {
-      // Combina date e time in scheduledAt
-      if (date && time) {
-        data.scheduledAt = `${date}T${time}`;
-      }
       await onSubmit(data);
       onSuccess?.();
     } catch (err) {
@@ -99,15 +74,25 @@ export function MatchForm({
           </div>
         )}
 
-        {/* Data e Ora con stile iOS */}
-        <IOSDateTimePicker
-          value={date && time ? `${date}T${time}` : ''}
-          onChange={(value) => {
-            const [newDate, newTime] = value.split('T');
-            setDate(newDate || '');
-            setTime(newTime || '');
-          }}
-          minDate={new Date().toISOString().split('T')[0]}
+        {/* Data e Ora - Input semplice */}
+        <FormField
+          control={form.control}
+          name="scheduledAt"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Data e Ora</FormLabel>
+              <FormControl>
+                <Input
+                  type="datetime-local"
+                  {...field}
+                  disabled={isLoading}
+                  className="h-12"
+                  min={new Date().toISOString().slice(0, 16)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         {/* Location */}

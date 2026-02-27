@@ -12,7 +12,8 @@ import {
   updateMatch as dbUpdateMatch, 
   cancelMatch as dbCancelMatch,
   uncancelMatch as dbUncancelMatch,
-  getMatch
+  getMatch,
+  getClubMatches
 } from '@/lib/db/matches'
 import { isTeamAdmin } from '@/lib/db/clubs'
 import type { CreateMatchInput, UpdateMatchInput } from '@/lib/validations/match'
@@ -164,5 +165,25 @@ export async function uncancelMatchAction(matchId: string) {
   } catch (error) {
     console.error('[MatchAction] Uncancel error:', error)
     throw new Error('Failed to uncancel match')
+  }
+}
+
+// ============================================================================
+// Get Club Matches Count
+// ============================================================================
+
+export async function getClubMatchesCountAction(clubId: string): Promise<number> {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new Error(ERRORS.UNAUTHORIZED)
+  }
+
+  try {
+    const matches = await getClubMatches(clubId)
+    return matches.length
+  } catch (error) {
+    console.error('[MatchAction] Get matches count error:', error)
+    throw new Error('Failed to get matches count')
   }
 }

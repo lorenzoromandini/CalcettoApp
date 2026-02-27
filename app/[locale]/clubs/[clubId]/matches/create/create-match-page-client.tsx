@@ -10,6 +10,7 @@ import { MatchForm } from "@/components/matches/match-form";
 import { useCreateMatch } from "@/hooks/use-matches";
 import { useClub } from "@/hooks/use-clubs";
 import { useNotifications } from "@/hooks/use-notifications";
+import { getClubMatchesCountAction } from "@/lib/actions/matches";
 import { authFetch } from "@/lib/auth-fetch";
 import type { CreateMatchInput } from "@/lib/validations/match";
 import { useState, useEffect } from "react";
@@ -63,36 +64,21 @@ export function CreateMatchPageClient({ locale, clubId }: CreateMatchPageClientP
     checkAdmin();
   }, [clubId, session?.user?.id]);
 
-  // Check if this is the user's first match
+  // Check if this is the first match for this club
   useEffect(() => {
     async function checkFirstMatch() {
       if (session?.user?.id && isSupported && permission === 'default') {
         try {
-          // Get user's clubs
-          const clubsRes = await authFetch("/api/clubs");
-          if (!clubsRes.ok) return;
-          
-          const clubs = await clubsRes.json();
-          let totalMatches = 0;
-          
-          // Count matches in each club
-          for (const club of clubs) {
-            const matchesRes = await authFetch(`/api/clubs/${club.id}/matches`);
-            if (matchesRes.ok) {
-              const matches = await matchesRes.json();
-              totalMatches += matches.length;
-            }
-          }
-          
-          // If no matches exist yet, this will be the first
-          setIsFirstMatch(totalMatches === 0);
+          // Get matches count for this club only
+          const matchesCount = await getClubMatchesCountAction(clubId);
+          setIsFirstMatch(matchesCount === 0);
         } catch (err) {
           console.error("Failed to check first match:", err);
         }
       }
     }
     checkFirstMatch();
-  }, [session?.user?.id, isSupported, permission]);
+  }, [clubId, session?.user?.id, isSupported, permission]);
 
   // Redirect if not admin
   useEffect(() => {
