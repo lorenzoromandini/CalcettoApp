@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, Shield, UserCircle, Zap, Target, Shirt } from 'lucide-react';
+import { User, Hand, Shield, Activity, Target, Shirt } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import type { ClubMember } from '@/types/database';
 import { PlayerRole } from '@prisma/client';
@@ -15,9 +15,9 @@ interface PlayerCardProps {
 }
 
 const ROLE_ICONS: Record<PlayerRole, typeof Shield> = {
-  [PlayerRole.POR]: Shield,
-  [PlayerRole.DIF]: UserCircle,
-  [PlayerRole.CEN]: Zap,
+  [PlayerRole.POR]: Hand,
+  [PlayerRole.DIF]: Shield,
+  [PlayerRole.CEN]: Activity,
   [PlayerRole.ATT]: Target,
 };
 

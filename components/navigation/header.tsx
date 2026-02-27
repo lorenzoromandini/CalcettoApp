@@ -43,7 +43,7 @@ export function Header() {
                 alt="Calcetto Manager"
                 width={28}
                 height={28}
-                className="h-7 w-auto"
+                style={{ width: 'auto' }}
               />
               <span className="text-xl font-bold text-primary">
                 {tCommon('welcome')}, {session.user.nickname || session.user.firstName || session.user.email}
@@ -56,7 +56,7 @@ export function Header() {
                 alt="Calcetto Manager"
                 width={28}
                 height={28}
-                className="h-7 w-auto"
+                style={{ width: 'auto' }}
               />
               <span className="text-xl font-bold text-primary">Calcetto Manager</span>
             </Link>
