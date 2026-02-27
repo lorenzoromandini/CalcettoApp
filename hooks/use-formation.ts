@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getFormation, saveFormation, type FormationData, type FormationPosition } from '@/lib/db/formations';
+import { getFormationAction, saveFormationAction } from '@/lib/actions/formations';
+import type { FormationData, FormationPosition } from '@/lib/db/formations';
 import type { FormationMode } from '@/lib/formations';
 
 interface UseFormationReturn {
@@ -29,7 +30,7 @@ export function useFormation(matchId: string, mode: FormationMode, isHome: boole
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getFormation(matchId, isHome);
+      const data = await getFormationAction(matchId, isHome);
       setFormation(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load formation'));
