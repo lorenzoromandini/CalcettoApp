@@ -521,6 +521,7 @@
   },
   "formations": {
     "title": "Formazione",
+    "selectPlayer": "Seleziona giocatore",
     "selectFormation": "Seleziona modulo",
     "selectModule": "Seleziona il modulo tattico",
     "selectModuleDescription": "Scegli il modulo per la partita {mode}",

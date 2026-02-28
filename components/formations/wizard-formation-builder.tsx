@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   DndContext,
@@ -12,14 +12,14 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
-import { ArrowLeft, ArrowRight, Users, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, ArrowRight, LayoutGrid } from 'lucide-react';
 import { FormationSelector } from './formation-selector';
 import { PitchGrid } from './pitch-grid';
 import { PlayerPool } from './player-pool';
 import { PlayerSelectionModal } from './player-selection-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormationMode, getFormationPreset } from '@/lib/formations';
+import { FormationMode, getFormationPreset, getFormationPresets } from '@/lib/formations';
 import type { FormationData, FormationPosition } from '@/lib/db/formations';
 import type { ClubMemberWithRolePriority } from '@/types/formations';
 import { cn } from '@/lib/utils';
@@ -111,7 +111,7 @@ export function WizardFormationBuilder({
 
   // State
   const [selectedFormation, setSelectedFormation] = useState<string>(
-    initialFormation?.formation || (mode === 'FIVE_V_FIVE' ? '5-1-2-1' : '8-3-3-1')
+    initialFormation?.formation || ''
   );
   const [positions, setPositions] = useState<FormationPosition[]>(
     initialFormation?.positions || []
@@ -123,11 +123,25 @@ export function WizardFormationBuilder({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPositionIndex, setSelectedPositionIndex] = useState<number | null>(null);
 
+  // Initialize formation selection and positions
+  useEffect(() => {
+    // Set default formation if not already set
+    if (!selectedFormation) {
+      const presets = getFormationPresets(mode);
+      if (presets.length > 0) {
+        const firstPreset = presets[0];
+        setSelectedFormation(firstPreset.id);
+      }
+    }
+  }, [mode, selectedFormation]);
+
   // Initialize positions if empty
-  if (positions.length === 0) {
-    const initialData = createEmptyFormation(selectedFormation, mode, isHome);
-    setPositions(initialData.positions);
-  }
+  useEffect(() => {
+    if (positions.length === 0 && selectedFormation) {
+      const initialData = createEmptyFormation(selectedFormation, mode, isHome);
+      setPositions(initialData.positions);
+    }
+  }, [positions.length, selectedFormation, mode, isHome]);
 
   // Sensors for drag detection
   const sensors = useSensors(
@@ -361,69 +375,26 @@ export function WizardFormationBuilder({
         />
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {/* Pitch Grid */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-4">
-                <PitchGrid
-                  mode={mode}
-                  positions={positions}
-                  members={pitchMembers}
-                  selectedMemberId={selectedMemberId}
-                  onDrop={() => {}} // Handled by DndContext
-                  onTapPosition={handleTapPosition}
-                />
-              </CardContent>
-            </Card>
-            
-            {/* Helper text */}
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              Clicca su una posizione per assegnare un giocatore
-            </p>
-          </div>
-
-          {/* Player Pool */}
-          <div>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Giocatori Disponibili
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PlayerPool
-                  members={poolMembers}
-                  selectedMemberId={selectedMemberId}
-                  assignedMemberIds={assignedMemberIds}
-                  onSelectMember={setSelectedMemberId}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardContent className="p-4">
+              <PitchGrid
+                mode={mode}
+                positions={positions}
+                members={pitchMembers}
+                selectedMemberId={selectedMemberId}
+                onDrop={() => {}} // Handled by DndContext
+                onTapPosition={handleTapPosition}
+              />
+            </CardContent>
+          </Card>
+          
+          {/* Helper text */}
+          <p className="text-sm text-muted-foreground text-center">
+            Clicca su una posizione per assegnare un giocatore
+          </p>
         </div>
-
-        {/* Summary */}
-        <Card className="bg-muted/50">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {assignedMemberIds.length} di {positions.length} giocatori assegnati
-              </span>
-              <span className={cn(
-                'font-medium',
-                assignedMemberIds.length === positions.length && positions.length > 0
-                  ? 'text-green-600'
-                  : 'text-amber-600'
-              )}>
-                {assignedMemberIds.length === positions.length && positions.length > 0
-                  ? 'Formazione completa'
-                  : 'Formazione incompleta'}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Navigation Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">

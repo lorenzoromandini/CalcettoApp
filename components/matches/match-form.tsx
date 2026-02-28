@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/match";
 import { AlertCircle, MapPin, Loader2 } from "lucide-react";
+import { IOSDateTimePicker } from "@/components/ui/ios-datetime-picker";
 
 interface MatchFormProps {
   clubId: string;
@@ -41,7 +42,11 @@ export function MatchForm({
   const form = useForm<CreateMatchInput>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
-      scheduledAt: initialData?.scheduledAt || new Date().toISOString().slice(0, 16),
+      scheduledAt: initialData?.scheduledAt || (() => {
+        const now = new Date();
+        now.setMinutes(0);
+        return now.toISOString().slice(0, 16);
+      })(),
       location: initialData?.location || "",
       mode: initialData?.mode || "FIVE_V_FIVE",
       notes: "",
@@ -74,7 +79,7 @@ export function MatchForm({
           </div>
         )}
 
-        {/* Data e Ora - Input semplice */}
+        {/* Data e Ora - Picker stile iOS */}
         <FormField
           control={form.control}
           name="scheduledAt"
@@ -82,12 +87,10 @@ export function MatchForm({
             <FormItem>
               <FormLabel>Data e Ora</FormLabel>
               <FormControl>
-                <Input
-                  type="datetime-local"
-                  {...field}
-                  disabled={isLoading}
-                  className="h-12"
-                  min={new Date().toISOString().slice(0, 16)}
+                <IOSDateTimePicker
+                  value={field.value}
+                  onChange={(value) => field.onChange(value)}
+                  minDate={new Date().toISOString().slice(0, 16)}
                 />
               </FormControl>
               <FormMessage />
