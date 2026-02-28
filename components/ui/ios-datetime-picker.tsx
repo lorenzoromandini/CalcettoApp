@@ -15,9 +15,7 @@ export function IOSDateTimePicker({ value, onChange, minDate }: IOSDateTimePicke
   const currentDay = now.getDate().toString().padStart(2, '0');
   const currentHour = now.getHours().toString().padStart(2, '0');
   
-  const currentMinutes = now.getMinutes();
-  const roundedMinutes = Math.ceil(currentMinutes / 15) * 15;
-  const currentMinute = (roundedMinutes === 60 ? 0 : roundedMinutes).toString().padStart(2, '0');
+  const currentMinute = "00";
   
   const initialDate = value ? value.split('T')[0] : `${currentYear}-${currentMonth}-${currentDay}`;
   const initialTime = value ? value.split('T')[1]?.slice(0, 5) || `${currentHour}:${currentMinute}` : `${currentHour}:${currentMinute}`;

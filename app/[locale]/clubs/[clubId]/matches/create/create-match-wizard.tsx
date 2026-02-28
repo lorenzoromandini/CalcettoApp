@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { MatchForm } from "@/components/matches/match-form";
 import { WizardFormationBuilder } from "@/components/formations/wizard-formation-builder";
 import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/match";
@@ -175,12 +175,27 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Progress Header */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-2xl">{steps[currentStep - 1].label}</CardTitle>
-          <p className="text-muted-foreground">{steps[currentStep - 1].description}</p>
+      <Card className="mb-4">
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-lg">{steps[currentStep - 1].label}</CardTitle>
+              <p className="text-sm text-muted-foreground">{steps[currentStep - 1].description}</p>
+            </div>
+            {currentStep === 1 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/dashboard')}
+                className="h-8 px-2"
+              >
+                <ArrowLeft className="w-3 h-3 mr-1" />
+                Dashboard
+              </Button>
+            )}
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <div className="space-y-2">
             <Progress value={progress} className="h-2" />
             <div className="flex justify-between text-sm text-muted-foreground">
@@ -222,7 +237,7 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
               clubId={clubId}
               onSubmit={handleMatchCreated}
               isLoading={isLoading}
-              submitLabel="Crea Partita e Continua"
+              submitLabel="Continua"
             />
           )}
 
