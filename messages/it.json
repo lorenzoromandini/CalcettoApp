@@ -337,12 +337,12 @@
       "members": "Membri"
     },
     "privileges": {
-      "owner": "Proprietario",
+      "owner": "Presidente",
       "manager": "Manager",
       "member": "Membro"
     },
     "roles": {
-      "owner": "Proprietario",
+      "owner": "Presidente",
       "manager": "Manager",
       "member": "Membro"
     },
