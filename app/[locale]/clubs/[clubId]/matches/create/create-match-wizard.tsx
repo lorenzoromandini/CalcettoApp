@@ -9,6 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { Check, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { MatchForm } from "@/components/matches/match-form";
 import { WizardFormationBuilder } from "@/components/formations/wizard-formation-builder";
+import { PitchGrid } from "@/components/formations/pitch-grid";
+import { getFormationPreset } from "@/lib/formations";
 import { createMatchSchema, type CreateMatchInput } from "@/lib/validations/match";
 import { useSession } from "@/components/providers/session-provider";
 import { checkIsClubAdminAction } from "@/lib/actions/clubs";
@@ -65,6 +67,19 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
   const [homeFormation, setHomeFormation] = useState<FormationData | null>(null);
   const [awayFormation, setAwayFormation] = useState<FormationData | null>(null);
 
+  // Reset formations when match mode changes
+  useEffect(() => {
+    setHomeFormation(null);
+    setAwayFormation(null);
+  }, [matchData.mode]);
+
+  // Get IDs of members assigned to home team to exclude from away team
+  const homeAssignedMemberIds = useMemo(() => {
+    return homeFormation?.positions
+      .map(p => p.clubMemberId)
+      .filter((id): id is string => !!id) || [];
+  }, [homeFormation]);
+
   // Transform club members to formation members - only when clubMembers changes
   const members: FormationMember[] = useMemo(() => {
     if (!clubMembers || clubMembers.length === 0) return [];
@@ -84,7 +99,7 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
     { id: 1, label: "Dati Partita", description: "Data, luogo e modalità" },
     { id: 2, label: "Formazione Casa", description: "Seleziona modulo e giocatori" },
     { id: 3, label: "Formazione Trasferta", description: "Seleziona modulo e giocatori" },
-    { id: 4, label: "Riepilogo", description: "Conferma e salva" },
+    { id: 4, label: "Riepilogo Formazioni", description: "Conferma e salva" },
   ];
 
   // Check admin only once on mount
@@ -248,6 +263,7 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
               mode={matchData.mode}
               members={members}
               isHome={true}
+              initialFormation={homeFormation}
               onChange={setHomeFormation}
               onComplete={() => setCurrentStep(3)}
               onBack={() => setCurrentStep(1)}
@@ -259,8 +275,9 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
               clubId={clubId}
               matchId={matchId}
               mode={matchData.mode}
-              members={members}
+              members={members.filter(m => !homeAssignedMemberIds.includes(m.id))}
               isHome={false}
+              initialFormation={awayFormation}
               onChange={setAwayFormation}
               onComplete={() => setCurrentStep(4)}
               onBack={() => setCurrentStep(2)}
@@ -269,24 +286,57 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
 
           {currentStep === 4 && homeFormation && awayFormation && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold">Riepilogo Formazioni</h3>
-              
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <h4 className="font-medium">Formazione Casa</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {homeFormation.positions.filter(p => p.clubMemberId).length} giocatori assegnati
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium">Formazione Trasferta</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {awayFormation.positions.filter(p => p.clubMemberId).length} giocatori assegnati
-                  </p>
-                </div>
+                {/* Formazione Casa */}
+                <Card className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-semibold">Formazione Casa</h3>
+                      <p className="text-sm text-muted-foreground">{homeFormation.formation}</p>
+                    </div>
+                    <PitchGrid
+                      mode={matchData.mode}
+                      positions={homeFormation.positions}
+                      members={members.filter(m => 
+                        homeFormation.positions.some(p => p.clubMemberId === m.id)
+                      ).map(m => ({
+                        id: m.id,
+                        name: `${m.firstName} ${m.lastName}`.trim(),
+                        avatar: m.image || undefined,
+                      }))}
+                      selectedMemberId={null}
+                      onDrop={() => {}}
+                      onTapPosition={() => {}}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Formazione Trasferta */}
+                <Card className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-semibold">Formazione Trasferta</h3>
+                      <p className="text-sm text-muted-foreground">{awayFormation.formation}</p>
+                    </div>
+                    <PitchGrid
+                      mode={matchData.mode}
+                      positions={awayFormation.positions}
+                      members={members.filter(m => 
+                        awayFormation.positions.some(p => p.clubMemberId === m.id)
+                      ).map(m => ({
+                        id: m.id,
+                        name: `${m.firstName} ${m.lastName}`.trim(),
+                        avatar: m.image || undefined,
+                      }))}
+                      selectedMemberId={null}
+                      onDrop={() => {}}
+                      onTapPosition={() => {}}
+                    />
+                  </CardContent>
+                </Card>
               </div>
 
-              <div className="flex justify-between pt-4">
+              <div className="flex justify-between pt-4 border-t">
                 <Button variant="outline" onClick={() => setCurrentStep(3)}>
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Indietro

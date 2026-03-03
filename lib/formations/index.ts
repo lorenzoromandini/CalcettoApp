@@ -46,7 +46,7 @@ export const FORMATION_PRESETS_5VS5: FormationPreset[] = [
     name: '2-2',
     mode: MatchMode.FIVE_V_FIVE,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 3.2, y: 4.4, label: 'DIF', role: 'DEF' },
       { x: 6.2, y: 4.4, label: 'DIF', role: 'DEF' },
       { x: 3.7, y: 1.8, label: 'ATT', role: 'FWD' },
@@ -58,7 +58,7 @@ export const FORMATION_PRESETS_5VS5: FormationPreset[] = [
     name: '2-1-1',
     mode: MatchMode.FIVE_V_FIVE,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 3.0, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 6.4, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 3.4, label: 'CEN', role: 'MID' },
@@ -70,7 +70,7 @@ export const FORMATION_PRESETS_5VS5: FormationPreset[] = [
     name: '3-1',
     mode: MatchMode.FIVE_V_FIVE,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 2.7, y: 4.2, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 6.7, y: 4.2, label: 'DIF', role: 'DEF' },
@@ -82,7 +82,7 @@ export const FORMATION_PRESETS_5VS5: FormationPreset[] = [
     name: '1-2-1',
     mode: MatchMode.FIVE_V_FIVE,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 3.2, y: 3.4, label: 'CEN', role: 'MID' },
       { x: 6.2, y: 3.4, label: 'CEN', role: 'MID' },
@@ -98,7 +98,7 @@ export const FORMATION_PRESETS_8VS8: FormationPreset[] = [
     name: '3-3-1',
     mode: MatchMode.EIGHT_V_EIGHT,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 2.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 6.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -113,7 +113,7 @@ export const FORMATION_PRESETS_8VS8: FormationPreset[] = [
     name: '3-2-2',
     mode: MatchMode.EIGHT_V_EIGHT,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 2.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 6.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -128,7 +128,7 @@ export const FORMATION_PRESETS_8VS8: FormationPreset[] = [
     name: '2-4-1',
     mode: MatchMode.EIGHT_V_EIGHT,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 3.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 5.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 1.7, y: 3.4, label: 'CEN', role: 'MID' },
@@ -143,7 +143,7 @@ export const FORMATION_PRESETS_8VS8: FormationPreset[] = [
     name: '2-3-2',
     mode: MatchMode.EIGHT_V_EIGHT,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       { x: 3.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 5.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 2.7, y: 3.4, label: 'CEN', role: 'MID' },
@@ -162,7 +162,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '4-3-3',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 4: distribuiti su tutta la larghezza
       { x: 1.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 3.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -183,7 +183,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '4-4-2',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 4
       { x: 1.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 3.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -204,7 +204,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '4-2-3-1',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 4
       { x: 1.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 3.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -226,7 +226,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '4-3-1-2',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 4
       { x: 1.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 3.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -248,7 +248,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '3-4-3',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 3
       { x: 2.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -269,7 +269,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '3-5-2',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 3
       { x: 2.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },
@@ -290,7 +290,7 @@ export const FORMATION_PRESETS_11VS11: FormationPreset[] = [
     name: '3-4-1-2',
     mode: MatchMode.ELEVEN_V_ELEVEN,
     positions: [
-      { x: 4.7, y: 6, label: 'POR', role: 'GK' },
+      { x: 4.7, y: 5.6, label: 'POR', role: 'GK' },
       // Difesa a 3
       { x: 2.7, y: 4.7, label: 'DIF', role: 'DEF' },
       { x: 4.7, y: 4.7, label: 'DIF', role: 'DEF' },

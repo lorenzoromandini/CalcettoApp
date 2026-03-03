@@ -150,12 +150,7 @@ export function PlayerSelectionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>{t("selectPlayer")}</span>
-            <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
+          <DialogTitle>{t("selectPlayer")}</DialogTitle>
         </DialogHeader>
 
         {/* Barra ricerca */}

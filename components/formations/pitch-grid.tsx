@@ -153,11 +153,6 @@ export function PitchGrid({
           onTap={() => handleTap(index)}
         />
       ))}
-
-      {/* Mode Indicator */}
-      <div className="absolute top-3 right-3 bg-black/30 text-white text-xs px-2 py-1 rounded-full">
-        {mode === 'FIVE_V_FIVE' ? '5 vs 5' : mode === 'EIGHT_V_EIGHT' ? '8 vs 8' : '11 vs 11'}
-      </div>
     </div>
   );
 }

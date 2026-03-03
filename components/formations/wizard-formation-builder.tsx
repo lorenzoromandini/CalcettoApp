@@ -135,13 +135,14 @@ export function WizardFormationBuilder({
     }
   }, [mode, selectedFormation]);
 
-  // Initialize positions if empty
+  // Initialize positions if empty and no initial formation provided
   useEffect(() => {
-    if (positions.length === 0 && selectedFormation) {
+    const hasInitialPositions = initialFormation?.positions && initialFormation.positions.length > 0;
+    if (positions.length === 0 && selectedFormation && !hasInitialPositions) {
       const initialData = createEmptyFormation(selectedFormation, mode, isHome);
       setPositions(initialData.positions);
     }
-  }, [positions.length, selectedFormation, mode, isHome]);
+  }, [positions.length, selectedFormation, mode, isHome, initialFormation]);
 
   // Sensors for drag detection
   const sensors = useSensors(
@@ -168,15 +169,15 @@ export function WizardFormationBuilder({
   // Check if at least one player is assigned
   const hasPlayersAssigned = assignedMemberIds.length > 0;
 
-  // Notify parent of changes
-  const notifyChange = useCallback((newPositions: FormationPosition[], formationId: string) => {
+  // Notify parent of changes using useEffect to avoid setState during render
+  useEffect(() => {
     const data: FormationData = {
-      formation: formationId,
-      positions: newPositions,
+      formation: selectedFormation,
+      positions: positions,
       isHome,
     };
     onChange(data);
-  }, [isHome, onChange]);
+  }, [positions, selectedFormation, isHome, onChange]);
 
   // Handle formation preset change
   const handleFormationChange = useCallback(
@@ -197,10 +198,9 @@ export function WizardFormationBuilder({
           };
         });
         setPositions(newPositions);
-        notifyChange(newPositions, presetId);
       }
     },
-    [mode, positions, notifyChange]
+    [mode, positions]
   );
 
   // Handle drag start
@@ -237,13 +237,12 @@ export function WizardFormationBuilder({
               clubMemberId: memberId,
             };
           }
-          notifyChange(newPositions, selectedFormation);
           return newPositions;
         });
         setSelectedMemberId(null);
       }
     },
-    [notifyChange, selectedFormation]
+    [selectedFormation]
   );
 
   // Handle tap on position (open modal)
@@ -274,13 +273,12 @@ export function WizardFormationBuilder({
             clubMemberId: memberId,
           };
         }
-        notifyChange(newPositions, selectedFormation);
         return newPositions;
       });
       setIsModalOpen(false);
       setSelectedPositionIndex(null);
     },
-    [selectedPositionIndex, notifyChange, selectedFormation]
+    [selectedPositionIndex, selectedFormation]
   );
 
   // Handle player removal from modal
@@ -295,12 +293,11 @@ export function WizardFormationBuilder({
           clubMemberId: undefined,
         };
       }
-      notifyChange(newPositions, selectedFormation);
       return newPositions;
     });
     setIsModalOpen(false);
     setSelectedPositionIndex(null);
-  }, [selectedPositionIndex, notifyChange, selectedFormation]);
+  }, [selectedPositionIndex, selectedFormation]);
 
   // Get current player ID for modal
   const currentSelectedPlayerId = selectedPositionIndex !== null
@@ -390,10 +387,6 @@ export function WizardFormationBuilder({
             </CardContent>
           </Card>
           
-          {/* Helper text */}
-          <p className="text-sm text-muted-foreground text-center">
-            Clicca su una posizione per assegnare un giocatore
-          </p>
         </div>
 
         {/* Navigation Buttons */}
