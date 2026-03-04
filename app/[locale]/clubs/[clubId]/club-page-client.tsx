@@ -52,7 +52,6 @@ export default function ClubPageClient() {
         })
         .then(data => {
           if (data.error) {
-            console.error('[ClubPage] Club error:', data.error);
             router.push("/clubs");
             return;
           }
@@ -64,7 +63,6 @@ export default function ClubPageClient() {
         .then(res => {
           if (!res) return null;
           if (!res.ok) {
-            console.error('[ClubPage] Members API error:', res.status);
             return [];
           }
           return res.json();
@@ -80,7 +78,6 @@ export default function ClubPageClient() {
         .then(adminRes => {
           if (!adminRes) return { isOwner: false };
           if (!adminRes.ok) {
-            console.error('[ClubPage] Admin API error:', adminRes.status);
             return { isOwner: false };
           }
           return adminRes.json();
@@ -90,8 +87,7 @@ export default function ClubPageClient() {
           setIsManager(adminData?.isManager || false);
           setLoading(false);
         })
-        .catch((err) => {
-          console.error('[ClubPage] Error loading club:', err);
+        .catch(() => {
           setLoading(false);
         });
     }

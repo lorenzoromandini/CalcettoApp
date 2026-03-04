@@ -54,12 +54,7 @@ export function DashboardPlayerCard({ data, locale, className }: DashboardPlayer
   const { member, clubId, teamName, jerseyNumber, frameColor } = data
   const colors = FRAME_COLORS[frameColor]
 
-  console.log('[DashboardPlayerCard] Received data:', {
-    jerseyNumber,
-    jerseyNumberType: typeof jerseyNumber,
-    jerseyNumberValue: jerseyNumber,
-    condition: jerseyNumber && jerseyNumber > 0
-  })
+
 
   const profileUrl = clubId
     ? `/clubs/${clubId}/players/${member.id}`

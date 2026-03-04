@@ -41,10 +41,6 @@ export default function DashboardPage() {
       setDefaultClubId(storedDefaultClub);
     }
     
-    console.log("Dashboard: token exists:", !!token);
-    console.log("Dashboard: userData exists:", !!userDataStr);
-    console.log("Dashboard: defaultClubId:", storedDefaultClub);
-    
     if (!token) {
       window.location.href = "/auth/login";
       return;
@@ -70,11 +66,8 @@ export default function DashboardPage() {
       authFetch(dashboardUrl)
     ])
       .then(async ([clubsRes, memberRes]) => {
-        console.log("Dashboard: API response status:", clubsRes.status);
-        
         // Handle clubs
         const clubsData = await clubsRes.json();
-        console.log("Dashboard: Clubs data:", clubsData);
         if (clubsRes.ok && Array.isArray(clubsData)) {
           setClubs(clubsData);
           // Se non c'è un club preferito salvato, usa il primo
@@ -86,7 +79,6 @@ export default function DashboardPage() {
         // Handle member data - se c'è un club preferito, usa quello
         if (memberRes.ok) {
           const memberData = await memberRes.json();
-          console.log("Dashboard: Member data:", memberData);
           if (memberData && !memberData.error) {
             setMemberData(memberData);
           }

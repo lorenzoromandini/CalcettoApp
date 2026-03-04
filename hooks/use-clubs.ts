@@ -215,6 +215,7 @@ export function useDeleteClub(): UseDeleteClubReturn {
     try {
       await deleteClubAction(clubId);
     } catch (err) {
+      console.error('[useDeleteClub] Delete error:', err);
       const error = err instanceof Error ? err : new Error('Failed to delete club');
       setError(error);
       throw error;

@@ -109,10 +109,22 @@ export default function ClubSettingsPage() {
 
   const handleDelete = async () => {
     try {
-      await deleteClub(clubId);
+      setShowDeleteDialog(false);
+      
+      const response = await fetch(`/api/clubs/${clubId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete club');
+      }
+      
       router.push(`/${locale}/clubs`);
     } catch (error) {
-      console.error('Failed to delete club:', error);
+      console.error('[handleDelete] Failed to delete club:', error);
+      setShowDeleteDialog(true);
     }
   };
 
