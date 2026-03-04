@@ -39,11 +39,11 @@ export function Header() {
           ) : session?.user ? (
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
-                src="/icons/logo.png"
+                src="/logo.png"
                 alt="Calcetto Manager"
                 width={28}
                 height={28}
-                className="h-7 w-auto"
+                style={{ width: 'auto' }}
               />
               <span className="text-xl font-bold text-primary">
                 {tCommon('welcome')}, {session.user.nickname || session.user.firstName || session.user.email}
@@ -52,11 +52,11 @@ export function Header() {
           ) : (
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="/icons/logo.png"
+                src="/logo.png"
                 alt="Calcetto Manager"
                 width={28}
                 height={28}
-                className="h-7 w-auto"
+                style={{ width: 'auto' }}
               />
               <span className="text-xl font-bold text-primary">Calcetto Manager</span>
             </Link>

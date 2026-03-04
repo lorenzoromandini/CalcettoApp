@@ -238,6 +238,19 @@ export function SignupForm() {
         >
           {isLoading ? "Registrazione in corso..." : "Registrati"}
         </Button>
+
+        {/* Footer link - only show when not in success state */}
+        {!isSuccess && !isLoading && (
+          <p className="text-center text-sm text-muted-foreground pt-2">
+            Hai già un account?{" "}
+            <a
+              href="/auth/login"
+              className="font-medium text-primary hover:text-primary/90 underline-offset-4 hover:underline"
+            >
+              Accedi
+            </a>
+          </p>
+        )}
       </form>
     </Form>
   );

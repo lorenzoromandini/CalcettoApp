@@ -1,6 +1,5 @@
-import { AuthCard, AuthFooterLink, AuthDivider } from "@/components/auth/auth-card";
+import { AuthCard, AuthFooterLink } from "@/components/auth/auth-card";
 import { LoginForm } from "@/components/auth/login-form";
-import { GoogleSignInButton } from "@/components/auth/social-buttons";
 import { Link } from "@/lib/i18n/navigation";
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
@@ -35,7 +34,7 @@ export default async function LoginPage({
       <LoginForm />
       
       <div className="space-y-4">
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-center text-sm">
           <Link
             href="/auth/forgot-password"
             className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
@@ -43,10 +42,6 @@ export default async function LoginPage({
             {t('auth.forgotPassword')}
           </Link>
         </div>
-        
-        <AuthDivider text={t('auth.orContinueWith')} />
-        
-        <GoogleSignInButton />
       </div>
     </AuthCard>
   );

@@ -63,15 +63,16 @@ export function ClubRosterManager({
     }
   };
 
+  const PRIVILEGE_ICONS: Record<string, string> = {
+    OWNER: '/icons/privileges/owner.png',
+    MANAGER: '/icons/privileges/manager.png',
+    MEMBER: '/icons/privileges/member.png',
+    owner: '/icons/privileges/owner.png',
+  };
+
   const getPrivilegeIcon = (privilege: string) => {
-    switch (privilege) {
-      case 'owner':
-        return <Shield className="h-4 w-4 text-primary" />;
-      case ClubPrivilege.MANAGER:
-        return <UserCog className="h-4 w-4 text-muted-foreground" />;
-      default:
-        return <User className="h-4 w-4 text-muted-foreground" />;
-    }
+    const iconPath = PRIVILEGE_ICONS[privilege] || PRIVILEGE_ICONS.MEMBER;
+    return <img src={iconPath} alt={privilege} className="h-4 w-4 object-contain" />;
   };
 
   const getPrivilegeLabel = (privilege: string) => {

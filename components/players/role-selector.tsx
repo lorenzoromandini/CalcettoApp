@@ -1,15 +1,20 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Toggle } from '@/components/ui/toggle';
-import { Shield, UserCircle, Zap, Target } from 'lucide-react';
 import { PlayerRole } from '@prisma/client';
 
-const ROLES: { id: PlayerRole; icon: typeof Shield; translationKey: string }[] = [
-  { id: PlayerRole.POR, icon: Shield, translationKey: 'roles.goalkeeper' },
-  { id: PlayerRole.DIF, icon: UserCircle, translationKey: 'roles.defender' },
-  { id: PlayerRole.CEN, icon: Zap, translationKey: 'roles.midfielder' },
-  { id: PlayerRole.ATT, icon: Target, translationKey: 'roles.attacker' },
+const ROLE_IMAGES: Record<PlayerRole, string> = {
+  [PlayerRole.POR]: '/icons/roles/goalkeeper.png',
+  [PlayerRole.DIF]: '/icons/roles/defender.png',
+  [PlayerRole.CEN]: '/icons/roles/midfielder.png',
+  [PlayerRole.ATT]: '/icons/roles/attacker.png',
+};
+
+const ROLES: { id: PlayerRole; translationKey: string }[] = [
+  { id: PlayerRole.POR, translationKey: 'roles.goalkeeper' },
+  { id: PlayerRole.DIF, translationKey: 'roles.defender' },
+  { id: PlayerRole.CEN, translationKey: 'roles.midfielder' },
+  { id: PlayerRole.ATT, translationKey: 'roles.attacker' },
 ];
 
 interface RoleSelectorProps {
@@ -50,7 +55,7 @@ export function RoleSelector({
           {t('form.primaryRole')} <span className="text-destructive">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {ROLES.map(({ id, icon: Icon, translationKey }) => {
+          {ROLES.map(({ id, translationKey }) => {
             const isSelected = primaryRole === id;
             const isDisabled = disabled;
             
@@ -69,12 +74,19 @@ export function RoleSelector({
                   ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
-                <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                <img 
+                  src={ROLE_IMAGES[id]} 
+                  alt={t(translationKey)}
+                  className={`h-8 w-8 object-contain dark:invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                />
                 <span className="text-sm font-medium">{t(translationKey)}</span>
               </button>
             );
           })}
         </div>
+        <p className="text-xs text-amber-600 dark:text-amber-500 mt-2">
+          {t('form.primaryRoleWarning')}
+        </p>
       </div>
 
       {/* Separator */}
@@ -86,7 +98,7 @@ export function RoleSelector({
           {t('form.otherRoles')}
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {ROLES.map(({ id, icon: Icon, translationKey }) => {
+          {ROLES.map(({ id, translationKey }) => {
             const isSelected = otherRoles.includes(id);
             const isDisabled = disabled || primaryRole === id;
             
@@ -105,7 +117,11 @@ export function RoleSelector({
                   ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
-                <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                <img 
+                  src={ROLE_IMAGES[id]} 
+                  alt={t(translationKey)}
+                  className={`h-8 w-8 object-contain dark:invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                />
                 <span className="text-sm font-medium">{t(translationKey)}</span>
               </button>
             );

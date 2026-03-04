@@ -20,11 +20,11 @@ export function AuthCard({ title, description, children, footer }: AuthCardProps
           <div className="flex justify-center mb-4">
             <Link href="/">
               <Image
-                src="/icons/logo.png"
+                src="/logo.png"
                 alt="Calcetto Manager"
                 width={64}
                 height={64}
-                className="h-16 w-auto"
+                style={{ width: 'auto' }}
               />
             </Link>
           </div>

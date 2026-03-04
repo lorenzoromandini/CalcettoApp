@@ -47,7 +47,7 @@
     "getStarted": "Inizia ora",
     "features": {
       "clubs": "Gestione club",
-      "matches": "Partite live",
+      "matches": "Crea Partite",
       "stats": "Statistiche",
       "ratings": "Valutazioni"
     }
@@ -218,6 +218,7 @@
       "roles": "Ruoli",
       "rolesHint": "Seleziona uno o più ruoli",
       "primaryRole": "Ruolo principale",
+      "primaryRoleWarning": "Il ruolo principale non può essere cambiato in seguito. Scegli con cura!",
       "otherRoles": "Altri ruoli (opzionale)",
       "otherRolesHint": "Ruoli secondari che il giocatore può ricoprire",
       "avatar": "Foto profilo",
@@ -336,12 +337,12 @@
       "members": "Membri"
     },
     "privileges": {
-      "owner": "Proprietario",
+      "owner": "Presidente",
       "manager": "Manager",
       "member": "Membro"
     },
     "roles": {
-      "owner": "Proprietario",
+      "owner": "Presidente",
       "manager": "Manager",
       "member": "Membro"
     },

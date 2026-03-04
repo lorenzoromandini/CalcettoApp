@@ -14,7 +14,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-PROJECT_DIR="/home/ubuntu/projects/CalcettoApp"
+PROJECT_DIR="/home/lromandini/projects/CalcettoApp"
 cd "$PROJECT_DIR"
 
 # Function to check if a port is listening

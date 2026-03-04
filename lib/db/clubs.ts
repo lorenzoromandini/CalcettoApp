@@ -173,27 +173,33 @@ export async function updateClub(
 export const updateTeam = updateClub;
 
 export async function deleteClub(clubId: string): Promise<void> {
-  // Elimina in ordine corretto per rispettare le foreign key
+  console.log('[deleteClub] Starting deletion for club:', clubId)
   
-  // 1. Prima elimina le partite (cascade elimina: formations, goals, playerRatings)
-  await prisma.match.deleteMany({
-    where: { clubId },
-  });
-  
-  // 2. Elimina gli inviti del club
-  await prisma.clubInvite.deleteMany({
-    where: { clubId },
-  });
-  
-  // 3. Elimina i membri del club
-  await prisma.clubMember.deleteMany({
-    where: { clubId },
-  });
-  
-  // 4. Infine elimina fisicamente il club (hard delete)
-  await prisma.club.delete({
-    where: { id: clubId },
-  });
+  try {
+    // Soft delete: set deletedAt timestamp for both club and all its members
+    // This preserves all data and allows for recovery if needed
+    await prisma.$transaction([
+      // Soft delete the club
+      prisma.club.update({
+        where: { id: clubId },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+      // Soft delete all members of the club
+      prisma.clubMember.updateMany({
+        where: { clubId },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
+    
+    console.log('[deleteClub] Successfully deleted club and members:', clubId)
+  } catch (error) {
+    console.error('[deleteClub] Error during deletion:', error)
+    throw error
+  }
 }
 
 // Alias for backward compatibility
@@ -249,7 +255,10 @@ export async function isClubMember(clubId: string, userId: string): Promise<bool
 
 export async function getClubMembers(clubId: string): Promise<(ClubMember & { user: User | null })[]> {
   const members = await prisma.clubMember.findMany({
-    where: { clubId },
+    where: {
+      clubId,
+      deletedAt: null,
+    },
     include: {
       user: {
         select: {
@@ -280,7 +289,10 @@ export async function getClubMembersWithUsers(clubId: string): Promise<(ClubMemb
 
 export async function getClubMemberCount(clubId: string): Promise<number> {
   return await prisma.clubMember.count({
-    where: { clubId },
+    where: {
+      clubId,
+      deletedAt: null,
+    },
   });
 }
 

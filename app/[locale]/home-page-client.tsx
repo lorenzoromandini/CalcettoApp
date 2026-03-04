@@ -42,11 +42,11 @@ export default function HomePageClient() {
       <header className="flex items-center justify-between border-b px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/icons/logo.png"
+            src="/logo.png"
             alt="Calcetto Manager"
             width={32}
             height={32}
-            className="h-8 w-auto"
+            style={{ width: 'auto' }}
           />
           <span className="text-xl font-bold text-primary">Calcetto Manager</span>
         </Link>
@@ -64,7 +64,7 @@ export default function HomePageClient() {
             {t('home.subtitle')}
           </p>
           
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center px-4">
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href="/auth/login">
                 {t('auth.signIn')}
@@ -76,15 +76,16 @@ export default function HomePageClient() {
               </Link>
             </Button>
           </div>
-        </div>
 
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg border bg-card p-6 text-center">
+          </div>
+
+          <div className="mt-16 grid grid-cols-2 gap-4 px-4">
+            <div className="rounded-lg border bg-card p-6 text-center">
             <div className="text-2xl font-bold text-primary">⚽</div>
             <h3 className="mt-2 font-semibold">{t('home.features.clubs')}</h3>
           </div>
           <div className="rounded-lg border bg-card p-6 text-center">
-            <div className="text-2xl font-bold text-primary">🏆</div>
+            <div className="text-2xl font-bold text-primary">🏟️</div>
             <h3 className="mt-2 font-semibold">{t('home.features.matches')}</h3>
           </div>
           <div className="rounded-lg border bg-card p-6 text-center">

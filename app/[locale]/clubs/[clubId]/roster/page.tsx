@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ClubPrivilege } from '@prisma/client';
 import { useSession } from '@/components/providers/session-provider';
-import { ArrowLeft, Users, Settings, UserCog, Trash2, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt } from 'lucide-react';
+import { ArrowLeft, Users, Settings, UserCog, Trash2, Crown, Briefcase, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt, Activity, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -33,12 +33,7 @@ export default function ClubRosterPage() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
 
-  // Nascondi l'ID del club dall'URL, mostra solo /clubs/roster
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.history.replaceState({ clubId }, '', `/clubs/roster`);
-    }
-  }, [clubId, locale]);
+
 
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -171,17 +166,17 @@ export default function ClubRosterPage() {
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
+  const PRIVILEGE_ICONS: Record<string, string> = {
+    OWNER: '/icons/privileges/owner.png',
+    MANAGER: '/icons/privileges/manager.png',
+    MEMBER: '/icons/privileges/member.png',
+  };
+
   const getPrivilegeIcon = (privilege: string) => {
     // Handle both uppercase (from DB) and lowercase (for compatibility)
     const normalizedPrivilege = privilege.toUpperCase();
-    switch (normalizedPrivilege) {
-      case 'OWNER':
-        return <Shield className="h-4 w-4 text-primary" />;
-      case 'MANAGER':
-        return <UserCog className="h-4 w-4 text-muted-foreground" />;
-      default:
-        return <User className="h-4 w-4 text-muted-foreground" />;
-    }
+    const iconPath = PRIVILEGE_ICONS[normalizedPrivilege] || PRIVILEGE_ICONS.MEMBER;
+    return <img src={iconPath} alt={normalizedPrivilege} className="h-4 w-4 object-contain" />;
   };
 
   const getPrivilegeLabel = (privilege: string) => {
@@ -195,6 +190,25 @@ export default function ClubRosterPage() {
       default:
         return t('privileges.member');
     }
+  };
+
+  const ROLE_ICONS: Record<string, string> = {
+    // New English abbreviations
+    GK: '/icons/roles/goalkeeper.png',
+    DEF: '/icons/roles/defender.png',
+    MID: '/icons/roles/midfielder.png',
+    ST: '/icons/roles/attacker.png',
+    // Old Italian (for backward compatibility until DB is migrated)
+    POR: '/icons/roles/goalkeeper.png',
+    DIF: '/icons/roles/defender.png',
+    CEN: '/icons/roles/midfielder.png',
+    ATT: '/icons/roles/attacker.png',
+  };
+
+  const getRoleIcon = (role: string) => {
+    const iconPath = ROLE_ICONS[role];
+    if (!iconPath) return null;
+    return <img src={iconPath} alt={translatePlayerRole(role)} className="h-5 w-5 object-contain dark:invert" />;
   };
 
   const translatePlayerRole = (role: string) => {
@@ -272,16 +286,16 @@ export default function ClubRosterPage() {
                     <div>
                       <p className="font-medium">
                         {member.user?.firstName && member.user?.lastName 
-                          ? `${member.user.firstName} ${member.user.lastName}`
+                          ? `${member.user.firstName} ${member.user.lastName}${member.user?.nickname ? ` | ${member.user.nickname}` : ''}`
                           : member.user?.email || 'Utente'
                         }
                       </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-2">
                         {getPrivilegeIcon(member.privileges)}
-                        {getPrivilegeLabel(member.privileges)}
-                        {member.primaryRole && (
-                          <span className="ml-1">• {translatePlayerRole(member.primaryRole)}</span>
-                        )}
+                        {member.primaryRole && getRoleIcon(member.primaryRole)}
+                        {member.secondaryRoles?.length > 0 && member.secondaryRoles.map((role: string) => (
+                          <span key={role}>{getRoleIcon(role)}</span>
+                        ))}
                       </p>
                     </div>
                   </div>
