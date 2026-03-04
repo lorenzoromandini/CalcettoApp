@@ -51,7 +51,9 @@ We're implementing FIFA Ultimate Team style player cards:
 ## Project Reference
 
 ### Quick Links
-- 📊 This file (STATE.md)
+- 📊 STATE.md - This file
+- 📋 REQUIREMENTS.md - Feature requirements with status
+- 🗺️ ROADMAP.md - Phase roadmap
 - 📋 PROJECT.md - Project overview
 
 ### Tech Stack (Confirmed)
