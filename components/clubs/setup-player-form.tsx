@@ -86,12 +86,23 @@ export function SetupPlayerForm({ clubId, clubName, onSuccess, onCancel }: Setup
     }
   };
 
-  const handleCropComplete = (croppedBlob: Blob) => {
+  const handleCropComplete = async (croppedBlob: Blob) => {
     setCroppedAvatar(croppedBlob);
     const reader = new FileReader();
-    reader.onload = () => {
-      setAvatarPreview(reader.result as string);
+    reader.onload = async () => {
+      const imageData = reader.result as string;
+      setAvatarPreview(imageData);
       setShowCropper(false);
+      
+      // Remove background for card display
+      try {
+        const { removeBackground } = await import('@/lib/background-removal');
+        const processedBlob = await removeBackground(imageData);
+        setCroppedAvatar(processedBlob);
+      } catch (err) {
+        console.error('Failed to remove background:', err);
+        // Keep original if background removal fails
+      }
     };
     reader.readAsDataURL(croppedBlob);
   };

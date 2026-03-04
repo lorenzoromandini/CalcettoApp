@@ -2,8 +2,31 @@
 
 **Project:** Calcetto Manager  
 **Core Value:** Enable groups of friends to organize, play, and track their football matches easily, with automatic statistics and shared ratings  
-**Current Focus:** Mobile Performance Optimization  
-**Last Updated:** 2026-02-26 (Mobile Optimization Complete)
+**Current Focus:** Player Card UI - FIFA Ultimate Team style cards
+**Last Updated:** 2026-03-04
+
+---
+
+## 🎯 Current Task: Player Card Implementation
+
+We're implementing FIFA Ultimate Team style player cards:
+
+### What's Done
+- ✅ Card template images in `/public/icons/cards/` (8 types: bronze_base, bronze_rare, silver, golden, if, player_of_the_match, player_of_the_month, ultimate_scream)
+- ✅ Created `fut-player-card.tsx` component with card overlay system
+- ✅ Added background removal service (`lib/background-removal.ts`) using remove.bg API
+
+### Next Steps
+1. Integrate FUT player card into dashboard and player pages
+2. Add card type selection based on player rating/stats
+3. Connect background removal to avatar upload flow
+4. Test and polish card display
+
+### Files Created/Modified
+- `components/players/fut-player-card.tsx` - New FUT-style card component
+- `lib/background-removal.ts` - Background removal server action
+- `lib/image-utils.ts` - Updated with background removal integration
+- `public/icons/cards/` - Card template images
 
 ---
 
@@ -11,29 +34,25 @@
 
 | Property | Value |
 |----------|-------|
-| **Phase** | Mobile Optimization |
-| **Phase Goal** | Optimize performance for mobile devices with TanStack Query |
-| **Plan** | 01-01 Complete |
-| **Status** | 🟢 Complete |
-| **Progress** | 100% |
+| **Focus** | Player Card UI - FIFA Ultimate Team style cards |
+| **Status** | 🟡 In Progress |
+| **Branch** | cards |
 
-### Mobile Optimization Progress Bar
+### Player Cards Progress
 
 ```
-[████████████████████████] 100%
+[████████████░░░░░░░░░] ~60%
 ```
 
-*Mobile optimization complete: TanStack Query integration with server state management*
+*Implementing FIFA-style player cards with card templates, background removal, and dashboard integration*
 
 ---
 
 ## Project Reference
 
 ### Quick Links
-- 📋 [Requirements](./REQUIREMENTS.md)
-- 🗺️ [Roadmap](./ROADMAP.md)
 - 📊 This file (STATE.md)
-- 🔬 [Research Summary](./research/SUMMARY.md)
+- 📋 PROJECT.md - Project overview
 
 ### Tech Stack (Confirmed)
 | Layer | Technology | Rationale |

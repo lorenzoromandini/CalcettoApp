@@ -6,6 +6,9 @@
  * Client-side only - must not be imported in server components
  */
 
+// Import background removal (server action)
+import { removeBackground } from './background-removal';
+
 export interface CropArea {
   x: number;
   y: number;

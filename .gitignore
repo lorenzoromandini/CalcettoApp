@@ -52,3 +52,6 @@ credentials/
 next-env.d.ts
 cloudflared.deb
 .env
+
+# Agent instructions
+AGENTS.md
