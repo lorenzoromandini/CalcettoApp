@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserIdFromRequest } from '@/lib/auth-token';
-import { getClub, updateClub, deleteClub } from '@/lib/db/clubs';
+import { getSession } from '@/lib/session';
+import { getClub, updateClub, deleteClub, isClubOwner } from '@/lib/db/clubs';
 import { updateClubSchema } from '@/lib/validations/club';
 
 export async function GET(
@@ -8,9 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ clubId: string }> }
 ) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const session = await getSession();
     
-    if (!userId) {
+    if (!session?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -36,9 +36,9 @@ export async function PUT(
   { params }: { params: Promise<{ clubId: string }> }
 ) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const session = await getSession();
     
-    if (!userId) {
+    if (!session?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -63,13 +63,20 @@ export async function DELETE(
   { params }: { params: Promise<{ clubId: string }> }
 ) {
   try {
-    const userId = getUserIdFromRequest(request);
+    const session = await getSession();
     
-    if (!userId) {
+    if (!session?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { clubId } = await params;
+    
+    // Check if user is the owner
+    const isOwner = await isClubOwner(clubId, session.id);
+    if (!isOwner) {
+      return NextResponse.json({ error: 'Solo il proprietario può eliminare il club' }, { status: 403 });
+    }
+    
     await deleteClub(clubId);
     
     return NextResponse.json({ success: true });

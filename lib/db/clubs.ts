@@ -173,32 +173,40 @@ export async function updateClub(
 export const updateTeam = updateClub;
 
 export async function deleteClub(clubId: string): Promise<void> {
-  console.log('[deleteClub] Starting deletion for club:', clubId)
+  console.log('[deleteClub] Starting HARD delete for club:', clubId);
   
   try {
-    // Soft delete: set deletedAt timestamp for both club and all its members
-    // This preserves all data and allows for recovery if needed
-    await prisma.$transaction([
-      // Soft delete the club
-      prisma.club.update({
-        where: { id: clubId },
-        data: {
-          deletedAt: new Date(),
-        },
-      }),
-      // Soft delete all members of the club
-      prisma.clubMember.updateMany({
-        where: { clubId },
-        data: {
-          deletedAt: new Date(),
-        },
-      }),
-    ]);
+    // 1. Prima elimina le partite (cascade elimina: formations, goals, playerRatings)
+    console.log('[deleteClub] Step 1: Deleting matches...');
+    const matchesResult = await prisma.match.deleteMany({
+      where: { clubId },
+    });
+    console.log('[deleteClub] Deleted matches:', matchesResult.count);
     
-    console.log('[deleteClub] Successfully deleted club and members:', clubId)
+    // 2. Elimina gli inviti del club
+    console.log('[deleteClub] Step 2: Deleting club invites...');
+    const invitesResult = await prisma.clubInvite.deleteMany({
+      where: { clubId },
+    });
+    console.log('[deleteClub] Deleted invites:', invitesResult.count);
+    
+    // 3. Elimina i membri del club (con cascade su formation_positions, goals, player_ratings)
+    console.log('[deleteClub] Step 3: Deleting club members...');
+    const membersResult = await prisma.clubMember.deleteMany({
+      where: { clubId },
+    });
+    console.log('[deleteClub] Deleted members:', membersResult.count);
+    
+    // 4. Infine elimina fisicamente il club (hard delete)
+    console.log('[deleteClub] Step 4: Deleting club...');
+    await prisma.club.delete({
+      where: { id: clubId },
+    });
+    
+    console.log('[deleteClub] Successfully deleted club:', clubId);
   } catch (error) {
-    console.error('[deleteClub] Error during deletion:', error)
-    throw error
+    console.error('[deleteClub] Error during deletion:', error);
+    throw error;
   }
 }
 
