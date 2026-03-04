@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/icons/logo.png" alt="Calcetto Manager Logo" width="128" height="128">
+  <img src="public/logo.png" alt="Calcetto Manager Logo" width="128" height="128">
 </p>
 
 <h1 align="center">Calcetto Manager</h1>
