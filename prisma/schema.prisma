@@ -92,6 +92,7 @@ model ClubMember {
   primaryRole    PlayerRole
   secondaryRoles PlayerRole[]  @default([])
   jerseyNumber   Int
+  symbol         String?
 
   club           Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
