@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth-token';
 import { prisma } from '@/lib/prisma';
+import sharp from 'sharp';
+
+// Card photo dimensions from card-spaces.json
+const CARD_PHOTO_WIDTH = 415;
+const CARD_PHOTO_HEIGHT = 483;
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -28,10 +33,29 @@ export async function PATCH(request: NextRequest) {
     let imageUrl: string | null = null;
 
     if (imageFile) {
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      const base64 = buffer.toString('base64');
-      const mimeType = imageFile.type || 'image/jpeg';
-      imageUrl = `data:${mimeType};base64,${base64}`;
+      try {
+        // Get image buffer
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        
+        // Resize image to card photo dimensions using sharp
+        const resizedBuffer = await sharp(buffer)
+          .resize(CARD_PHOTO_WIDTH, CARD_PHOTO_HEIGHT, {
+            fit: 'cover', // Crop to fill the entire area
+            position: 'top', // Focus on the top (face area for headshots)
+          })
+          .jpeg({ quality: 90 }) // Convert to JPEG with good quality
+          .toBuffer();
+        
+        const base64 = resizedBuffer.toString('base64');
+        imageUrl = `data:image/jpeg;base64,${base64}`;
+      } catch (imageError) {
+        console.error('Error resizing image:', imageError);
+        // Fallback to original image if resizing fails
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        const mimeType = imageFile.type || 'image/jpeg';
+        const base64 = buffer.toString('base64');
+        imageUrl = `data:${mimeType};base64,${base64}`;
+      }
     } else if (removeImage) {
       imageUrl = null;
     }

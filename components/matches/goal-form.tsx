@@ -4,19 +4,17 @@
  * GoalForm Component
  * 
  * A modal/dialog for adding a goal with:
- * - Scorer selector (dropdown from club members)
- * - Assist selector (optional, dropdown)
+ * - Scorer selector (dropdown from club members OR guest option)
+ * - Assist selector (optional, dropdown from club members)
  * - Own goal checkbox
  * - Add/Cancel buttons
  * 
- * Updated for new schema:
- * - Uses ClubMember instead of Player
- * - Goals link to ClubMember via scorerId (which is clubMemberId)
+ * Updated to support guest/unknown players who are not club members
  */
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Plus, X, AlertCircle } from 'lucide-react'
+import { Plus, User, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,7 +35,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { AddGoalInput } from '@/lib/db/goals'
+import type { AddGoalInput } from '@/lib/validations/goal'
 
 // ============================================================================
 // Component Props
@@ -98,6 +96,7 @@ export function GoalForm({
 
   // Form state
   const [scorerId, setScorerId] = useState<string>('')
+  const [isGuestScorer, setIsGuestScorer] = useState(false)
   const [assisterId, setAssisterId] = useState<string>('')
   const [isOwnGoal, setIsOwnGoal] = useState(false)
 
@@ -106,20 +105,38 @@ export function GoalForm({
    */
   const resetForm = () => {
     setScorerId('')
+    setIsGuestScorer(false)
     setAssisterId('')
     setIsOwnGoal(false)
+  }
+
+  /**
+   * Handle scorer selection
+   */
+  const handleScorerChange = (value: string) => {
+    if (value === 'guest') {
+      setIsGuestScorer(true)
+      setScorerId('')
+    } else {
+      setIsGuestScorer(false)
+      setScorerId(value)
+    }
   }
 
   /**
    * Handle form submission
    */
   const handleSubmit = async () => {
-    if (!scorerId) return
+    // Allow submission if either a member is selected OR it's a guest scorer
+    if (!scorerId && !isGuestScorer) return
 
     const data: AddGoalInput = {
       matchId,
-      scorerId, // This is clubMemberId
-      assisterId: assisterId || undefined,
+      clubId,
+      scorerId: isGuestScorer ? null : scorerId,
+      isGuestScorer,
+      guestScorerName: isGuestScorer ? 'Sconosciuto' : null,
+      assisterId: assisterId || null,
       isOwnGoal,
     }
 
@@ -165,11 +182,24 @@ export function GoalForm({
           {/* Scorer Selector */}
           <div className="space-y-2">
             <Label htmlFor="scorer">{t('scorer')}</Label>
-            <Select value={scorerId} onValueChange={setScorerId}>
+            <Select value={isGuestScorer ? 'guest' : scorerId} onValueChange={handleScorerChange}>
               <SelectTrigger id="scorer">
                 <SelectValue placeholder={t('selectScorer')} />
               </SelectTrigger>
               <SelectContent>
+                {/* Guest/Unknown player option */}
+                <SelectItem value="guest">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarFallback className="text-xs bg-gray-400">
+                        <User className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-muted-foreground">{t('guestPlayer') || 'Sconosciuto'}</span>
+                  </div>
+                </SelectItem>
+                
+                {/* Club members */}
                 {members.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
                     <div className="flex items-center gap-2">
@@ -198,26 +228,17 @@ export function GoalForm({
             <Checkbox
               id="ownGoal"
               checked={isOwnGoal}
-              onCheckedChange={(checked) => {
-                setIsOwnGoal(checked as boolean)
-                if (checked) {
-                  setAssisterId('') // Clear assist for own goals
-                }
-              }}
+              onCheckedChange={(checked) => setIsOwnGoal(checked as boolean)}
             />
-            <Label
-              htmlFor="ownGoal"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-            >
-              <AlertCircle className="h-4 w-4 text-destructive" />
+            <Label htmlFor="ownGoal" className="text-sm font-normal cursor-pointer">
               {t('ownGoal')}
             </Label>
           </div>
 
-          {/* Assist Selector - Only if not own goal */}
+          {/* Assist Selector - disabled for own goals */}
           {!isOwnGoal && (
             <div className="space-y-2">
-              <Label htmlFor="assister">{t('assister')} ({t('optional')})</Label>
+              <Label htmlFor="assister">{t('assister')}</Label>
               <Select 
                 value={assisterId} 
                 onValueChange={setAssisterId}
@@ -227,9 +248,11 @@ export function GoalForm({
                   <SelectValue placeholder={t('selectAssister')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* Don't show scorer as assister option */}
+                  <SelectItem value="">
+                    <span className="text-muted-foreground">{t('noAssist')}</span>
+                  </SelectItem>
                   {members
-                    .filter(m => m.id !== scorerId)
+                    .filter((member) => member.id !== scorerId)
                     .map((member) => (
                       <SelectItem key={member.id} value={member.id}>
                         <div className="flex items-center gap-2">
@@ -241,8 +264,8 @@ export function GoalForm({
                           </Avatar>
                           <span>
                             {getMemberDisplayName(
-                              member.user?.firstName || 'Unknown', 
-                              member.user?.lastName, 
+                              member.user?.firstName || 'Unknown',
+                              member.user?.lastName,
                               member.user?.nickname
                             )}
                           </span>
@@ -258,16 +281,16 @@ export function GoalForm({
         <DialogFooter>
           <Button
             variant="outline"
-            onClick={() => handleOpenChange(false)}
+            onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
             {tCommon('cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isLoading || !scorerId}
+            disabled={(!scorerId && !isGuestScorer) || isLoading}
           >
-            {isLoading ? t('adding') : t('addGoal')}
+            {isLoading ? tCommon('loading') : tCommon('add')}
           </Button>
         </DialogFooter>
       </DialogContent>

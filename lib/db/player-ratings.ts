@@ -604,10 +604,18 @@ export interface DashboardMemberData {
     lastName: string
     nickname: string | null
     image: string | null
+    primaryRole: string
+    secondaryRoles: string[]
+    symbol: string | null
   }
   clubId: string | null
   teamName: string | null
   jerseyNumber: number | null
+  // New card criteria fields
+  lastMatchRating: number | null
+  hasMvpInLastMatch: boolean
+  isAbsent: boolean
+  // Backward compatibility fields
   lastThreeGamesAvgRating: number | null
   hasMvpInLastThree: boolean
   frameColor: FrameBorderColor
@@ -648,7 +656,23 @@ export async function getMemberDashboardData(
     clubName: member.club?.name
   })
 
-  const lastThreeRatings = await prisma.playerRating.findMany({
+  // Find the club's last completed match
+  const lastClubMatch = await prisma.match.findFirst({
+    where: {
+      clubId: member.clubId,
+      status: MatchStatus.COMPLETED,
+    },
+    orderBy: {
+      scheduledAt: 'desc',
+    },
+    select: {
+      id: true,
+      scheduledAt: true,
+    },
+  })
+
+  // Get all ratings for this member (ordered by match date desc)
+  const allMemberRatings = await prisma.playerRating.findMany({
     where: {
       clubMemberId: member.id,
       match: {
@@ -669,9 +693,45 @@ export async function getMemberDashboardData(
         scheduledAt: 'desc',
       },
     },
-    take: 3,
   })
 
+  // Calculate new card criteria fields
+  let lastMatchRating: number | null = null
+  let hasMvpInLastMatch = false
+  let isAbsent = false
+
+  if (lastClubMatch) {
+    // Check if player has a rating for the last club match
+    const lastMatchPlayerRating = allMemberRatings.find(
+      r => r.match.id === lastClubMatch.id
+    )
+
+    if (lastMatchPlayerRating) {
+      // Player participated in the last match
+      lastMatchRating = lastMatchPlayerRating.rating.toNumber()
+
+      // Check if player was MVP (highest rating) in that match
+      const allMatchRatings = await prisma.playerRating.findMany({
+        where: { matchId: lastClubMatch.id },
+        select: { clubMemberId: true, rating: true },
+      })
+
+      if (allMatchRatings.length > 0) {
+        const maxRating = Math.max(...allMatchRatings.map((r: { rating: { toNumber: () => number } }) => r.rating.toNumber()))
+        const topMembers = allMatchRatings.filter((r: { rating: { toNumber: () => number } }) => r.rating.toNumber() === maxRating)
+        hasMvpInLastMatch = topMembers.some((m: { clubMemberId: string }) => m.clubMemberId === member.id)
+      }
+    } else {
+      // Player did not participate in the last match - they are absent
+      isAbsent = true
+    }
+  } else {
+    // No completed matches in club - player is effectively absent
+    isAbsent = allMemberRatings.length === 0
+  }
+
+  // Calculate backward compatibility fields (last 3 games average and MVP in last 3)
+  const lastThreeRatings = allMemberRatings.slice(0, 3)
   let lastThreeGamesAvgRating: number | null = null
   let hasMvpInLastThree = false
 
@@ -694,6 +754,15 @@ export async function getMemberDashboardData(
         }
       }
     }
+  } else {
+    // No ratings at all - mark as absent
+    isAbsent = true
+  }
+
+  // Also mark as absent if player's last rating is before the club's last completed match
+  if (!isAbsent && lastClubMatch && allMemberRatings.length > 0) {
+    const lastPlayerMatchDate = allMemberRatings[0].match.scheduledAt
+    isAbsent = lastPlayerMatchDate < lastClubMatch.scheduledAt
   }
 
   const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
@@ -705,10 +774,18 @@ export async function getMemberDashboardData(
       lastName: member.user.lastName,
       nickname: member.user.nickname,
       image: member.user.image,
+      primaryRole: member.primaryRole,
+      secondaryRoles: member.secondaryRoles,
+      symbol: member.symbol,
     },
     clubId: member.clubId,
     teamName: member.club.name,
     jerseyNumber: member.jerseyNumber,
+    // New card criteria fields
+    lastMatchRating,
+    hasMvpInLastMatch,
+    isAbsent,
+    // Backward compatibility fields
     lastThreeGamesAvgRating,
     hasMvpInLastThree,
     frameColor,
@@ -718,7 +795,10 @@ export async function getMemberDashboardData(
     jerseyNumber: result.jerseyNumber,
     type: typeof result.jerseyNumber,
     clubName: result.teamName,
-    memberId: result.member.id
+    memberId: result.member.id,
+    lastMatchRating: result.lastMatchRating,
+    hasMvpInLastMatch: result.hasMvpInLastMatch,
+    isAbsent: result.isAbsent,
   })
 
   return result
@@ -748,10 +828,26 @@ export async function getClubMembersDashboardData(clubId: string): Promise<Dashb
     },
   })
 
+  // Find the club's last completed match
+  const lastClubMatch = await prisma.match.findFirst({
+    where: {
+      clubId,
+      status: MatchStatus.COMPLETED,
+    },
+    orderBy: {
+      scheduledAt: 'desc',
+    },
+    select: {
+      id: true,
+      scheduledAt: true,
+    },
+  })
+
   const results: DashboardMemberData[] = []
 
   for (const member of members) {
-    const lastThreeRatings = await prisma.playerRating.findMany({
+    // Get all ratings for this member (ordered by match date desc)
+    const allMemberRatings = await prisma.playerRating.findMany({
       where: {
         clubMemberId: member.id,
         match: {
@@ -759,14 +855,58 @@ export async function getClubMembersDashboardData(clubId: string): Promise<Dashb
           status: MatchStatus.COMPLETED,
         },
       },
+      include: {
+        match: {
+          select: {
+            id: true,
+            scheduledAt: true,
+          },
+        },
+      },
       orderBy: {
         match: {
           scheduledAt: 'desc',
         },
       },
-      take: 3,
     })
 
+    // Calculate new card criteria fields
+    let lastMatchRating: number | null = null
+    let hasMvpInLastMatch = false
+    let isAbsent = false
+
+    if (lastClubMatch) {
+      // Check if player has a rating for the last club match
+      const lastMatchPlayerRating = allMemberRatings.find(
+        r => r.match.id === lastClubMatch.id
+      )
+
+      if (lastMatchPlayerRating) {
+        // Player participated in the last match
+        lastMatchRating = lastMatchPlayerRating.rating.toNumber()
+
+        // Check if player was MVP (highest rating) in that match
+        const allMatchRatings = await prisma.playerRating.findMany({
+          where: { matchId: lastClubMatch.id },
+          select: { clubMemberId: true, rating: true },
+        })
+
+        if (allMatchRatings.length > 0) {
+          const maxRating = Math.max(...allMatchRatings.map((r: { rating: { toNumber: () => number } }) => r.rating.toNumber()))
+          const topMembers = allMatchRatings.filter((r: { rating: { toNumber: () => number } }) => r.rating.toNumber() === maxRating)
+          hasMvpInLastMatch = topMembers.some((m: { clubMemberId: string }) => m.clubMemberId === member.id)
+        }
+      } else {
+        // Player did not participate in the last match - they are absent
+        isAbsent = true
+      }
+    } else {
+      // No completed matches in club - player is effectively absent if they have no ratings
+      isAbsent = allMemberRatings.length === 0
+    }
+
+    // Calculate backward compatibility fields (last 3 games average and MVP in last 3)
+    const lastThreeRatings = allMemberRatings.slice(0, 3)
     let lastThreeGamesAvgRating: number | null = null
     let hasMvpInLastThree = false
 
@@ -789,6 +929,15 @@ export async function getClubMembersDashboardData(clubId: string): Promise<Dashb
           }
         }
       }
+    } else {
+      // No ratings at all - mark as absent
+      isAbsent = true
+    }
+
+    // Also mark as absent if player's last rating is before the club's last completed match
+    if (!isAbsent && lastClubMatch && allMemberRatings.length > 0) {
+      const lastPlayerMatchDate = allMemberRatings[0].match.scheduledAt
+      isAbsent = lastPlayerMatchDate < lastClubMatch.scheduledAt
     }
 
     const frameColor = await calculateFrameColor(lastThreeGamesAvgRating, hasMvpInLastThree)
@@ -800,10 +949,18 @@ export async function getClubMembersDashboardData(clubId: string): Promise<Dashb
         lastName: member.user.lastName,
         nickname: member.user.nickname,
         image: member.user.image,
+        primaryRole: member.primaryRole,
+        secondaryRoles: member.secondaryRoles,
+        symbol: member.symbol,
       },
       clubId,
       teamName: member.club.name,
       jerseyNumber: member.jerseyNumber,
+      // New card criteria fields
+      lastMatchRating,
+      hasMvpInLastMatch,
+      isAbsent,
+      // Backward compatibility fields
       lastThreeGamesAvgRating,
       hasMvpInLastThree,
       frameColor,

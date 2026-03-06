@@ -2,13 +2,17 @@
 
 import { useTranslations } from 'next-intl';
 import { PlayerRole } from '@prisma/client';
+import { useTheme } from 'next-themes';
 
-const ROLE_IMAGES: Record<PlayerRole, string> = {
-  [PlayerRole.POR]: '/icons/roles/goalkeeper.png',
-  [PlayerRole.DIF]: '/icons/roles/defender.png',
-  [PlayerRole.CEN]: '/icons/roles/midfielder.png',
-  [PlayerRole.ATT]: '/icons/roles/attacker.png',
+const ROLE_IMAGES: Record<PlayerRole, { light: string; dark: string }> = {
+  [PlayerRole.POR]: { light: '/icons/roles/goalkeeper.png', dark: '/icons/roles/goalkeeper.png' },
+  [PlayerRole.DIF]: { light: '/icons/roles/defender.png', dark: '/icons/roles/defender.png' },
+  [PlayerRole.CEN]: { light: '/icons/roles/midfielder.png', dark: '/icons/roles/midfielder_negative.png' },
+  [PlayerRole.ATT]: { light: '/icons/roles/attacker.png', dark: '/icons/roles/attacker.png' },
 };
+
+// Icons that need inversion in dark mode (using light version)
+const INVERT_IN_DARK: PlayerRole[] = [PlayerRole.POR, PlayerRole.DIF, PlayerRole.ATT];
 
 const ROLES: { id: PlayerRole; translationKey: string }[] = [
   { id: PlayerRole.POR, translationKey: 'roles.goalkeeper' },
@@ -33,6 +37,8 @@ export function RoleSelector({
   disabled,
 }: RoleSelectorProps) {
   const t = useTranslations('players');
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   const toggleOtherRole = (roleId: PlayerRole) => {
     if (disabled) return;
@@ -45,6 +51,18 @@ export function RoleSelector({
     } else {
       onOtherRolesChange([...otherRoles, roleId]);
     }
+  };
+
+  const getRoleImage = (role: PlayerRole) => {
+    return isDark ? ROLE_IMAGES[role].dark : ROLE_IMAGES[role].light;
+  };
+
+  const getRoleImageClass = (role: PlayerRole, isSelected: boolean) => {
+    const baseClasses = 'h-8 w-8 object-contain ';
+    const opacityClass = isSelected ? 'opacity-100' : 'opacity-70';
+    // Invert in dark mode for roles using light icons
+    const invertClass = (isDark && INVERT_IN_DARK.includes(role)) ? 'dark:invert' : '';
+    return `${baseClasses}${opacityClass} ${invertClass}`.trim();
   };
 
   return (
@@ -75,9 +93,9 @@ export function RoleSelector({
                 `}
               >
                 <img 
-                  src={ROLE_IMAGES[id]} 
+                  src={getRoleImage(id)} 
                   alt={t(translationKey)}
-                  className={`h-8 w-8 object-contain dark:invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                  className={getRoleImageClass(id, isSelected)}
                 />
                 <span className="text-sm font-medium">{t(translationKey)}</span>
               </button>
@@ -118,9 +136,9 @@ export function RoleSelector({
                 `}
               >
                 <img 
-                  src={ROLE_IMAGES[id]} 
+                  src={getRoleImage(id)} 
                   alt={t(translationKey)}
-                  className={`h-8 w-8 object-contain dark:invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                  className={getRoleImageClass(id, isSelected)}
                 />
                 <span className="text-sm font-medium">{t(translationKey)}</span>
               </button>

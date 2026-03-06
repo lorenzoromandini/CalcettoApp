@@ -5,8 +5,11 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { ClubMember } from '@/types/database';
 import { PlayerRole } from '@prisma/client';
+import { Star } from 'lucide-react';
+import cardSpaces from '@/lib/card-spaces.json';
+import { useRef, useState, useEffect } from 'react';
 
-// Card types mapping
+// Card types from JSON config
 export type CardType = 
   | 'bronze_base' 
   | 'bronze_rare' 
@@ -14,8 +17,9 @@ export type CardType =
   | 'golden' 
   | 'if' 
   | 'player_of_the_match' 
-  | 'player_of_the_month' 
-  | 'ultimate_scream';
+  | 'player_of_the_month'
+  | 'ultimate_scream'
+  | 'absent';
 
 interface PlayerCardProps {
   member: ClubMember & { 
@@ -24,49 +28,58 @@ interface PlayerCardProps {
       lastName: string; 
       nickname: string | null; 
       image: string | null;
-    } | null 
+    } | null;
+    club?: {
+      image: string | null;
+    } | null;
   };
   clubId: string;
   cardType?: CardType;
   className?: string;
   onClick?: () => void;
+  lastMatchRating?: number | null;
+  hasMvpInLastMatch?: boolean;
+  isAbsent?: boolean;
 }
 
-// Card background images mapping
-const CARD_BACKGROUNDS: Record<CardType, string> = {
-  bronze_base: '/icons/cards/bronze_base.png',
-  bronze_rare: '/icons/cards/bronze_rare.png',
-  silver: '/icons/cards/silver.png',
-  golden: '/icons/cards/golden.png',
-  if: '/icons/cards/if.png',
-  player_of_the_match: '/icons/cards/player_of_the_match.png',
-  player_of_the_month: '/icons/cards/player_of_the_month.png',
-  ultimate_scream: '/icons/cards/ultimate_scream.png',
-};
-
-// Card text colors based on card type
-const CARD_TEXT_COLORS: Record<CardType, string> = {
-  bronze_base: 'text-amber-900',
-  bronze_rare: 'text-amber-900',
-  silver: 'text-slate-800',
-  golden: 'text-yellow-900',
-  if: 'text-teal-900',
-  player_of_the_match: 'text-blue-900',
-  player_of_the_month: 'text-purple-900',
-  ultimate_scream: 'text-orange-900',
-};
+// Original card dimensions from JSON
+const ORIGINAL_WIDTH = cardSpaces.layout.dimensions.width;
+const ORIGINAL_HEIGHT = cardSpaces.layout.dimensions.height;
 
 // Determine card type based on member stats/rating
-export function getCardType(member: ClubMember): CardType {
-  // Placeholder logic - customize based on your rating system
-  const hasHighRating = false; // Replace with actual rating check
-  const hasSpecialAchievement = false; // Replace with achievement check
+export interface CardTypeCriteria {
+  lastMatchRating?: number | null;
+  hasMvpInLastMatch?: boolean;
+  isAbsent?: boolean;
+}
+
+export function getCardType(criteria: CardTypeCriteria): CardType {
+  const { lastMatchRating, hasMvpInLastMatch, isAbsent } = criteria;
   
-  if (hasSpecialAchievement) return 'ultimate_scream';
-  if (hasHighRating) return 'golden';
+  if (isAbsent) return 'absent';
+  if (hasMvpInLastMatch) return 'player_of_the_match';
   
-  // Default based on play time or other criteria
+  if (lastMatchRating !== null && lastMatchRating !== undefined) {
+    if (lastMatchRating >= 8.0) return 'if';
+    if (lastMatchRating >= 7.0) return 'golden';
+    if (lastMatchRating >= 6.0) return 'silver';
+    if (lastMatchRating > 4.5) return 'bronze_rare';
+  }
+  
   return 'bronze_base';
+}
+
+// Role abbreviations
+const ROLE_ABBREVIATIONS: Record<PlayerRole, string> = {
+  POR: 'POR',
+  DIF: 'DIF',
+  CEN: 'CEN',
+  ATT: 'ATT',
+};
+
+// Helper to find region by ID
+function findRegion(id: string) {
+  return cardSpaces.regions.find(r => r.id === id);
 }
 
 export function PlayerCard({ 
@@ -74,12 +87,42 @@ export function PlayerCard({
   clubId, 
   cardType: forcedCardType,
   className,
-  onClick 
+  onClick,
+  lastMatchRating,
+  hasMvpInLastMatch,
+  isAbsent
 }: PlayerCardProps) {
   const t = useTranslations('players');
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [scaleFactor, setScaleFactor] = useState(1);
   
-  const cardType = forcedCardType || getCardType(member);
-  const textColor = CARD_TEXT_COLORS[cardType];
+  // Calculate scale factor when card resizes
+  useEffect(() => {
+    const updateScale = () => {
+      if (cardRef.current) {
+        const displayedWidth = cardRef.current.offsetWidth;
+        const scale = displayedWidth / ORIGINAL_WIDTH;
+        setScaleFactor(scale);
+      }
+    };
+    
+    updateScale();
+    
+    const resizeObserver = new ResizeObserver(updateScale);
+    if (cardRef.current) {
+      resizeObserver.observe(cardRef.current);
+    }
+    
+    return () => resizeObserver.disconnect();
+  }, []);
+  
+  const cardType = forcedCardType || getCardType({ lastMatchRating, hasMvpInLastMatch, isAbsent });
+  const cardConfig = cardSpaces.cardTypeConfig[cardType as keyof typeof cardSpaces.cardTypeConfig];
+  
+  // Determine text color - all same color per card type, white for player_of_the_match
+  const textColor = cardType === 'player_of_the_match' 
+    ? '#FFFFFF' 
+    : (cardConfig?.textColor || '#000000');
   
   // Get player display info
   const firstName = member.user?.firstName || '';
@@ -88,6 +131,12 @@ export function PlayerCard({
   const image = member.user?.image;
   const jerseyNumber = member.jerseyNumber;
   const primaryRole = member.primaryRole;
+  const secondaryRoles = member.secondaryRoles || [];
+  const symbol = member.symbol;
+  const clubImage = member.club?.image;
+  
+  // Get display name (nickname or full name)
+  const displayName = nickname || `${firstName} ${lastName}`.trim();
   
   // Get initials for placeholder
   const getInitials = () => {
@@ -100,8 +149,59 @@ export function PlayerCard({
     if (onClick) onClick();
   };
 
+  // Find regions from JSON config
+  const playerPhotoRegion = findRegion('player-photo');
+  const playerNameRegion = findRegion('player-name');
+  const playerRatingRegion = findRegion('player-rating');
+  const jerseyNumberRegion = findRegion('jersey-number');
+  const primaryRoleRegion = findRegion('primary-role');
+  const secondaryRolesRegion = findRegion('secondary-roles');
+  const clubLogoRegion = findRegion('club-logo');
+  const playerSymbolRegion = findRegion('player-symbol');
+
+  // Get scaled dimensions for a region
+  const getScaledDimensions = (bounds: { x: number | null; y: number | null; width: number | null; height: number | null } | undefined) => {
+    if (!bounds || bounds.x === null || bounds.y === null || bounds.width === null || bounds.height === null) {
+      return null;
+    }
+    return {
+      x: bounds.x * scaleFactor,
+      y: bounds.y * scaleFactor,
+      width: bounds.width * scaleFactor,
+      height: bounds.height * scaleFactor,
+      minDimension: Math.min(bounds.width * scaleFactor, bounds.height * scaleFactor),
+    };
+  };
+
+  // Convert original pixel bounds to scaled CSS
+  const getScaledStyle = (bounds: { x: number | null; y: number | null; width: number | null; height: number | null } | undefined): React.CSSProperties => {
+    const dims = getScaledDimensions(bounds);
+    if (!dims) return {};
+    return {
+      position: 'absolute',
+      left: `${dims.x}px`,
+      top: `${dims.y}px`,
+      width: `${dims.width}px`,
+      height: `${dims.height}px`,
+    };
+  };
+
+  // Get font size based on shortest dimension of the region - fill the shorter dimension
+  const getRegionFontSize = (bounds: { x: number | null; y: number | null; width: number | null; height: number | null } | undefined, fillRatio: number = 0.8): string => {
+    const dims = getScaledDimensions(bounds);
+    if (!dims) return '16px';
+    // Fill the shorter dimension
+    return `${dims.minDimension * fillRatio}px`;
+  };
+
+  // Common text shadow style for all text elements
+  const textShadowStyle = cardType === 'player_of_the_match'
+    ? '0 2px 4px rgba(0,0,0,0.8)'
+    : '0 1px 2px rgba(0,0,0,0.5)';
+
   return (
     <div 
+      ref={cardRef}
       className={cn(
         'relative cursor-pointer transition-transform hover:scale-105 active:scale-[0.98]',
         className
@@ -110,114 +210,198 @@ export function PlayerCard({
     >
       {/* Card Container - maintains aspect ratio */}
       <div className="relative w-full aspect-[3/4]">
-        {/* Card Background */}
+        {/* Card Background from JSON config */}
         <Image
-          src={CARD_BACKGROUNDS[cardType]}
+          src={cardConfig?.backgroundImage || '/icons/cards/bronze_base.png'}
           alt="Card background"
           fill
           className="object-cover"
           priority
         />
         
-        {/* Player Image Area - positioned in upper 60% */}
-        <div className="absolute inset-x-[10%] top-[8%] bottom-[42%] overflow-hidden">
-          {image ? (
+        {/* Club Logo */}
+        {clubImage && clubLogoRegion && clubLogoRegion.bounds?.x !== null && (
+          <div 
+            className="z-30 flex items-center justify-center overflow-hidden"
+            style={getScaledStyle(clubLogoRegion.bounds)}
+          >
             <div className="relative w-full h-full">
               <Image
-                src={image}
-                alt={`${firstName} ${lastName}`}
+                src={clubImage}
+                alt="Club"
                 fill
-                className="object-cover object-top"
+                className="object-contain rounded-full"
               />
             </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-white/20 to-transparent">
-              <span className="text-5xl font-bold text-white/60 drop-shadow-lg">
-                {getInitials()}
-              </span>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         
-        {/* Jersey Number - positioned in upper-right area */}
-        {jerseyNumber > 0 && (
-          <div className="absolute top-[12%] right-[8%] z-10">
-            <span className="text-2xl font-black text-white drop-shadow-lg">
-              {jerseyNumber}
+        {/* Player Rating - fills shorter dimension */}
+        {lastMatchRating !== null && lastMatchRating !== undefined && playerRatingRegion && playerRatingRegion.bounds?.x !== null && (
+          <div 
+            className="z-20 flex items-center justify-center overflow-hidden"
+            style={getScaledStyle(playerRatingRegion.bounds)}
+          >
+            <span 
+              className="font-black leading-none"
+              style={{
+                color: textColor,
+                fontSize: getRegionFontSize(playerRatingRegion.bounds, 0.75),
+                textShadow: textShadowStyle,
+              }}
+            >
+              {lastMatchRating.toFixed(1)}
             </span>
           </div>
         )}
         
-        {/* Primary Role Icon - positioned in upper-left area */}
-        <div className="absolute top-[12%] left-[8%] z-10">
-          <RoleIcon role={primaryRole} className="w-6 h-6 text-white drop-shadow-lg" />
-        </div>
+        {/* Jersey Number - with jersey PNG background */}
+        {jerseyNumber > 0 && jerseyNumberRegion && jerseyNumberRegion.bounds?.x !== null && (
+          <div 
+            className="z-20 flex items-center justify-center overflow-hidden"
+            style={getScaledStyle(jerseyNumberRegion.bounds)}
+          >
+            <div className="relative flex items-center justify-center w-full h-full">
+              {/* Jersey PNG Background - scaled down and white */}
+              <Image
+                src="/icons/cards/jersey.png"
+                alt="Jersey"
+                fill
+                className="object-contain scale-60 brightness-0 invert"
+              />
+              {/* Jersey Number - centered on top */}
+              <span 
+                className="absolute font-black z-10"
+                style={{
+                  color: textColor,
+                  fontSize: getRegionFontSize(jerseyNumberRegion.bounds, 0.4),
+                  lineHeight: '1',
+                  textShadow: textShadowStyle,
+                }}
+              >
+                {jerseyNumber}
+              </span>
+            </div>
+          </div>
+        )}
         
-        {/* Player Info Area - positioned in bottom 40% */}
-        <div className="absolute inset-x-[5%] bottom-[5%] top-[62%] flex flex-col items-center justify-center text-center p-2">
-          {/* Name */}
-          <h3 className={cn(
-            'font-bold text-base leading-tight truncate w-full',
-            textColor
-          )}>
-            {firstName}
-          </h3>
-          <h3 className={cn(
-            'font-bold text-lg leading-tight truncate w-full',
-            textColor
-          )}>
-            {lastName}
-          </h3>
-          
-          {/* Nickname */}
-          {nickname && (
-            <p className={cn(
-              'text-xs mt-1 truncate w-full opacity-80',
-              textColor
-            )}>
-              &ldquo;{nickname}&rdquo;
-            </p>
-          )}
-          
-          {/* Role */}
-          <p className={cn(
-            'text-xs mt-1 font-medium uppercase tracking-wide opacity-70',
-            textColor
-          )}>
-            {t(`roles.${primaryRole.toLowerCase()}`)}
-          </p>
-        </div>
+        {/* Primary Role - fills shorter dimension with rectangle border */}
+        {primaryRoleRegion && primaryRoleRegion.bounds?.x !== null && (
+          <div 
+            className="z-20 flex items-center justify-center overflow-hidden"
+            style={{
+              ...getScaledStyle(primaryRoleRegion.bounds),
+              border: `2px solid ${textColor}`,
+              borderRadius: '4px',
+              backgroundColor: cardType === 'player_of_the_match' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.2)',
+            }}
+          >
+            <span 
+              className="font-black whitespace-nowrap"
+              style={{ 
+                color: textColor,
+                fontSize: getRegionFontSize(primaryRoleRegion.bounds, 0.65),
+                textShadow: textShadowStyle,
+              }}
+            >
+              {ROLE_ABBREVIATIONS[primaryRole]}
+            </span>
+          </div>
+        )}
+        
+        {/* Secondary Roles - fills shorter dimension */}
+        {secondaryRoles.length > 0 && secondaryRolesRegion && secondaryRolesRegion.bounds?.x !== null && (
+          <div 
+            className="z-20 flex items-center justify-center overflow-hidden"
+            style={getScaledStyle(secondaryRolesRegion.bounds)}
+          >
+            <span 
+              className="font-bold whitespace-nowrap"
+              style={{ 
+                color: textColor,
+                fontSize: getRegionFontSize(secondaryRolesRegion.bounds, 0.6),
+                textShadow: textShadowStyle,
+                opacity: 0.9,
+              }}
+            >
+              {secondaryRoles.slice(0, 2).map(r => ROLE_ABBREVIATIONS[r]).join(', ')}
+            </span>
+          </div>
+        )}
+        
+        {/* Symbol - fills shorter dimension */}
+        {symbol && playerSymbolRegion && playerSymbolRegion.bounds?.x !== null && (
+          <div 
+            className="z-20 flex items-center justify-center overflow-hidden"
+            style={getScaledStyle(playerSymbolRegion.bounds)}
+          >
+            <span 
+              className="font-bold"
+              style={{
+                color: textColor,
+                fontSize: getRegionFontSize(playerSymbolRegion.bounds, 0.7),
+                textShadow: textShadowStyle,
+              }}
+            >
+              {symbol}
+            </span>
+          </div>
+        )}
+        
+        {/* Player Photo - fills the entire region */}
+        {playerPhotoRegion && playerPhotoRegion.bounds?.x !== null && (
+          <div 
+            className="z-10 overflow-hidden"
+            style={getScaledStyle(playerPhotoRegion.bounds)}
+          >
+            {image ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={image}
+                  alt={displayName}
+                  fill
+                  className="object-cover"
+                  style={{ objectPosition: 'center top' }}
+                />
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span 
+                  className="font-bold"
+                  style={{ 
+                    color: textColor,
+                    fontSize: getRegionFontSize(playerPhotoRegion.bounds, 0.5),
+                    textShadow: textShadowStyle,
+                  }}
+                >
+                  {getInitials()}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Player Name - fills shorter dimension */}
+        {playerNameRegion && playerNameRegion.bounds?.x !== null && (
+          <div 
+            className="z-20 flex items-center justify-center overflow-hidden"
+            style={getScaledStyle(playerNameRegion.bounds)}
+          >
+            <h3 
+              className={cn(
+                'font-black text-center uppercase tracking-wide truncate w-full'
+              )}
+              style={{
+                color: textColor,
+                fontSize: getRegionFontSize(playerNameRegion.bounds, 0.55),
+                textShadow: textShadowStyle,
+              }}
+            >
+              {displayName}
+            </h3>
+          </div>
+        )}
       </div>
     </div>
   );
-}
-
-// Role icon component
-function RoleIcon({ role, className }: { role: PlayerRole; className?: string }) {
-  // Simple SVG icons for each role
-  const icons: Record<PlayerRole, React.ReactNode> = {
-    POR: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>
-    ),
-    DIF: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-      </svg>
-    ),
-    CEN: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-      </svg>
-    ),
-    ATT: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-      </svg>
-    ),
-  };
-
-  return <>{icons[role]}</>;
 }

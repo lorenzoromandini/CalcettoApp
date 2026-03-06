@@ -15,12 +15,24 @@ We're implementing FIFA Ultimate Team style player cards:
 - ✅ Card template images in `/public/icons/cards/` (8 types: bronze_base, bronze_rare, silver, golden, if, player_of_the_match, player_of_the_month, ultimate_scream)
 - ✅ Created `fut-player-card.tsx` component with card overlay system
 - ✅ Added background removal service (`lib/background-removal.ts`) using remove.bg API
+- ✅ Integrated FUT player card into dashboard page (`app/[locale]/dashboard/page.tsx`)
+- ✅ Integrated FUT player card into player profile page (`app/[locale]/clubs/[clubId]/players/[memberId]/page.tsx`)
+- ✅ Implemented card type selection based on player rating/stats in `getCardType()` function:
+  - MVP in last 3 games → `player_of_the_match`
+  - Average rating ≥ 8.5 → `ultimate_scream`
+  - Average rating ≥ 8.0 → `player_of_the_month`
+  - Average rating ≥ 7.5 → `if` (In-form)
+  - Average rating ≥ 7.0 → `golden`
+  - Average rating ≥ 6.5 → `silver`
+  - Average rating ≥ 6.0 → `bronze_rare`
+  - Matches played > 10 → `bronze_rare`
+  - Default → `bronze_base`
+- ✅ Background removal already integrated in avatar upload flow (`components/clubs/setup-player-form.tsx`)
 
 ### Next Steps
-1. Integrate FUT player card into dashboard and player pages
-2. Add card type selection based on player rating/stats
-3. Connect background removal to avatar upload flow
-4. Test and polish card display
+1. Test card display with real data
+2. Polish card visuals and animations
+3. Add card rarity tooltips or badges
 
 ### Files Created/Modified
 - `components/players/fut-player-card.tsx` - New FUT-style card component

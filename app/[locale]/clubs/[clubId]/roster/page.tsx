@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ClubPrivilege } from '@prisma/client';
 import { useSession } from '@/components/providers/session-provider';
+import { useTheme } from 'next-themes';
 import { ArrowLeft, Users, Settings, UserCog, Trash2, Crown, Briefcase, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt, Activity, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,8 @@ export default function ClubRosterPage() {
   const [isOwner, setIsOwner] = useState(false);
   const [isManager, setIsManager] = useState(false);
   const { data: session } = useSession();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   
   const [memberToRemove, setMemberToRemove] = useState<any | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -192,23 +195,28 @@ export default function ClubRosterPage() {
     }
   };
 
-  const ROLE_ICONS: Record<string, string> = {
+  const ROLE_ICONS: Record<string, { light: string; dark: string }> = {
     // New English abbreviations
-    GK: '/icons/roles/goalkeeper.png',
-    DEF: '/icons/roles/defender.png',
-    MID: '/icons/roles/midfielder.png',
-    ST: '/icons/roles/attacker.png',
+    GK: { light: '/icons/roles/goalkeeper.png', dark: '/icons/roles/goalkeeper.png' },
+    DEF: { light: '/icons/roles/defender.png', dark: '/icons/roles/defender.png' },
+    MID: { light: '/icons/roles/midfielder.png', dark: '/icons/roles/midfielder_negative.png' },
+    ST: { light: '/icons/roles/attacker.png', dark: '/icons/roles/attacker.png' },
     // Old Italian (for backward compatibility until DB is migrated)
-    POR: '/icons/roles/goalkeeper.png',
-    DIF: '/icons/roles/defender.png',
-    CEN: '/icons/roles/midfielder.png',
-    ATT: '/icons/roles/attacker.png',
+    POR: { light: '/icons/roles/goalkeeper.png', dark: '/icons/roles/goalkeeper.png' },
+    DIF: { light: '/icons/roles/defender.png', dark: '/icons/roles/defender.png' },
+    CEN: { light: '/icons/roles/midfielder.png', dark: '/icons/roles/midfielder_negative.png' },
+    ATT: { light: '/icons/roles/attacker.png', dark: '/icons/roles/attacker.png' },
   };
 
-  const getRoleIcon = (role: string) => {
-    const iconPath = ROLE_ICONS[role];
-    if (!iconPath) return null;
-    return <img src={iconPath} alt={translatePlayerRole(role)} className="h-5 w-5 object-contain dark:invert" />;
+  // Roles that use light icons and need inversion in dark mode
+  const INVERT_IN_DARK = ['POR', 'DIF', 'ATT', 'GK', 'DEF', 'ST'];
+
+  const getRoleIcon = (role: string, isDark: boolean) => {
+    const iconPaths = ROLE_ICONS[role];
+    if (!iconPaths) return null;
+    const iconPath = isDark ? iconPaths.dark : iconPaths.light;
+    const needsInvert = isDark && INVERT_IN_DARK.includes(role);
+    return <img src={iconPath} alt={translatePlayerRole(role)} className={`h-5 w-5 object-contain ${needsInvert ? 'invert' : ''}`} />;
   };
 
   const translatePlayerRole = (role: string) => {
@@ -292,10 +300,12 @@ export default function ClubRosterPage() {
                       </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-2">
                         {getPrivilegeIcon(member.privileges)}
-                        {member.primaryRole && getRoleIcon(member.primaryRole)}
-                        {member.secondaryRoles?.length > 0 && member.secondaryRoles.map((role: string) => (
-                          <span key={role}>{getRoleIcon(role)}</span>
-                        ))}
+                        {member.primaryRole && getRoleIcon(member.primaryRole, isDark)}
+                        {member.secondaryRoles?.length > 0 && member.secondaryRoles
+                          .filter((role: string) => role !== member.primaryRole) // Filter out primary role to avoid duplicates
+                          .map((role: string) => (
+                            <span key={role}>{getRoleIcon(role, isDark)}</span>
+                          ))}
                       </p>
                     </div>
                   </div>

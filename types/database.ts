@@ -47,6 +47,7 @@ export interface ClubMember {
   primaryRole: PlayerRole;
   secondaryRoles: PlayerRole[];
   jerseyNumber: number;
+  symbol: string | null;
 }
 
 export interface ClubInvite {

@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/navigation/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Users, Plus } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
-import { DashboardPlayerCard } from "@/components/dashboard/dashboard-player-card";
+import { PlayerCard } from "@/components/players/fut-player-card";
 import type { DashboardMemberData } from "@/lib/db/player-ratings";
+import type { ClubMember } from "@/types/database";
+import { PlayerRole } from "@prisma/client";
 
 interface Club {
   id: string;
@@ -24,6 +27,7 @@ interface ClubPrivileges {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [clubs, setClubs] = useState<Club[]>([]);
   const [memberData, setMemberData] = useState<DashboardMemberData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -134,10 +138,37 @@ export default function DashboardPage() {
           {/* La mia carta - più grande */}
           {memberData ? (
             <div className="flex justify-center py-6">
-              <div className="scale-150 transform-gpu origin-top">
-                <DashboardPlayerCard 
-                  data={memberData} 
-                  locale={typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'it'}
+              <div className="w-[280px]">
+                <PlayerCard
+                  member={{
+                    id: memberData.member.id,
+                    clubId: memberData.clubId || '',
+                    userId: '',
+                    jerseyNumber: memberData.jerseyNumber || 0,
+                    primaryRole: (memberData.member.primaryRole as PlayerRole) || PlayerRole.ATT,
+                    secondaryRoles: (memberData.member.secondaryRoles as PlayerRole[]) || [],
+                    symbol: memberData.member.symbol,
+                    joinedAt: new Date().toISOString(),
+                    privileges: 'MEMBER',
+                    user: {
+                      firstName: memberData.member.firstName,
+                      lastName: memberData.member.lastName,
+                      nickname: memberData.member.nickname,
+                      image: memberData.member.image
+                    },
+                     club: favoriteClub ? {
+                       image: favoriteClub.imageUrl || null
+                     } : null
+                  }}
+                  clubId={memberData.clubId || ''}
+                  lastMatchRating={memberData.lastMatchRating}
+                  hasMvpInLastMatch={memberData.hasMvpInLastMatch}
+                  isAbsent={memberData.isAbsent}
+                  onClick={() => {
+                    if (memberData.clubId) {
+                      router.push(`/clubs/${memberData.clubId}/players/${memberData.member.id}`);
+                    }
+                  }}
                 />
               </div>
             </div>

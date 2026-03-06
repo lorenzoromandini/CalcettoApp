@@ -7,66 +7,74 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ clubId: string }> }
 ) {
-  const userId = getUserIdFromRequest(request);
-  
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const { clubId } = await params;
-
-  // Check if user is already a member
-  const clubMember = await prisma.clubMember.findFirst({
-    where: { clubId, userId },
-  });
-
-  // Get club to check if user is the creator
-  const club = await prisma.club.findUnique({
-    where: { id: clubId },
-    select: { createdBy: true },
-  });
-
-  const isCreator = club?.createdBy === userId;
-
-  // Allow access if:
-  // 1. User is already a member (updating profile)
-  // 2. User is the creator setting up for the first time
-  if (!clubMember && !isCreator) {
-    return NextResponse.json({ error: 'Not authorized to setup player for this team' }, { status: 403 });
-  }
-
-  // Get user's existing avatar from User table
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { image: true },
-  });
-
-  // Get all members to find taken jersey numbers
-  const members = await prisma.clubMember.findMany({
-    where: { clubId },
-    select: { jerseyNumber: true },
-  });
-
-  const taken = members.map(m => m.jerseyNumber).sort((a, b) => a - b);
-  const min = 1;
-  const max = 99;
-  
-  const available: number[] = [];
-  for (let i = min; i <= max; i++) {
-    if (!taken.includes(i)) {
-      available.push(i);
+  try {
+    const userId = getUserIdFromRequest(request);
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  }
 
-  return NextResponse.json({
-    availableJerseyNumbers: { min, max, taken, available },
-    member: clubMember ? {
-      primaryRole: clubMember.primaryRole,
-      secondaryRoles: clubMember.secondaryRoles,
-      jerseyNumber: clubMember.jerseyNumber,
-    } : null,
-    userAvatar: user?.image || null, // Include user's existing avatar
-  });
+    const { clubId } = await params;
+
+    // Check if user is already a member
+    const clubMember = await prisma.clubMember.findFirst({
+      where: { clubId, userId },
+    });
+
+    // Get club to check if user is the creator
+    const club = await prisma.club.findUnique({
+      where: { id: clubId },
+      select: { createdBy: true },
+    });
+
+    const isCreator = club?.createdBy === userId;
+
+    // Allow access if:
+    // 1. User is already a member (updating profile)
+    // 2. User is the creator setting up for the first time
+    if (!clubMember && !isCreator) {
+      return NextResponse.json({ error: 'Not authorized to setup player for this team' }, { status: 403 });
+    }
+
+    // Get user's existing avatar from User table
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { image: true },
+    });
+
+    // Get all members to find taken jersey numbers
+    const members = await prisma.clubMember.findMany({
+      where: { clubId },
+      select: { jerseyNumber: true },
+    });
+
+    const taken = members.map(m => m.jerseyNumber).sort((a, b) => a - b);
+    const min = 1;
+    const max = 99;
+    
+    const available: number[] = [];
+    for (let i = min; i <= max; i++) {
+      if (!taken.includes(i)) {
+        available.push(i);
+      }
+    }
+
+    return NextResponse.json({
+      availableJerseyNumbers: { min, max, taken, available },
+      member: clubMember ? {
+        primaryRole: clubMember.primaryRole,
+        secondaryRoles: clubMember.secondaryRoles,
+        jerseyNumber: clubMember.jerseyNumber,
+      } : null,
+      userAvatar: user?.image || null, // Include user's existing avatar
+    });
+  } catch (error) {
+    console.error('Error in setup-player GET:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
 }
 
 export async function POST(

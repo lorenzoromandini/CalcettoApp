@@ -46,6 +46,7 @@ function toClubMemberType(dbMember: any): ClubMember & { user: User | null } {
     primaryRole: dbMember.primaryRole as PlayerRole,
     secondaryRoles: dbMember.secondaryRoles as PlayerRole[],
     jerseyNumber: dbMember.jerseyNumber,
+    symbol: dbMember.symbol ?? null,
     user: dbMember.user ? {
       id: dbMember.user.id,
       email: dbMember.user.email,

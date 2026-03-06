@@ -4,9 +4,10 @@ import { z } from 'zod';
  * Goal validation schemas
  * 
  * Italian error messages for user-facing validation
+ * Updated to support guest/unknown players
  */
 
-// Add goal schema
+// Add goal schema - supports guest/unknown players
 export const addGoalSchema = z.object({
   matchId: z
     .string()
@@ -16,10 +17,20 @@ export const addGoalSchema = z.object({
     .min(1, 'ID club obbligatorio'),
   scorerId: z
     .string()
-    .min(1, 'Seleziona il marcatore'),
+    .optional()
+    .nullable(),
+  isGuestScorer: z
+    .boolean()
+    .optional()
+    .default(false),
+  guestScorerName: z
+    .string()
+    .optional()
+    .nullable(),
   assisterId: z
     .string()
-    .optional(),
+    .optional()
+    .nullable(),
   isOwnGoal: z
     .boolean()
     .optional()

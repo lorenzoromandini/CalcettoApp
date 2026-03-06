@@ -1,0 +1,274 @@
+{
+  "layout": {
+    "name": "fut-player-card-shared-2025",
+    "description": "Shared invisible regions for filling dynamic data (name, rating, photo, stats, positions, etc.) on EA FC / FUT style player cards. All similar cards use this one layout.",
+    "dimensions": {
+      "width": 850,
+      "height": 1200
+    },
+    "units": "pixels (original image space)",
+    "scaling_note": "In app: scale_factor = displayed_width / original_width; real_x = region.x * scale_factor"
+  },
+  "cardTemplate": {
+    "aspectRatio": "3/4",
+    "description": "FIFA Ultimate Team style player card - same layout for all card types",
+    "cardTypes": [
+      "bronze_base",
+      "bronze_rare",
+      "silver",
+      "golden",
+      "if",
+      "player_of_the_match",
+      "player_of_the_month",
+      "ultimate_scream",
+      "absent"
+    ]
+  },
+  "cardTypeConfig": {
+    "bronze_base": {
+      "backgroundImage": "/icons/cards/bronze_base.png",
+      "textColor": "#000000"
+    },
+    "bronze_rare": {
+      "backgroundImage": "/icons/cards/bronze_rare.png",
+      "textColor": "#000000"
+    },
+    "silver": {
+      "backgroundImage": "/icons/cards/silver.png",
+      "textColor": "#000000"
+    },
+    "golden": {
+      "backgroundImage": "/icons/cards/golden.png",
+      "textColor": "#000000"
+    },
+    "if": {
+      "backgroundImage": "/icons/cards/if.png",
+      "textColor": "#FFD700"
+    },
+    "player_of_the_match": {
+      "backgroundImage": "/icons/cards/player_of_the_match.png",
+      "textColor": "#FFD700"
+    },
+    "player_of_the_month": {
+      "backgroundImage": "/icons/cards/player_of_the_month.png",
+      "textColor": "#FFD700"
+    },
+    "ultimate_scream": {
+      "backgroundImage": "/icons/cards/ultimate_scream.png",
+      "textColor": "#FF8C00"
+    },
+    "absent": {
+      "backgroundImage": "/icons/cards/absent.png",
+      "textColor": "#000000"
+    }
+  },
+  "regions": [
+    {
+      "id": "player-rating",
+      "purpose": "Player match rating (e.g. 8.5) - displayed prominently like FUT overall rating",
+      "type": "rect",
+      "bounds": {
+        "x": 124,
+        "y": 230,
+        "width": 140,
+        "height": 130
+      },
+      "anchor_points": [],
+      "fill_suggestion": "large centered text",
+      "dataField": "member.lastMatchRating",
+      "display": "rating with one decimal",
+      "style": {
+        "position": "absolute",
+        "top": "5%",
+        "left": "5%",
+        "fontSize": "48px",
+        "fontWeight": "900",
+        "color": "#FFFFFF",
+        "textShadow": "2px 2px 4px rgba(0,0,0,0.5)"
+      },
+      "zIndex": 20
+    },
+    {
+      "id": "jersey-number",
+      "purpose": "Player jersey number",
+      "type": "rect",
+      "bounds": {
+        "x": 215,
+        "y": 835,
+        "width": 420,
+        "height": 180
+      },
+      "anchor_points": [],
+      "fill_suggestion": "medium text",
+      "dataField": "member.jerseyNumber",
+      "style": {
+        "position": "absolute",
+        "top": "25%",
+        "left": "5%",
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "color": "#FFFFFF",
+        "textShadow": "1px 1px 2px rgba(0,0,0,0.5)"
+      },
+      "zIndex": 20
+    },
+    {
+      "id": "primary-role",
+      "purpose": "Primary position/role (POR, DIF, CEN, ATT)",
+      "type": "rect",
+      "bounds": {
+        "x": 124,
+        "y": 365,
+        "width": 140,
+        "height": 85
+      },
+      "anchor_points": [],
+      "fill_suggestion": "small uppercase text with border rectangle",
+      "dataField": "member.primaryRole",
+      "style": {
+        "position": "absolute",
+        "top": "32%",
+        "left": "5%",
+        "fontSize": "18px",
+        "fontWeight": "700",
+        "color": "#FFFFFF",
+        "textTransform": "uppercase",
+        "textShadow": "1px 1px 2px rgba(0,0,0,0.5)",
+        "border": "2px solid rgba(255,255,255,0.5)",
+        "borderRadius": "4px",
+        "backgroundColor": "rgba(0,0,0,0.2)"
+      },
+      "zIndex": 20
+    },
+    {
+      "id": "secondary-roles",
+      "purpose": "Secondary/alternative positions",
+      "type": "rect",
+      "bounds": {
+        "x": 139,
+        "y": 460,
+        "width": 110,
+        "height": 90
+      },
+      "anchor_points": [],
+      "fill_suggestion": "small uppercase text",
+      "dataField": "member.secondaryRoles",
+      "display": "comma separated, max 2",
+      "style": {
+        "position": "absolute",
+        "top": "38%",
+        "left": "5%",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "color": "#FFFFFF",
+        "textTransform": "uppercase",
+        "opacity": 0.8
+      },
+      "optional": true,
+      "zIndex": 20
+    },
+    {
+      "id": "player-photo",
+      "purpose": "Main player face/portrait area",
+      "type": "rect",
+      "bounds": {
+        "x": 307,
+        "y": 240,
+        "width": 415,
+        "height": 483
+      },
+      "anchor_points": [],
+      "fill_suggestion": "image tag or canvas drawImage",
+      "dataField": "user.image",
+      "fallback": {
+        "type": "initials",
+        "source": "user.firstName + user.lastName"
+      },
+      "style": {
+        "position": "absolute",
+        "top": "15%",
+        "left": "50%",
+        "transform": "translateX(-50%)",
+        "width": "65%",
+        "height": "55%"
+      },
+      "zIndex": 10
+    },
+    {
+      "id": "player-name",
+      "purpose": "Player name (e.g. 'Cole') below photo",
+      "type": "rect",
+      "bounds": {
+        "x": 155,
+        "y": 720,
+        "width": 534,
+        "height": 110
+      },
+      "anchor_points": [],
+      "fill_suggestion": "bold centered text",
+      "dataField": "user.displayName",
+      "fallback": {
+        "format": "{firstName} {lastName}"
+      },
+      "style": {
+        "position": "absolute",
+        "bottom": "15%",
+        "left": "50%",
+        "transform": "translateX(-50%)",
+        "width": "90%",
+        "fontSize": "20px",
+        "fontWeight": "800",
+        "color": "var(--card-text-color)",
+        "textAlign": "center"
+      },
+      "zIndex": 20
+    },
+    {
+      "id": "club-logo",
+      "purpose": "Club logo/photo - top left",
+      "type": "rect",
+      "bounds": {
+        "x": 552,
+        "y": 896,
+        "width": 140,
+        "height": 100
+      },
+      "anchor_points": [],
+      "fill_suggestion": "image",
+      "dataField": "club.image",
+      "style": {
+        "position": "absolute",
+        "top": "3%",
+        "left": "3%",
+        "width": "48px",
+        "height": "48px"
+      },
+      "optional": true,
+      "zIndex": 30
+    },
+    {
+      "id": "player-symbol",
+      "purpose": "Player symbol/badge - top right area",
+      "type": "rect",
+      "bounds": {
+        "x": 152,
+        "y": 896,
+        "width": 140,
+        "height": 100
+      },
+      "anchor_points": [],
+      "fill_suggestion": "text",
+      "dataField": "member.symbol",
+      "style": {
+        "position": "absolute",
+        "top": "8%",
+        "right": "8%",
+        "fontSize": "24px",
+        "fontWeight": "700",
+        "color": "#FFD700",
+        "textShadow": "1px 1px 2px rgba(0,0,0,0.5)"
+      },
+      "zIndex": 20
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "layout": {
+    "name": "fut-player-card-shared-2025",
+    "description": "Shared invisible regions for filling dynamic data (name, rating, photo, stats, positions, etc.) on EA FC / FUT style player cards. All similar cards use this one layout.",
+    "dimensions": {
+      "width": 850,
+      "height": 1200
+    },
+    "units": "pixels (original image space)",
+    "scaling_note": "In app: scale_factor = displayed_width / original_width; real_x = region.x * scale_factor"
+  },
+  "regions": [
+    {
+      "id": "overall-rating",
+      "purpose": "Big overall rating number (e.g. 87) + position (RW) + chem style icons",
+      "type": "rect",
+      "bounds": {
+        "x": 30,
+        "y": 80,
+        "width": 180,
+        "height": 220
+      },
+      "anchor_points": [],
+      "fill_suggestion": "large centered text or image"
+    },
+    {
+      "id": "player-photo",
+      "purpose": "Main player face/portrait area",
+      "type": "rect",
+      "bounds": {
+        "x": 150,
+        "y": 200,
+        "width": 550,
+        "height": 650
+      },
+      "anchor_points": [],
+      "fill_suggestion": "<image> tag or canvas drawImage"
+    },
+    {
+      "id": "player-name",
+      "purpose": "Player name (e.g. 'Cole') below photo",
+      "type": "rect",
+      "bounds": {
+        "x": 100,
+        "y": 880,
+        "width": 650,
+        "height": 80
+      },
+      "anchor_points": [],
+      "fill_suggestion": "bold centered text"
+    },
+    {
+      "id": "alternative-positions",
+      "purpose": "Alternative positions badges (CAM, LW, RW ++)",
+      "type": "group",
+      "anchor_points": [
+        [185, 282],
+        [269, 292]
+      ],
+      "sub_regions": [
+        {
+          "id": "pos-primary",
+          "bounds": { "x": null, "y": null, "width": null, "height": null }
+        },
+        {
+          "id": "pos-alts",
+          "bounds": { "x": null, "y": null, "width": null, "height": null }
+        }
+      ],
+      "fill_suggestion": "small text or icons"
+    },
+    {
+      "id": "stats-row-labels",
+      "purpose": "Attribute labels (PAC SHO PAS DRI DEF PHY)",
+      "type": "rect",
+      "bounds": {
+        "x": 80,
+        "y": 980,
+        "width": 690,
+        "height": 60
+      },
+      "anchor_points": [],
+      "fill_suggestion": "small uppercase text row"
+    },
+    {
+      "id": "stats-row-values",
+      "purpose": "Attribute numbers (88 84 86 90 51 72)",
+      "type": "rect",
+      "bounds": {
+        "x": 80,
+        "y": 1040,
+        "width": 690,
+        "height": 60
+      },
+      "anchor_points": [
+        [250, 797],
+        [489, 797]
+      ],
+      "fill_suggestion": "6 equally spaced numbers/text"
+    },
+    {
+      "id": "footer-bar",
+      "purpose": "Bottom bar with nation flag, club logo, foot/skills stars, overall avg (84.6)",
+      "type": "rect",
+      "bounds": {
+        "x": 50,
+        "y": 1100,
+        "width": 750,
+        "height": 90
+      },
+      "anchor_points": [
+        [403, 867],
+        [404, 815]
+      ],
+      "fill_suggestion": "icons + text + colored pill"
+    },
+    {
+      "id": "left-mid-column",
+      "purpose": "Left side vertical area (potential for extra info or chemistry links)",
+      "type": "rect",
+      "bounds": {
+        "x": null,
+        "y": null,
+        "width": null,
+        "height": null
+      },
+      "anchor_points": [
+        [157, 335],
+        [178, 415],
+        [185, 380],
+        [185, 282]
+      ],
+      "fill_suggestion": "optional text or icons"
+    }
+  ]
+}

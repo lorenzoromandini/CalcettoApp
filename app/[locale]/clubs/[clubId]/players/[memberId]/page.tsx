@@ -8,6 +8,8 @@ import { Shirt, Trophy, Star, Calendar } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { HidePlayerUrl } from "@/components/players/hide-player-url";
+import { PlayerCard } from "@/components/players/fut-player-card";
+import { calculateFrameColor } from "@/lib/db/player-ratings";
 
 interface PlayerProfilePageProps {
   params: Promise<{
@@ -92,6 +94,11 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
     ? ratings.reduce((sum, r) => sum + r.rating.toNumber(), 0) / ratings.length
     : null;
 
+  // Calculate new card criteria fields
+  const lastMatchRating = ratings.length > 0 ? ratings[0]?.rating.toNumber() : null;
+  const hasMvpInLastMatch = ratings.length > 0 && ratings[0]?.rating.toNumber() >= 8;
+  const isAbsent = ratings.length === 0;
+
   return (
     <div className="flex min-h-screen flex-col">
       <HidePlayerUrl clubId={clubId} memberId={memberId} />
@@ -101,53 +108,34 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
 
         {/* Profilo giocatore */}
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Card principale con info */}
-          <Card className="md:col-span-1">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center">
-                {/* Avatar o iniziali */}
-                <div className="relative w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  {member.user.image ? (
-                    <img
-                      src={member.user.image}
-                      alt={member.user.firstName}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-3xl font-bold text-primary">
-                      {(member.user.firstName?.charAt(0) || "") +
-                        (member.user.lastName?.charAt(0) || "")}
-                    </span>
-                  )}
-                  {/* Numero maglia */}
-                  <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                    {member.jerseyNumber}
-                  </div>
-                </div>
-
-                {/* Nome e ruolo */}
-                <h1 className="text-xl font-bold text-center">
-                  {member.user.firstName} {member.user.lastName}
-                </h1>
-                {member.user.nickname && (
-                  <p className="text-muted-foreground">{member.user.nickname}</p>
-                )}
-                
-                <div className="mt-4 flex items-center gap-2 text-sm">
-                  <Shirt className="h-4 w-4 text-primary" />
-                  <span className="font-medium">
-                    {member.primaryRole === "POR"
-                      ? "Portiere"
-                      : member.primaryRole === "DIF"
-                      ? "Difensore"
-                      : member.primaryRole === "CEN"
-                      ? "Centrocampista"
-                      : "Attaccante"}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* FUT Player Card */}
+          <div className="md:col-span-1 flex justify-center">
+            <div className="max-w-[250px]">
+              <PlayerCard
+                member={{
+                  id: member.id,
+                  clubId: member.clubId,
+                  userId: member.userId,
+                  jerseyNumber: member.jerseyNumber,
+                  primaryRole: member.primaryRole,
+                  secondaryRoles: member.secondaryRoles,
+                  symbol: member.symbol,
+                  joinedAt: member.joinedAt.toISOString(),
+                  privileges: member.privileges,
+                  user: {
+                    firstName: member.user.firstName,
+                    lastName: member.user.lastName,
+                    nickname: member.user.nickname,
+                    image: member.user.image
+                  }
+                }}
+                clubId={clubId}
+                lastMatchRating={lastMatchRating}
+                hasMvpInLastMatch={hasMvpInLastMatch}
+                isAbsent={isAbsent}
+              />
+            </div>
+          </div>
 
           {/* Statistiche */}
           <div className="md:col-span-2 space-y-4">
