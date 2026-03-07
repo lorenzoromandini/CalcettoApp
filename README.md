@@ -218,6 +218,15 @@ npx tsc --noEmit
 - Automatic cache invalidation
 - Offline support with reconnection sync
 
+### Player Cards & Statistics (2026-03-07)
+- **FIFA Ultimate Team Style Cards** - Dynamic player cards with 9 rarity types based on performance
+- **Card Positioning System** - JSON-based layout configuration for precise element placement
+- **Privilege Badges** - Visual indicators for OWNER, MANAGER, and MEMBER roles
+- **Jersey Display** - Player numbers shown on jersey graphic
+- **Streak Tracking** - Current and historical win/loss streaks per player
+- **Character Limits** - Enforced limits (20 chars for names, 50 for club names)
+- **MemberStatistics Model** - Database table for optimized statistics queries
+
 ## 📱 Mobile Features
 
 - **PWA Support** - Installable web app

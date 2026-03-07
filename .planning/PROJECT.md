@@ -19,22 +19,21 @@ Permettere a gruppi di amici di organizzare, giocare e tenere traccia delle loro
 
 **Mobile Optimization:** ✅ COMPLETE (2026-02-26)
 - TanStack Query (React Query) installed and configured
-- 5 React Query hooks created with optimistic updates:
-  - `use-clubs-react-query.ts` - Club queries/mutations
-  - `use-matches-react-query.ts` - Match queries/mutations
-  - `use-goals-react-query.ts` - Goal queries/mutations
-  - `use-members-react-query.ts` - Member queries/mutations
-  - `use-ratings-react-query.ts` - Rating queries/mutations
-- 7 Server Actions implemented:
-  - `lib/actions/clubs.ts` - Club CRUD
-  - `lib/actions/matches.ts` - Match lifecycle
-  - `lib/actions/goals.ts` - Goal operations
-  - `lib/actions/members.ts` - Member management
-  - `lib/actions/ratings.ts` - Rating operations
-  - `lib/actions/formations.ts` - Formation operations
-  - `lib/actions/invites.ts` - Invite generation
+- 5 React Query hooks created with optimistic updates
+- 7 Server Actions implemented
 - Mobile-optimized caching: 5-min stale time, offline support
 - Build: 0 TypeScript errors, all 47 routes generating correctly
+
+**Player Cards & Statistics:** ✅ COMPLETE (2026-03-07)
+- FIFA Ultimate Team style player cards with 9 card types
+- Dynamic card rendering with `lib/card-spaces.json` positioning
+- Card types: bronze_base, bronze_rare, silver, golden, if, player_of_the_match, player_of_the_month, ultimate_scream, absent
+- Privilege badges (OWNER/MANAGER/MEMBER) on cards
+- Jersey number display
+- Character limits enforced: names (20 chars), club name (50 chars)
+- Player statistics with streak tracking (current/max win/loss streaks)
+- `MemberStatistics` model added to Prisma schema
+- Migration script created for statistics table
 
 ## Requirements
 

@@ -7,32 +7,44 @@
 
 ---
 
-## 🎯 Current Task: Player Card Implementation
-
-We're implementing FIFA Ultimate Team style player cards:
+## 🎯 Current Task: Player Cards & Statistics Enhancement
 
 ### What's Done
-- ✅ Card template images in `/public/icons/cards/` (8 types: bronze_base, bronze_rare, silver, golden, if, player_of_the_match, player_of_the_month, ultimate_scream)
-- ✅ Created `fut-player-card.tsx` component with card overlay system
-- ✅ Added background removal service (`lib/background-removal.ts`) using remove.bg API
-- ✅ Integrated FUT player card into dashboard page (`app/[locale]/dashboard/page.tsx`)
-- ✅ Integrated FUT player card into player profile page (`app/[locale]/clubs/[clubId]/players/[memberId]/page.tsx`)
-- ✅ Implemented card type selection based on player rating/stats in `getCardType()` function:
-  - MVP in last 3 games → `player_of_the_match`
-  - Average rating ≥ 8.5 → `ultimate_scream`
-  - Average rating ≥ 8.0 → `player_of_the_month`
-  - Average rating ≥ 7.5 → `if` (In-form)
-  - Average rating ≥ 7.0 → `golden`
-  - Average rating ≥ 6.5 → `silver`
-  - Average rating ≥ 6.0 → `bronze_rare`
-  - Matches played > 10 → `bronze_rare`
-  - Default → `bronze_base`
-- ✅ Background removal already integrated in avatar upload flow (`components/clubs/setup-player-form.tsx`)
 
-### Next Steps
-1. Test card display with real data
-2. Polish card visuals and animations
-3. Add card rarity tooltips or badges
+**Player Cards (FIFA Ultimate Team style):**
+- ✅ Card template images in `/public/icons/cards/` (9 types including absent)
+- ✅ `fut-player-card.tsx` component with dynamic card overlay system
+- ✅ Card regions configured in `lib/card-spaces.json` for precise element positioning
+- ✅ Integrated into dashboard and player profile pages
+- ✅ Card type selection based on last match rating:
+  - Rating ≥ 8.0 → `if` (In-form)
+  - Rating ≥ 7.0 → `golden`
+  - Rating ≥ 6.0 → `silver`
+  - Rating > 4.5 → `bronze_rare`
+  - Default → `bronze_base`
+  - MVP → `player_of_the_match`
+  - Absent → `absent`
+- ✅ Privilege badges (OWNER/MANAGER/MEMBER) displayed on cards
+- ✅ Jersey with player number display
+
+**Character Limits (Validation):**
+- ✅ First name: max 20 characters
+- ✅ Last name: max 20 characters
+- ✅ Nickname: max 20 characters
+- ✅ Club name: max 50 characters
+- ✅ Club description: max 200 characters
+
+**Player Statistics Enhancement:**
+- ✅ Streak tracking added (current/max win streak, current/max loss streak)
+- ✅ Streak calculation in `lib/db/statistics.ts`
+- ✅ Streak visualization in `PlayerStatsCard` component
+- ✅ Removed assists from player stats display
+- ✅ Added privilege icon display
+
+**Database Schema:**
+- ✅ `MemberStatistics` model added to Prisma schema
+- ✅ Migration script created at `scripts/create-member-stats.js`
+- ✅ Fields: appearances, wins, losses, draws, goals, streaks, ratings, goalkeeper stats
 
 ### Files Created/Modified
 - `components/players/fut-player-card.tsx` - New FUT-style card component
