@@ -109,7 +109,7 @@ export default async function PlayerProfilePage({ params }: PlayerProfilePagePro
         {/* Profilo giocatore */}
         <div className="grid gap-6 md:grid-cols-3">
           {/* FUT Player Card */}
-          <div className="md:col-span-1 flex justify-center">
+          <div className="md:col-span-1 flex justify-center items-start">
             <div className="max-w-[250px]">
               <PlayerCard
                 member={{

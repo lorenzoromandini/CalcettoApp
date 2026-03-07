@@ -611,6 +611,7 @@ export interface DashboardMemberData {
   clubId: string | null
   teamName: string | null
   jerseyNumber: number | null
+  privileges: string | null
   // New card criteria fields
   lastMatchRating: number | null
   hasMvpInLastMatch: boolean
@@ -781,6 +782,7 @@ export async function getMemberDashboardData(
     clubId: member.clubId,
     teamName: member.club.name,
     jerseyNumber: member.jerseyNumber,
+    privileges: member.privileges,
     // New card criteria fields
     lastMatchRating,
     hasMvpInLastMatch,
@@ -956,6 +958,7 @@ export async function getClubMembersDashboardData(clubId: string): Promise<Dashb
       clubId,
       teamName: member.club.name,
       jerseyNumber: member.jerseyNumber,
+      privileges: member.privileges,
       // New card criteria fields
       lastMatchRating,
       hasMvpInLastMatch,

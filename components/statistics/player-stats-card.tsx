@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { Target, Crosshair, Users, Trophy, X, Minus, Star, Shield } from 'lucide-react'
+import { Target, Users, Trophy, X, Minus, Star, Shield, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { MemberStats } from '@/lib/db/statistics'
 
@@ -74,13 +74,6 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
             <span className="text-xs text-muted-foreground">{t('goals')}</span>
           </div>
 
-          {/* Assists */}
-          <div className="flex flex-col items-center p-3 rounded-lg bg-muted/50">
-            <Crosshair className="h-5 w-5 text-blue-500 mb-1" />
-            <span className="text-2xl font-bold">{stats.assists}</span>
-            <span className="text-xs text-muted-foreground">{t('assists')}</span>
-          </div>
-
           {/* Appearances */}
           <div className="flex flex-col items-center p-3 rounded-lg bg-muted/50">
             <Users className="h-5 w-5 text-gray-500 mb-1" />
@@ -107,6 +100,37 @@ export function PlayerStatsCard({ stats, showTitle = true, className }: PlayerSt
             <Minus className="h-5 w-5 text-gray-400 mb-1" />
             <span className="text-2xl font-bold text-gray-500">{stats.draws}</span>
             <span className="text-xs text-muted-foreground">{t('draws')}</span>
+          </div>
+
+          {/* Win Streak */}
+          <div className="flex flex-col items-center p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <TrendingUp className="h-5 w-5 text-green-600 mb-1" />
+            <span className="text-2xl font-bold text-green-600">{stats.currentWinStreak}</span>
+            <span className="text-xs text-muted-foreground">{t('current_win_streak')}</span>
+          </div>
+        </div>
+
+        {/* Streak Stats Grid */}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          {/* Max Win Streak */}
+          <div className="flex flex-col items-center p-3 rounded-lg bg-green-50/50 dark:bg-green-950/10 border border-green-200/50 dark:border-green-800/50">
+            <Trophy className="h-4 w-4 text-green-500 mb-1" />
+            <span className="text-xl font-bold text-green-600">{stats.maxWinStreak}</span>
+            <span className="text-xs text-muted-foreground">{t('max_win_streak')}</span>
+          </div>
+
+          {/* Current Loss Streak */}
+          <div className="flex flex-col items-center p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+            <TrendingDown className="h-4 w-4 text-red-600 mb-1" />
+            <span className="text-xl font-bold text-red-600">{stats.currentLossStreak}</span>
+            <span className="text-xs text-muted-foreground">{t('current_loss_streak')}</span>
+          </div>
+
+          {/* Max Loss Streak */}
+          <div className="flex flex-col items-center p-3 rounded-lg bg-red-50/50 dark:bg-red-950/10 border border-red-200/50 dark:border-red-800/50">
+            <X className="h-4 w-4 text-red-500 mb-1" />
+            <span className="text-xl font-bold text-red-600">{stats.maxLossStreak}</span>
+            <span className="text-xs text-muted-foreground">{t('max_loss_streak')}</span>
           </div>
         </div>
 

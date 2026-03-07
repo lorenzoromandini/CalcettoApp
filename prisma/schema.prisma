@@ -101,6 +101,7 @@ model ClubMember {
   scoredGoals        Goal[]              @relation("GoalScorer")
   assistedGoals      Goal[]              @relation("GoalAssister")
   receivedRatings    PlayerRating[]
+  statistics         MemberStatistics?
 
   @@unique([clubId, userId])
   @@unique([clubId, jerseyNumber])
@@ -248,4 +249,39 @@ model PlayerRating {
   @@index([matchId])
   @@index([clubMemberId])
   @@map("player_ratings")
+}
+model MemberStatistics {
+  id String @id @default(cuid())
+
+  clubMemberId String     @unique @map("club_member_id")
+  clubId       String     @map("club_id")
+  clubMember   ClubMember @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
+
+  // Basic stats
+  appearances Int @default(0)
+  wins        Int @default(0)
+  losses      Int @default(0)
+  draws       Int @default(0)
+  goals       Int @default(0)
+
+  // Streaks
+  currentWinStreak  Int @default(0) @map("current_win_streak")
+  maxWinStreak      Int @default(0) @map("max_win_streak")
+  currentLossStreak Int @default(0) @map("current_loss_streak")
+  maxLossStreak     Int @default(0) @map("max_loss_streak")
+
+  // Ratings
+  avgRating    Float?
+  totalRatings Int   @default(0) @map("total_ratings")
+
+  // Goalkeeper stats (null for non-goalkeepers)
+  goalsConceded Int? @map("goals_conceded")
+  matchesAsGK   Int? @map("matches_as_gk")
+
+  lastMatchDate DateTime? @map("last_match_date")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([clubId])
+  @@index([clubMemberId])
+  @@map("member_statistics")
 }

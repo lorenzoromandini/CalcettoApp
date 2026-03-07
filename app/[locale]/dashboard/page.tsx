@@ -12,7 +12,7 @@ import { authFetch } from "@/lib/auth-fetch";
 import { PlayerCard } from "@/components/players/fut-player-card";
 import type { DashboardMemberData } from "@/lib/db/player-ratings";
 import type { ClubMember } from "@/types/database";
-import { PlayerRole } from "@prisma/client";
+import { PlayerRole, ClubPrivilege } from "@prisma/client";
 
 interface Club {
   id: string;
@@ -133,11 +133,11 @@ export default function DashboardPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 pb-8">
         <div className="space-y-6">
           {/* La mia carta - più grande */}
           {memberData ? (
-            <div className="flex justify-center py-6">
+            <div className="flex justify-center">
               <div className="w-[280px]">
                 <PlayerCard
                   member={{
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                     secondaryRoles: (memberData.member.secondaryRoles as PlayerRole[]) || [],
                     symbol: memberData.member.symbol,
                     joinedAt: new Date().toISOString(),
-                    privileges: 'MEMBER',
+                    privileges: (memberData.privileges || 'MEMBER') as ClubPrivilege,
                     user: {
                       firstName: memberData.member.firstName,
                       lastName: memberData.member.lastName,
@@ -187,9 +187,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           )}
-
-          {/* Separatore */}
-          <Separator className="my-4" />
 
           {/* Due quadrati affiancati: Club e Prossime partite */}
           <div className="grid grid-cols-2 gap-4">

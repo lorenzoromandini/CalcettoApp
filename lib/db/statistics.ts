@@ -44,6 +44,11 @@ export interface MemberStats {
   goalsConceded: number | null  // Only for goalkeepers
   avgRating: number | null
   totalRatings: number
+  // Streak fields
+  currentWinStreak: number
+  maxWinStreak: number
+  currentLossStreak: number
+  maxLossStreak: number
 }
 
 export interface MemberLeaderboardEntry {
@@ -114,11 +119,14 @@ export async function getMemberStats(
     },
   })
 
-  // Calculate appearances, wins, losses, draws
+  // Calculate appearances, wins, losses, draws, and streaks
   let appearances = 0
   let wins = 0
   let losses = 0
   let draws = 0
+  
+  // Streak tracking
+  const matchResults: ('win' | 'loss' | 'draw')[] = []
 
   for (const pos of positions) {
     if (!pos.formation?.match) continue
@@ -128,16 +136,60 @@ export async function getMemberStats(
     const homeScore = match.homeScore ?? 0
     const awayScore = match.awayScore ?? 0
 
+    let result: 'win' | 'loss' | 'draw'
     if (pos.formation.isHome) {
-      if (homeScore > awayScore) wins++
-      else if (homeScore < awayScore) losses++
-      else draws++
+      if (homeScore > awayScore) {
+        wins++
+        result = 'win'
+      } else if (homeScore < awayScore) {
+        losses++
+        result = 'loss'
+      } else {
+        draws++
+        result = 'draw'
+      }
     } else {
-      if (awayScore > homeScore) wins++
-      else if (awayScore < homeScore) losses++
-      else draws++
+      if (awayScore > homeScore) {
+        wins++
+        result = 'win'
+      } else if (awayScore < homeScore) {
+        losses++
+        result = 'loss'
+      } else {
+        draws++
+        result = 'draw'
+      }
+    }
+    matchResults.push(result)
+  }
+
+  // Calculate streaks
+  let currentWinStreak = 0
+  let maxWinStreak = 0
+  let currentLossStreak = 0
+  let maxLossStreak = 0
+  let tempWinStreak = 0
+  let tempLossStreak = 0
+
+  for (const result of matchResults) {
+    if (result === 'win') {
+      tempWinStreak++
+      tempLossStreak = 0
+      maxWinStreak = Math.max(maxWinStreak, tempWinStreak)
+    } else if (result === 'loss') {
+      tempLossStreak++
+      tempWinStreak = 0
+      maxLossStreak = Math.max(maxLossStreak, tempLossStreak)
+    } else {
+      // draw resets both streaks
+      tempWinStreak = 0
+      tempLossStreak = 0
     }
   }
+
+  // Current streaks are the last calculated values
+  currentWinStreak = tempWinStreak
+  currentLossStreak = tempLossStreak
 
   // Get goals (exclude own goals)
   const goals = await prisma.goal.count({
@@ -222,6 +274,10 @@ export async function getMemberStats(
     goalsConceded,
     avgRating: avgRating ? Math.round(avgRating * 100) / 100 : null,
     totalRatings,
+    currentWinStreak,
+    maxWinStreak,
+    currentLossStreak,
+    maxLossStreak,
   }
 }
 

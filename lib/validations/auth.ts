@@ -20,14 +20,16 @@ export const signupSchema = z
     firstName: z
       .string()
       .min(1, "Il nome è obbligatorio")
-      .min(2, "Il nome deve avere almeno 2 caratteri"),
+      .min(2, "Il nome deve avere almeno 2 caratteri")
+      .max(20, "Il nome può avere al massimo 20 caratteri"),
     lastName: z
       .string()
       .min(1, "Il cognome è obbligatorio")
-      .min(2, "Il cognome deve avere almeno 2 caratteri"),
+      .min(2, "Il cognome deve avere almeno 2 caratteri")
+      .max(20, "Il cognome può avere al massimo 20 caratteri"),
     nickname: z
       .string()
-      .max(30, "Il nickname può avere al massimo 30 caratteri")
+      .max(20, "Il nickname può avere al massimo 20 caratteri")
       .optional()
       .or(z.literal("")),
     password: z
@@ -87,14 +89,16 @@ export const profileSchema = z.object({
   firstName: z
     .string()
     .min(1, "Il nome è obbligatorio")
-    .min(2, "Il nome deve avere almeno 2 caratteri"),
+    .min(2, "Il nome deve avere almeno 2 caratteri")
+    .max(30, "Il nome può avere al massimo 30 caratteri"),
   lastName: z
     .string()
     .min(1, "Il cognome è obbligatorio")
-    .min(2, "Il cognome deve avere almeno 2 caratteri"),
+    .min(2, "Il cognome deve avere almeno 2 caratteri")
+    .max(30, "Il cognome può avere al massimo 30 caratteri"),
   nickname: z
     .string()
-    .max(30, "Il nickname può avere al massimo 30 caratteri")
+    .max(20, "Il nickname può avere al massimo 20 caratteri")
     .optional()
     .or(z.literal("")),
 });

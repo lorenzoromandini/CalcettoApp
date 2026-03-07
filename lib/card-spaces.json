@@ -3,8 +3,8 @@
     "name": "fut-player-card-shared-2025",
     "description": "Shared invisible regions for filling dynamic data (name, rating, photo, stats, positions, etc.) on EA FC / FUT style player cards. All similar cards use this one layout.",
     "dimensions": {
-      "width": 850,
-      "height": 1200
+      "width": 806,
+      "height": 1041
     },
     "units": "pixels (original image space)",
     "scaling_note": "In app: scale_factor = displayed_width / original_width; real_x = region.x * scale_factor"
@@ -68,8 +68,8 @@
       "purpose": "Player match rating (e.g. 8.5) - displayed prominently like FUT overall rating",
       "type": "rect",
       "bounds": {
-        "x": 124,
-        "y": 230,
+        "x": 102,
+        "y": 225,
         "width": 140,
         "height": 130
       },
@@ -93,8 +93,8 @@
       "purpose": "Player jersey number",
       "type": "rect",
       "bounds": {
-        "x": 215,
-        "y": 835,
+        "x": 193,
+        "y": 780,
         "width": 420,
         "height": 180
       },
@@ -117,8 +117,8 @@
       "purpose": "Primary position/role (POR, DIF, CEN, ATT)",
       "type": "rect",
       "bounds": {
-        "x": 124,
-        "y": 365,
+        "x": 102,
+        "y": 345,
         "width": 140,
         "height": 85
       },
@@ -145,10 +145,10 @@
       "purpose": "Secondary/alternative positions",
       "type": "rect",
       "bounds": {
-        "x": 139,
-        "y": 460,
-        "width": 110,
-        "height": 90
+        "x": 117,
+        "y": 430,
+        "width": 100,
+        "height": 80
       },
       "anchor_points": [],
       "fill_suggestion": "small uppercase text",
@@ -168,14 +168,37 @@
       "zIndex": 20
     },
     {
+      "id": "privilege-icon",
+      "purpose": "Player club privileges icon (OWNER, MANAGER, MEMBER)",
+      "type": "rect",
+      "bounds": {
+        "x": 127,
+        "y": 625,
+        "width": 80,
+        "height": 60
+      },
+      "anchor_points": [],
+      "fill_suggestion": "image tag",
+      "dataField": "member.privileges",
+      "style": {
+        "position": "absolute",
+        "top": "50%",
+        "left": "5%",
+        "width": "60px",
+        "height": "45px"
+      },
+      "optional": true,
+      "zIndex": 30
+    },
+    {
       "id": "player-photo",
       "purpose": "Main player face/portrait area",
       "type": "rect",
       "bounds": {
-        "x": 307,
-        "y": 240,
-        "width": 415,
-        "height": 483
+        "x": 275,
+        "y": 225,
+        "width": 395,
+        "height": 460
       },
       "anchor_points": [],
       "fill_suggestion": "image tag or canvas drawImage",
@@ -199,8 +222,8 @@
       "purpose": "Player name (e.g. 'Cole') below photo",
       "type": "rect",
       "bounds": {
-        "x": 155,
-        "y": 720,
+        "x": 133,
+        "y": 680,
         "width": 534,
         "height": 110
       },
@@ -228,8 +251,8 @@
       "purpose": "Club logo/photo - top left",
       "type": "rect",
       "bounds": {
-        "x": 552,
-        "y": 896,
+        "x": 530,
+        "y": 816,
         "width": 140,
         "height": 100
       },
@@ -251,8 +274,8 @@
       "purpose": "Player symbol/badge - top right area",
       "type": "rect",
       "bounds": {
-        "x": 152,
-        "y": 896,
+        "x": 130,
+        "y": 816,
         "width": 140,
         "height": 100
       },

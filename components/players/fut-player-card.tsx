@@ -158,6 +158,7 @@ export function PlayerCard({
   const secondaryRolesRegion = findRegion('secondary-roles');
   const clubLogoRegion = findRegion('club-logo');
   const playerSymbolRegion = findRegion('player-symbol');
+  const privilegeIconRegion = findRegion('privilege-icon');
 
   // Get scaled dimensions for a region
   const getScaledDimensions = (bounds: { x: number | null; y: number | null; width: number | null; height: number | null } | undefined) => {
@@ -239,8 +240,13 @@ export function PlayerCard({
         {/* Player Rating - fills shorter dimension */}
         {lastMatchRating !== null && lastMatchRating !== undefined && playerRatingRegion && playerRatingRegion.bounds?.x !== null && (
           <div 
-            className="z-20 flex items-center justify-center overflow-hidden"
-            style={getScaledStyle(playerRatingRegion.bounds)}
+            className="z-20 flex items-start justify-center overflow-hidden"
+            style={{
+              ...getScaledStyle(playerRatingRegion.bounds),
+              padding: 0,
+              margin: 0,
+              lineHeight: 1,
+            }}
           >
             <span 
               className="font-black leading-none"
@@ -248,6 +254,9 @@ export function PlayerCard({
                 color: textColor,
                 fontSize: getRegionFontSize(playerRatingRegion.bounds, 0.75),
                 textShadow: textShadowStyle,
+                padding: 0,
+                margin: 0,
+                lineHeight: 1,
               }}
             >
               {lastMatchRating.toFixed(1)}
@@ -262,19 +271,20 @@ export function PlayerCard({
             style={getScaledStyle(jerseyNumberRegion.bounds)}
           >
             <div className="relative flex items-center justify-center w-full h-full">
-              {/* Jersey PNG Background - scaled down and white */}
+              {/* Jersey PNG Background - scaled down using CSS transform */}
               <Image
                 src="/icons/cards/jersey.png"
                 alt="Jersey"
                 fill
-                className="object-contain scale-60 brightness-0 invert"
+                className="object-contain brightness-0 invert"
+                style={{ transform: 'scale(0.8)', transformOrigin: 'center center' }}
               />
               {/* Jersey Number - centered on top */}
               <span 
                 className="absolute font-black z-10"
                 style={{
                   color: textColor,
-                  fontSize: getRegionFontSize(jerseyNumberRegion.bounds, 0.4),
+                  fontSize: getRegionFontSize(jerseyNumberRegion.bounds, 0.35),
                   lineHeight: '1',
                   textShadow: textShadowStyle,
                 }}
@@ -345,6 +355,26 @@ export function PlayerCard({
             >
               {symbol}
             </span>
+          </div>
+        )}
+        
+        {/* Privilege Icon - displays OWNER/MANAGER/MEMBER badge */}
+        {member.privileges && privilegeIconRegion && privilegeIconRegion.bounds?.x !== null && (
+          <div 
+            className="z-30 flex items-center justify-center"
+            style={{
+              ...getScaledStyle(privilegeIconRegion.bounds),
+              overflow: 'visible',
+            }}
+          >
+            <div className="relative w-full h-full">
+              <Image
+                src={`/icons/privileges/${member.privileges.toLowerCase()}.png`}
+                alt={member.privileges}
+                fill
+                className="object-contain"
+              />
+            </div>
           </div>
         )}
         

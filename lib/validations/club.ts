@@ -12,10 +12,10 @@ export const createClubSchema = z.object({
     .string()
     .min(1, "Il nome del club è obbligatorio")
     .min(2, "Il nome deve essere di almeno 2 caratteri")
-    .max(100, "Il nome non può superare i 100 caratteri"),
+    .max(50, "Il nome non può superare i 50 caratteri"),
   description: z
     .string()
-    .max(500, "La descrizione non può superare i 500 caratteri")
+    .max(200, "La descrizione non può superare i 200 caratteri")
     .optional(),
   image_url: z
     .string()
@@ -27,12 +27,12 @@ export const updateClubSchema = z.object({
   name: z
     .string()
     .min(2, "Il nome deve essere di almeno 2 caratteri")
-    .max(100, "Il nome non può superare i 100 caratteri")
+    .max(50, "Il nome non può superare i 50 caratteri")
     .optional()
     .nullable(),
   description: z
     .string()
-    .max(500, "La descrizione non può superare i 500 caratteri")
+    .max(200, "La descrizione non può superare i 200 caratteri")
     .optional()
     .nullable(),
   image_url: z
