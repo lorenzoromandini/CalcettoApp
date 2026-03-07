@@ -53,5 +53,5 @@ next-env.d.ts
 cloudflared.deb
 .env
 
-# Agent instructions
-AGENTS.md
+# Agent instructions (now tracked in git)
+# AGENTS.md
