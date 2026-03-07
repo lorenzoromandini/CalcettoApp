@@ -2,7 +2,7 @@
 
 import { useSession } from '@/components/providers/session-provider';
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { UserMenu } from './user-menu';
 import { Link } from '@/lib/i18n/navigation';
@@ -16,27 +16,24 @@ export function Header() {
   const { data: session, signOut } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const locale = 'it';
   
+  const from = searchParams?.get('from');
   const isDashboard = pathname?.includes('/dashboard');
   const isClubCreate = pathname?.includes('/clubs/create');
-  const isInClub = pathname?.includes('/clubs/') && pathname?.split('/').length > 3;
-  const clubId = isInClub ? pathname?.split('/')[3] : null;
+  const isPlayerProfile = pathname?.includes('/players/') && pathname?.includes('/clubs/');
+  const isInClub = pathname?.includes('/clubs/') && !pathname?.includes('/players/') && pathname?.split('/').length > 3;
+  const pathParts = pathname?.split('/').filter(Boolean) || [];
+  const clubId = isInClub || isPlayerProfile ? pathParts[1] : null;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur">
       <div className="flex h-14 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-4">
-          {(isInClub || isClubCreate) && session?.user ? (
-            <Link
-              href={isClubCreate ? "/clubs" : "/dashboard"}
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {isClubCreate ? 'Indietro' : t('dashboard')}
-            </Link>
-          ) : session?.user ? (
+          {isDashboard && session?.user ? (
+            // Dashboard: Logo + Benvenuto Nome
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
                 src="/logo.png"
@@ -49,7 +46,17 @@ export function Header() {
                 {tCommon('welcome')}, {session.user.nickname || session.user.firstName || session.user.email}
               </span>
             </Link>
+          ) : session?.user ? (
+            // Altre pagine: tasto Indietro
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Indietro
+            </button>
           ) : (
+            // Non loggato: solo Logo
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/logo.png"
@@ -58,41 +65,42 @@ export function Header() {
                 height={28}
                 style={{ width: 'auto' }}
               />
-              <span className="text-xl font-bold text-primary">Calcetto Manager</span>
             </Link>
           )}
         </div>
 
-        {/* Right side - Desktop: user menu, Mobile: hamburger */}
-        <div className="flex items-center gap-2">
-          {/* Desktop: ThemeToggle, UserMenu */}
-          <div className="hidden md:flex items-center gap-2">
-            <ThemeToggle />
-            {session?.user ? (
-              <UserMenu user={session.user} />
-            ) : (
-              <Link
-                href="/auth/login"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
-              >
-                {t('signIn')}
-              </Link>
-            )}
-          </div>
+        {/* Right side - Desktop: user menu, Mobile: hamburger - ONLY on Dashboard */}
+        {isDashboard && (
+          <div className="flex items-center gap-2">
+            {/* Desktop: ThemeToggle, UserMenu */}
+            <div className="hidden md:flex items-center gap-2">
+              <ThemeToggle />
+              {session?.user ? (
+                <UserMenu user={session.user} />
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+                >
+                  {t('signIn')}
+                </Link>
+              )}
+            </div>
 
-          {/* Mobile: Hamburger menu */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
+            {/* Mobile: Hamburger menu */}
+            <button
+              className="md:hidden p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Menu - Dropdown overlay */}

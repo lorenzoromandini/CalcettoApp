@@ -166,7 +166,7 @@ export default function DashboardPage() {
                   isAbsent={memberData.isAbsent}
                   onClick={() => {
                     if (memberData.clubId) {
-                      router.push(`/clubs/${memberData.clubId}/players/${memberData.member.id}`);
+                      router.push(`/clubs/${memberData.clubId}/players/${memberData.member.id}?from=dashboard`);
                     }
                   }}
                 />

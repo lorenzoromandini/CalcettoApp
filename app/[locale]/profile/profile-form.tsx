@@ -319,53 +319,6 @@ export function ProfileForm({ user, clubs: initialClubs }: ProfileFormProps) {
         )}
       </div>
 
-      {clubs.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Shirt className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Numeri Maglia</CardTitle>
-            </div>
-            <CardDescription>
-              Gestisci i tuoi numeri di maglia per ogni club
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {clubs.map((club) => (
-              <div key={club.id} className="flex items-center gap-4">
-                <div className="flex-1">
-                  <Label className="text-sm font-medium">{club.name}</Label>
-                  <Select
-                    value={club.jerseyNumber?.toString() || ''}
-                    onValueChange={(value) => handleJerseyChange(club.id, value)}
-                  >
-                    <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder="Seleziona numero" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getAvailableNumbers().map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="flex justify-center">
-        <Button type="submit" disabled={isLoading} className="w-full max-w-xs">
-          {isLoading ? 'Salvataggio...' : 'Salva modifiche'}
-          {hasChanges() && !isLoading && (
-            <span className="ml-2 text-xs opacity-70">(modifiche in sospeso)</span>
-          )}
-        </Button>
-      </div>
-
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ClubPrivilege } from '@prisma/client';
 import { useSession } from '@/components/providers/session-provider';
-import { useTheme } from 'next-themes';
 import { ArrowLeft, Users, Settings, UserCog, Trash2, Crown, Briefcase, Shield, User, AlertTriangle, Link2, Copy, Check, MessageCircle, Shirt, Activity, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +26,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PlayerCard } from '@/components/players/fut-player-card';
+import type { DashboardMemberData } from '@/lib/db/player-ratings';
 
 export default function ClubRosterPage() {
   const t = useTranslations('roster');
@@ -34,18 +35,14 @@ export default function ClubRosterPage() {
   const clubId = params.clubId as string;
   const locale = params.locale as string;
 
-
-
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<DashboardMemberData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isManager, setIsManager] = useState(false);
   const { data: session } = useSession();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
   
-  const [memberToRemove, setMemberToRemove] = useState<any | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<DashboardMemberData | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   
   // Stati per invito
@@ -59,13 +56,12 @@ export default function ClubRosterPage() {
       setIsLoading(true);
 
       const [membersRes, adminRes] = await Promise.all([
-        authFetch(`/api/clubs/${clubId}/members`),
+        authFetch(`/api/clubs/${clubId}/roster-cards`),
         authFetch(`/api/clubs/${clubId}/admin`),
       ]);
 
       if (membersRes.ok) {
         const membersData = await membersRes.json();
-        // I membri contengono già tutti i dati necessari (jerseyNumber, primaryRole, ecc.)
         setMembers(membersData);
       }
 
@@ -116,7 +112,7 @@ export default function ClubRosterPage() {
 
     setIsRemoving(true);
     try {
-      const res = await authFetch(`/api/clubs/${clubId}/members/${memberToRemove.id}`, {
+      const res = await authFetch(`/api/clubs/${clubId}/members/${memberToRemove.member.id}`, {
         method: 'DELETE',
       });
 
@@ -169,21 +165,7 @@ export default function ClubRosterPage() {
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
-  const PRIVILEGE_ICONS: Record<string, string> = {
-    OWNER: '/icons/privileges/owner.png',
-    MANAGER: '/icons/privileges/manager.png',
-    MEMBER: '/icons/privileges/member.png',
-  };
-
-  const getPrivilegeIcon = (privilege: string) => {
-    // Handle both uppercase (from DB) and lowercase (for compatibility)
-    const normalizedPrivilege = privilege.toUpperCase();
-    const iconPath = PRIVILEGE_ICONS[normalizedPrivilege] || PRIVILEGE_ICONS.MEMBER;
-    return <img src={iconPath} alt={normalizedPrivilege} className="h-4 w-4 object-contain" />;
-  };
-
   const getPrivilegeLabel = (privilege: string) => {
-    // Handle both uppercase (from DB) and lowercase (for compatibility)
     const normalizedPrivilege = privilege.toUpperCase();
     switch (normalizedPrivilege) {
       case 'OWNER':
@@ -192,53 +174,6 @@ export default function ClubRosterPage() {
         return t('privileges.manager');
       default:
         return t('privileges.member');
-    }
-  };
-
-  const ROLE_ICONS: Record<string, { light: string; dark: string }> = {
-    // New English abbreviations
-    GK: { light: '/icons/roles/goalkeeper.png', dark: '/icons/roles/goalkeeper.png' },
-    DEF: { light: '/icons/roles/defender.png', dark: '/icons/roles/defender.png' },
-    MID: { light: '/icons/roles/midfielder.png', dark: '/icons/roles/midfielder_negative.png' },
-    ST: { light: '/icons/roles/attacker.png', dark: '/icons/roles/attacker.png' },
-    // Old Italian (for backward compatibility until DB is migrated)
-    POR: { light: '/icons/roles/goalkeeper.png', dark: '/icons/roles/goalkeeper.png' },
-    DIF: { light: '/icons/roles/defender.png', dark: '/icons/roles/defender.png' },
-    CEN: { light: '/icons/roles/midfielder.png', dark: '/icons/roles/midfielder_negative.png' },
-    ATT: { light: '/icons/roles/attacker.png', dark: '/icons/roles/attacker.png' },
-  };
-
-  // Roles that use light icons and need inversion in dark mode
-  const INVERT_IN_DARK = ['POR', 'DIF', 'ATT', 'GK', 'DEF', 'ST'];
-
-  const getRoleIcon = (role: string, isDark: boolean) => {
-    const iconPaths = ROLE_ICONS[role];
-    if (!iconPaths) return null;
-    const iconPath = isDark ? iconPaths.dark : iconPaths.light;
-    const needsInvert = isDark && INVERT_IN_DARK.includes(role);
-    return <img src={iconPath} alt={translatePlayerRole(role)} className={`h-5 w-5 object-contain ${needsInvert ? 'invert' : ''}`} />;
-  };
-
-  const translatePlayerRole = (role: string) => {
-    switch (role) {
-      case 'POR':
-        return 'Portiere';
-      case 'DIF':
-        return 'Difensore';
-      case 'CEN':
-        return 'Centrocampista';
-      case 'ATT':
-        return 'Attaccante';
-      case 'GOALKEEPER':
-        return 'Portiere';
-      case 'DEFENDER':
-        return 'Difensore';
-      case 'MIDFIELDER':
-        return 'Centrocampista';
-      case 'ATTACKER':
-        return 'Attaccante';
-      default:
-        return role;
     }
   };
 
@@ -267,83 +202,48 @@ export default function ClubRosterPage() {
         <div className="w-20" />
       </div>
 
-      {/* Players Section - Shows all members with user accounts */}
+      {/* Players Section - Cards Grid 2 columns */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Giocatori
+            Giocatori ({members.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {members.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">Nessun membro trovato</p>
           ) : (
-            <div className="space-y-3">
-              {members.map((member: any) => (
-                <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    {/* Maglietta con numero */}
-                    <div className="relative w-12 h-12 flex items-center justify-center">
-                      <Shirt className="h-12 w-12 text-primary" />
-                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
-                        {member.jerseyNumber || '?'}
-                      </span>
-                    </div>
-                    {/* Nome, ruolo e privilegio */}
-                    <div>
-                      <p className="font-medium">
-                        {member.user?.firstName && member.user?.lastName 
-                          ? `${member.user.firstName} ${member.user.lastName}${member.user?.nickname ? ` | ${member.user.nickname}` : ''}`
-                          : member.user?.email || 'Utente'
+            <div className="grid grid-cols-2 gap-4">
+              {members.map((memberData) => (
+                <div key={memberData.member.id}>
+                  <Link href={`/clubs/${clubId}/players/${memberData.member.id}`}>
+                    <PlayerCard
+                      member={{
+                        id: memberData.member.id,
+                        clubId: clubId,
+                        userId: memberData.member.id,
+                        jerseyNumber: memberData.jerseyNumber || 0,
+                        primaryRole: memberData.member.primaryRole as any,
+                        secondaryRoles: memberData.member.secondaryRoles as any[] || [],
+                        symbol: memberData.member.symbol,
+                        privileges: memberData.privileges as ClubPrivilege,
+                        user: {
+                          firstName: memberData.member.firstName,
+                          lastName: memberData.member.lastName,
+                          nickname: memberData.member.nickname,
+                          image: memberData.member.image
+                        },
+                        club: {
+                          image: null
                         }
-                      </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-2">
-                        {getPrivilegeIcon(member.privileges)}
-                        {member.primaryRole && getRoleIcon(member.primaryRole, isDark)}
-                        {member.secondaryRoles?.length > 0 && member.secondaryRoles
-                          .filter((role: string) => role !== member.primaryRole) // Filter out primary role to avoid duplicates
-                          .map((role: string) => (
-                            <span key={role}>{getRoleIcon(role, isDark)}</span>
-                          ))}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Management actions - Solo Owner può gestire privilegi ed espellere */}
-                  {isOwner && member.userId !== currentUserId && member.privileges !== ClubPrivilege.OWNER && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {/* Solo per membri normali: opzione per nominare Manager */}
-                        {member.privileges === ClubPrivilege.MEMBER && (
-                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, ClubPrivilege.MANAGER)}>
-                            <UserCog className="mr-2 h-4 w-4" />
-                            {t('makeManager')}
-                          </DropdownMenuItem>
-                        )}
-                        {/* Solo per Manager: opzione per rimuovere */}
-                        {member.privileges === ClubPrivilege.MANAGER && (
-                          <DropdownMenuItem onClick={() => handlePrivilegeChange(member.id, ClubPrivilege.MEMBER)}>
-                            <UserCog className="mr-2 h-4 w-4" />
-                            {t('removeManager')}
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => setMemberToRemove(member)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t('kickPlayer')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
+                      }}
+                      clubId={clubId}
+                      lastMatchRating={memberData.lastMatchRating}
+                      hasMvpInLastMatch={memberData.hasMvpInLastMatch}
+                      isAbsent={memberData.isAbsent}
+                    />
+                  </Link>
                 </div>
               ))}
             </div>

@@ -135,8 +135,13 @@ export function PlayerCard({
   const symbol = member.symbol;
   const clubImage = member.club?.image;
   
-  // Get display name (nickname or full name)
-  const displayName = nickname || `${firstName} ${lastName}`.trim();
+  // Get display name (nickname or abbreviated first name + full last name)
+  const getAbbreviatedFirstName = () => {
+    if (!firstName) return '';
+    return firstName.charAt(0).toUpperCase() + '.';
+  };
+  
+  const displayName = nickname || `${getAbbreviatedFirstName()} ${lastName}`.trim();
   
   // Get initials for placeholder
   const getInitials = () => {
