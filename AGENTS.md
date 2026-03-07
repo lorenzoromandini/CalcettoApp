@@ -102,4 +102,115 @@ await prisma.$transaction(async (tx) => {
 
 ---
 
+## Club Privileges System
+
+### Privilege Hierarchy
+
+Three privilege levels exist, managed via the `ClubPrivilege` enum in Prisma:
+
+- **OWNER** (Proprietario)
+- **MANAGER** 
+- **MEMBER**
+
+### Permission Matrix
+
+| Operation | OWNER | MANAGER | MEMBER |
+|-----------|-------|---------|--------|
+| **Club Management** ||||
+| Modify club name/description/image | ✅ | ❌ | ❌ |
+| Delete club | ✅ | ❌ | ❌ |
+| View club details | ✅ | ✅ | ✅ |
+| **Roster Management** ||||
+| Invite new members | ✅ | ✅ | ❌ |
+| Kick/Eject members | ✅ | ❌ | ❌ |
+| Promote to MANAGER | ✅ | ❌ | ❌ |
+| Demote from MANAGER | ✅ | ❌ | ❌ |
+| View roster | ✅ | ✅ | ✅ |
+| **Match Operations** ||||
+| Create matches | ✅ | ✅ | ❌ |
+| Edit match details | ✅ | ✅ | ❌ |
+| Delete matches | ✅ | ✅ | ❌ |
+| Join match as player | ✅ | ✅ | ✅ |
+| **Match Lifecycle** ||||
+| Start match | ✅ | ✅ | ❌ |
+| End match | ✅ | ✅ | ❌ |
+| Finalize results/scores | ✅ | ✅ | ❌ |
+| Add/remove goals | ✅ | ✅ | ❌ |
+| Assign player ratings | ✅ | ✅ | ❌ |
+| **Other** ||||
+| Generate invite links | ✅ | ✅ | ❌ |
+| View statistics | ✅ | ✅ | ✅ |
+| View match history | ✅ | ✅ | ✅ |
+
+### Key Implementation Details
+
+1. **Club Creator**: Automatically becomes OWNER upon creation via `setup-player` flow.
+
+2. **Database Constraints**:
+   - Unique constraint on `(clubId, userId)` in `ClubMember` table
+   - Unique constraint on `(clubId, jerseyNumber)` to prevent duplicates
+
+3. **Helper Functions**:
+   - `isClubAdmin(clubId, userId)`: Returns true if OWNER or MANAGER
+   - `isClubOwner(clubId, userId)`: Returns true only if OWNER
+
+4. **API Protection**:
+   - Club modifications (update/delete): Requires OWNER
+   - Match creation/management: Requires ADMIN (OWNER or MANAGER)
+   - Member ejection/role changes: Requires OWNER
+
+### Code Examples
+
+```typescript
+// Check for OWNER-only operations
+const isOwner = await isClubOwner(clubId, userId)
+if (!isOwner) throw new Error('Solo il proprietario può eseguire questa azione')
+
+// Check for ADMIN operations (OWNER or MANAGER)
+const isAdmin = await isClubAdmin(clubId, userId)
+if (!isAdmin) throw new Error('Permessi insufficienti')
+```
+
+---
+
+## Internationalization (i18n)
+
+### Language Configuration
+
+**IMPORTANT**: The application is configured to support **ONLY Italian language**.
+
+**Configuration Details:**
+- **Default Locale**: `it` (Italian)
+- **Supported Locales**: Only `['it']` - English and other languages are NOT supported
+- **URL Prefix**: `localePrefix: 'never'` - No language prefix in URLs
+  - URLs should be: `/dashboard`, `/clubs`, `/clubs/roster`
+  - NOT: `/it/dashboard`, `/en/clubs`
+
+**Implementation:**
+- All UI text must be in Italian
+- No language switcher component should be added
+- The `locale` parameter is passed through components but should always be `'it'`
+- When building URLs manually, do NOT include the locale:
+  - ❌ `/${locale}/clubs/${clubId}`
+  - ✅ `/clubs/${clubId}`
+
+**Files to Check:**
+- `lib/i18n/routing.ts` - Routing configuration
+- `lib/i18n/navigation.ts` - Navigation exports (uses Next.js Link, not next-intl Link)
+- `proxy.ts` - Middleware configuration
+- All page components using router.push or Link
+
+**Never:**
+- Add a language switcher
+- Support multiple languages
+- Show language prefix in URLs
+- Allow users to change language
+
+**Always:**
+- Keep all text in Italian
+- Use Italian translations from `messages/it.json`
+- Build URLs without locale prefix
+
+---
+
 Focus on correctness, data integrity, and preventing invalid states.
