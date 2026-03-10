@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { X, Search, User, Check } from "lucide-react";
+import { Search, Check, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,7 +10,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { ClubMemberWithRolePriority } from "@/types/formations";
 import type { FormationRole } from "@/lib/formations/formations-config";
-import { ROLE_COLORS, getRoleDisplayName } from "@/lib/formations/formations-config";
+import { getRoleDisplayName } from "@/lib/formations/formations-config";
+import { PlayerCard } from "@/components/players/fut-player-card";
+import type { ClubMember } from "@/types/database";
+import { PlayerRole } from "@prisma/client";
 
 interface PlayerSelectionModalProps {
   isOpen: boolean;
@@ -18,9 +21,12 @@ interface PlayerSelectionModalProps {
   members: ClubMemberWithRolePriority[];
   targetRole?: FormationRole;
   selectedPlayerId: string | null;
+  selectedIsGuest: boolean;
   excludeIds: string[];
-  onSelect: (clubMemberId: string) => void;
+  onSelect: (clubMemberId: string, isGuest: boolean) => void;
   onRemove: () => void;
+  clubImage?: string | null;
+  clubId: string;
 }
 
 export function PlayerSelectionModal({
@@ -29,15 +35,23 @@ export function PlayerSelectionModal({
   members,
   targetRole,
   selectedPlayerId,
+  selectedIsGuest,
   excludeIds,
   onSelect,
   onRemove,
+  clubImage,
+  clubId,
 }: PlayerSelectionModalProps) {
   const t = useTranslations("formations");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [showGuestInput, setShowGuestInput] = useState(false);
+  const [guestJerseyNumber, setGuestJerseyNumber] = useState(99);
 
-  // Debounce search
+  // Handle adding guest player - adds immediately with fixed ID
+  const handleAddGuest = () => {
+    onSelect('guest', true);
+  };
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -50,6 +64,7 @@ export function PlayerSelectionModal({
     if (isOpen) {
       setSearchQuery("");
       setDebouncedQuery("");
+      setGuestJerseyNumber(99);
     }
   }, [isOpen]);
 
@@ -76,8 +91,12 @@ export function PlayerSelectionModal({
     });
   }, [availableMembers, debouncedQuery]);
 
-  // Raggruppa per priorità ruolo
+  // Raggruppa per priorità ruolo - ORDINE CORRETTO:
+  // 1. Giocatori con ruolo PRIMARIO = targetRole
+  // 2. Giocatori con ruolo SECONDARIO = targetRole  
+  // 3. Tutti gli altri giocatori
   const groupedMembers = useMemo(() => {
+    // Se non c'è un targetRole, mostra tutti i giocatori in una sezione
     if (!targetRole) {
       return {
         primary: [] as ClubMemberWithRolePriority[],
@@ -86,125 +105,199 @@ export function PlayerSelectionModal({
       };
     }
 
+    const normalizedTargetRole = targetRole.toUpperCase().trim() as FormationRole;
+    
+    const primary: ClubMemberWithRolePriority[] = [];
+    const secondary: ClubMemberWithRolePriority[] = [];
+    const others: ClubMemberWithRolePriority[] = [];
+
+    filteredMembers.forEach((member) => {
+      const memberPrimaryRole = (member.primaryRole || '').toUpperCase().trim();
+      const memberSecondaryRoles = (member.secondaryRoles || []).map(r => r.toUpperCase().trim());
+      
+      if (memberPrimaryRole === normalizedTargetRole) {
+        primary.push(member);
+      } else if (memberSecondaryRoles.includes(normalizedTargetRole)) {
+        secondary.push(member);
+      } else {
+        others.push(member);
+      }
+    });
+
+    // Ordina ogni gruppo per numero di maglia
+    const sortByJersey = (a: ClubMemberWithRolePriority, b: ClubMemberWithRolePriority) => 
+      a.jerseyNumber - b.jerseyNumber;
+
     return {
-      primary: filteredMembers.filter((m) => m.rolePriority === 0),
-      secondary: filteredMembers.filter((m) => m.rolePriority === 1),
-      others: filteredMembers.filter((m) => m.rolePriority === 2),
+      primary: primary.sort(sortByJersey),
+      secondary: secondary.sort(sortByJersey),
+      others: others.sort(sortByJersey),
     };
   }, [filteredMembers, targetRole]);
 
-  const renderMemberItem = (member: ClubMemberWithRolePriority) => {
-    const isSelected = selectedPlayerId === member.id;
-    const colors = ROLE_COLORS[member.primaryRole];
+  // Convert member to ClubMember format for PlayerCard
+  const convertToClubMember = (member: ClubMemberWithRolePriority): ClubMember => {
+    return {
+      id: member.id,
+      clubId: clubId,
+      userId: member.userId,
+      privileges: 'MEMBER' as const,
+      joinedAt: new Date().toISOString(),
+      primaryRole: member.primaryRole,
+      secondaryRoles: member.secondaryRoles,
+      jerseyNumber: member.jerseyNumber,
+      symbol: null,
+      user: {
+        firstName: member.firstName,
+        lastName: member.lastName,
+        nickname: member.nickname || null,
+        image: member.image || null,
+      },
+      club: {
+        image: clubImage || null,
+      },
+    } as ClubMember;
+  };
+
+  const renderMemberCard = (member: ClubMemberWithRolePriority) => {
+    const isSelected = selectedPlayerId === member.id && !selectedIsGuest;
 
     return (
-      <button
+      <div
         key={member.id}
-        onClick={() => onSelect(member.id)}
+        onClick={() => onSelect(member.id, false)}
         className={cn(
-          "w-full flex items-center gap-3 p-3 rounded-lg transition-colors",
-          isSelected
-            ? "bg-primary/10 border-2 border-primary"
-            : "hover:bg-muted border-2 border-transparent"
+          "cursor-pointer transition-all duration-200",
+          isSelected ? "scale-105" : "hover:scale-105"
         )}
       >
-        {/* Avatar o iniziali */}
-        <div
+        <PlayerCard
+          member={convertToClubMember(member)}
+          clubId={clubId}
           className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0",
-            colors.bg,
-            colors.text
+            isSelected && "ring-4 ring-primary ring-offset-2"
           )}
-        >
-          <User className="w-5 h-5" />
-        </div>
-
-        {/* Info giocatore */}
-        <div className="flex-1 min-w-0 text-left">
-          <div className="font-medium truncate">
-            {member.firstName} {member.lastName}
-          </div>
-          {member.nickname && (
-            <div className="text-xs text-muted-foreground truncate">
-              {member.nickname}
-            </div>
-          )}
-        </div>
-
-        {/* Numero maglia */}
-        <div className="flex-shrink-0 text-sm font-bold text-muted-foreground">
-          #{member.jerseyNumber}
-        </div>
-
-        {/* Check se selezionato */}
+        />
         {isSelected && (
-          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
             <Check className="w-4 h-4 text-white" />
           </div>
         )}
-      </button>
+      </div>
+    );
+  };
+
+  // Render guest player card
+  const renderGuestCard = () => {
+    const guestId = `guest-${guestJerseyNumber}`;
+    const isSelected = selectedPlayerId === guestId && selectedIsGuest;
+
+    // Create a mock guest member
+    const guestMember = {
+      id: guestId,
+      clubId: clubId,
+      userId: 'guest',
+      joinedAt: new Date().toISOString(),
+      jerseyNumber: guestJerseyNumber,
+      primaryRole: PlayerRole.ATT,
+      secondaryRoles: [],
+      symbol: null,
+      privileges: 'MEMBER' as const,
+      user: {
+        firstName: 'Ospite',
+        lastName: `#${guestJerseyNumber}`,
+        nickname: null,
+        image: null,
+      },
+      club: {
+        image: clubImage || null,
+      },
+    } as ClubMember & { user: { firstName: string; lastName: string; nickname: string | null; image: string | null }; club: { image: string | null } };
+
+    return (
+      <div
+        key={guestId}
+        onClick={() => onSelect(guestId, true)}
+        className={cn(
+          "cursor-pointer transition-all duration-200",
+          isSelected ? "scale-105" : "hover:scale-105"
+        )}
+      >
+        <PlayerCard
+          member={guestMember}
+          clubId={clubId}
+          className={cn(
+            isSelected && "ring-4 ring-primary ring-offset-2"
+          )}
+        />
+        {isSelected && (
+          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+            <Check className="w-4 h-4 text-white" />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderSection = (title: string, membersList: ClubMemberWithRolePriority[], showRoleLabel?: boolean) => {
+    if (membersList.length === 0) return null;
+
+    return (
+      <div className="mb-6">
+        <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+          {title}
+          {showRoleLabel && targetRole && (
+            <span className="text-xs text-muted-foreground">({getRoleDisplayName(targetRole)})</span>
+          )}
+        </h4>
+        <div className="grid grid-cols-3 gap-4">
+          {membersList.map(renderMemberCard)}
+        </div>
+      </div>
     );
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t("selectPlayer")}</DialogTitle>
         </DialogHeader>
 
-        {/* Barra ricerca */}
-        <div className="relative mt-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("searchPlayer")}
-            className="pl-10 h-11"
-            autoFocus
-          />
+        {/* Barra ricerca + Aggiungi Ospite */}
+        <div className="flex gap-2 mt-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchPlayer")}
+              className="pl-10 h-11"
+              autoFocus
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleAddGuest}
+            className="h-11 w-11 shrink-0"
+            title="Aggiungi ospite"
+          >
+            <UserPlus className="h-5 w-5" />
+          </Button>
         </div>
 
-        {/* Lista giocatori */}
-        <ScrollArea className="flex-1 mt-4 -mx-6 px-6">
-          <div className="space-y-4">
+        {/* Lista giocatori - Carte */}
+        <div className="flex-1 mt-4 -mx-6 px-6 overflow-y-auto" style={{ maxHeight: '60vh' }}>
+          <div className="py-2 pb-20">
             {/* Sezione ruolo primario */}
-            {groupedMembers.primary.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
-                  {targetRole && getRoleDisplayName(targetRole)}
-                  <span className="text-xs text-muted-foreground">- {t("primaryRole")}</span>
-                </h4>
-                <div className="space-y-1">
-                  {groupedMembers.primary.map(renderMemberItem)}
-                </div>
-              </div>
-            )}
+            {renderSection(t("primaryRole"), groupedMembers.primary, true)}
 
             {/* Sezione ruolo secondario */}
-            {groupedMembers.secondary.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
-                  {targetRole && getRoleDisplayName(targetRole)}
-                  <span className="text-xs">- {t("secondaryRole")}</span>
-                </h4>
-                <div className="space-y-1">
-                  {groupedMembers.secondary.map(renderMemberItem)}
-                </div>
-              </div>
-            )}
+            {renderSection(t("secondaryRole"), groupedMembers.secondary, true)}
 
             {/* Sezione altri giocatori */}
-            {groupedMembers.others.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-muted-foreground mb-2">
-                  {t("otherPlayers")}
-                </h4>
-                <div className="space-y-1">
-                  {groupedMembers.others.map(renderMemberItem)}
-                </div>
-              </div>
-            )}
+            {renderSection(t("otherPlayers"), groupedMembers.others)}
 
             {/* Nessun risultato */}
             {filteredMembers.length === 0 && (
@@ -215,7 +308,7 @@ export function PlayerSelectionModal({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Footer */}
         <div className="mt-4 pt-4 border-t flex gap-2">

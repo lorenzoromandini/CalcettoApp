@@ -30,8 +30,8 @@ interface UseFormationBuilderReturn {
   // Actions
   setStep: (step: FormationStep) => void;
   selectModule: (moduleId: string) => void;
-  assignPlayerToTeam1: (positionIndex: number, clubMemberId: string) => void;
-  assignPlayerToTeam2: (positionIndex: number, clubMemberId: string) => void;
+  assignPlayerToTeam1: (positionIndex: number, clubMemberId: string, isGuest?: boolean) => void;
+  assignPlayerToTeam2: (positionIndex: number, clubMemberId: string, isGuest?: boolean) => void;
   removePlayerFromTeam1: (positionIndex: number) => void;
   removePlayerFromTeam2: (positionIndex: number) => void;
   clearTeam1Formation: () => void;
@@ -80,14 +80,14 @@ export function useFormationBuilder({
   }, []);
 
   // Assign player to team 1
-  const assignPlayerToTeam1 = useCallback((positionIndex: number, clubMemberId: string) => {
+  const assignPlayerToTeam1 = useCallback((positionIndex: number, clubMemberId: string, isGuest: boolean = false) => {
     setTeam1Formation((prev) => {
       if (!prev) return null;
       
       // Remove any existing assignment for this position
       const filtered = prev.assignments.filter(a => a.positionIndex !== positionIndex);
-      // Remove any existing assignment for this player
-      const withoutPlayer = filtered.filter(a => a.clubMemberId !== clubMemberId);
+      // Remove any existing assignment for this player (solo se non è guest)
+      const withoutPlayer = isGuest ? filtered : filtered.filter(a => a.clubMemberId !== clubMemberId);
       
       return {
         ...prev,
@@ -95,20 +95,21 @@ export function useFormationBuilder({
           positionIndex,
           clubMemberId,
           assignedAt: new Date().toISOString(),
+          isGuest,
         }],
       };
     });
   }, []);
 
   // Assign player to team 2
-  const assignPlayerToTeam2 = useCallback((positionIndex: number, clubMemberId: string) => {
+  const assignPlayerToTeam2 = useCallback((positionIndex: number, clubMemberId: string, isGuest: boolean = false) => {
     setTeam2Formation((prev) => {
       if (!prev) return null;
       
       // Remove any existing assignment for this position
       const filtered = prev.assignments.filter(a => a.positionIndex !== positionIndex);
-      // Remove any existing assignment for this player
-      const withoutPlayer = filtered.filter(a => a.clubMemberId !== clubMemberId);
+      // Remove any existing assignment for this player (solo se non è guest)
+      const withoutPlayer = isGuest ? filtered : filtered.filter(a => a.clubMemberId !== clubMemberId);
       
       return {
         ...prev,
@@ -116,6 +117,7 @@ export function useFormationBuilder({
           positionIndex,
           clubMemberId,
           assignedAt: new Date().toISOString(),
+          isGuest,
         }],
       };
     });

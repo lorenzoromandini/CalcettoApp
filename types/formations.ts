@@ -16,6 +16,7 @@ export interface PlayerAssignment {
   positionIndex: number;    // Indice della posizione nel modulo
   clubMemberId: string;     // ID del membro del club assegnato
   assignedAt: string;       // Timestamp ISO
+  isGuest?: boolean;        // true se è un giocatore ospite
 }
 
 export interface TeamFormation {
@@ -47,6 +48,7 @@ export interface ClubMemberWithRolePriority {
   firstName: string;
   lastName: string;
   nickname?: string;
+  image?: string | null;
   jerseyNumber: number;
   primaryRole: FormationRole;
   secondaryRoles: FormationRole[];

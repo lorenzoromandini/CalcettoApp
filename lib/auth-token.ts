@@ -23,12 +23,30 @@ export function parseAuthToken(token: string): {
 }
 
 export function getUserIdFromRequest(request: Request): string | null {
+  // Try Authorization header first (from authFetch)
   const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.replace('Bearer ', '') || 
-    (typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null);
+  const bearerToken = authHeader?.replace('Bearer ', '');
   
-  if (!token) return null;
+  if (bearerToken) {
+    const user = parseAuthToken(bearerToken);
+    return user?.id || null;
+  }
   
-  const user = parseAuthToken(token);
-  return user?.id || null;
+  // Fallback to cookies (for SSR/server actions)
+  const cookieHeader = request.headers.get('cookie');
+  if (cookieHeader) {
+    const appSessionMatch = cookieHeader.match(/app-session=([^;]+)/);
+    if (appSessionMatch) {
+      try {
+        const sessionData = JSON.parse(
+          Buffer.from(appSessionMatch[1], 'base64').toString('utf-8')
+        );
+        return sessionData?.id || null;
+      } catch {
+        // Invalid cookie format
+      }
+    }
+  }
+  
+  return null;
 }

@@ -20,6 +20,7 @@ export interface FormationPosition {
   y: number;
   label: string;
   clubMemberId?: string;
+  isGuest?: boolean;
 }
 
 export interface FormationData {
@@ -59,6 +60,7 @@ export async function getFormation(matchId: string, isHome: boolean = true): Pro
       y: p.positionY,
       label: p.positionLabel,
       clubMemberId: p.clubMemberId || undefined,
+      isGuest: (p as any).isGuest || false,
     })),
     isHome: formation.isHome,
   };
@@ -107,6 +109,7 @@ export async function saveFormation(
       positionY: p.y,
       positionLabel: p.label,
       isSubstitute: false,
+      isGuest: p.isGuest || false,
     }));
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -188,10 +191,10 @@ export async function getMatchParticipants(matchId: string): Promise<MatchPlayer
 
   return positions.map((pos) => ({
     id: pos.id,
-    clubMemberId: pos.clubMemberId,
-    user: pos.clubMember.user || null,
-    jerseyNumber: pos.clubMember.jerseyNumber,
-    primaryRole: pos.clubMember.primaryRole,
+    clubMemberId: pos.clubMemberId || '',
+    user: pos.clubMember?.user || null,
+    jerseyNumber: pos.clubMember?.jerseyNumber || 0,
+    primaryRole: pos.clubMember?.primaryRole || 'CEN',
     played: pos.played,
   }));
 }

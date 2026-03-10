@@ -234,19 +234,27 @@ export function CompletedMatchDetail({
                     {/* Scorer */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Avatar className="h-7 w-7">
-                          <AvatarImage src={goal.scorer.user.image ?? undefined} />
-                          <AvatarFallback className="text-xs">
-                            {getPlayerInitials(goal.scorer.user.firstName, goal.scorer.user.lastName)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium text-sm">
-                          {getPlayerDisplayName(
-                            goal.scorer.user.firstName,
-                            goal.scorer.user.lastName,
-                            goal.scorer.user.nickname
-                          )}
-                        </span>
+                        {goal.scorer ? (
+                          <>
+                            <Avatar className="h-7 w-7">
+                              <AvatarImage src={goal.scorer.user.image ?? undefined} />
+                              <AvatarFallback className="text-xs">
+                                {getPlayerInitials(goal.scorer.user.firstName, goal.scorer.user.lastName)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium text-sm">
+                              {getPlayerDisplayName(
+                                goal.scorer.user.firstName,
+                                goal.scorer.user.lastName,
+                                goal.scorer.user.nickname
+                              )}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-medium text-sm text-muted-foreground">
+                            Giocatore rimosso
+                          </span>
+                        )}
                         
                         {goal.isOwnGoal && (
                           <Badge variant="destructive" className="text-xs">

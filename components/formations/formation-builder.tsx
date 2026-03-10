@@ -307,6 +307,7 @@ export function FormationBuilder({
                   selectedMemberId={selectedMemberId}
                   onDrop={() => {}} // Handled by DndContext
                   onTapPosition={handleTapPosition}
+                  clubId={clubId}
                 />
               </CardContent>
             </Card>

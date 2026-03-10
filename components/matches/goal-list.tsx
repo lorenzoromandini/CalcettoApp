@@ -114,21 +114,29 @@ export function GoalList({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Scorer Avatar */}
-                    <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
-                      <AvatarImage src={goal.scorer.user.image ?? undefined} />
-                      <AvatarFallback className="text-xs">
-                        {getPlayerInitials(goal.scorer.user.firstName, goal.scorer.user.lastName)}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    {/* Scorer Name */}
-                    <span className="font-medium text-sm sm:text-base truncate">
-                      {getPlayerDisplayName(
-                        goal.scorer.user.firstName, 
-                        goal.scorer.user.lastName, 
-                        goal.scorer.user.nickname
-                      )}
-                    </span>
+                    {goal.scorer ? (
+                      <>
+                        <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
+                          <AvatarImage src={goal.scorer.user.image ?? undefined} />
+                          <AvatarFallback className="text-xs">
+                            {getPlayerInitials(goal.scorer.user.firstName, goal.scorer.user.lastName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        {/* Scorer Name */}
+                        <span className="font-medium text-sm sm:text-base truncate">
+                          {getPlayerDisplayName(
+                            goal.scorer.user.firstName, 
+                            goal.scorer.user.lastName, 
+                            goal.scorer.user.nickname
+                          )}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="font-medium text-sm sm:text-base truncate text-muted-foreground">
+                        Giocatore rimosso
+                      </span>
+                    )}
 
                     {/* Own Goal Badge */}
                     {isOwnGoal && (

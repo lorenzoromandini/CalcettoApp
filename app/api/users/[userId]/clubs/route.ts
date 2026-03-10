@@ -55,7 +55,8 @@ export async function GET(
     });
 
     const clubs = memberships.map(m => ({
-      membershipId: m.id,
+      id: m.id,  // membership ID
+      membershipId: m.id,  // per retrocompatibilità
       clubId: m.clubId,
       name: m.club.name,
       imageUrl: m.club.imageUrl,

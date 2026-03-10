@@ -20,6 +20,7 @@ import { useCreateMatch } from "@/hooks/use-matches";
 import { saveFormationAction } from "@/lib/actions/formations";
 import type { FormationData } from "@/lib/db/formations";
 import type { MatchMode } from "@/types/database";
+import { toast } from "sonner";
 
 interface CreateMatchWizardProps {
   locale: string;
@@ -124,26 +125,10 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
     checkAdmin();
   }, [clubId]); // Only depend on clubId, not session
 
-  const handleMatchCreated = async (data: CreateMatchInput) => {
-    // Prevent double submission
-    if (isCreating.current || isCreatingMatch) return;
-    isCreating.current = true;
-    
+  const handleMatchDataSubmitted = async (data: CreateMatchInput) => {
+    // Salva i dati della partita ma non crea ancora il match
     setMatchData(data);
-    setIsLoading(true);
-    
-    try {
-      const newMatchId = await createMatch(data, clubId);
-      if (newMatchId) {
-        setMatchId(newMatchId);
-        setCurrentStep(2);
-      }
-    } catch (error) {
-      console.error("Error creating match:", error);
-    } finally {
-      setIsLoading(false);
-      isCreating.current = false;
-    }
+    setCurrentStep(2);
   };
 
   const handleFormationComplete = (formation: FormationData, isHome: boolean) => {
@@ -157,21 +142,41 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
   };
 
   const handleSaveAll = async () => {
-    if (!matchId || !homeFormation || !awayFormation) return;
+    if (!homeFormation || !awayFormation) return;
+    
+    // Prevent double submission
+    if (isCreating.current || isCreatingMatch) return;
+    isCreating.current = true;
     
     setIsLoading(true);
     try {
-      // Save both formations
+      // Step 1: Create the match first
+      const newMatchId = await createMatch(matchData, clubId);
+      
+      if (!newMatchId) {
+        throw new Error('Failed to create match');
+      }
+      
+      // Step 2: Save both formations
       await Promise.all([
-        saveFormationAction(matchId, homeFormation),
-        saveFormationAction(matchId, awayFormation),
+        saveFormationAction(newMatchId, homeFormation),
+        saveFormationAction(newMatchId, awayFormation),
       ]);
       
-      // Redirect to match detail
-      router.push(`/clubs/${clubId}/matches/${matchId}`);
+      // Show success toast
+      toast.success("Match creato correttamente", {
+        description: "La partita è stata salvata con successo",
+      });
+      
+      // Redirect to dashboard
+      router.push(`/dashboard`);
     } catch (error) {
-      console.error("Error saving formations:", error);
+      console.error("Error saving match and formations:", error);
+      toast.error("Errore", {
+        description: "Si è verificato un errore durante il salvataggio della partita",
+      });
       setIsLoading(false);
+      isCreating.current = false;
     }
   };
 
@@ -250,16 +255,15 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
           {currentStep === 1 && (
             <MatchForm
               clubId={clubId}
-              onSubmit={handleMatchCreated}
+              onSubmit={handleMatchDataSubmitted}
               isLoading={isLoading}
               submitLabel="Continua"
             />
           )}
 
-          {currentStep === 2 && matchId && (
+          {currentStep === 2 && (
             <WizardFormationBuilder
               clubId={clubId}
-              matchId={matchId}
               mode={matchData.mode}
               members={members}
               isHome={true}
@@ -270,10 +274,9 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
             />
           )}
 
-          {currentStep === 3 && matchId && (
+          {currentStep === 3 && (
             <WizardFormationBuilder
               clubId={clubId}
-              matchId={matchId}
               mode={matchData.mode}
               members={members.filter(m => !homeAssignedMemberIds.includes(m.id))}
               isHome={false}
@@ -303,10 +306,19 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
                         id: m.id,
                         name: `${m.firstName} ${m.lastName}`.trim(),
                         avatar: m.image || undefined,
+                        jerseyNumber: m.jerseyNumber,
+                        primaryRole: m.primaryRole,
+                        secondaryRoles: m.secondaryRoles,
+                        firstName: m.firstName,
+                        lastName: m.lastName,
+                        nickname: m.nickname,
+                        image: m.image,
+                        clubImage: undefined,
                       }))}
                       selectedMemberId={null}
                       onDrop={() => {}}
                       onTapPosition={() => {}}
+                      clubId={clubId}
                     />
                   </CardContent>
                 </Card>
@@ -327,10 +339,19 @@ export function CreateMatchWizard({ locale, clubId }: CreateMatchWizardProps) {
                         id: m.id,
                         name: `${m.firstName} ${m.lastName}`.trim(),
                         avatar: m.image || undefined,
+                        jerseyNumber: m.jerseyNumber,
+                        primaryRole: m.primaryRole,
+                        secondaryRoles: m.secondaryRoles,
+                        firstName: m.firstName,
+                        lastName: m.lastName,
+                        nickname: m.nickname,
+                        image: m.image,
+                        clubImage: undefined,
                       }))}
                       selectedMemberId={null}
                       onDrop={() => {}}
                       onTapPosition={() => {}}
+                      clubId={clubId}
                     />
                   </CardContent>
                 </Card>

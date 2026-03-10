@@ -83,6 +83,9 @@ function getScorers(
   const scorerMap = new Map<string, { name: string; count: number }>()
   
   for (const goal of ourGoals) {
+    // Skip goals without scorer (guest players or removed players)
+    if (!goal.scorer) continue
+    
     const playerId = goal.scorer.id
     const existing = scorerMap.get(playerId)
     

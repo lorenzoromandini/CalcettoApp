@@ -71,7 +71,7 @@ export function useAddGoalMutation(matchId: string): UseAddGoalMutationReturn {
 
         // Optimistically add the goal
       if (previousGoals) {
-        const optimisticGoal: GoalWithMembers = {
+        const optimisticGoal = {
           id: `temp-${Date.now()}`,
           matchId: data.matchId,
           scorerId: data.scorerId,
@@ -81,7 +81,7 @@ export function useAddGoalMutation(matchId: string): UseAddGoalMutationReturn {
           createdAt: new Date(),
           scorer: null as any, // Will be populated by refetch
           assister: null,
-        } as GoalWithMembers;
+        } as unknown as GoalWithMembers;
         queryClient.setQueryData(goalKeys.list(matchId), [...previousGoals, optimisticGoal]);
       }
 

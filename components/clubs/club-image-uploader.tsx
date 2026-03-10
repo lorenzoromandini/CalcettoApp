@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Loader2, Upload, X, ImageIcon } from 'lucide-react';
@@ -17,6 +17,11 @@ export function ClubImageUploader({ value, onChange, className }: ClubImageUploa
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(value || null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sincronizza preview quando value cambia (es. quando i dati del club vengono caricati)
+  useEffect(() => {
+    setPreview(value || null);
+  }, [value]);
 
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

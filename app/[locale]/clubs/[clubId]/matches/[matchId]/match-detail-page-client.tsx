@@ -53,12 +53,14 @@ interface MatchDetailPageClientProps {
   locale: string;
   clubId: string;
   matchId: string;
+  from?: string;
 }
 
 export function MatchDetailPageClient({
   locale,
   clubId,
   matchId,
+  from,
 }: MatchDetailPageClientProps) {
   const t = useTranslations("matches");
   const tCommon = useTranslations("common");
@@ -81,12 +83,12 @@ export function MatchDetailPageClient({
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Hide club ID from URL, show only section path
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.history.replaceState({ clubId }, '', `/${locale}/clubs`);
-    }
-  }, [clubId, locale]);
+  // Hide club ID from URL, show only section path - DISABLED to prevent infinite loop
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     window.history.replaceState({ clubId }, '', `/${locale}/clubs`);
+  //   }
+  // }, [clubId, locale]);
 
   const { data: session } = useSession();
   
@@ -113,7 +115,11 @@ export function MatchDetailPageClient({
   }, [clubId, clubMembers, session]);
 
   const handleBack = () => {
-    router.push(`/${locale}/clubs/${clubId}/matches`);
+    if (from === 'dashboard') {
+      router.push(`/${locale}/dashboard`);
+    } else {
+      router.push(`/${locale}/clubs/${clubId}/matches`);
+    }
   };
 
   const handleEdit = () => {
@@ -182,6 +188,8 @@ export function MatchDetailPageClient({
         return t("mode.5vs5");
       case 'EIGHT_V_EIGHT':
         return t("mode.8vs8");
+      case 'ELEVEN_V_ELEVEN':
+        return t("mode.11vs11");
       default:
         return mode;
     }

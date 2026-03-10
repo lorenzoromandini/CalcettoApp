@@ -9,6 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Shirt, Save } from "lucide-react";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { authFetch } from "@/lib/auth-fetch";
 import { useSession } from "@/components/providers/session-provider";
 import { PlayerRole } from "@prisma/client";
@@ -21,7 +30,8 @@ interface ClubData {
   jerseyNumber: number;
   primaryRole: string;
   secondaryRoles: string[];
-  membershipId: string;
+  membershipId?: string;
+  clubId?: string;
 }
 
 export default function ClubEditPage() {
@@ -35,8 +45,11 @@ export default function ClubEditPage() {
   const clubId = params.clubId as string;
 
   const [jerseyNumber, setJerseyNumber] = useState(0);
+  const [jerseyInput, setJerseyInput] = useState<string>("");
   const [primaryRole, setPrimaryRole] = useState<PlayerRole | null>(null);
   const [secondaryRoles, setSecondaryRoles] = useState<PlayerRole[]>([]);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loadClub = async () => {
@@ -46,16 +59,22 @@ export default function ClubEditPage() {
         const res = await authFetch(`/api/users/${session.user.id}/clubs`);
         if (res.ok) {
           const clubs = await res.json();
-          const currentClub = clubs.find((c: ClubData) => c.id === clubId || c.clubId === clubId);
+          // L'API restituisce clubId, quindi cerchiamo usando clubId
+          const currentClub = clubs.find((c: ClubData) => c.clubId === clubId);
           if (currentClub) {
             setClub(currentClub);
             setJerseyNumber(currentClub.jerseyNumber || 0);
+            setJerseyInput(currentClub.jerseyNumber ? currentClub.jerseyNumber.toString() : "");
             setPrimaryRole(currentClub.primaryRole as PlayerRole || null);
             setSecondaryRoles((currentClub.secondaryRoles || []) as PlayerRole[]);
+          } else {
+            console.error('[ClubEditPage] Club not found in user clubs:', clubId);
           }
+        } else {
+          console.error('[ClubEditPage] Failed to fetch user clubs:', res.status);
         }
       } catch (error) {
-        console.error('Error loading club:', error);
+        console.error('[ClubEditPage] Error loading club:', error);
       } finally {
         setLoading(false);
       }
@@ -67,6 +86,10 @@ export default function ClubEditPage() {
   const handleSave = async () => {
     if (!club || !session?.user?.id || !primaryRole) return;
 
+    console.log('[ClubEditPage] Club object:', club);
+    console.log('[ClubEditPage] membershipId:', club.membershipId);
+    console.log('[ClubEditPage] club.id:', club.id);
+
     setIsSaving(true);
     try {
       const editData = {
@@ -75,20 +98,27 @@ export default function ClubEditPage() {
         secondaryRoles,
       };
 
-      const res = await authFetch(`/api/clubs/${clubId}/members/${club.membershipId}/update`, {
+      const membershipId = club.membershipId || club.id;
+      console.log('[ClubEditPage] Saving with membershipId:', membershipId);
+
+      const res = await authFetch(`/api/clubs/${clubId}/members/${membershipId}/update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editData),
       });
 
       if (!res.ok) {
-        throw new Error('Failed to update');
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('[ClubEditPage] Update failed:', res.status, errorData);
+        setErrorMessage(errorData.error || `Errore nel salvare: ${res.status}`);
+        setErrorDialogOpen(true);
+        return;
       }
 
       router.push('/profile');
     } catch (error) {
-      console.error('Error saving:', error);
-      alert('Errore nel salvare le modifiche');
+      console.error('[ClubEditPage] Error saving:', error);
+      alert('Errore nel salvare le modifiche: ' + (error instanceof Error ? error.message : 'Errore sconosciuto'));
     } finally {
       setIsSaving(false);
     }
@@ -143,8 +173,19 @@ export default function ClubEditPage() {
               <Input
                 id="jerseyNumber"
                 type="number"
-                value={jerseyNumber}
-                onChange={(e) => setJerseyNumber(parseInt(e.target.value) || 0)}
+                value={jerseyInput}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setJerseyInput(value);
+                  if (value === "") {
+                    setJerseyNumber(0);
+                  } else {
+                    const num = parseInt(value);
+                    if (!isNaN(num) && num >= 1 && num <= 99) {
+                      setJerseyNumber(num);
+                    }
+                  }
+                }}
                 min={1}
                 max={99}
                 className="text-center text-2xl font-bold"
@@ -153,18 +194,76 @@ export default function ClubEditPage() {
           </CardContent>
         </Card>
 
-        {/* Roles Card con RoleSelector */}
-        <Card className="mb-6">
+        {/* Ruolo Principale - Solo Visualizzazione */}
+        <Card className="mb-4">
           <CardHeader>
-            <CardTitle className="text-lg">Ruoli</CardTitle>
+            <CardTitle className="text-lg">Ruolo Principale</CardTitle>
           </CardHeader>
           <CardContent>
-            <RoleSelector
-              primaryRole={primaryRole}
-              otherRoles={secondaryRoles}
-              onPrimaryRoleChange={setPrimaryRole}
-              onOtherRolesChange={setSecondaryRoles}
-            />
+            <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary bg-primary/10">
+              {primaryRole && (
+                <>
+                  <img 
+                    src={`/icons/roles/${primaryRole === 'POR' ? 'goalkeeper' : primaryRole === 'DIF' ? 'defender' : primaryRole === 'CEN' ? 'midfielder' : 'attacker'}.png`}
+                    alt={primaryRole}
+                    className="h-8 w-8 object-contain brightness-0 invert"
+                  />
+                  <span className="font-medium text-primary">
+                    {primaryRole === 'POR' && 'Portiere'}
+                    {primaryRole === 'DIF' && 'Difensore'}
+                    {primaryRole === 'CEN' && 'Centrocampista'}
+                    {primaryRole === 'ATT' && 'Attaccante'}
+                  </span>
+                </>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Il ruolo principale non può essere modificato. Contatta un admin del club per cambiarlo.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Ruoli Secondari - Modificabili */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Ruoli Secondari</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              {['POR', 'DIF', 'CEN', 'ATT'].filter(role => role !== primaryRole).map((role) => {
+                const isSelected = secondaryRoles.includes(role as PlayerRole);
+                const roleName = role === 'POR' ? 'Portiere' : role === 'DIF' ? 'Difensore' : role === 'CEN' ? 'Centrocampista' : 'Attaccante';
+                const roleImage = `/icons/roles/${role === 'POR' ? 'goalkeeper' : role === 'DIF' ? 'defender' : role === 'CEN' ? 'midfielder' : 'attacker'}.png`;
+                
+                return (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => {
+                      if (secondaryRoles.includes(role as PlayerRole)) {
+                        setSecondaryRoles(secondaryRoles.filter(r => r !== role));
+                      } else {
+                        setSecondaryRoles([...secondaryRoles, role as PlayerRole]);
+                      }
+                    }}
+                    className={`
+                      flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                      ${isSelected 
+                        ? 'border-primary bg-primary/10 text-primary' 
+                        : 'border-border hover:border-primary/50 hover:bg-muted'
+                      }
+                    `}
+                  >
+                    <img 
+                      src={roleImage}
+                      alt={roleName}
+                      className={`h-8 w-8 object-contain brightness-0 invert ${isSelected ? 'opacity-100' : 'opacity-70'}`}
+                    />
+                    <span className="text-sm font-medium">{roleName}</span>
+                  </button>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
 
@@ -186,6 +285,21 @@ export default function ClubEditPage() {
             </>
           )}
         </Button>
+
+        {/* Error Dialog */}
+        <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Errore</AlertDialogTitle>
+              <AlertDialogDescription>
+                {errorMessage}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction>OK</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );

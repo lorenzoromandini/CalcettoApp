@@ -27,12 +27,12 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   const { club } = useClub(clubId);
   const [isOwner, setIsOwner] = useState(false);
 
-  // Hide club ID from URL, show only section path
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.history.replaceState({ clubId }, '', `/clubs/matches`);
-    }
-  }, [clubId, locale]);
+  // Hide club ID from URL, show only section path - DISABLED to prevent infinite loop
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     window.history.replaceState({ clubId }, '', `/clubs/matches`);
+  //   }
+  // }, [clubId, locale]);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -50,7 +50,7 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
   }, [clubId, session?.user?.id]);
 
   const handleBack = () => {
-    router.push(`/clubs/${clubId}`);
+    router.push(`/dashboard`);
   };
 
   const handleCreateMatch = () => {
@@ -119,7 +119,7 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="upcoming" className="space-y-6">
+      <Tabs defaultValue="upcoming" className="space-y-6 pb-24">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="upcoming">{t("tabs.upcoming")}</TabsTrigger>
           <TabsTrigger value="past">{t("tabs.past")}</TabsTrigger>
@@ -172,15 +172,18 @@ export function MatchesPageClient({ locale, clubId }: MatchesPageClientProps) {
         </TabsContent>
       </Tabs>
 
-      {/* Quick Action - Create Match */}
-      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleCreateMatch}>
-        <CardContent className="p-6 text-center">
-          <Button className="w-full h-12">
-            <Plus className="mr-2 h-5 w-5" />
+      {/* Sticky Create Match Button */}
+      <div className="fixed bottom-6 left-0 right-0 px-4 z-50">
+        <div className="container mx-auto max-w-4xl">
+          <Button 
+            className="w-full h-12 gap-2 shadow-lg" 
+            onClick={handleCreateMatch}
+          >
+            <Plus className="h-5 w-5" />
             Crea partita
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

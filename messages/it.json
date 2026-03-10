@@ -438,7 +438,8 @@
     },
     "mode": {
       "5vs5": "5 vs 5",
-      "8vs8": "8 vs 8"
+      "8vs8": "8 vs 8",
+      "11vs11": "11 vs 11"
     },
     "form": {
       "scheduledAt": "Data e ora",

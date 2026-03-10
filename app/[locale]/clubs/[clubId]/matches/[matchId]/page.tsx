@@ -8,6 +8,9 @@ interface MatchDetailPageProps {
     clubId: string;
     matchId: string;
   }>;
+  searchParams: Promise<{
+    from?: string;
+  }>;
 }
 
 export async function generateMetadata({
@@ -23,13 +26,16 @@ export async function generateMetadata({
 
 export default async function MatchDetailPage({
   params,
+  searchParams,
 }: MatchDetailPageProps) {
   const { locale, clubId, matchId } = await params;
+  const { from } = await searchParams;
   return (
     <MatchDetailPageClient
       locale={locale}
       clubId={clubId}
       matchId={matchId}
+      from={from}
     />
   );
 }

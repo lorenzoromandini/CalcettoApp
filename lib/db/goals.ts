@@ -44,8 +44,7 @@ export interface AddGoalInput {
   matchId: string
   scorerId?: string | null  // Optional - null for guest players
   isGuestScorer?: boolean  // true if scorer is a guest/unknown player
-  guestScorerName?: string | null  // Name to display for guest (e.g., "Guest", "Sconosciuto")
-  assisterId?: string
+  assisterId?: string | null
   isOwnGoal?: boolean
 }
 
@@ -70,8 +69,6 @@ export interface GoalWithMembers extends Goal {
     }
     jerseyNumber: number
   } | null
-  isGuestScorer: boolean
-  guestScorerName: string | null
 }
 
 // Backward compatibility alias
@@ -148,8 +145,6 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithMembers> {
       data: {
         matchId: data.matchId,
         scorerId: data.scorerId || null,
-        isGuestScorer: data.isGuestScorer ?? false,
-        guestScorerName: data.guestScorerName || null,
         assisterId: data.assisterId || null,
         isOwnGoal: data.isOwnGoal ?? false,
       },
@@ -187,7 +182,7 @@ export async function addGoal(data: AddGoalInput): Promise<GoalWithMembers> {
     return createdGoal
   })
 
-  console.log('[Goals] Goal added:', goal.id, 'Guest:', goal.isGuestScorer)
+  console.log('[Goals] Goal added:', goal.id)
   return toGoalWithMembers(goal)
 }
 

@@ -144,16 +144,17 @@ model Formation {
 }
 
 model FormationPosition {
-  id            String     @id @default(cuid())
-  formationId   String     @map("formation_id")
-  clubMemberId  String     @map("club_member_id")
-  positionX     Int        @map("position_x")
-  positionY     Int        @map("position_y")
-  positionLabel String     @map("position_label")
-  isSubstitute  Boolean    @default(false) @map("is_substitute")
-  played        Boolean    @default(false) @map("played")
-  clubMember    ClubMember @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
-  formation     Formation  @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  id            String       @id @default(cuid())
+  formationId   String       @map("formation_id")
+  clubMemberId  String?      @map("club_member_id")
+  positionX     Int          @map("position_x")
+  positionY     Int          @map("position_y")
+  positionLabel String       @map("position_label")
+  isSubstitute  Boolean      @default(false) @map("is_substitute")
+  played        Boolean      @default(false) @map("played")
+  isGuest       Boolean      @default(false) @map("is_guest")
+  clubMember    ClubMember?  @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
+  formation     Formation    @relation(fields: [formationId], references: [id], onDelete: Cascade)
 
   @@unique([formationId, clubMemberId])
   @@unique([formationId, positionX, positionY])
@@ -163,15 +164,16 @@ model FormationPosition {
 }
 
 model Goal {
-  id         String      @id @default(cuid())
-  matchId    String      @map("match_id")
-  scorerId   String      @map("scorer_id")
-  assisterId String?     @map("assister_id")
-  isOwnGoal  Boolean     @default(false) @map("is_own_goal")
-  createdAt  DateTime    @default(now()) @map("created_at")
-  assister   ClubMember? @relation("GoalAssister", fields: [assisterId], references: [id])
-  match      Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  scorer     ClubMember  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
+  id         String       @id @default(cuid())
+  matchId    String       @map("match_id")
+  scorerId   String?      @map("scorer_id")
+  assisterId String?      @map("assister_id")
+  isOwnGoal  Boolean      @default(false) @map("is_own_goal")
+  isGuestScorer Boolean   @default(false) @map("is_guest_scorer")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  assister   ClubMember?  @relation("GoalAssister", fields: [assisterId], references: [id])
+  match      Match        @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  scorer     ClubMember?  @relation("GoalScorer", fields: [scorerId], references: [id], onDelete: Cascade)
 
   @@index([matchId])
   @@index([scorerId])

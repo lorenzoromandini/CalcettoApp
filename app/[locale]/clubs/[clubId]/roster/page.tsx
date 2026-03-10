@@ -223,6 +223,7 @@ export default function ClubRosterPage() {
                         id: memberData.member.id,
                         clubId: clubId,
                         userId: memberData.member.id,
+                        joinedAt: new Date().toISOString(),
                         jerseyNumber: memberData.jerseyNumber || 0,
                         primaryRole: memberData.member.primaryRole as any,
                         secondaryRoles: memberData.member.secondaryRoles as any[] || [],

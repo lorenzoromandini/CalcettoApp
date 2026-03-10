@@ -59,10 +59,10 @@ export async function getMatchParticipants(matchId: string): Promise<MatchPlayer
 
   return positions.map((pos) => ({
     id: pos.id,
-    clubMemberId: pos.clubMemberId,
-    user: pos.clubMember.user || null,
-    jerseyNumber: pos.clubMember.jerseyNumber,
-    primaryRole: pos.clubMember.primaryRole,
+    clubMemberId: pos.clubMemberId || '',
+    user: pos.clubMember?.user || null,
+    jerseyNumber: pos.clubMember?.jerseyNumber || 0,
+    primaryRole: pos.clubMember?.primaryRole || 'CEN',
     played: pos.played,
   }));
 }

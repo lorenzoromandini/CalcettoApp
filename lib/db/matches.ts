@@ -115,18 +115,30 @@ export async function getMatch(matchId: string): Promise<Match | null> {
 export async function getUpcomingMatches(clubId: string): Promise<Match[]> {
   const now = new Date();
   
+  console.log(`[MatchDB] Getting upcoming matches for club ${clubId}, now: ${now.toISOString()}`);
+  
   const matches = await prisma.match.findMany({
     where: {
       clubId,
+      status: 'SCHEDULED' as MatchStatus,
       scheduledAt: {
         gte: now,
       },
-      status: 'SCHEDULED' as MatchStatus,
     },
     orderBy: {
       scheduledAt: 'asc',
     },
   });
+
+  console.log(`[MatchDB] Found ${matches.length} matches for club ${clubId}`);
+  if (matches.length > 0) {
+    console.log('[MatchDB] All matches:', matches.map(m => ({ 
+      id: m.id, 
+      status: m.status, 
+      scheduledAt: m.scheduledAt,
+      clubId: m.clubId
+    })));
+  }
 
   return matches.map(toMatchType);
 }
@@ -144,18 +156,12 @@ export async function getPastMatches(clubId: string): Promise<Match[]> {
   const matches = await prisma.match.findMany({
     where: {
       clubId,
-      OR: [
-        {
-          scheduledAt: {
-            lt: now,
-          },
-        },
-        {
-          status: {
-            in: ['COMPLETED', 'CANCELLED'] as MatchStatus[],
-          },
-        },
-      ],
+      status: {
+        in: ['COMPLETED'] as MatchStatus[],
+      },
+      scheduledAt: {
+        lt: now,
+      },
     },
     orderBy: {
       scheduledAt: 'desc',

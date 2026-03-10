@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
+            imageUrl: true,
           },
         },
       },
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
       return {
         id: membership.club.id,
         name: membership.club.name,
+        imageUrl: membership.club.imageUrl,
         jerseyNumber: membership.jerseyNumber,
         memberId: membership.id,
       };

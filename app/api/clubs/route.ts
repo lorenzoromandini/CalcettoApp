@@ -5,18 +5,21 @@ import { createClubSchema } from '@/lib/validations/club';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('[GET /api/clubs] Request received');
     const userId = getUserIdFromRequest(request);
+    console.log('[GET /api/clubs] userId:', userId);
     
     if (!userId) {
+      console.log('[GET /api/clubs] No userId, returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('Fetching clubs for user:', userId);
+    console.log('[GET /api/clubs] Fetching clubs for user:', userId);
     const clubs = await getUserClubs(userId);
-    // Clubs returned with memberCount from getUserClubs
+    console.log('[GET /api/clubs] Clubs found:', clubs.length);
     return NextResponse.json(clubs);
   } catch (error) {
-    console.error('Error fetching clubs:', error);
+    console.error('[GET /api/clubs] Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch clubs' },
       { status: 500 }

@@ -34,7 +34,9 @@ export function useClubs(): UseClubsReturn {
 
   const fetchClubs = useCallback(async () => {
     const userId = session?.user?.id;
+    console.log('[useClubs] userId:', userId);
     if (!userId) {
+      console.log('[useClubs] No userId, returning early');
       setIsLoading(false);
       return;
     }
@@ -43,11 +45,20 @@ export function useClubs(): UseClubsReturn {
     setError(null);
 
     try {
+      const token = localStorage.getItem('auth-token');
+      console.log('[useClubs] Token present:', !!token);
       const response = await authFetch('/api/clubs');
-      if (!response.ok) throw new Error('Failed to fetch clubs');
+      console.log('[useClubs] Response status:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('[useClubs] Error response:', errorText);
+        throw new Error(`Failed to fetch clubs: ${response.status}`);
+      }
       const data = await response.json();
+      console.log('[useClubs] Clubs loaded:', data.length);
       setClubs(data);
     } catch (err) {
+      console.error('[useClubs] Fetch error:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch clubs'));
     } finally {
       setIsLoading(false);

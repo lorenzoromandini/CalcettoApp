@@ -130,13 +130,13 @@ export function FormationPageClient({
     setIsPlayerModalOpen(true);
   };
 
-  const handlePlayerSelect = (clubMemberId: string) => {
+  const handlePlayerSelect = (clubMemberId: string, isGuest: boolean = false) => {
     if (selectedPositionIndex === null) return;
     
     if (currentStep === 'team1') {
-      assignPlayerToTeam1(selectedPositionIndex, clubMemberId);
+      assignPlayerToTeam1(selectedPositionIndex, clubMemberId, isGuest);
     } else if (currentStep === 'team2') {
-      assignPlayerToTeam2(selectedPositionIndex, clubMemberId);
+      assignPlayerToTeam2(selectedPositionIndex, clubMemberId, isGuest);
     }
     
     setIsPlayerModalOpen(false);
@@ -223,13 +223,21 @@ export function FormationPageClient({
     return selectedModule.positions[selectedPositionIndex]?.role;
   }, [selectedPositionIndex, selectedModule]);
 
-  // Get selected player ID for modal
+  // Get selected player ID and isGuest for modal
   const selectedPlayerId = useMemo(() => {
     if (selectedPositionIndex === null) return null;
     
     const assignments = currentStep === 'team1' ? getTeam1Assignments : getTeam2Assignments;
     const assignment = assignments.find(a => a.positionIndex === selectedPositionIndex);
     return assignment?.clubMemberId || null;
+  }, [selectedPositionIndex, currentStep, getTeam1Assignments, getTeam2Assignments]);
+
+  const selectedIsGuest = useMemo(() => {
+    if (selectedPositionIndex === null) return false;
+    
+    const assignments = currentStep === 'team1' ? getTeam1Assignments : getTeam2Assignments;
+    const assignment = assignments.find(a => a.positionIndex === selectedPositionIndex);
+    return assignment?.isGuest || false;
   }, [selectedPositionIndex, currentStep, getTeam1Assignments, getTeam2Assignments]);
 
   // Get assignments for current team
@@ -527,9 +535,11 @@ export function FormationPageClient({
         members={members}
         targetRole={targetRole}
         selectedPlayerId={selectedPlayerId}
+        selectedIsGuest={selectedIsGuest}
         excludeIds={excludeIds}
         onSelect={handlePlayerSelect}
         onRemove={handlePlayerRemove}
+        clubId={clubId}
       />
     </div>
   );

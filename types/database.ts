@@ -92,20 +92,22 @@ export interface Formation {
 export interface FormationPosition {
   id: string;
   formationId: string;
-  clubMemberId: string;
+  clubMemberId: string | null;
   positionX: number;
   positionY: number;
   positionLabel: string;
   isSubstitute: boolean;
   played: boolean;
+  isGuest: boolean;
 }
 
 export interface Goal {
   id: string;
   matchId: string;
-  scorerId: string;
+  scorerId: string | null;
   assisterId: string | null;
   isOwnGoal: boolean;
+  isGuestScorer: boolean;
   createdAt: string;
 }
 

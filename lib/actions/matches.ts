@@ -264,14 +264,18 @@ export async function getMatchAction(matchId: string) {
 import { getUpcomingMatches, getPastMatches } from '@/lib/db/matches'
 
 export async function getUpcomingMatchesAction(clubId: string) {
-  const session = await getSession()
-  
-  if (!session?.id) {
-    throw new Error(ERRORS.UNAUTHORIZED)
-  }
-
+  // Get matches without requiring auth - user already authenticated by middleware
   try {
+    console.log(`[MatchAction] Getting upcoming matches for club ${clubId}`)
     const matches = await getUpcomingMatches(clubId)
+    console.log(`[MatchAction] Found ${matches.length} matches`)
+    if (matches.length > 0) {
+      console.log('[MatchAction] First match:', { 
+        id: matches[0].id, 
+        status: matches[0].status, 
+        scheduledAt: matches[0].scheduledAt 
+      })
+    }
     return matches
   } catch (error) {
     console.error('[MatchAction] Get upcoming matches error:', error)

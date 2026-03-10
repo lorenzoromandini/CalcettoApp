@@ -37,7 +37,7 @@ interface FormationMember {
 
 interface WizardFormationBuilderProps {
   clubId: string;
-  matchId: string;
+  matchId?: string;
   mode: FormationMode;
   members: FormationMember[];
   isHome: boolean;
@@ -63,6 +63,7 @@ function convertToPriorityMembers(
       firstName: member.firstName,
       lastName: member.lastName,
       nickname: member.nickname || undefined,
+      image: member.image || undefined,
       jerseyNumber: member.jerseyNumber,
       primaryRole: member.primaryRole as any,
       secondaryRoles: member.secondaryRoles as any[],
@@ -159,15 +160,17 @@ export function WizardFormationBuilder({
     })
   );
 
-  // Get assigned member IDs
+  // Get assigned member IDs (including guests)
   const assignedMemberIds = useMemo(() => {
     return positions
       .map((p) => p.clubMemberId)
       .filter((id): id is string => !!id);
   }, [positions]);
 
-  // Check if at least one player is assigned
-  const hasPlayersAssigned = assignedMemberIds.length > 0;
+  // Check if at least one player is assigned (member or guest)
+  const hasPlayersAssigned = useMemo(() => {
+    return positions.some((p) => !!p.clubMemberId || p.isGuest);
+  }, [positions]);
 
   // Notify parent of changes using useEffect to avoid setState during render
   useEffect(() => {
@@ -256,21 +259,22 @@ export function WizardFormationBuilder({
 
   // Handle player selection from modal
   const handlePlayerSelect = useCallback(
-    (memberId: string) => {
+    (memberId: string, isGuest: boolean) => {
       if (selectedPositionIndex === null) return;
 
       setPositions((prev) => {
         // Remove from any existing position
         const newPositions = prev.map((pos) =>
           pos.clubMemberId === memberId
-            ? { ...pos, clubMemberId: undefined }
+            ? { ...pos, clubMemberId: undefined, isGuest: undefined }
             : pos
         );
         // Assign to selected position
         if (newPositions[selectedPositionIndex]) {
           newPositions[selectedPositionIndex] = {
             ...newPositions[selectedPositionIndex],
-            clubMemberId: memberId,
+            clubMemberId: isGuest ? undefined : memberId,
+            isGuest: isGuest,
           };
         }
         return newPositions;
@@ -299,10 +303,13 @@ export function WizardFormationBuilder({
     setSelectedPositionIndex(null);
   }, [selectedPositionIndex, selectedFormation]);
 
-  // Get current player ID for modal
+  // Get current player ID and guest status for modal
   const currentSelectedPlayerId = selectedPositionIndex !== null
     ? positions[selectedPositionIndex]?.clubMemberId || null
     : null;
+  const currentSelectedIsGuest = selectedPositionIndex !== null
+    ? positions[selectedPositionIndex]?.isGuest || false
+    : false;
 
   // Get target role for selected position
   const targetRole = selectedPositionIndex !== null
@@ -340,6 +347,14 @@ export function WizardFormationBuilder({
       id: m.id,
       name: `${m.firstName} ${m.lastName}`.trim(),
       avatar: m.image || undefined,
+      jerseyNumber: m.jerseyNumber,
+      primaryRole: m.primaryRole,
+      secondaryRoles: m.secondaryRoles,
+      firstName: m.firstName,
+      lastName: m.lastName,
+      nickname: m.nickname,
+      image: m.image,
+      clubImage: undefined, // We'll get this from club data
     }));
   }, [members]);
 
@@ -376,14 +391,15 @@ export function WizardFormationBuilder({
           {/* Pitch Grid */}
           <Card>
             <CardContent className="p-4">
-              <PitchGrid
-                mode={mode}
-                positions={positions}
-                members={pitchMembers}
-                selectedMemberId={selectedMemberId}
-                onDrop={() => {}} // Handled by DndContext
-                onTapPosition={handleTapPosition}
-              />
+               <PitchGrid
+                 mode={mode}
+                 positions={positions}
+                 members={pitchMembers}
+                 selectedMemberId={selectedMemberId}
+                 onDrop={() => {}} // Handled by DndContext
+                 onTapPosition={handleTapPosition}
+                 clubId={clubId}
+               />
             </CardContent>
           </Card>
           
@@ -419,9 +435,12 @@ export function WizardFormationBuilder({
           members={priorityMembers}
           targetRole={targetRole as any}
           selectedPlayerId={currentSelectedPlayerId}
+          selectedIsGuest={currentSelectedIsGuest}
           excludeIds={assignedMemberIds.filter(id => id !== currentSelectedPlayerId)}
           onSelect={handlePlayerSelect}
           onRemove={handlePlayerRemove}
+          clubImage={undefined}
+          clubId={clubId}
         />
 
         {/* Drag Overlay */}

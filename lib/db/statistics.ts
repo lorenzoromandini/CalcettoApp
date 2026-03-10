@@ -305,9 +305,10 @@ export async function getTopScorers(
     },
   })
 
-  // Count goals per member
+  // Count goals per member (skip guest goals with null scorerId)
   const countMap = new Map<string, number>()
   for (const goal of goals) {
+    if (!goal.scorerId) continue // Skip guest goals
     const current = countMap.get(goal.scorerId) ?? 0
     countMap.set(goal.scorerId, current + 1)
   }
@@ -382,9 +383,10 @@ export async function getTopAppearances(
     },
   })
 
-  // Count appearances per member
+  // Count appearances per member (skip guests with null clubMemberId)
   const countMap = new Map<string, number>()
   for (const position of positions) {
+    if (!position.clubMemberId) continue // Skip guest positions
     const current = countMap.get(position.clubMemberId) ?? 0
     countMap.set(position.clubMemberId, current + 1)
   }
@@ -441,7 +443,7 @@ export async function getTopWins(
     
     const isWin = (isHome && homeScore > awayScore) || (!isHome && awayScore > homeScore)
     
-    if (isWin) {
+    if (isWin && position.clubMemberId) {
       const current = countMap.get(position.clubMemberId) ?? 0
       countMap.set(position.clubMemberId, current + 1)
     }
@@ -591,11 +593,15 @@ export async function getMatchScorers(
     },
   })
 
-  // Count goals per member
+  // Count goals per member (skip guest goals with null scorer)
   const scorerMap = new Map<string, { name: string; count: number }>()
 
   for (const goal of goals) {
+    if (!goal.scorer) continue // Skip guest goals
+    
     const clubMemberId = goal.scorerId
+    if (!clubMemberId) continue
+    
     const displayName = goal.scorer.user.nickname || goal.scorer.user.firstName
 
     if (scorerMap.has(clubMemberId)) {

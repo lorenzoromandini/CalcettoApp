@@ -23,6 +23,17 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { PlayerCard } from "@/components/players/fut-player-card";
 import { Header } from "@/components/navigation/header";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ClubWithJersey {
   id: string;
@@ -67,6 +78,25 @@ export default function ProfilePageClient() {
     secondaryRoles: [] as string[],
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await authFetch('/api/user/delete', { method: 'DELETE' });
+      if (res.ok) {
+        localStorage.clear();
+        window.location.href = '/';
+      } else {
+        throw new Error('Failed to delete account');
+      }
+    } catch {
+      alert('Errore nell\'eliminazione dell\'account');
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
 
   useEffect(() => {
     if (!sessionLoading && !session?.user?.id) {
@@ -226,7 +256,7 @@ export default function ProfilePageClient() {
                 Non sei ancora membro di nessun club
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {clubs.map((club) => (
                   <div
                     key={club.id}
@@ -235,16 +265,16 @@ export default function ProfilePageClient() {
                   >
                     <div className="flex items-center gap-3">
                       {club.imageUrl ? (
-                        <div className="relative w-12 h-12">
+                        <div className="relative w-20 h-12 flex-shrink-0">
                           <Image
                             src={club.imageUrl}
                             alt={club.name}
                             fill
-                            className="object-cover rounded-full"
+                            className="object-cover rounded-md"
                           />
                         </div>
                       ) : (
-                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                        <div className="w-20 h-12 bg-primary rounded-md flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-bold text-lg">
                             {club.name.charAt(0).toUpperCase()}
                           </span>
@@ -252,12 +282,9 @@ export default function ProfilePageClient() {
                       )}
                       
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{club.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          #{club.jerseyNumber || '?'} • {club.primaryRole}
-                        </p>
+                        <p className="font-medium break-words leading-tight">{club.name}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     </div>
                   </div>
                 ))}
@@ -281,24 +308,42 @@ export default function ProfilePageClient() {
             Salva modifiche
           </Button>
           
-          <Button 
-            onClick={() => {
-              if (confirm('Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.')) {
-                // Handle account deletion
-                authFetch('/api/user/delete', { method: 'DELETE' })
-                  .then(() => {
-                    localStorage.clear();
-                    window.location.href = '/';
-                  })
-                  .catch(() => alert('Errore nell\'eliminazione dell\'account'));
-              }
-            }}
-            className="flex-1"
-            variant="destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Elimina Account
-          </Button>
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button 
+                className="flex-1"
+                variant="destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Elimina Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Elimina Account</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile e tutti i tuoi dati verranno cancellati permanentemente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Annulla</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Eliminazione...
+                    </>
+                  ) : (
+                    'Elimina'
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </main>
     </div>

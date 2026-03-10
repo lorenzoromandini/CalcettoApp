@@ -40,6 +40,7 @@ interface PlayerCardProps {
   lastMatchRating?: number | null;
   hasMvpInLastMatch?: boolean;
   isAbsent?: boolean;
+  isGuest?: boolean;
 }
 
 // Original card dimensions from JSON
@@ -90,7 +91,8 @@ export function PlayerCard({
   onClick,
   lastMatchRating,
   hasMvpInLastMatch,
-  isAbsent
+  isAbsent,
+  isGuest
 }: PlayerCardProps) {
   const t = useTranslations('players');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -141,10 +143,11 @@ export function PlayerCard({
     return firstName.charAt(0).toUpperCase() + '.';
   };
   
-  const displayName = nickname || `${getAbbreviatedFirstName()} ${lastName}`.trim();
+  const displayName = isGuest ? 'OSPITE' : (nickname || `${getAbbreviatedFirstName()} ${lastName}`.trim());
   
   // Get initials for placeholder
   const getInitials = () => {
+    if (isGuest) return '';
     const first = firstName?.charAt(0) || '';
     const last = lastName?.charAt(0) || '';
     return (first + last).toUpperCase() || firstName?.charAt(0).toUpperCase() || '?';
@@ -218,15 +221,15 @@ export function PlayerCard({
       <div className="relative w-full aspect-[3/4]">
         {/* Card Background from JSON config */}
         <Image
-          src={cardConfig?.backgroundImage || '/icons/cards/bronze_base.png'}
+          src={isGuest ? '/icons/cards/guest.png' : (cardConfig?.backgroundImage || '/icons/cards/bronze_base.png')}
           alt="Card background"
           fill
           className="object-cover"
           priority
         />
         
-        {/* Club Logo */}
-        {clubImage && clubLogoRegion && clubLogoRegion.bounds?.x !== null && (
+        {/* Club Logo - hidden for guests */}
+        {!isGuest && clubImage && clubLogoRegion && clubLogoRegion.bounds?.x !== null && (
           <div 
             className="z-30 flex items-center justify-center overflow-hidden"
             style={getScaledStyle(clubLogoRegion.bounds)}
@@ -364,7 +367,7 @@ export function PlayerCard({
         )}
         
         {/* Privilege Icon - displays OWNER/MANAGER/MEMBER badge */}
-        {member.privileges && privilegeIconRegion && privilegeIconRegion.bounds?.x !== null && (
+        {!isGuest && member.privileges && privilegeIconRegion && privilegeIconRegion.bounds?.x !== null && (
           <div 
             className="z-30 flex items-center justify-center"
             style={{
@@ -384,7 +387,7 @@ export function PlayerCard({
         )}
         
         {/* Player Photo - fills the entire region */}
-        {playerPhotoRegion && playerPhotoRegion.bounds?.x !== null && (
+        {!isGuest && playerPhotoRegion && playerPhotoRegion.bounds?.x !== null && (
           <div 
             className="z-10 overflow-hidden"
             style={getScaledStyle(playerPhotoRegion.bounds)}

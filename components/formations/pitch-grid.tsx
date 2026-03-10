@@ -4,11 +4,20 @@ import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import { FormationMode, Position, positionToStyle, getRoleColor } from '@/lib/formations';
 import type { ClubMember } from '@/types/database';
+import { PlayerCard } from '@/components/players/fut-player-card';
 
 interface PitchMember {
   id: string;
   name: string;
   avatar?: string;
+  jerseyNumber?: number;
+  primaryRole?: string;
+  secondaryRoles?: string[];
+  firstName?: string;
+  lastName?: string;
+  nickname?: string | null;
+  image?: string | null;
+  clubImage?: string | null;
 }
 
 interface PositionWithMember {
@@ -16,6 +25,7 @@ interface PositionWithMember {
   y: number;
   label: string;
   clubMemberId?: string;
+  isGuest?: boolean;
 }
 
 interface PitchGridProps {
@@ -25,6 +35,7 @@ interface PitchGridProps {
   selectedMemberId: string | null;
   onDrop: (positionIndex: number, memberId: string) => void;
   onTapPosition: (positionIndex: number) => void;
+  clubId: string;
 }
 
 function PositionMarker({
@@ -34,6 +45,8 @@ function PositionMarker({
   isSelected,
   isHighlighted,
   onTap,
+  clubId,
+  isGuest,
 }: {
   position: PositionWithMember;
   index: number;
@@ -41,6 +54,8 @@ function PositionMarker({
   isSelected: boolean;
   isHighlighted: boolean;
   onTap: () => void;
+  clubId: string;
+  isGuest?: boolean;
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id: `position-${index}`,
@@ -49,6 +64,104 @@ function PositionMarker({
 
   const style = positionToStyle(position.x, position.y);
 
+  // Se è un ospite, mostra la stessa card dei membri con nome "OSPITE"
+  if (isGuest) {
+    const guestMemberData: ClubMember = {
+      id: 'guest',
+      clubId: clubId,
+      userId: 'guest',
+      privileges: 'MEMBER',
+      joinedAt: new Date().toISOString(),
+      primaryRole: 'CEN',
+      secondaryRoles: [],
+      jerseyNumber: 0,
+      symbol: null,
+      user: {
+        firstName: 'OSPITE',
+        lastName: '',
+        nickname: null,
+        image: null,
+      },
+      club: {
+        image: null,
+      },
+    } as ClubMember;
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={cn(
+          'absolute transform -translate-x-1/2 -translate-y-1/2',
+          'cursor-pointer touch-manipulation',
+          'transition-all duration-200',
+          'w-16 sm:w-20 md:w-24',
+          isOver && 'scale-105',
+          isHighlighted && 'ring-4 ring-primary ring-opacity-50'
+        )}
+        style={style}
+        onClick={onTap}
+      >
+        <PlayerCard
+          member={guestMemberData}
+          clubId={clubId}
+          isGuest={true}
+          className={cn(
+            isOver && 'ring-2 ring-primary'
+          )}
+        />
+      </div>
+    );
+  }
+
+  // Se c'è un membro assegnato, mostra la card
+  if (member) {
+    const memberData: ClubMember = {
+      id: member.id,
+      clubId: clubId,
+      userId: member.id,
+      privileges: 'MEMBER',
+      joinedAt: new Date().toISOString(),
+      primaryRole: (member.primaryRole as any) || 'CEN',
+      secondaryRoles: (member.secondaryRoles as any[]) || [],
+      jerseyNumber: member.jerseyNumber || 0,
+      symbol: null,
+      user: {
+        firstName: member.firstName || '',
+        lastName: member.lastName || '',
+        nickname: member.nickname || null,
+        image: member.image || null,
+      },
+      club: {
+        image: member.clubImage || null,
+      },
+    } as ClubMember;
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={cn(
+          'absolute transform -translate-x-1/2 -translate-y-1/2',
+          'cursor-pointer touch-manipulation',
+          'transition-all duration-200',
+          'w-16 sm:w-20 md:w-24',
+          isOver && 'scale-105',
+          isHighlighted && 'ring-4 ring-primary ring-opacity-50'
+        )}
+        style={style}
+        onClick={onTap}
+      >
+        <PlayerCard
+          member={memberData}
+          clubId={clubId}
+          className={cn(
+            isOver && 'ring-2 ring-primary'
+          )}
+        />
+      </div>
+    );
+  }
+
+  // Se non c'è membro, mostra il pallino vuoto
   return (
     <div
       ref={setNodeRef}
@@ -71,30 +184,13 @@ function PositionMarker({
           'flex items-center justify-center',
           'border-2 border-white shadow-lg',
           'transition-colors duration-200',
-          member
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-background/80 text-muted-foreground border-dashed',
+          'bg-background/80 text-muted-foreground border-dashed',
           isOver && 'bg-primary/20 border-primary',
           isSelected && 'ring-2 ring-primary'
         )}
       >
-        {member ? (
-          <span className="text-xs font-bold text-center px-1 truncate max-w-full">
-            {member.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-          </span>
-        ) : (
-          <span className="text-xs font-medium">{position.label}</span>
-        )}
+        <span className="text-xs font-medium">{position.label}</span>
       </div>
-
-      {/* Member Name Tooltip */}
-      {member && (
-        <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          <span className="text-xs font-medium text-foreground bg-background/90 px-2 py-0.5 rounded shadow-sm">
-            {member.name.split(' ')[0]}
-          </span>
-        </div>
-      )}
     </div>
   );
 }
@@ -106,6 +202,7 @@ export function PitchGrid({
   selectedMemberId,
   onDrop,
   onTapPosition,
+  clubId,
 }: PitchGridProps) {
   const handleTap = (index: number) => {
     onTapPosition(index);
@@ -151,6 +248,8 @@ export function PitchGrid({
           isSelected={false}
           isHighlighted={!!selectedMemberId && !position.clubMemberId}
           onTap={() => handleTap(index)}
+          clubId={clubId}
+          isGuest={position.isGuest}
         />
       ))}
     </div>

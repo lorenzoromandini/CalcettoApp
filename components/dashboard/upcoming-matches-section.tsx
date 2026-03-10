@@ -21,14 +21,19 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
   const t = useTranslations();
   const [upcomingMatches, setUpcomingMatches] = useState<UpcomingMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function loadUpcomingMatches() {
+      if (!isMounted) return;
       setIsLoading(true);
       try {
         const allMatches: UpcomingMatch[] = [];
 
         for (const club of clubs) {
+          if (!isMounted) return;
           const matches = await getUpcomingMatchesAction(club.id);
           
           for (const match of matches) {
@@ -39,15 +44,19 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
           }
         }
 
+        if (!isMounted) return;
+        
         allMatches.sort((a, b) => 
           new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
         );
         
-        setUpcomingMatches(allMatches.slice(0, 5));
+        setUpcomingMatches(allMatches.slice(0, 3));
       } catch (error) {
         console.error('Failed to load upcoming matches:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
@@ -56,6 +65,10 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
     } else {
       setIsLoading(false);
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [clubs]);
 
   const formatDate = (dateString: string) => {
@@ -70,7 +83,16 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
   };
 
   const getModeLabel = (mode: Match['mode']) => {
-    return mode === 'FIVE_V_FIVE' ? '5 vs 5' : '8 vs 8';
+    switch (mode) {
+      case 'FIVE_V_FIVE':
+        return '5 vs 5';
+      case 'EIGHT_V_EIGHT':
+        return '8 vs 8';
+      case 'ELEVEN_V_ELEVEN':
+        return '11 vs 11';
+      default:
+        return mode;
+    }
   };
 
   if (isLoading) {
@@ -130,7 +152,7 @@ export function UpcomingMatchesSection({ clubs }: UpcomingMatchesSectionProps) {
           return (
             <Link
               key={match.id}
-              href={`/clubs/${match.clubId}/matches/${match.id}`}
+              href={`/clubs/${match.clubId}/matches/${match.id}?from=dashboard`}
             >
               <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
                 {/* Date Box */}

@@ -13,12 +13,16 @@ import { PlayerCard } from "@/components/players/fut-player-card";
 import type { DashboardMemberData } from "@/lib/db/player-ratings";
 import type { ClubMember } from "@/types/database";
 import { PlayerRole, ClubPrivilege } from "@prisma/client";
+import { UpcomingMatchesSection } from "@/components/dashboard/upcoming-matches-section";
+import { getUpcomingMatchesAction } from "@/lib/actions/matches";
+import type { Match } from "@/lib/db/schema";
 
 interface Club {
   id: string;
   name: string;
   description: string | null;
   memberCount?: number;
+  imageUrl?: string | null;
 }
 
 interface ClubPrivileges {
@@ -35,6 +39,8 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [defaultClubId, setDefaultClubId] = useState<string | null>(null);
   const [clubPrivileges, setClubPrivileges] = useState<ClubPrivileges | null>(null);
+  const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
+  const [isLoadingMatches, setIsLoadingMatches] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("auth-token");
@@ -74,17 +80,34 @@ export default function DashboardPage() {
         const clubsData = await clubsRes.json();
         if (clubsRes.ok && Array.isArray(clubsData)) {
           setClubs(clubsData);
-          // Se non c'è un club preferito salvato, usa il primo
-          if (!storedDefaultClub && clubsData.length > 0) {
+          
+          // Verifica se il club preferito è tra i club validi dell'utente
+          const isDefaultClubValid = clubsData.some(c => c.id === storedDefaultClub);
+          
+          if (storedDefaultClub && !isDefaultClubValid) {
+            // Club preferito non valido, rimuovi dal localStorage
+            localStorage.removeItem("defaultClubId");
+            console.log(`[Dashboard] Removed invalid default club: ${storedDefaultClub}`);
+          }
+          
+          // Se non c'è un club preferito salvato o è invalido, usa il primo
+          if ((!storedDefaultClub || !isDefaultClubValid) && clubsData.length > 0) {
             setDefaultClubId(clubsData[0].id);
           }
         }
         
-        // Handle member data - se c'è un club preferito, usa quello
+        // Handle member data - se c'è un club preferito valido, usa quello
         if (memberRes.ok) {
           const memberData = await memberRes.json();
           if (memberData && !memberData.error) {
             setMemberData(memberData);
+          } else if (memberData.error) {
+            // Se l'API ritorna errore (es. club non trovato), rimuovi il club preferito
+            console.log(`[Dashboard] Member data error: ${memberData.error}`);
+            if (storedDefaultClub) {
+              localStorage.removeItem("defaultClubId");
+              setDefaultClubId(null);
+            }
           }
         }
         
@@ -96,9 +119,13 @@ export default function DashboardPage() {
       })
       .finally(() => setLoading(false));
     
-    // Fetch club privileges se c'è un club preferito
-    if (storedDefaultClub) {
-      authFetch(`/api/clubs/${storedDefaultClub}/admin`)
+    // Fetch club privileges will be done after clubs are loaded
+  }, []);
+
+  // Fetch club privileges when clubs or defaultClubId changes
+  useEffect(() => {
+    if (defaultClubId && clubs.find(c => c.id === defaultClubId)) {
+      authFetch(`/api/clubs/${defaultClubId}/admin`)
         .then(async (res) => {
           if (res.ok) {
             const data = await res.json();
@@ -112,7 +139,7 @@ export default function DashboardPage() {
           console.error("Dashboard: Failed to fetch privileges:", err);
         });
     }
-  }, []);
+  }, [defaultClubId, clubs]);
 
   // Filtra i dati per il club preferito
   const favoriteClub = clubs.find(c => c.id === defaultClubId);
@@ -204,35 +231,39 @@ export default function DashboardPage() {
               </Card>
             </Link>
 
-            <Card className="h-40 flex flex-col">
-              <CardHeader className="flex-1 flex flex-col items-center justify-center space-y-2 pb-0">
-                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-2xl">⚽</span>
-                </div>
-                <CardTitle className="text-xl font-bold text-center">Partite</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center pb-2 -mt-4">
-                <p className="text-sm text-muted-foreground">
-                  Nessuna
-                </p>
-              </CardContent>
-            </Card>
+            <Link href={defaultClubId ? `/clubs/${defaultClubId}/matches` : "/matches"} className="block">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer h-40 flex flex-col">
+                <CardHeader className="flex-1 flex flex-col items-center justify-center space-y-2 pb-0">
+                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                    <span className="text-2xl">⚽</span>
+                  </div>
+                  <CardTitle className="text-xl font-bold text-center">Partite</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center pb-2 -mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Vedi tutte
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            {/* Pulsante Crea Partita - visibile solo per OWNER e MANAGER, occupa tutta la larghezza */}
-            {(clubPrivileges?.isOwner || clubPrivileges?.isManager) && defaultClubId && (
-              <div className="col-span-2">
-                <Button
-                  asChild
-                  className="w-full h-16 text-lg gap-2"
-                >
-                  <Link href={`/clubs/${defaultClubId}/matches/create`}>
-                    <Plus className="h-6 w-6" />
-                    Crea Partita
-                  </Link>
-                </Button>
-              </div>
-            )}
           </div>
+
+          {/* Sezione Prossime Partite */}
+          <UpcomingMatchesSection clubs={clubs.map(c => ({ id: c.id, name: c.name }))} />
+
+          {/* Pulsante Crea Partita - visibile solo per OWNER e MANAGER */}
+          {(clubPrivileges?.isOwner || clubPrivileges?.isManager) && defaultClubId && (
+            <Button
+              asChild
+              className="w-full h-14 text-lg gap-2"
+            >
+              <Link href={`/clubs/${defaultClubId}/matches/create`}>
+                <Plus className="h-6 w-6" />
+                Crea Partita
+              </Link>
+            </Button>
+          )}
         </div>
 
         <div className="hidden md:block px-4">
